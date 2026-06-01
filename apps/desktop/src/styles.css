@@ -1,0 +1,363 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+    /* 统一缓动曲线 — 与 Material 3 / Claude 官网相近的呼吸感 */
+    --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+    --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-soft: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --ring-primary: 0 0 0 3px rgba(45, 90, 39, 0.18);
+  }
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    background-color: #f4f8f3;
+    color: #1b211e;
+    font-family: "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* 极淡的环境光晕，让背景不再死板 */
+    background-image:
+      radial-gradient(1100px 600px at 12% -10%, rgba(161, 212, 148, 0.18), transparent 60%),
+      radial-gradient(900px 520px at 110% 110%, rgba(191, 237, 209, 0.22), transparent 55%);
+    background-attachment: fixed;
+  }
+  ::selection {
+    background-color: #bfedd1;
+    color: #436d57;
+  }
+  /* 全局焦点环 — 仅键盘聚焦时显示，避免点击后讨厌的蓝/黑环 */
+  :focus {
+    outline: none;
+  }
+  :focus-visible {
+    outline: 2px solid rgba(45, 90, 39, 0.55);
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+  button,
+  a,
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+  .local-icon {
+    width: 1em;
+    height: 1em;
+    flex-shrink: 0;
+    user-select: none;
+    vertical-align: -0.125em;
+    transition: transform 240ms var(--ease-standard), opacity 240ms var(--ease-standard);
+  }
+}
+
+@layer components {
+  .soft-shadow {
+    box-shadow:
+      0 1px 2px rgba(45, 90, 39, 0.04),
+      0 8px 24px rgba(45, 90, 39, 0.07);
+  }
+  .leaf-shadow {
+    box-shadow:
+      0 1px 1px rgba(45, 90, 39, 0.03),
+      0 4px 18px rgba(45, 90, 39, 0.05);
+  }
+
+  /* 卡片基类 — 用于细腻的悬停升起 + 描边过渡 */
+  .surface-card {
+    background-color: #fbfdfa;
+    border: 1px solid rgba(45, 90, 39, 0.07);
+    box-shadow:
+      0 1px 2px rgba(45, 90, 39, 0.04),
+      0 8px 24px rgba(45, 90, 39, 0.06);
+    transition:
+      box-shadow 320ms var(--ease-standard),
+      transform 320ms var(--ease-standard),
+      border-color 320ms var(--ease-standard);
+  }
+  .surface-card-hover:hover {
+    transform: translateY(-2px);
+    border-color: rgba(164, 209, 182, 0.7);
+    box-shadow:
+      0 1px 2px rgba(45, 90, 39, 0.05),
+      0 14px 36px rgba(45, 90, 39, 0.10);
+  }
+
+  /* 滚动条 — 默认透明，悬停时柔和显现 */
+  .scroll-area {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 200ms var(--ease-standard);
+  }
+  .scroll-area:hover {
+    scrollbar-color: #c2c9bb transparent;
+  }
+  .scroll-area::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scroll-area::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 999px;
+    transition: background 200ms var(--ease-standard);
+  }
+  .scroll-area:hover::-webkit-scrollbar-thumb {
+    background: rgba(194, 201, 187, 0.7);
+  }
+  .scroll-area::-webkit-scrollbar-thumb:hover {
+    background: rgba(114, 121, 110, 0.6);
+  }
+
+  .timeline-line::before {
+    content: "";
+    position: absolute;
+    left: 20px;
+    top: 32px;
+    bottom: -24px;
+    width: 2px;
+    background: linear-gradient(180deg, #a4d1b6 0%, rgba(164, 209, 182, 0.25) 100%);
+    z-index: 0;
+  }
+  .timeline-item:last-child .timeline-line::before {
+    display: none;
+  }
+
+  /* 设备在线指示 */
+  .device-live-signal {
+    position: relative;
+    display: grid;
+    width: 20px;
+    height: 20px;
+    place-items: center;
+    isolation: isolate;
+  }
+  .device-live-signal::before,
+  .device-live-signal::after {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border-radius: 999px;
+    background: rgba(21, 66, 18, 0.12);
+    z-index: -1;
+  }
+  .device-live-signal::before {
+    animation: device-online-pulse 1.8s ease-out infinite;
+  }
+  .device-live-signal::after {
+    width: 5px;
+    height: 5px;
+    inset: auto auto 1px 1px;
+    background: #154212;
+    box-shadow: 0 0 0 3px rgba(191, 237, 209, 0.9);
+    animation: device-online-hop 1.8s ease-in-out infinite;
+  }
+  .device-live-signal .local-icon {
+    animation: device-online-float 1.8s ease-in-out infinite;
+  }
+  @keyframes device-online-pulse {
+    0% {
+      opacity: 0.8;
+      transform: scale(0.62);
+    }
+    70% {
+      opacity: 0;
+      transform: scale(1.5);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.5);
+    }
+  }
+  @keyframes device-online-hop {
+    0%,
+    100% {
+      transform: translateY(0) scale(1);
+    }
+    45% {
+      transform: translateY(-2px) scale(1.08);
+    }
+  }
+  @keyframes device-online-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    45% {
+      transform: translateY(-1px);
+    }
+  }
+
+  /* 路由切换 — 轻量淡入 + 8px 上推，呼吸般自然 */
+  .route-fade-in {
+    animation: route-fade-in 380ms var(--ease-emphasized) both;
+  }
+  @keyframes route-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* 同一页内切换植物 — 比 route-fade 更轻，从右侧 6px 滑入 */
+  .plant-swap-in {
+    animation: plant-swap-in 320ms var(--ease-emphasized) both;
+  }
+  @keyframes plant-swap-in {
+    from {
+      opacity: 0;
+      transform: translateX(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* 列表项依次浮现 */
+  .stagger-in {
+    animation: stagger-in 460ms var(--ease-emphasized) both;
+  }
+  @keyframes stagger-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* 模态/对话框 */
+  .dialog-backdrop-in {
+    animation: dialog-backdrop-in 240ms var(--ease-standard) both;
+  }
+  @keyframes dialog-backdrop-in {
+    from {
+      opacity: 0;
+      backdrop-filter: blur(0);
+    }
+    to {
+      opacity: 1;
+      backdrop-filter: blur(6px);
+    }
+  }
+  .dialog-pop-in {
+    animation: dialog-pop-in 280ms var(--ease-emphasized) both;
+  }
+  @keyframes dialog-pop-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* Toast 倒计时环 — 用 SVG circle + stroke-dashoffset 实现 */
+  .toast-ring {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    transform: rotate(-90deg);
+  }
+  .toast-ring__track {
+    fill: none;
+    stroke: rgba(45, 90, 39, 0.10);
+    stroke-width: 2;
+  }
+  .toast-ring__progress {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    /* 周长 = 2 * π * r ≈ 75.4（r=12） */
+    stroke-dasharray: 75.4;
+    stroke-dashoffset: 0;
+    animation: toast-ring-drain var(--toast-duration, 5000ms) linear forwards;
+  }
+  @keyframes toast-ring-drain {
+    from {
+      stroke-dashoffset: 0;
+    }
+    to {
+      stroke-dashoffset: 75.4;
+    }
+  }
+
+  .side-reflection-text {
+    color: rgba(21, 66, 18, 0.74);
+    font-family: "LXGW WenKai", "STKaiti", "KaiTi", "FangSong", serif;
+    font-size: 1.02rem;
+    line-height: 1.72;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+  /* 思考中指示器（聊天） */
+  .typing-dots span {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin: 0 1px;
+    border-radius: 999px;
+    background: currentColor;
+    opacity: 0.5;
+    animation: typing-bounce 1.2s var(--ease-soft) infinite;
+  }
+  .typing-dots span:nth-child(2) {
+    animation-delay: 0.15s;
+  }
+  .typing-dots span:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+  @keyframes typing-bounce {
+    0%,
+    60%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.4;
+    }
+    30% {
+      transform: translateY(-3px);
+      opacity: 1;
+    }
+  }
+
+  /* 微妙的图标"摇摆" — 用于强调按钮被聚焦/悬停 */
+  .icon-leaf-hover {
+    transition: transform 320ms var(--ease-emphasized);
+  }
+  .group:hover .icon-leaf-hover,
+  .icon-leaf-hover:hover {
+    transform: rotate(-6deg) scale(1.06);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .device-live-signal::before,
+    .device-live-signal::after,
+    .device-live-signal .local-icon,
+    .route-fade-in,
+    .plant-swap-in,
+    .stagger-in,
+    .dialog-backdrop-in,
+    .dialog-pop-in,
+    .typing-dots span,
+    .icon-leaf-hover,
+    .surface-card,
+    .surface-card-hover {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+}

@@ -1,0 +1,20 @@
+services:
+  dyn-server:
+    image: ccckfg/dyn:latest
+    container_name: dyn-server
+    restart: unless-stopped
+    env_file:
+      - path: ./dyn.env
+        required: false
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8787
+      DYN_DATA_DIR: /app/data
+      MQTT_ENABLED: "true"
+      MQTT_HOST: 0.0.0.0
+      MQTT_PORT: 1883
+    ports:
+      - "8787:8787"
+      - "1883:1883"
+    volumes:
+      - ./data:/app/data

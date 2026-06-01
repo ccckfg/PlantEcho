@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <defs>
+    
+    <marker id="loopArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#2B583E" />
+    </marker>
+  </defs>
+
+  
+  <rect width="1280" height="720" fill="#F4F6F4" />
+
+  
+  <g id="header-group">
+    <path fill="#2B583E" fill-opacity="0.08" d="M73,40 H167 A13,13 0 0 1 180,53 V53 A13,13 0 0 1 167,66 H73 A13,13 0 0 1 60,53 V53 A13,13 0 0 1 73,40 Z" />
+    <text x="78" y="58" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" font-size="12" font-weight="bold" fill="#2B583E">云端大脑层</text>
+    <text x="196" y="60" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="32" font-weight="bold" fill="#1C2E24">记忆系统：AgentGal 生命周期的降维落地</text>
+    <line x1="60" y1="85" x2="1220" y2="85" stroke="#D1DAD4" stroke-width="1" />
+  </g>
+
+  
+  <g id="left-memory-theory">
+    <text x="60" y="145" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="22" font-weight="bold" fill="#2B583E">
+      让植物真正认识你
+    </text>
+    <text fill="#4D5F54" font-size="15" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="60" y="185">项目颠覆了传统的无状态</text><text fill="#4D5F54" font-size="15" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="60" y="211">大模型对话，通过将读数与</text><text fill="#4D5F54" font-size="15" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="60" y="237">交互转化为植物“脑海”中的</text><text fill="#4D5F54" font-size="15" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="60" y="263">长期记忆，实现拟人共鸣。</text><path fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1" d="M68,325 H362 A8,8 0 0 1 370,333 V577 A8,8 0 0 1 362,585 H68 A8,8 0 0 1 60,577 V333 A8,8 0 0 1 68,325 Z" />
+    
+    <path fill="#8E5B3C" fill-opacity="0.08" d="M98,345 H98 A18,18 0 0 1 116,363 V363 A18,18 0 0 1 98,381 H98 A18,18 0 0 1 80,363 V363 A18,18 0 0 1 98,345 Z" />
+    
+  <g transform="translate(88.0, 353.0) scale(0.8333333333333334)" fill="#8E5B3C">
+    <path d="M3 15.731c1.968 1.507 5.234 2.269 9 2.269c3.76 0 7.025 -.76 9 -2.252v2.252c0 2.425 -3.895 3.936 -8.693 3.998l-.307 .002c-4.938 0 -9 -1.523 -9 -4z" />
+    <path d="M3 9.731c1.968 1.507 5.234 2.269 9 2.269c3.76 0 7.025 -.76 9 -2.252v2.252c0 2.477 -4.062 4 -9 4c-4.798 0 -8.77 -1.438 -8.979 -3.795l-.016 -.101l-.005 -.104z" />
+    <path d="M12 2c1.041 0 2.044 .068 2.977 .198l.469 .071q .84 .14 1.586 .348l.44 .131l.075 .024a11 11 0 0 1 .805 .3l.199 .086q .535 .242 .967 .53q .165 .11 .313 .225a3.8 3.8 0 0 1 .669 .668l.091 .128q .07 .105 .129 .211l.07 .139q .163 .35 .2 .73l.01 .211c0 2.477 -4.062 4 -9 4c-4.798 0 -8.77 -1.438 -8.979 -3.795a1 1 0 0 1 -.021 -.205l.005 -.104l.016 -.1c.205 -2.306 4.01 -3.733 8.667 -3.794z" />
+  </g>
+    
+    <text x="128" y="368" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="16" font-weight="bold" fill="#1C2E24">BM25 + 向量双路检索</text>
+    <text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="80" y="405">融合 FTS5 (BM25) 与 sqlite-vec </text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="80" y="427">向量进行 Hybrid 双路召回，兼顾</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="80" y="449">关键词硬匹配与高层语义联想。</text><path fill="#2B583E" fill-opacity="0.08" d="M98,475 H98 A18,18 0 0 1 116,493 V493 A18,18 0 0 1 98,511 H98 A18,18 0 0 1 80,493 V493 A18,18 0 0 1 98,475 Z" />
+    <use data-icon="tabler-filled/brain" x="88" y="483" width="20" height="20" fill="#2B583E" />
+
+    <text x="128" y="498" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="16" font-weight="bold" fill="#1C2E24">Reranker 精准重排</text>
+    <text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="80" y="535">通过 Rerank 机制对召回结果再</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="80" y="557">度精准过滤，杜绝大模型“胡言</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="80" y="579">乱语”编造感知，准确度达100%。</text></g>
+
+  
+  <g id="right-memory-cycle">
+    
+    <path fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1.5" d="M416,120 H1204 A16,16 0 0 1 1220,136 V569 A16,16 0 0 1 1204,585 H416 A16,16 0 0 1 400,569 V136 A16,16 0 0 1 416,120 Z" />
+
+    
+    <g id="node-drafts">
+      <path fill="#F4F6F4" stroke="#D1DAD4" stroke-width="1" d="M450,150 H750 A10,10 0 0 1 760,160 V290 A10,10 0 0 1 750,300 H450 A10,10 0 0 1 440,290 V160 A10,10 0 0 1 450,150 Z" />
+      <path fill="#2B583E" fill-opacity="0.08" d="M480,165 H480 A20,20 0 0 1 500,185 V185 A20,20 0 0 1 480,205 H480 A20,20 0 0 1 460,185 V185 A20,20 0 0 1 480,165 Z" />
+      
+  <g transform="translate(470.0, 175.0) scale(0.8333333333333334)" fill="#2B583E">
+    <path d="M8.813 11.612c.457 -.38 .918 -.38 1.386 .011l.108 .098l4.986 4.986l.094 .083a1 1 0 0 0 1.403 -1.403l-.083 -.094l-1.292 -1.293l.292 -.293l.106 -.095c.457 -.38 .918 -.38 1.386 .011l.108 .098l4.674 4.675a4 4 0 0 1 -3.775 3.599l-.206 .005h-12a4 4 0 0 1 -3.98 -3.603l6.687 -6.69l.106 -.095zm9.187 -9.612a4 4 0 0 1 3.995 3.8l.005 .2v9.585l-3.293 -3.292l-.15 -.137c-1.256 -1.095 -2.85 -1.097 -4.096 -.017l-.154 .14l-.307 .306l-2.293 -2.292l-.15 -.137c-1.256 -1.095 -2.85 -1.097 -4.096 -.017l-.154 .14l-5.307 5.306v-9.585a4 4 0 0 1 3.8 -3.995l.2 -.005h12zm-2.99 5l-.127 .007a1 1 0 0 0 0 1.986l.117 .007l.127 -.007a1 1 0 0 0 0 -1.986l-.117 -.007z" />
+  </g>
+      <text x="515" y="190" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="18" font-weight="bold" fill="#1C2E24">1. Drafts (草稿记录)</text>
+      
+      <text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="460" y="230">高频环境传感器读数（土壤/温度/光照</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="460" y="252">）与用户零散聊天流，实时被静默写入</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="460" y="274">临时草稿流水区，保持底层高性能吞吐。</text></g>
+
+    
+    <path d="M 775,225 L 870,225" stroke="#2B583E" stroke-width="2" marker-end="url(#loopArrow)" />
+    <text x="822" y="215" font-family="'Plus Jakarta Sans', sans-serif" font-size="12" font-weight="bold" fill="#2B583E" text-anchor="middle">Asynchronous</text>
+
+    
+    <g id="node-consolidation">
+      <path fill="#F4F6F4" stroke="#D1DAD4" stroke-width="1" d="M895,150 H1185 A10,10 0 0 1 1195,160 V290 A10,10 0 0 1 1185,300 H895 A10,10 0 0 1 885,290 V160 A10,10 0 0 1 895,150 Z" />
+      <path fill="#8E5B3C" fill-opacity="0.08" d="M925,165 H925 A20,20 0 0 1 945,185 V185 A20,20 0 0 1 925,205 H925 A20,20 0 0 1 905,185 V185 A20,20 0 0 1 925,165 Z" />
+      
+  <g transform="translate(915.0, 175.0) scale(0.8333333333333334)" fill="#8E5B3C">
+    <path d="M3 15.731c1.968 1.507 5.234 2.269 9 2.269c3.76 0 7.025 -.76 9 -2.252v2.252c0 2.425 -3.895 3.936 -8.693 3.998l-.307 .002c-4.938 0 -9 -1.523 -9 -4z" />
+    <path d="M3 9.731c1.968 1.507 5.234 2.269 9 2.269c3.76 0 7.025 -.76 9 -2.252v2.252c0 2.477 -4.062 4 -9 4c-4.798 0 -8.77 -1.438 -8.979 -3.795l-.016 -.101l-.005 -.104z" />
+    <path d="M12 2c1.041 0 2.044 .068 2.977 .198l.469 .071q .84 .14 1.586 .348l.44 .131l.075 .024a11 11 0 0 1 .805 .3l.199 .086q .535 .242 .967 .53q .165 .11 .313 .225a3.8 3.8 0 0 1 .669 .668l.091 .128q .07 .105 .129 .211l.07 .139q .163 .35 .2 .73l.01 .211c0 2.477 -4.062 4 -9 4c-4.798 0 -8.77 -1.438 -8.979 -3.795a1 1 0 0 1 -.021 -.205l.005 -.104l.016 -.1c.205 -2.306 4.01 -3.733 8.667 -3.794z" />
+  </g>
+      <text x="960" y="190" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="18" font-weight="bold" fill="#1C2E24">2. Consolidation (整合)</text>
+      
+      <text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="905" y="230">系统后台异步任务定时唤醒，对</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="905" y="252">一段时间内的读数波动与对话流</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="905" y="274">进行聚类分析，提炼核心因果事实。</text></g>
+
+    
+    <path d="M 1040,315 L 1040,395" stroke="#2B583E" stroke-width="2" marker-end="url(#loopArrow)" />
+    <text x="1052" y="360" font-family="'Plus Jakarta Sans', sans-serif" font-size="12" font-weight="bold" fill="#2B583E">Synthesize</text>
+
+    
+    <g id="node-episode">
+      <path fill="#F4F6F4" stroke="#D1DAD4" stroke-width="1" d="M895,415 H1185 A10,10 0 0 1 1195,425 V555 A10,10 0 0 1 1185,565 H895 A10,10 0 0 1 885,555 V425 A10,10 0 0 1 895,415 Z" />
+      <path fill="#DDA43B" fill-opacity="0.08" d="M925,430 H925 A20,20 0 0 1 945,450 V450 A20,20 0 0 1 925,470 H925 A20,20 0 0 1 905,450 V450 A20,20 0 0 1 925,430 Z" />
+      <use data-icon="tabler-filled/brain" x="915" y="440" width="20" height="20" fill="#DDA43B" />
+      <text x="960" y="455" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="18" font-weight="bold" fill="#1C2E24">3. Episode (生命片段)</text>
+      
+      <text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="905" y="495">事实被加工为一段带有时空印记</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="905" y="517">的植物主观叙事（如：“星期四下午</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="905" y="539">，我的泥土非常干燥，雅宁为我浇了水”）。</text></g>
+
+    
+    <path d="M 870,490 L 775,490" stroke="#2B583E" stroke-width="2" marker-end="url(#loopArrow)" />
+    <text x="822" y="480" font-family="'Plus Jakarta Sans', sans-serif" font-size="12" font-weight="bold" fill="#2B583E" text-anchor="middle">Vectorization</text>
+
+    
+    <g id="node-understanding">
+      <path fill="#F4F6F4" stroke="#D1DAD4" stroke-width="1" d="M450,415 H750 A10,10 0 0 1 760,425 V555 A10,10 0 0 1 750,565 H450 A10,10 0 0 1 440,555 V425 A10,10 0 0 1 450,415 Z" />
+      <path fill="#2B583E" fill-opacity="0.08" d="M480,430 H480 A20,20 0 0 1 500,450 V450 A20,20 0 0 1 480,470 H480 A20,20 0 0 1 460,450 V450 A20,20 0 0 1 480,430 Z" />
+      
+  <g transform="translate(470.0, 440.0) scale(0.8333333333333334)" fill="#2B583E">
+    <path d="M6.979 3.074a6 6 0 0 1 4.988 1.425l.037 .033l.034 -.03a6 6 0 0 1 4.733 -1.44l.246 .036a6 6 0 0 1 3.364 10.008l-.18 .185l-.048 .041l-7.45 7.379a1 1 0 0 1 -1.313 .082l-.094 -.082l-7.493 -7.422a6 6 0 0 1 3.176 -10.215z" />
+  </g>
+      <text x="515" y="455" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="18" font-weight="bold" fill="#1C2E24">4. Understanding (认知与人设)</text>
+      
+      <text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="460" y="495">高重要度 Episode 被转化为向量写入</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="460" y="517">长期记忆，永久融入植物的认知世界，</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="460" y="539">对后续的所有对话提供稳定的人设基础。</text></g>
+
+    
+    <path d="M 600,400 L 600,315" stroke="#2B583E" stroke-width="2" marker-end="url(#loopArrow)" />
+    <text x="612" y="360" font-family="'Plus Jakarta Sans', sans-serif" font-size="12" font-weight="bold" fill="#2B583E">Recall Loop</text>
+  </g>
+
+  
+  <g id="footer-group">
+    <text x="60" y="685" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" font-size="10" fill="#809085">DYN Plant Pal | 期末项目答辩</text>
+    <text x="1200" y="685" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" font-size="10" fill="#809085" text-anchor="end">08</text>
+  </g>
+</svg>

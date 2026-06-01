@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <!-- Background -->
+  <rect width="1280" height="720" fill="#F5F0E8"/>
+
+  <!-- Top decorative bar -->
+  <rect x="60" y="50" width="4" height="60" rx="2" fill="#4A7C28"/>
+
+  <!-- Page title -->
+  <text x="80" y="88" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="40" font-weight="bold" fill="#2D5016">
+    桌面客户端设计
+  </text>
+
+  <!-- Tech stack bar -->
+  <rect x="60" y="125" width="1160" height="45" rx="10" fill="#E8A849" fill-opacity="0.08"/>
+  <text x="640" y="154" text-anchor="middle" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="16" fill="#8B6914" font-weight="bold">Tauri v2 + React 18 + Vite 5 + TypeScript + Tailwind 3</text>
+
+  <!-- Design system -->
+  <rect x="60" y="185" width="560" height="100" rx="12" fill="#FFFFFF"/>
+  <rect x="60" y="185" width="560" height="100" rx="12" fill="none" stroke="#4A7C28" stroke-width="1.5" stroke-opacity="0.3"/>
+  <use data-icon="tabler-filled/leaf" x="85" y="205" width="32" height="32" fill="#4A7C28"/>
+  <text x="130" y="225" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">Verdant Echo 设计语言</text>
+  <text x="130" y="250" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">Forest-to-Soil 配色 · Quicksand 标题 · Plus Jakarta Sans 正文</text>
+  <text x="130" y="272" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#9B8B7B">所有 token 在 tailwind.config.js 内嵌</text>
+
+  <!-- Color palette -->
+  <rect x="640" y="185" width="580" height="100" rx="12" fill="#FFFFFF"/>
+  <rect x="640" y="185" width="580" height="100" rx="12" fill="none" stroke="#E0D8C8" stroke-width="1"/>
+  <text x="660" y="215" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#2D5016">配色系统</text>
+  <rect x="660" y="230" width="60" height="30" rx="6" fill="#2D5016"/>
+  <text x="690" y="270" text-anchor="middle" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="10" fill="#6B7B6B">#2D5016</text>
+  <rect x="730" y="230" width="60" height="30" rx="6" fill="#4A7C28"/>
+  <text x="760" y="270" text-anchor="middle" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="10" fill="#6B7B6B">#4A7C28</text>
+  <rect x="800" y="230" width="60" height="30" rx="6" fill="#E8A849"/>
+  <text x="830" y="270" text-anchor="middle" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="10" fill="#6B7B6B">#E8A849</text>
+  <rect x="870" y="230" width="60" height="30" rx="6" fill="#D4A574"/>
+  <text x="900" y="270" text-anchor="middle" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="10" fill="#6B7B6B">#D4A574</text>
+  <rect x="940" y="230" width="60" height="30" rx="6" fill="#F5F0E8"/>
+  <rect x="940" y="230" width="60" height="30" rx="6" fill="none" stroke="#E0D8C8" stroke-width="1"/>
+  <text x="970" y="270" text-anchor="middle" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="10" fill="#6B7B6B">#F5F0E8</text>
+  <rect x="1010" y="230" width="60" height="30" rx="6" fill="#FFFFFF"/>
+  <rect x="1010" y="230" width="60" height="30" rx="6" fill="none" stroke="#E0D8C8" stroke-width="1"/>
+  <text x="1040" y="270" text-anchor="middle" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="10" fill="#6B7B6B">#FFFFFF</text>
+  <text x="1130" y="245" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#9B8B7B">Forest</text>
+  <text x="1130" y="262" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#9B8B7B">to Soil</text>
+
+  <!-- 5 Pages overview -->
+  <text x="80" y="325" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="20" font-weight="bold" fill="#2D5016">五大核心页面</text>
+
+  <!-- Page 1: Dashboard -->
+  <g id="page-dashboard">
+    <rect x="60" y="345" width="220" height="180" rx="10" fill="#FFFFFF"/>
+    <rect x="60" y="345" width="220" height="180" rx="10" fill="none" stroke="#4A7C28" stroke-width="1.5"/>
+    <rect x="60" y="345" width="220" height="36" rx="10" fill="#4A7C28" fill-opacity="0.08"/>
+    <rect x="60" y="371" width="220" height="10" fill="#4A7C28" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/home-2" x="75" y="350" width="24" height="24" fill="#4A7C28"/>
+    <text x="105" y="369" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#2D5016">温室 Dashboard</text>
+    <text x="80" y="405" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">时段问候</text>
+    <text x="80" y="425" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">天气卡片</text>
+    <text x="80" y="445" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">一键浇水 (5s undo)</text>
+    <text x="80" y="465" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">植物卡片网格</text>
+    <text x="80" y="495" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#9B8B7B">路由: /</text>
+  </g>
+
+  <!-- Page 2: Plant Detail -->
+  <g id="page-detail">
+    <rect x="300" y="345" width="220" height="180" rx="10" fill="#FFFFFF"/>
+    <rect x="300" y="345" width="220" height="180" rx="10" fill="none" stroke="#E8A849" stroke-width="1.5"/>
+    <rect x="300" y="345" width="220" height="36" rx="10" fill="#E8A849" fill-opacity="0.08"/>
+    <rect x="300" y="371" width="220" height="10" fill="#E8A849" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/leaf" x="315" y="350" width="24" height="24" fill="#E8A849"/>
+    <text x="345" y="369" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#2D5016">植物详情</text>
+    <text x="320" y="405" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">头图 + 头像编辑</text>
+    <text x="320" y="425" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">状态条 · 最新读数</text>
+    <text x="320" y="445" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">读数历史 (渐变淡出)</text>
+    <text x="320" y="465" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">Care Profile</text>
+    <text x="320" y="495" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#9B8B7B">路由: /plant/:plantId</text>
+  </g>
+
+  <!-- Page 3: Chat -->
+  <g id="page-chat">
+    <rect x="540" y="345" width="220" height="180" rx="10" fill="#FFFFFF"/>
+    <rect x="540" y="345" width="220" height="180" rx="10" fill="none" stroke="#D4A574" stroke-width="1.5"/>
+    <rect x="540" y="345" width="220" height="36" rx="10" fill="#D4A574" fill-opacity="0.08"/>
+    <rect x="540" y="371" width="220" height="10" fill="#D4A574" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/message-circle" x="555" y="350" width="24" height="24" fill="#D4A574"/>
+    <text x="585" y="369" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#2D5016">植响对话</text>
+    <text x="560" y="405" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">左侧档案卡</text>
+    <text x="560" y="425" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">流式回复</text>
+    <text x="560" y="445" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">快捷动作 chip</text>
+    <text x="560" y="465" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">hover 评论按钮</text>
+    <text x="560" y="495" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#9B8B7B">路由: /chat/:plantId</text>
+  </g>
+
+  <!-- Page 4: Journal -->
+  <g id="page-journal">
+    <rect x="780" y="345" width="220" height="180" rx="10" fill="#FFFFFF"/>
+    <rect x="780" y="345" width="220" height="180" rx="10" fill="none" stroke="#4A7C28" stroke-width="1.5"/>
+    <rect x="780" y="345" width="220" height="36" rx="10" fill="#4A7C28" fill-opacity="0.08"/>
+    <rect x="780" y="371" width="220" height="10" fill="#4A7C28" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/book" x="795" y="350" width="24" height="24" fill="#4A7C28"/>
+    <text x="825" y="369" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#2D5016">成长日记</text>
+    <text x="800" y="405" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">Bento StatCard</text>
+    <text x="800" y="425" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">里程碑时间线</text>
+    <text x="800" y="445" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">hover 留言功能</text>
+    <text x="800" y="465" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">空状态邀请文案</text>
+    <text x="800" y="495" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#9B8B7B">路由: /journal/:plantId</text>
+  </g>
+
+  <!-- Page 5: Album -->
+  <g id="page-album">
+    <rect x="1020" y="345" width="200" height="180" rx="10" fill="#FFFFFF"/>
+    <rect x="1020" y="345" width="200" height="180" rx="10" fill="none" stroke="#E8A849" stroke-width="1.5"/>
+    <rect x="1020" y="345" width="200" height="36" rx="10" fill="#E8A849" fill-opacity="0.08"/>
+    <rect x="1020" y="371" width="200" height="10" fill="#E8A849" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/camera" x="1035" y="350" width="24" height="24" fill="#E8A849"/>
+    <text x="1065" y="369" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#2D5016">相册</text>
+    <text x="1040" y="405" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">双层时间分组</text>
+    <text x="1040" y="425" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">按植物筛选</text>
+    <text x="1040" y="445" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">拖入上传</text>
+    <text x="1040" y="465" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">lightbox</text>
+    <text x="1040" y="495" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#9B8B7B">路由: /album</text>
+  </g>
+
+  <!-- Shared UI components -->
+  <rect x="60" y="550" width="1160" height="80" rx="12" fill="#FFFFFF"/>
+  <rect x="60" y="550" width="1160" height="80" rx="12" fill="none" stroke="#E0D8C8" stroke-width="1"/>
+  <text x="80" y="580" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#2D5016">共享 UI 组件</text>
+
+  <rect x="80" y="595" width="100" height="26" rx="5" fill="#4A7C28" fill-opacity="0.08"/>
+  <text x="130" y="613" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#2D5016">AppShell</text>
+
+  <rect x="190" y="595" width="100" height="26" rx="5" fill="#E8A849" fill-opacity="0.08"/>
+  <text x="240" y="613" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#8B6914">SideNav</text>
+
+  <rect x="300" y="595" width="80" height="26" rx="5" fill="#D4A574" fill-opacity="0.08"/>
+  <text x="340" y="613" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#8B6914">Card</text>
+
+  <rect x="390" y="595" width="80" height="26" rx="5" fill="#4A7C28" fill-opacity="0.08"/>
+  <text x="430" y="613" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#2D5016">Chip</text>
+
+  <rect x="480" y="595" width="80" height="26" rx="5" fill="#E8A849" fill-opacity="0.08"/>
+  <text x="520" y="613" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#8B6914">Toast</text>
+
+  <rect x="570" y="595" width="120" height="26" rx="5" fill="#D4A574" fill-opacity="0.08"/>
+  <text x="630" y="613" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#8B6914">BackendConnect</text>
+
+  <rect x="700" y="595" width="140" height="26" rx="5" fill="#4A7C28" fill-opacity="0.08"/>
+  <text x="770" y="613" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#2D5016">PlantStatusTag</text>
+
+  <rect x="850" y="595" width="150" height="26" rx="5" fill="#E8A849" fill-opacity="0.08"/>
+  <text x="925" y="613" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#8B6914">PlantReflection</text>
+
+  <rect x="1010" y="595" width="100" height="26" rx="5" fill="#2D5016" fill-opacity="0.08"/>
+  <text x="1060" y="613" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#2D5016">SSE Sync</text>
+
+  <!-- Page number -->
+  <text x="1220" y="700" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">10 / 18</text>
+</svg>

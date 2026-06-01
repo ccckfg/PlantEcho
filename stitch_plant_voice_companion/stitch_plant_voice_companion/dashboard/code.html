@@ -1,0 +1,341 @@
+<!DOCTYPE html><html lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>PlantEcho - My Garden Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&amp;family=Quicksand:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#72796e",
+                    "inverse-surface": "#2c3230",
+                    "on-tertiary-fixed": "#281801",
+                    "on-secondary-fixed": "#002113",
+                    "on-surface-variant": "#42493e",
+                    "primary": "#154212",
+                    "on-primary-container": "#9dd090",
+                    "secondary-container": "#bfedd1",
+                    "inverse-primary": "#a1d494",
+                    "secondary-fixed-dim": "#a4d1b6",
+                    "error": "#ba1a1a",
+                    "outline-variant": "#c2c9bb",
+                    "on-secondary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "surface-container": "#eaefec",
+                    "tertiary-fixed-dim": "#e1c299",
+                    "secondary-fixed": "#bfedd1",
+                    "on-surface": "#171d1b",
+                    "inverse-on-surface": "#edf2ef",
+                    "primary-fixed": "#bcf0ae",
+                    "surface-container-highest": "#dee4e1",
+                    "on-tertiary-fixed-variant": "#584324",
+                    "surface-bright": "#f5faf7",
+                    "secondary": "#3d6751",
+                    "surface-container-high": "#e4e9e6",
+                    "error-container": "#ffdad6",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed-dim": "#a1d494",
+                    "on-error": "#ffffff",
+                    "surface-container-low": "#f0f5f2",
+                    "surface-dim": "#d6dbd8",
+                    "surface-tint": "#3b6934",
+                    "on-background": "#171d1b",
+                    "tertiary": "#493517",
+                    "on-secondary-container": "#436d57",
+                    "surface": "#f5faf7",
+                    "tertiary-container": "#624c2c",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-fixed": "#feddb3",
+                    "background": "#f5faf7",
+                    "on-primary": "#ffffff",
+                    "primary-container": "#2d5a27",
+                    "on-primary-fixed-variant": "#23501e",
+                    "on-primary-fixed": "#002201",
+                    "on-secondary-fixed-variant": "#254f3a",
+                    "on-tertiary-container": "#dcbd95",
+                    "surface-variant": "#dee4e1"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "margin-mobile": "20px",
+                    "base": "8px",
+                    "margin-desktop": "64px",
+                    "md": "16px",
+                    "xs": "4px",
+                    "sm": "8px",
+                    "xxl": "48px",
+                    "xl": "32px",
+                    "lg": "24px"
+            },
+            "fontFamily": {
+                    "headline-xl": [
+                            "Quicksand"
+                    ],
+                    "label-md": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "body-md": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "headline-md": [
+                            "Quicksand"
+                    ],
+                    "headline-lg-mobile": [
+                            "Quicksand"
+                    ],
+                    "label-sm": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "headline-lg": [
+                            "Quicksand"
+                    ],
+                    "body-lg": [
+                            "Plus Jakarta Sans"
+                    ]
+            },
+            "fontSize": {
+                    "headline-xl": [
+                            "40px",
+                            {
+                                    "lineHeight": "48px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "label-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "letterSpacing": "0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "28px",
+                            {
+                                    "lineHeight": "36px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #f5faf7; /* surface */
+            color: #171d1b; /* on-surface */
+        }
+        .soft-shadow {
+            box-shadow: 0 8px 24px rgba(45, 90, 39, 0.08);
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden antialiased selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- SideNavBar Component -->
+<nav class="bg-surface-container-low text-primary hidden md:flex flex-col h-screen w-64 rounded-r-lg border-r border-surface-container-low shrink-0 py-lg px-md z-10">
+<!-- Brand Header -->
+<!-- Navigation Links -->
+<ul class="flex flex-col gap-sm flex-1">
+<!-- Active Tab: Greenhouse -->
+<li class="">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-primary font-bold border-r-4 border-primary bg-secondary-container/30 transition-transform scale-[0.98]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: &quot;FILL&quot; 1;">potted_plant</span>
+<span class="font-label-md text-label-md">温室</span>
+</a>
+</li>
+<!-- Inactive Tabs -->
+<li class="">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-secondary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined">forum</span>
+<span class="font-label-md text-label-md">回声聊天</span>
+</a>
+</li>
+<li class="">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-secondary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-md text-label-md">成长日志</span>
+</a>
+</li>
+<li class="">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-secondary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined">photo_library</span>
+<span class="font-label-md text-label-md">相册</span>
+</a>
+</li>
+</ul>
+<!-- CTA Button -->
+<div class="mt-auto pt-lg">
+<button class="w-full flex items-center justify-center gap-sm bg-primary text-on-primary py-md px-lg rounded-full font-label-md text-label-md hover:bg-surface-tint transition-colors soft-shadow">
+<span class="material-symbols-outlined">add</span>
+                添加新植物
+            </button>
+</div>
+</nav>
+<!-- Main Canvas -->
+<main class="flex-1 h-screen overflow-y-auto bg-surface relative">
+<div class="max-w-[1280px] mx-auto px-margin-desktop py-xxl flex flex-col gap-xxl">
+<!-- Hero Header & Quick Actions -->
+<section class="flex flex-col gap-lg">
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-lg">
+<div class="max-w-2xl">
+<h2 class="font-headline-xl text-headline-xl text-primary mb-sm">我的花园</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">今天上海天气晴朗，非常适合你的多肉植物晒晒太阳。</p>
+</div>
+<!-- Weather Widget -->
+<div class="flex items-center gap-md bg-surface-container-lowest py-sm px-lg rounded-full soft-shadow border border-surface-container shrink-0">
+<span class="material-symbols-outlined text-[#F59E0B] text-[32px]" style="font-variation-settings: &quot;FILL&quot; 1;">wb_sunny</span>
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-primary leading-none">24°C</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">强光照</span>
+</div>
+</div>
+</div>
+<!-- Quick Actions -->
+<div class="flex flex-wrap gap-md mt-sm">
+<button class="flex items-center gap-sm bg-secondary-container text-on-secondary-container py-sm px-lg rounded-full font-label-md text-label-md hover:bg-primary hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                        添加新植物
+                    </button>
+<button class="flex items-center gap-sm bg-surface-container-lowest border border-outline-variant text-primary py-sm px-lg rounded-full font-label-md text-label-md hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[18px]">water_drop</span>
+                        一键浇水
+                    </button>
+<button class="flex items-center gap-sm bg-surface-container-lowest border border-outline-variant text-primary py-sm px-lg rounded-full font-label-md text-label-md hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[18px]">photo_camera</span>
+                        更新照片
+                    </button>
+</div>
+</section>
+<!-- Plant Grid -->
+<section>
+<div class="flex items-center justify-between mb-lg">
+<h3 class="font-headline-lg text-headline-lg text-primary">概览</h3>
+<button class="text-secondary font-label-md text-label-md flex items-center gap-xs hover:underline">
+                        查看全部 <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+<!-- Card 1: Luna -->
+<article class="bg-surface-container-lowest rounded-lg p-lg flex flex-col gap-md soft-shadow relative group">
+<!-- Mood Bubble -->
+<div class="absolute -top-4 -right-4 bg-surface-container-lowest border border-surface-container-highest p-sm rounded-xl rounded-br-none shadow-sm z-10 max-w-[150px] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<p class="font-label-sm text-label-sm text-on-surface-variant italic">"I'm feeling extra green today!"</p>
+</div>
+<div class="w-full h-48 rounded-DEFAULT overflow-hidden bg-surface-container mb-sm relative">
+<img alt="Luna the Monstera" class="w-full h-full object-cover" data-alt="A bright, minimalist, top-down photograph of a healthy Monstera Deliciosa plant in a clean white ceramic pot. The setting is highly lit with natural, soft sunlight casting gentle, diffuse shadows, emphasizing a serene, modern, nature-inspired aesthetic. The lush, vibrant green leaves contrast beautifully against a pristine, pale background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZVYlXLuClc0JZgx55r6Bll4fyGcSe8w3XZaRPQxX8s777Y57Ueg4aCd8DvlPkEpPicg6-eWlJbzRDeKkp3mC9MYRyQbQxvtlUE8PHculevrT7ZxYNLqbi9aNGmKkXrzaBhtBhhGi-T98v_0a7Qt-YW5tDdEzuOS_5jW1Jcm8uD3Giz_5BX9IcTID7okAHIRU62ZI_c4_C9y8BAx2oKfq_YigdEvEiY8WqXwDlEUFk-mmlbiH11qQAaBUydn42nC789byTdQ8ff-s">
+<div class="absolute top-sm left-sm bg-secondary-container text-on-secondary-container px-sm py-xs rounded-full font-label-sm text-label-sm flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">sentiment_satisfied</span> 开心
+                            </div>
+</div>
+<div>
+<div class="flex justify-between items-start mb-xs">
+<h4 class="font-headline-md text-headline-md text-primary">Luna</h4>
+<span class="font-label-md text-label-md text-on-surface-variant bg-surface-container-low px-sm py-xs rounded-md">龟背竹</span>
+</div>
+<div class="flex items-center gap-sm text-on-surface-variant font-body-md text-body-md mt-sm">
+<span class="material-symbols-outlined text-primary">water_drop</span>
+                                2天后需要浇水
+                            </div>
+</div>
+</article>
+<!-- Card 2: Rusty -->
+<article class="bg-surface-container-lowest rounded-lg p-lg flex flex-col gap-md soft-shadow relative group">
+<!-- Mood Bubble -->
+<div class="absolute -top-4 -right-4 bg-surface-container-lowest border border-error-container p-sm rounded-xl rounded-br-none shadow-sm z-10 max-w-[150px] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<p class="font-label-sm text-label-sm text-error italic">"Water... please... just a drop?"</p>
+</div>
+<div class="w-full h-48 rounded-DEFAULT overflow-hidden bg-surface-container mb-sm relative">
+<img alt="Rusty the Snake Plant" class="w-full h-full object-cover" data-alt="A clean, minimalist photograph of a tall, structural Snake Plant (Sansevieria) in a textured terracotta pot. The lighting is soft and airy, highlighting the deep green and yellow edges of the plant against a light, neutral background. The overall mood is modern, organic, and slightly tactile, fitting a premium gardening app aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKkUkykbq22-XDS4fYPHbffN8DVLVWWYIg58gf-FDEAUmdowAr_tuh5pguoebWZ8wf0i6pjrKWeA8mV_q6Lv6CONHqKPRUDA5oDPcwlm7DPM9uufmbU9JCPDgzmxD2_ZwPDJ3sRtCQEaZuEXXUvipnImbjqBp8fU-Rb6pZPEgn11tG4QZ-kRDUUaBHa_l7VknhLR6mptVjcLjMDrVX_B4xaZnXNGs6Hrhv7dux-9mhSY6fETTcGuXtP4JBXSbu7eUIpmKZj-p56n0">
+<div class="absolute top-sm left-sm bg-error-container text-on-error-container px-sm py-xs rounded-full font-label-sm text-label-sm flex items-center gap-xs border border-error/20">
+<span class="material-symbols-outlined text-[14px]">local_fire_department</span> 口渴
+                            </div>
+</div>
+<div>
+<div class="flex justify-between items-start mb-xs">
+<h4 class="font-headline-md text-headline-md text-primary">Rusty</h4>
+<span class="font-label-md text-label-md text-on-surface-variant bg-surface-container-low px-sm py-xs rounded-md">虎尾兰</span>
+</div>
+<div class="flex items-center gap-sm text-error font-body-md text-body-md mt-sm font-semibold">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: &quot;FILL&quot; 1;">water_drop</span>
+                                现在就需要浇水
+                            </div>
+</div>
+</article>
+<!-- Card 3: Sunny -->
+<article class="bg-surface-container-lowest rounded-lg p-lg flex flex-col gap-md soft-shadow relative group">
+<!-- Mood Bubble -->
+<div class="absolute -top-4 -right-4 bg-surface-container-lowest border border-tertiary-container p-sm rounded-xl rounded-br-none shadow-sm z-10 max-w-[150px] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<p class="font-label-sm text-label-sm text-tertiary-container italic">"This light is perfect!"</p>
+</div>
+<div class="w-full h-48 rounded-DEFAULT overflow-hidden bg-surface-container mb-sm relative">
+<img alt="Sunny the Echeveria" class="w-full h-full object-cover" data-alt="A beautiful close-up photograph of a plump, symmetrical Echeveria succulent bathed in warm, dappled sunlight. The background is a soft, blurred white, emphasizing the tactile, fleshy leaves of the plant. The lighting evokes a bright, cheerful morning in a minimalist, nature-inspired greenhouse setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7VsHXGbidsMe38-mKCE4d-OyhvMvimLVOg_aJpuRp_WTRxvL2WB3XzloyPRALlkJP7TdOUnr5fTm7hA3_nLlD78Z1PwGpwnTch6hF5RZR2ql4h3FyZwH4AWxLoDUwrIhT3fiF4cbveg1PD5jRCFu_OufvIHYXeqNlQhM7bAaGOuCsYlse1eKyxIluHaarit5dLVOT_zX2vkr4IxH2cuv-eX79hkjcOUjETJGjVz54g8lzmomo72exyZ8nAAFibJuez4NH5aSoSro">
+<div class="absolute top-sm left-sm bg-tertiary-fixed text-on-tertiary-fixed-variant px-sm py-xs rounded-full font-label-sm text-label-sm flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">light_mode</span> 日光浴中
+                            </div>
+</div>
+<div>
+<div class="flex justify-between items-start mb-xs">
+<h4 class="font-headline-md text-headline-md text-primary">Sunny</h4>
+<span class="font-label-md text-label-md text-on-surface-variant bg-surface-container-low px-sm py-xs rounded-md">拟石莲花</span>
+</div>
+<div class="flex items-center gap-sm text-on-surface-variant font-body-md text-body-md mt-sm">
+<span class="material-symbols-outlined text-tertiary-container">wb_sunny</span>
+                                光照条件完美
+                            </div>
+</div>
+</article>
+</div>
+</section>
+</div>
+</main>
+
+
+</body></html>

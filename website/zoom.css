@@ -1,0 +1,19 @@
+/* ============================================================
+   PlantEcho · Screenshot Zoom Preview Styles (zoom.css)
+   ============================================================ */
+.img-zoom-modal {
+  position: fixed; inset: 0; z-index: 100; background: rgba(244, 248, 243, 0.85);
+  backdrop-filter: blur(20px) saturate(1.2); display: none; align-items: center;
+  justify-content: center; padding: 24px; cursor: zoom-out;
+}
+.img-zoom-wrap {
+  position: relative; max-width: min(90vw, 1100px); max-height: 85vh;
+  border-radius: 24px; overflow: hidden; box-shadow: var(--shadow-lift);
+  border: 1px solid var(--hairline); background: var(--bg);
+}
+.img-zoom-wrap img { width: 100%; height: auto; display: block; object-fit: contain; }
+.img-zoom-close {
+  position: absolute; top: 16px; right: 20px; font-size: 32px; font-weight: 300;
+  color: var(--primary); cursor: pointer; transition: transform 0.3s var(--ease);
+}
+.img-zoom-close:hover { transform: scale(1.15) rotate(90deg); }

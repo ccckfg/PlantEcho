@@ -1,0 +1,128 @@
+/* ============================================================
+   PlantEcho · Verdant Echo 官网
+   Responsive断点与动画降级 (responsive.css)
+   ============================================================ */
+
+/* 屏幕宽度在 900px 以下的响应式折叠 */
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+    text-align: left;
+    padding-top: 120px;
+    min-height: auto;
+  }
+  .hero-plant {
+    margin-top: 20px;
+  }
+  .hero-shot {
+    position: relative; top: 0; left: 0; transform: none; width: 100%; max-width: 320px; margin-bottom: -40px;
+  }
+  .hero-shot-wrap {
+    flex-direction: column-reverse; gap: 20px;
+  }
+  .hero-shot-wrap:hover .hero-shot { transform: none; }
+  .hero-plant .plant-card { transform: none; }
+  .hero-shot-wrap:hover .plant-card { transform: none; }
+
+  .scroll-cue {
+    display: none;
+  }
+  
+  /* 所有的双栏在小屏下坍塌为单栏 */
+  .voice-container, .moods-container, .memory-showcase, .album-container {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}
+
+/* 屏幕宽度在 760px 以下（主动发言旋转木马降级为垂直列表，确保小屏易读与正常交互） */
+@media (max-width: 760px) {
+  .triggers {
+    display: flex; flex-direction: column; height: auto; gap: 16px; perspective: none; transform-style: flat;
+  }
+  .trigger {
+    position: relative; width: 100%; height: auto; transform: none !important; opacity: 1 !important; pointer-events: auto !important;
+  }
+}
+
+/* 屏幕宽度在 880px 以下（架构流转图） */
+@media (max-width: 880px) {
+  .arch-flow {
+    grid-template-columns: 1fr;
+  }
+  .arch-link {
+    width: 2px;
+    height: 30px;
+    justify-self: center;
+    background: repeating-linear-gradient(180deg, var(--primary-fixed-dim) 0 6px, transparent 6px 12px);
+  }
+  .arch-link::after {
+    right: -3px;
+    top: auto;
+    bottom: -2px;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 7px solid var(--primary-fixed-dim);
+    border-bottom: none;
+  }
+}
+
+/* 屏幕宽度在 860px 以下（说人话网格） */
+@media (max-width: 860px) {
+  .translate-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 屏幕宽度在 840px 以下（记忆系统局部排版） */
+@media (max-width: 840px) {
+  .dual {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .dual-amp {
+    transform: rotate(90deg);
+  }
+  .retrieval {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 屏幕宽度在 760px 以下（记忆生命周期整理步骤） */
+@media (max-width: 760px) {
+  .lc-steps {
+    grid-template-columns: 1fr 1fr;
+  }
+  .lc-line {
+    display: none;
+  }
+  .lc-step {
+    opacity: 1;
+  }
+}
+
+/* 屏幕宽度在 520px 以下（主动发言列表） */
+
+
+/* 屏幕宽度在 680px 以下（手机端隐藏生命周期动画画布，保存阅读体验） */
+@media (max-width: 680px) {
+  .lc-demo-panel {
+    display: none;
+  }
+}
+
+/* 动画彻底禁用/静止降级适配 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .rv-path {
+    stroke-dashoffset: 0 !important;
+  }
+}

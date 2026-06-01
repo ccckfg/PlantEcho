@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <!-- Background -->
+  <rect width="1280" height="720" fill="#F5F0E8"/>
+
+  <!-- Top decorative bar -->
+  <rect x="60" y="50" width="4" height="60" rx="2" fill="#4A7C28"/>
+
+  <!-- Page title -->
+  <text x="80" y="88" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="40" font-weight="bold" fill="#2D5016">
+    工程化与部署
+  </text>
+
+  <!-- Three columns -->
+  <!-- Column 1: Docker -->
+  <g id="col-docker">
+    <rect x="60" y="130" width="370" height="480" rx="14" fill="#FFFFFF"/>
+    <rect x="60" y="130" width="370" height="480" rx="14" fill="none" stroke="#4A7C28" stroke-width="1.5" stroke-opacity="0.3"/>
+    <rect x="60" y="130" width="370" height="50" rx="14" fill="#4A7C28" fill-opacity="0.08"/>
+    <rect x="60" y="170" width="370" height="10" fill="#4A7C28" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/box-multiple" x="85" y="140" width="28" height="28" fill="#4A7C28"/>
+    <text x="120" y="162" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="20" font-weight="bold" fill="#2D5016">Docker 容器化</text>
+
+    <text x="85" y="210" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="15" font-weight="bold" fill="#2D5016">多阶段构建</text>
+    <text x="85" y="235" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="12" fill="#6B7B6B">FROM node:24-bookworm-slim</text>
+    <text x="85" y="255" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="12" fill="#6B7B6B">AS build → AS runtime</text>
+
+    <line x1="85" y1="275" x2="405" y2="275" stroke="#E0D8C8" stroke-width="1"/>
+
+    <text x="85" y="300" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="15" font-weight="bold" fill="#2D5016">Docker Hub</text>
+    <text x="85" y="325" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="13" fill="#4A7C28">ccckfg/dyn:latest</text>
+    <text x="85" y="345" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="13" fill="#4A7C28">ccckfg/dyn:v0.1.0</text>
+
+    <line x1="85" y1="365" x2="405" y2="365" stroke="#E0D8C8" stroke-width="1"/>
+
+    <text x="85" y="390" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="15" font-weight="bold" fill="#2D5016">Docker Compose</text>
+    <text x="85" y="415" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">单实例灰度部署</text>
+    <text x="85" y="435" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">端口: 8787 (HTTP) + 1883 (MQTT)</text>
+    <text x="85" y="455" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">数据卷: ./data:/app/data</text>
+
+    <line x1="85" y1="475" x2="405" y2="475" stroke="#E0D8C8" stroke-width="1"/>
+
+    <text x="85" y="500" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="15" font-weight="bold" fill="#2D5016">验证状态</text>
+    <use data-icon="tabler-filled/circle-check" x="85" y="515" width="18" height="18" fill="#4A7C28"/>
+    <text x="110" y="532" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">/health 端点正常</text>
+    <use data-icon="tabler-filled/circle-check" x="85" y="540" width="18" height="18" fill="#4A7C28"/>
+    <text x="110" y="557" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">APP_ACCESS_KEY 鉴权</text>
+    <use data-icon="tabler-filled/circle-check" x="85" y="565" width="18" height="18" fill="#4A7C28"/>
+    <text x="110" y="582" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">设备认领全流程</text>
+  </g>
+
+  <!-- Column 2: Monorepo -->
+  <g id="col-monorepo">
+    <rect x="450" y="130" width="370" height="480" rx="14" fill="#FFFFFF"/>
+    <rect x="450" y="130" width="370" height="480" rx="14" fill="none" stroke="#E8A849" stroke-width="1.5" stroke-opacity="0.3"/>
+    <rect x="450" y="130" width="370" height="50" rx="14" fill="#E8A849" fill-opacity="0.08"/>
+    <rect x="450" y="170" width="370" height="10" fill="#E8A849" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/box-multiple" x="475" y="140" width="28" height="28" fill="#E8A849"/>
+    <text x="510" y="162" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="20" font-weight="bold" fill="#2D5016">Monorepo 架构</text>
+
+    <text x="475" y="210" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="15" font-weight="bold" fill="#2D5016">npm Workspaces</text>
+
+    <rect x="475" y="225" width="320" height="36" rx="6" fill="#4A7C28" fill-opacity="0.06"/>
+    <text x="495" y="249" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="13" fill="#2D5016">packages/shared</text>
+    <text x="680" y="249" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">共享 schema</text>
+
+    <rect x="475" y="270" width="320" height="36" rx="6" fill="#E8A849" fill-opacity="0.06"/>
+    <text x="495" y="294" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="13" fill="#8B6914">apps/server</text>
+    <text x="680" y="294" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">核心后端</text>
+
+    <rect x="475" y="315" width="320" height="36" rx="6" fill="#D4A574" fill-opacity="0.06"/>
+    <text x="495" y="339" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="13" fill="#8B6914">apps/desktop</text>
+    <text x="680" y="339" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">Tauri 桌面端</text>
+
+    <line x1="475" y1="365" x2="795" y2="365" stroke="#E0D8C8" stroke-width="1"/>
+
+    <text x="475" y="390" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="15" font-weight="bold" fill="#2D5016">构建命令</text>
+    <text x="475" y="415" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="12" fill="#6B7B6B">npm run build</text>
+    <text x="475" y="435" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="12" fill="#6B7B6B">npm run build:desktop</text>
+    <text x="475" y="455" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="12" fill="#6B7B6B">npm run tauri:build</text>
+
+    <line x1="475" y1="475" x2="795" y2="475" stroke="#E0D8C8" stroke-width="1"/>
+
+    <text x="475" y="500" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="15" font-weight="bold" fill="#2D5016">工程规范</text>
+    <text x="475" y="525" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">单文件 ≤ 300 行</text>
+    <text x="475" y="545" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">pages/ 装配 · components/ 复用</text>
+    <text x="475" y="565" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">lib/ 派生逻辑分离</text>
+    <text x="475" y="585" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">Python 工具用 uv</text>
+  </g>
+
+  <!-- Column 3: Testing -->
+  <g id="col-testing">
+    <rect x="840" y="130" width="380" height="480" rx="14" fill="#FFFFFF"/>
+    <rect x="840" y="130" width="380" height="480" rx="14" fill="none" stroke="#D4A574" stroke-width="1.5" stroke-opacity="0.3"/>
+    <rect x="840" y="130" width="380" height="50" rx="14" fill="#D4A574" fill-opacity="0.08"/>
+    <rect x="840" y="170" width="380" height="10" fill="#D4A574" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/shield-check" x="865" y="140" width="28" height="28" fill="#D4A574"/>
+    <text x="900" y="162" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="20" font-weight="bold" fill="#2D5016">测试与验证</text>
+
+    <text x="865" y="210" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="15" font-weight="bold" fill="#2D5016">服务端测试</text>
+    <use data-icon="tabler-filled/circle-check" x="865" y="225" width="18" height="18" fill="#4A7C28"/>
+    <text x="890" y="242" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B"><tspan font-weight="bold" fill="#4A7C28">25</tspan> 个测试全部通过</text>
+
+    <line x1="865" y1="260" x2="1195" y2="260" stroke="#E0D8C8" stroke-width="1"/>
+
+    <text x="865" y="285" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="15" font-weight="bold" fill="#2D5016">Smoke 测试</text>
+    <use data-icon="tabler-filled/circle-check" x="865" y="300" width="18" height="18" fill="#4A7C28"/>
+    <text x="890" y="317" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">smoke:device-claim</text>
+    <use data-icon="tabler-filled/circle-check" x="865" y="325" width="18" height="18" fill="#4A7C28"/>
+    <text x="890" y="342" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">smoke:memory-chat</text>
+    <use data-icon="tabler-filled/circle-check" x="865" y="350" width="18" height="18" fill="#4A7C28"/>
+    <text x="890" y="367" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">smoke:memory-citation</text>
+    <use data-icon="tabler-filled/circle-check" x="865" y="375" width="18" height="18" fill="#4A7C28"/>
+    <text x="890" y="392" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">smoke:rerank</text>
+
+    <line x1="865" y1="410" x2="1195" y2="410" stroke="#E0D8C8" stroke-width="1"/>
+
+    <text x="865" y="435" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="15" font-weight="bold" fill="#2D5016">检索评估</text>
+    <use data-icon="tabler-filled/circle-check" x="865" y="450" width="18" height="18" fill="#4A7C28"/>
+    <text x="890" y="467" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">evaluate:retrieval</text>
+    <text x="890" y="490" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#9B8B7B">120 条记忆 + 48 个查询</text>
+    <text x="890" y="510" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#9B8B7B">Hybrid + rerank 全满分</text>
+
+    <line x1="865" y1="530" x2="1195" y2="530" stroke="#E0D8C8" stroke-width="1"/>
+
+    <text x="865" y="555" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="15" font-weight="bold" fill="#2D5016">桌面端</text>
+    <use data-icon="tabler-filled/circle-check" x="865" y="570" width="18" height="18" fill="#4A7C28"/>
+    <text x="890" y="587" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">msi + nsis 安装包构建</text>
+    <use data-icon="tabler-filled/circle-check" x="865" y="595" width="18" height="18" fill="#4A7C28"/>
+    <text x="890" y="612" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">TS/TSX 无超过 300 行文件</text>
+  </g>
+
+  <!-- Page number -->
+  <text x="1220" y="700" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">14 / 18</text>
+</svg>

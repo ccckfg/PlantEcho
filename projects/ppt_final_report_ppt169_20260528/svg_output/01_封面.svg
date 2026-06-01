@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <defs>
+    <!-- 背景光效渐变 -->
+    <radialGradient id="coverGlow" cx="20%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#3C6D52"/>
+      <stop offset="60%" stop-color="#2B583E"/>
+      <stop offset="100%" stop-color="#1A3E2A"/>
+    </radialGradient>
+
+    <!-- 琥珀色点缀渐变 -->
+    <linearGradient id="amberAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F2C165"/>
+      <stop offset="100%" stop-color="#DDA43B"/>
+    </linearGradient>
+
+    <!-- 图片融色渐变遮罩（从完全不透明的深绿到完全透明，使图片平滑淡入背景） -->
+    <linearGradient id="imageFade" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2B583E" stop-opacity="1"/>
+      <stop offset="25%" stop-color="#2B583E" stop-opacity="0.85"/>
+      <stop offset="70%" stop-color="#2B583E" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="#2B583E" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 1. 全屏深森林绿渐变背景 -->
+  <rect width="1280" height="720" fill="url(#coverGlow)"/>
+
+  <!-- 2. 右侧高清氛围插图融入（占据右半场 x=560, w=720） -->
+  <g id="cover-image-container">
+    <image href="../images/cover_nature.png" x="560" y="0" width="720" height="720" preserveAspectRatio="xMidYMid slice"/>
+    <!-- 覆盖在图片之上的渐变层，使图片左侧平滑融于背景 -->
+    <rect x="560" y="0" width="720" height="720" fill="url(#imageFade)"/>
+  </g>
+
+  <!-- 3. 左侧人文科技文本与装饰 -->
+  <g id="cover-text-group">
+    <!-- 装饰性左侧绿叶标签 -->
+    <rect x="60" y="140" width="135" height="32" rx="16" fill="#F2C165" fill-opacity="0.15"/>
+    <use data-icon="tabler-filled/leaf" x="72" y="146" width="20" height="20" fill="#F2C165"/>
+    <text x="98" y="162" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" font-weight="bold" fill="#F2C165">DYN Plant Pal</text>
+
+    <!-- 主标题 (采用 CJK 微软雅黑 + Quicksand 融体) -->
+    <text x="60" y="270" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="60" font-weight="bold" fill="#FFFFFF">
+      与植物一起呼吸的陪伴
+    </text>
+
+    <!-- 装饰横线 -->
+    <line x1="60" y1="315" x2="360" y2="315" stroke="#F2C165" stroke-width="4" stroke-opacity="0.8"/>
+
+    <!-- 副标题 -->
+    <text x="60" y="375" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="24" font-weight="bold" fill="#D1DAD4">
+      基于 ESP32 与大语言模型的智能植物陪伴系统
+    </text>
+
+    <!-- 底部组员与时间信息 -->
+    <g id="cover-author-info">
+      <!-- 组员卡片底板 -->
+      <rect x="60" y="470" width="460" height="100" rx="12" fill="#FFFFFF" fill-opacity="0.06" stroke="#FFFFFF" stroke-opacity="0.1" stroke-width="1"/>
+      
+      <!-- 组员文字 -->
+      <text x="90" y="515" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="16" fill="#D1DAD4">
+        汇报小组：<tspan fill="#FFFFFF" font-weight="bold">邓雅宁、程宇择</tspan>
+      </text>
+      <text x="90" y="545" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" fill="#809085">
+        班级：智农 2501 班  |  期末汇报答辩
+      </text>
+
+      <use data-icon="tabler-filled/message-circle" x="450" y="500" width="40" height="40" fill="#F2C165" fill-opacity="0.3"/>
+    </g>
+  </g>
+
+  <!-- 4. 底部温润小字（呼吸金句） -->
+  <text x="60" y="660" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" fill="#809085" font-style="italic">
+    “我正朝着阳光伸展，能听到你的呼吸... — 小绿”
+  </text>
+</svg>

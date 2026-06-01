@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <!-- 1. 温润的浅绿背景 -->
+  <rect width="1280" height="720" fill="#F4F6F4"/>
+
+  <!-- 2. 顶部Header区域 -->
+  <g id="header-group">
+    <rect x="60" y="40" width="120" height="26" rx="13" fill="#2B583E" fill-opacity="0.08"/>
+    <text x="78" y="58" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="12" font-weight="bold" fill="#2B583E">未来规划篇</text>
+    <text x="196" y="60" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="32" font-weight="bold" fill="#1C2E24">下一步：向更深处扎根，向更广处伸展</text>
+    <line x1="60" y1="85" x2="1220" y2="85" stroke="#D1DAD4" stroke-width="1"/>
+  </g>
+
+  <!-- 3. 上半部分大气的呼吸文案 (y=120, h=180) -->
+  <g id="top-vision-text">
+    <text x="60" y="155" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="28" font-weight="bold" fill="#2B583E">
+      植物不会停下呼吸，我们的探索亦然
+    </text>
+    
+    <text x="60" y="195" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="16" fill="#4D5F54">
+      <tspan x="60" dy="0">DYN Plant Pal (PlantEcho) 的 MVP 版本已经彻底证明了「人文理念 ＋ 智能物联」的巨大生命力。</tspan>
+      <tspan x="60" dy="26">接下来，我们将从物理标定、用户终端功能外展以及大模型长跑压测三个方面深入演进，实现更完整的生态：</tspan>
+    </text>
+  </g>
+
+  <!-- 4. 下半部分三个具体的二期 Bento 块横向平铺 (x=60, 455, 850, w=370, h=240) -->
+  
+  <!-- Bento 1: 硬件精细标定 -->
+  <g id="bento-future-1">
+    <rect x="60" y="300" width="370" height="300" rx="12" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1.5"/>
+    <path d="M 60,312 A 12,12 0 0,1 72,300 L 418,300 A 12,12 0 0,1 430,312 L 430,315 L 60,315 Z" fill="#8E5B3C"/>
+
+    <rect x="90" y="340" width="36" height="36" rx="18" fill="#8E5B3C" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/leaf" x="98" y="348" width="20" height="20" fill="#8E5B3C"/>
+    
+    <text x="140" y="363" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="16" font-weight="bold" fill="#1C2E24">1. 硬件端二期深水研发</text>
+    <text x="90" y="410" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" fill="#4D5F54">
+      <tspan x="90" dy="0">· <tspan fill="#1C2E24" font-weight="bold">精密物理标定</tspan>：针对不同土壤</tspan>
+      <tspan x="90" dy="24">  基底加入干土/湿土现场精密标定</tspan>
+      <tspan x="90" dy="24">  与动态漂移过滤校准算法。</tspan>
+      <tspan x="90" dy="28">· <tspan fill="#1C2E24" font-weight="bold">长耐久稳定性观察</tspan>：进行大于</tspan>
+      <tspan x="90" dy="24">  半年的真实野外 MQTT 长跑压测，</tspan>
+      <tspan x="90" dy="24">  深度打磨 OTA 断线自愈能力。</tspan>
+    </text>
+  </g>
+
+  <!-- Bento 2: 客户端深度迭代 -->
+  <g id="bento-future-2">
+    <rect x="455" y="300" width="370" height="300" rx="12" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1.5"/>
+    <path d="M 455,312 A 12,12 0 0,1 467,300 L 813,300 A 12,12 0 0,1 825,312 L 825,315 L 455,315 Z" fill="#2B583E"/>
+
+    <rect x="485" y="340" width="36" height="36" rx="18" fill="#2B583E" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/photo" x="493" y="348" width="20" height="20" fill="#2B583E"/>
+    
+    <text x="535" y="363" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="16" font-weight="bold" fill="#1C2E24">2. Tauri 客户端体验补全</text>
+    <text x="485" y="410" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" fill="#4D5F54">
+      <tspan x="485" dy="0">· <tspan fill="#1C2E24" font-weight="bold">视觉护眼深色模式</tspan>：全方位重构</tspan>
+      <tspan x="485" dy="24">  Tailwind 配置，落地完美无缝切换</tspan>
+      <tspan x="485" dy="24">  的深色模式，符合夜间查看习惯。</tspan>
+      <tspan x="485" dy="28">· <tspan fill="#1C2E24" font-weight="bold">传感器趋势图表与管理</tspan>：接入</tspan>
+      <tspan x="485" dy="24">  精美的折线与趋势图，补齐头像</tspan>
+      <tspan x="485" dy="24">  裁剪以及主动提醒阈值管理 UI。</tspan>
+    </text>
+  </g>
+
+  <!-- Bento 3: 长期压测与大模型闭合 -->
+  <g id="bento-future-3">
+    <rect x="850" y="300" width="370" height="300" rx="12" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1.5"/>
+    <path d="M 850,312 A 12,12 0 0,1 862,300 L 1208,300 A 12,12 0 0,1 1220,312 L 1220,315 L 850,315 Z" fill="#DDA43B"/>
+
+    <rect x="880" y="340" width="36" height="36" rx="18" fill="#DDA43B" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/rocket" x="888" y="348" width="20" height="20" fill="#DDA43B"/>
+    
+    <text x="930" y="363" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="16" font-weight="bold" fill="#1C2E24">3. 记忆系统与语料压测</text>
+    <text x="880" y="410" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" fill="#4D5F54">
+      <tspan x="880" dy="0">· <tspan fill="#1C2E24" font-weight="bold">端侧本地大模型降维</tspan>：积极尝试</tspan>
+      <tspan x="880" dy="24">  在树莓派/边缘计算端部署轻量 LLM</tspan>
+      <tspan x="880" dy="24">  ，提供本地无网高共情响应兜底。</tspan>
+      <tspan x="880" dy="28">· <tspan fill="#1C2E24" font-weight="bold">长尾真实养护压测</tspan>：使用极其</tspan>
+      <tspan x="880" dy="24">  丰富的长尾植物真实习性资料语料</tspan>
+      <tspan x="880" dy="24">  压测主动发言 Prompt，确发言的合理性。</tspan>
+    </text>
+  </g>
+
+  <!-- 5. Footer 页脚 -->
+  <g id="footer-group">
+    <text x="60" y="685" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="10" fill="#809085">DYN Plant Pal | 期末项目答辩</text>
+    <text x="1200" y="685" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="10" fill="#809085" text-anchor="end">16</text>
+  </g>
+</svg>

@@ -1,0 +1,137 @@
+/* ============================================================
+   PlantEcho · Verdant Echo 官网
+   Section Layouts & Specific Rules (sections.css)
+   ============================================================ */
+
+/* HERO 区 */
+.hero {
+  min-height: 100svh; display: grid; grid-template-columns: 1.05fr .95fr;
+  align-items: center; gap: clamp(30px, 5vw, 80px); padding: 140px var(--mar) 90px;
+  max-width: var(--maxw); margin-inline: auto; position: relative;
+}
+.hero-title {
+  font-family: var(--serif); font-weight: 300; font-size: clamp(40px, 8vw, 92px);
+  line-height: 1.0; letter-spacing: -.025em; color: var(--ink); margin: 18px 0 0;
+}
+.hero-title span { display: block; }
+.hero-title em { font-style: italic; font-weight: 500; color: var(--primary); }
+.hero-lede { margin-top: 30px; font-size: clamp(16px, 1.8vw, 19px); color: var(--on-surface-variant); max-width: 520px; }
+.hero-actions { margin-top: 38px; display: flex; gap: 14px; flex-wrap: wrap; }
+.hero-stats { margin-top: 50px; display: flex; gap: clamp(20px, 4vw, 48px); }
+.hero-stats dt { font-size: 12.5px; color: var(--on-surface-variant); margin-bottom: 6px; }
+.hero-stats dd { font-family: var(--serif); font-size: clamp(26px, 3.4vw, 38px); font-weight: 500; color: var(--primary-container); line-height: 1; }
+.hero-stats dd span { font-size: .5em; color: var(--secondary); }
+
+.scroll-cue {
+  position: absolute; left: var(--mar); bottom: 32px; font-size: 12px;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--on-surface-variant);
+  display: flex; align-items: center; gap: 12px;
+}
+.scroll-cue span { width: 1.5px; height: 42px; background: linear-gradient(var(--secondary), transparent); position: relative; overflow: hidden; }
+.scroll-cue span::after {
+  content: ""; position: absolute; top: -100%; left: 0; width: 100%; height: 60%; background: var(--primary);
+  animation: cue 2.4s var(--ease) infinite;
+}
+@keyframes cue { to { top: 120%; } }
+
+.hero-plant { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.plant-hint { font-size: 12.5px; color: var(--on-surface-variant); opacity: .7; font-style: italic; font-family: var(--serif); }
+
+/* 3D 截图重叠 Parallax 层 */
+.hero-shot-wrap { position: relative; width: 100%; display: flex; justify-content: center; align-items: center; }
+.hero-shot {
+  position: absolute; width: min(100%, 360px); top: -20px; left: -34px; z-index: 1; opacity: 0.65;
+  filter: blur(0.4px); transform: rotate(-4deg); transition: transform 0.8s var(--ease), opacity 0.8s var(--ease);
+}
+.hero-shot-wrap:hover .hero-shot { transform: rotate(-6deg) translate(-8px, -4px) scale(1.02); opacity: 0.82; }
+.hero-plant .plant-card { position: relative; z-index: 2; transform: rotate(1deg); transition: transform 0.6s var(--ease); }
+.hero-shot-wrap:hover .plant-card { transform: rotate(0deg) scale(1.01); }
+
+/* 说人话 · Section Specifics */
+.voice-container { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: clamp(30px, 5vw, 60px); align-items: center; }
+.voice-media { width: 100%; }
+.translate-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+.translate-card { padding: 22px 24px; gap: 8px; }
+.t-arrow { font-size: 16px; align-self: flex-start; }
+.t-to { font-size: 17px; }
+.voice-foot {
+  margin-top: 30px; max-width: 640px; font-size: 15px; color: var(--on-surface-variant);
+  padding-left: 20px; border-left: 2px solid var(--primary-fixed-dim);
+}
+
+/* 心情流动 · Section Specifics */
+.moods-container { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: clamp(30px, 5vw, 60px); align-items: center; }
+.moods-media { width: 100%; }
+.mood-stage { display: flex; flex-direction: column; align-items: center; gap: 26px; }
+.mood-switch {
+  display: inline-flex; gap: 6px; padding: 6px; border-radius: 99px; flex-wrap: wrap; justify-content: center;
+  background: var(--sc); border: 1px solid var(--hairline); box-shadow: var(--shadow-soft);
+}
+.mood-btn {
+  font-family: var(--sans); font-size: 14px; font-weight: 600; color: var(--on-surface-variant);
+  padding: 8px 18px; border: none; background: transparent; border-radius: 99px; cursor: pointer;
+  transition: color .3s var(--ease), background .4s var(--ease);
+}
+.mood-btn:active { transform: scale(.97); }
+.mood-btn.is-active { color: #fff; background: var(--mood); }
+
+.mood-readout {
+  width: 100%; min-height: 190px; text-align: center;
+  background: linear-gradient(160deg, var(--surface-bright), var(--sc-low));
+  border: 1px solid var(--hairline); border-radius: 26px; padding: 34px 28px;
+  box-shadow: var(--shadow-lift); position: relative; overflow: hidden; isolation: isolate;
+}
+.mood-readout::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; opacity: .6;
+  background: radial-gradient(120% 90% at 50% 0, var(--mood-soft), transparent 62%); transition: background .8s var(--ease);
+}
+.mood-bubble {
+  font-family: var(--serif); font-style: italic; font-size: clamp(20px, 3vw, 26px);
+  line-height: 1.3; color: var(--ink); transition: opacity .4s var(--ease), transform .4s var(--ease);
+}
+.mood-tags { display: flex; gap: 9px; justify-content: center; flex-wrap: wrap; margin: 18px 0 12px; min-height: 28px; }
+.mood-note { font-size: 13.5px; color: var(--on-surface-variant); }
+
+/* 主动发言 · Section Specifics (3D 旋转木马重构) */
+.triggers {
+  position: relative; width: 100%; max-width: 900px; margin: 40px auto 0;
+  height: 380px; display: flex; align-items: center; justify-content: center;
+  perspective: 1000px; transform-style: preserve-3d;
+}
+.trigger {
+  position: absolute; width: 280px; height: 320px; transition: transform 0.6s var(--ease), opacity 0.6s var(--ease), box-shadow 0.6s var(--ease);
+  backface-visibility: hidden; cursor: pointer; margin: 0;
+}
+.trigger.active {
+  transform: translate3d(0, 0, 100px) scale(1.05); z-index: 10; opacity: 1;
+  box-shadow: var(--shadow-lift); border-color: var(--primary-fixed-dim);
+}
+.trigger.prev {
+  transform: translate3d(-200px, 0, 0) scale(0.88) rotateY(25deg); z-index: 5; opacity: 0.6;
+}
+.trigger.next {
+  transform: translate3d(200px, 0, 0) scale(0.88) rotateY(-25deg); z-index: 5; opacity: 0.6;
+}
+.trigger.back {
+  transform: translate3d(0, 0, -150px) scale(0.7) rotateY(180deg); z-index: 1; opacity: 0;
+  pointer-events: none;
+}
+
+/* 岁月的痕迹 · 相册 Section Specifics */
+.album-container { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: clamp(30px, 5vw, 60px); align-items: center; }
+.album-media { width: 100%; }
+
+/* 架构流程 · Section Specifics */
+.arch-flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: stretch; gap: 14px; }
+.arch-node { background: var(--sc-lowest); border: 1px solid var(--hairline); border-radius: 24px; padding: 32px 28px; box-shadow: var(--shadow-soft); }
+.arch-n { font-family: var(--serif); font-size: 14px; color: var(--secondary); letter-spacing: .1em; }
+.arch-node h3 { font-family: var(--serif); font-size: 23px; font-weight: 500; color: var(--ink); margin: 8px 0 12px; }
+.arch-node p { font-size: 14px; color: var(--on-surface-variant); }
+.arch-link {
+  align-self: center; width: 40px; height: 2px; position: relative;
+  background: repeating-linear-gradient(90deg, var(--primary-fixed-dim) 0 6px, transparent 6px 12px);
+}
+.arch-link::after {
+  content: ""; position: absolute; right: -2px; top: -3px; border-left: 7px solid var(--primary-fixed-dim);
+  border-top: 4px solid transparent; border-bottom: 4px solid transparent;
+}

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <defs>
+    <!-- 结语融色渐变底板 -->
+    <radialGradient id="endingGlow" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#3C6D52"/>
+      <stop offset="60%" stop-color="#2B583E"/>
+      <stop offset="100%" stop-color="#1A3E2A"/>
+    </radialGradient>
+  </defs>
+
+  <!-- 1. 全屏深森林绿渐变背景 -->
+  <rect width="1280" height="720" fill="url(#endingGlow)"/>
+
+  <!-- 2. 中央高雅的 Leaf 图标与谢幕文字 -->
+  <g id="ending-content-group">
+    <!-- 温暖绿叶发光环 -->
+    <circle cx="640" cy="240" r="48" fill="#FFFFFF" fill-opacity="0.1"/>
+    <use data-icon="tabler-filled/leaf" x="608" y="208" width="64" height="64" fill="#F2C165"/>
+
+    <!-- 结语主宣言 -->
+    <text x="640" y="360" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="42" font-weight="bold" fill="#FFFFFF" text-anchor="middle">
+      与植物一起，静静呼吸
+    </text>
+
+    <!-- 装饰金细线 -->
+    <line x1="440" y1="395" x2="840" y2="395" stroke="#F2C165" stroke-width="2" stroke-opacity="0.6"/>
+
+    <!-- 答谢副标题 -->
+    <text x="640" y="445" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="22" font-weight="bold" fill="#D1DAD4" text-anchor="middle">
+      DYN Plant Pal 感谢您的聆听与指导
+    </text>
+
+    <!-- 汇报人团队署名 -->
+    <g id="ending-signature">
+      <rect x="460" y="500" width="360" height="65" rx="8" fill="#FFFFFF" fill-opacity="0.06" stroke="#FFFFFF" stroke-opacity="0.1" stroke-width="1"/>
+      <text x="640" y="538" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="15" fill="#D1DAD4" text-anchor="middle">
+        小组成员：<tspan fill="#FFFFFF" font-weight="bold">邓雅宁、程宇择</tspan>  |  智农 2501 班
+      </text>
+    </g>
+  </g>
+
+  <!-- 3. 页脚信息 -->
+  <g id="footer-group">
+    <text x="60" y="685" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="10" fill="#809085" fill-opacity="0.5">DYN Plant Pal | Design by Verdant Echo</text>
+    <text x="1200" y="685" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="10" fill="#809085" fill-opacity="0.5" text-anchor="end">17</text>
+  </g>
+</svg>

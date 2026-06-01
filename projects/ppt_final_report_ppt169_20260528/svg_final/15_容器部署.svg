@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  
+  <rect width="1280" height="720" fill="#F4F6F4" />
+
+  
+  <g id="header-group">
+    <path fill="#2B583E" fill-opacity="0.08" d="M73,40 H167 A13,13 0 0 1 180,53 V53 A13,13 0 0 1 167,66 H73 A13,13 0 0 1 60,53 V53 A13,13 0 0 1 73,40 Z" />
+    <text x="78" y="58" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" font-size="12" font-weight="bold" fill="#2B583E">工程与部署层</text>
+    <text x="196" y="60" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="32" font-weight="bold" fill="#1C2E24">云端发布：Docker Hub 官方镜像与单键部署</text>
+    <line x1="60" y1="85" x2="1220" y2="85" stroke="#D1DAD4" stroke-width="1" />
+  </g>
+
+  
+  <g id="left-docker-intro">
+    <text x="60" y="145" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="22" font-weight="bold" fill="#2B583E">
+      一键上云，极简交付
+    </text>
+    <text fill="#4D5F54" font-size="15" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="60" y="185">项目不仅在本地开发跑</text><text fill="#4D5F54" font-size="15" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="60" y="211">通，更是面向生产环境</text><text fill="#4D5F54" font-size="15" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="60" y="237">交付，通过严苛容器化</text><text fill="#4D5F54" font-size="15" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="60" y="263">构建打包并推送发布，</text><text fill="#4D5F54" font-size="15" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="60" y="289">提供完整单机灰度能力。</text><path fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1" d="M68,360 H362 A8,8 0 0 1 370,368 V577 A8,8 0 0 1 362,585 H68 A8,8 0 0 1 60,577 V368 A8,8 0 0 1 68,360 Z" />
+    
+    <path fill="#2B583E" fill-opacity="0.08" d="M98,385 H98 A18,18 0 0 1 116,403 V403 A18,18 0 0 1 98,421 H98 A18,18 0 0 1 80,403 V403 A18,18 0 0 1 98,385 Z" />
+    
+  <g transform="translate(88.0, 393.0) scale(0.8333333333333334)" fill="#2B583E">
+    <path d="M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.185.185 0 00-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.887c0 .102.082.185.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.185.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.185.185 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.185.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.184-.186h-2.12a.186.186 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.082.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288Z" />
+  </g>
+    
+    <text x="128" y="408" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="16" font-weight="bold" fill="#1C2E24">Docker Hub 官方镜像</text>
+    <text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="80" y="445">镜像已成功发布至公开库：</text><text fill="#8E5B3C" font-size="14" font-family="Consolas, monospace" x="80" y="467" font-weight="bold">ccckfg/dyn:latest</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="80" y="489">本地多阶段多机构建，移除冗</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="80" y="511">余垃圾，极致压缩层级包开销。</text></g>
+
+  
+  <g id="right-docker-compose">
+    
+    <path fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1.5" d="M416,120 H1204 A16,16 0 0 1 1220,136 V569 A16,16 0 0 1 1204,585 H416 A16,16 0 0 1 400,569 V136 A16,16 0 0 1 416,120 Z" />
+
+    
+    <g id="docker-desc-block">
+      <path fill="#F4F6F4" stroke="#D1DAD4" stroke-width="1" d="M438,150 H762 A8,8 0 0 1 770,158 V547 A8,8 0 0 1 762,555 H438 A8,8 0 0 1 430,547 V158 A8,8 0 0 1 438,150 Z" />
+      <path fill="#2B583E" d="M438,150 H762 A8,8 0 0 1 770,158 V178 A8,8 0 0 1 762,186 H438 A8,8 0 0 1 430,178 V158 A8,8 0 0 1 438,150 Z" />
+      
+      <rect x="430" y="170" width="340" height="16" fill="#2B583E" />
+      
+  <g transform="translate(450.0, 158.0) scale(0.75)" fill="#FFFFFF">
+    <path d="M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.185.185 0 00-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.887c0 .102.082.185.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.185.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.185.185 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.185.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.184-.186h-2.12a.186.186 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.082.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288Z" />
+  </g>
+      <text x="480" y="173" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="13" font-weight="bold" fill="#FFFFFF">docker-compose.yml 部署配置</text>
+
+      
+      <text fill="#809085" font-size="13" font-family="Consolas, 'Courier New', monospace" x="460" y="215">version: '3.8'</text><text fill="#2B583E" font-size="13" font-family="Consolas, 'Courier New', monospace" x="460" y="237">services:</text><text fill="#2B583E" font-size="13" font-family="Consolas, 'Courier New', monospace" x="480" y="259">  server:</text><text fill="#1C2E24" font-size="13" font-family="Consolas, 'Courier New', monospace" x="500" y="281"><tspan><tspan fill="#8E5B3C">    image:</tspan> ccckfg/dyn:latest</tspan>
+        </text><text fill="#1C2E24" font-size="13" font-family="Consolas, 'Courier New', monospace" x="500" y="303"><tspan><tspan fill="#8E5B3C">    container_name:</tspan> dyn-server</tspan>
+        </text><text fill="#1C2E24" font-size="13" font-family="Consolas, 'Courier New', monospace" x="500" y="325"><tspan><tspan fill="#8E5B3C">    ports:</tspan></tspan>
+        </text><text fill="#1C2E24" font-size="13" font-family="Consolas, 'Courier New', monospace" x="520" y="347">      - "8787:8787"</text><text fill="#1C2E24" font-size="13" font-family="Consolas, 'Courier New', monospace" x="500" y="369"><tspan><tspan fill="#8E5B3C">    environment:</tspan></tspan>
+        </text><text fill="#1C2E24" font-size="13" font-family="Consolas, 'Courier New', monospace" x="520" y="391">      - PORT=8787</text><text fill="#1C2E24" font-size="13" font-family="Consolas, 'Courier New', monospace" x="520" y="413">      - APP_ACCESS_KEY=******</text><text fill="#1C2E24" font-size="13" font-family="Consolas, 'Courier New', monospace" x="500" y="435"><tspan><tspan fill="#8E5B3C">    restart:</tspan> always</tspan>
+      </text></g>
+
+    
+    <g id="docker-steps-block">
+      <path fill="#F4F6F4" stroke="#D1DAD4" stroke-width="1" d="M798,150 H1182 A8,8 0 0 1 1190,158 V547 A8,8 0 0 1 1182,555 H798 A8,8 0 0 1 790,547 V158 A8,8 0 0 1 798,150 Z" />
+      <path fill="#8E5B3C" d="M798,150 H1182 A8,8 0 0 1 1190,158 V178 A8,8 0 0 1 1182,186 H798 A8,8 0 0 1 790,178 V158 A8,8 0 0 1 798,150 Z" />
+      
+      <rect x="790" y="170" width="400" height="16" fill="#8E5B3C" />
+      
+  <g transform="translate(810.0, 158.0) scale(0.75)" fill="#FFFFFF">
+    <path d="M11.998 2l.118 .007l.059 .008l.061 .013l.111 .034a.993 .993 0 0 1 .217 .112l.104 .082l.255 .218a11 11 0 0 0 7.189 2.537l.342 -.01a1 1 0 0 1 1.005 .717a13 13 0 0 1 -9.208 16.25a1 1 0 0 1 -.502 0a13 13 0 0 1 -9.209 -16.25a1 1 0 0 1 1.005 -.717a11 11 0 0 0 7.531 -2.527l.263 -.225l.096 -.075a.993 .993 0 0 1 .217 -.112l.112 -.034a.97 .97 0 0 1 .119 -.021l.115 -.007zm3.71 7.293a1 1 0 0 0 -1.415 0l-3.293 3.292l-1.293 -1.292l-.094 -.083a1 1 0 0 0 -1.32 1.497l2 2l.094 .083a1 1 0 0 0 1.32 -.083l4 -4l.083 -.094a1 1 0 0 0 -.083 -1.32z" />
+  </g>
+      <text x="840" y="173" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="13" font-weight="bold" fill="#FFFFFF">生产发布环境严密验证</text>
+
+      
+      <text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="815" y="215"><tspan>· <tspan fill="#1C2E24" font-weight="bold">本地临时容器完美验证</tspan>：</tspan>
+        </text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="815" y="239">  在正式推送前，于本地拉起临时容器，</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="815" y="263">  进行严格的 /health 存活检测和 API 键</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="815" y="287">  校验；验证无误后彻底删除清理，符合</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="815" y="311">  高自律工程规范，杜绝环境残留污染。</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="815" y="347"><tspan>· <tspan fill="#1C2E24" font-weight="bold">一键极简拉起服务</tspan>：</tspan>
+        </text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="815" y="371">  封装单机灰度 compose 配置，服务器只需</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="815" y="395"><tspan>  运行 <tspan font-family="Consolas, monospace" fill="#8E5B3C">docker compose up -d</tspan>，即可一键</tspan>
+        </text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="815" y="419">  拉取镜像并安全后台运行，开箱即用。</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="815" y="455"><tspan>· <tspan fill="#1C2E24" font-weight="bold">安全鉴权机制收口</tspan>：</tspan>
+        </text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="815" y="479">  外部注入访问密钥强制拦截非授权，仅</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="815" y="503">  保留设备 MQTT readings 接收鉴权口。</text></g>
+  </g>
+
+  
+  <g id="footer-group">
+    <text x="60" y="685" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" font-size="10" fill="#809085">DYN Plant Pal | 期末项目答辩</text>
+    <text x="1200" y="685" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" font-size="10" fill="#809085" text-anchor="end">15</text>
+  </g>
+</svg>

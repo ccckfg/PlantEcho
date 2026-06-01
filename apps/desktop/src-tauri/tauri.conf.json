@@ -1,0 +1,50 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "PlantEcho",
+  "version": "0.1.0",
+  "identifier": "app.dyn.plant-echo",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://localhost:5173",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "PlantEcho",
+        "label": "main",
+        "width": 1280,
+        "height": 820,
+        "minWidth": 1080,
+        "minHeight": 720,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self' ipc: http://ipc.localhost; img-src 'self' data: http: https:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost http: https: ws: wss:"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "category": "Productivity",
+    "publisher": "DYN",
+    "shortDescription": "PlantEcho desktop client",
+    "longDescription": "DYN Plant Pal desktop companion built with Tauri v2.",
+    "targets": ["msi", "nsis"],
+    "icon": [
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "wix": {
+        "language": ["zh-CN", "en-US"]
+      },
+      "nsis": {
+        "displayLanguageSelector": true,
+        "installerIcon": "icons/icon.ico"
+      }
+    }
+  }
+}

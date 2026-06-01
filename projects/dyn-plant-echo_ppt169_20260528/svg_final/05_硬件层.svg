@@ -1,0 +1,161 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  
+  <rect width="1280" height="720" fill="#F5F0E8" />
+
+  
+  <path fill="#4A7C28" d="M62,50 H62 A2,2 0 0 1 64,52 V108 A2,2 0 0 1 62,110 H62 A2,2 0 0 1 60,108 V52 A2,2 0 0 1 62,50 Z" />
+
+  
+  <text x="80" y="88" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="40" font-weight="bold" fill="#2D5016">
+    硬件层：ESP32 智能感知
+  </text>
+
+  
+  <text x="80" y="150" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#4A7C28">传感器模块</text>
+
+  
+  <g id="sensor-sht40">
+    <path fill="#FFFFFF" d="M70,170 H310 A10,10 0 0 1 320,180 V260 A10,10 0 0 1 310,270 H70 A10,10 0 0 1 60,260 V180 A10,10 0 0 1 70,170 Z" />
+    <path fill="none" stroke="#E0D8C8" stroke-width="1" d="M70,170 H310 A10,10 0 0 1 320,180 V260 A10,10 0 0 1 310,270 H70 A10,10 0 0 1 60,260 V180 A10,10 0 0 1 70,170 Z" />
+    
+  <g transform="translate(80.0, 188.0) scale(1.5)" fill="#E8A849">
+    <path d="M10 2a3 3 0 0 1 3 3v7.965l.075 .056a5 5 0 0 1 1.81 5.01l-.055 .227a5 5 0 1 1 -7.905 -5.237l.075 -.056v-7.965a3 3 0 0 1 2.824 -2.995zm9 3a1 1 0 0 1 1 1v2h2a1 1 0 0 1 0 2h-2v2a1 1 0 0 1 -2 0v-2h-2a1 1 0 0 1 0 -2h2v-2a1 1 0 0 1 1 -1m-9 -1a1 1 0 0 0 -1 1v4h2v-4a1 1 0 0 0 -1 -1" />
+  </g>
+    <text x="130" y="210" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#2D5016">SHT40</text>
+    <text x="130" y="232" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">温湿度传感器 · I2C 0x44</text>
+    <text x="130" y="254" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="12" fill="#9B8B7B">airTempC · airHumidityPercent</text>
+  </g>
+
+  
+  <g id="sensor-bh1750">
+    <path fill="#FFFFFF" d="M70,285 H310 A10,10 0 0 1 320,295 V375 A10,10 0 0 1 310,385 H70 A10,10 0 0 1 60,375 V295 A10,10 0 0 1 70,285 Z" />
+    <path fill="none" stroke="#E0D8C8" stroke-width="1" d="M70,285 H310 A10,10 0 0 1 320,295 V375 A10,10 0 0 1 310,385 H70 A10,10 0 0 1 60,375 V295 A10,10 0 0 1 70,285 Z" />
+    
+  <g transform="translate(80.0, 303.0) scale(1.5)" fill="#E8A849">
+    <path d="M12 19a1 1 0 0 1 1 1v2a1 1 0 0 1 -2 0v-2a1 1 0 0 1 1 -1m-4.95 -2.05a1 1 0 0 1 0 1.414l-1.414 1.414a1 1 0 1 1 -1.414 -1.414l1.414 -1.414a1 1 0 0 1 1.414 0m11.314 0l1.414 1.414a1 1 0 0 1 -1.414 1.414l-1.414 -1.414a1 1 0 0 1 1.414 -1.414m-5.049 -9.836a5 5 0 1 1 -2.532 9.674a5 5 0 0 1 2.532 -9.674m-9.315 3.886a1 1 0 0 1 0 2h-2a1 1 0 0 1 0 -2zm18 0a1 1 0 0 1 0 2h-2a1 1 0 0 1 0 -2zm-16.364 -6.778l1.414 1.414a1 1 0 0 1 -1.414 1.414l-1.414 -1.414a1 1 0 0 1 1.414 -1.414m14.142 0a1 1 0 0 1 0 1.414l-1.414 1.414a1 1 0 0 1 -1.414 -1.414l1.414 -1.414a1 1 0 0 1 1.414 0m-7.778 -3.222a1 1 0 0 1 1 1v2a1 1 0 0 1 -2 0v-2a1 1 0 0 1 1 -1" />
+  </g>
+    <text x="130" y="325" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#2D5016">BH1750</text>
+    <text x="130" y="347" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">光照传感器 · I2C 0x23</text>
+    <text x="130" y="369" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="12" fill="#9B8B7B">lightLux</text>
+  </g>
+
+  
+  <g id="sensor-soil">
+    <path fill="#FFFFFF" d="M70,400 H310 A10,10 0 0 1 320,410 V490 A10,10 0 0 1 310,500 H70 A10,10 0 0 1 60,490 V410 A10,10 0 0 1 70,400 Z" />
+    <path fill="none" stroke="#E0D8C8" stroke-width="1" d="M70,400 H310 A10,10 0 0 1 320,410 V490 A10,10 0 0 1 310,500 H70 A10,10 0 0 1 60,490 V410 A10,10 0 0 1 70,400 Z" />
+    
+  <g transform="translate(80.0, 418.0) scale(1.5)" fill="#4A7C28">
+    <path d="M10.708 2.372a2.382 2.382 0 0 0 -.71 .686l-4.892 7.26c-1.981 3.314 -1.22 7.466 1.767 9.882c2.969 2.402 7.286 2.402 10.254 0c2.987 -2.416 3.748 -6.569 1.795 -9.836l-4.919 -7.306c-.722 -1.075 -2.192 -1.376 -3.295 -.686z" />
+  </g>
+    <text x="130" y="440" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#2D5016">电容式土壤湿度</text>
+    <text x="130" y="462" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">GPIO34 / ADC</text>
+    <text x="130" y="484" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="12" fill="#9B8B7B">soilRaw · soilPercent</text>
+  </g>
+
+  
+  <g id="sensor-oled">
+    <path fill="#FFFFFF" d="M70,515 H310 A10,10 0 0 1 320,525 V585 A10,10 0 0 1 310,595 H70 A10,10 0 0 1 60,585 V525 A10,10 0 0 1 70,515 Z" />
+    <path fill="none" stroke="#E0D8C8" stroke-width="1" d="M70,515 H310 A10,10 0 0 1 320,525 V585 A10,10 0 0 1 310,595 H70 A10,10 0 0 1 60,585 V525 A10,10 0 0 1 70,515 Z" />
+    
+  <g transform="translate(80.0, 530.0) scale(1.5)" fill="#2D5016">
+    <path d="M7 21a1 1 0 0 1 0 -2h1v-2h-4a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h16a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-4v2h1a1 1 0 0 1 0 2zm7 -4h-4v2h4z" />
+  </g>
+    <text x="130" y="552" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#2D5016">OLED 显示屏</text>
+    <text x="130" y="574" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">I2C 0x3C</text>
+  </g>
+
+  
+  <text x="700" y="150" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#4A7C28">核心能力</text>
+
+  
+  <g id="cap-softap">
+    <path fill="#FFFFFF" d="M390,170 H750 A10,10 0 0 1 760,180 V280 A10,10 0 0 1 750,290 H390 A10,10 0 0 1 380,280 V180 A10,10 0 0 1 390,170 Z" />
+    <path fill="none" stroke="#4A7C28" stroke-width="1.5" stroke-opacity="0.3" d="M390,170 H750 A10,10 0 0 1 760,180 V280 A10,10 0 0 1 750,290 H390 A10,10 0 0 1 380,280 V180 A10,10 0 0 1 390,170 Z" />
+    <circle cx="420" cy="210" r="20" fill="#4A7C28" fill-opacity="0.1" />
+    
+  <g transform="translate(404.0, 194.0) scale(1.3333333333333333)" fill="#4A7C28">
+    <path d="M11 4a5 5 0 1 1 -4.995 5.217l-.005 -.217l.005 -.217a5 5 0 0 1 4.995 -4.783z" />
+    <path d="M14.133 1.502a1 1 0 0 1 1.365 -.369a9.015 9.015 0 1 1 -10.404 14.622a1 1 0 1 1 1.312 -1.51a7.015 7.015 0 1 0 8.096 -11.378a1 1 0 0 1 -.369 -1.365z" />
+    <path d="M11 16a1 1 0 0 1 .993 .883l.007 .117v4a1 1 0 0 1 -1.993 .117l-.007 -.117v-4a1 1 0 0 1 1 -1z" />
+    <path d="M15 20a1 1 0 0 1 .117 1.993l-.117 .007h-8a1 1 0 0 1 -.117 -1.993l.117 -.007h8z" />
+  </g>
+    <text x="450" y="208" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">SoftAP 配网</text>
+    <text x="450" y="232" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">长按 BOOT 键 3 秒进入配网模式</text>
+    <text x="450" y="256" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#9B8B7B">Wi-Fi · MQTT · HTTP · 设备 ID · OTA</text>
+    <text x="450" y="276" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">配置写入 NVS 持久化</text>
+  </g>
+
+  
+  <g id="cap-mqtt">
+    <path fill="#FFFFFF" d="M390,305 H750 A10,10 0 0 1 760,315 V415 A10,10 0 0 1 750,425 H390 A10,10 0 0 1 380,415 V315 A10,10 0 0 1 390,305 Z" />
+    <path fill="none" stroke="#E8A849" stroke-width="1.5" stroke-opacity="0.3" d="M390,305 H750 A10,10 0 0 1 760,315 V415 A10,10 0 0 1 750,425 H390 A10,10 0 0 1 380,415 V315 A10,10 0 0 1 390,305 Z" />
+    <circle cx="420" cy="345" r="20" fill="#E8A849" fill-opacity="0.1" />
+    
+  <g transform="translate(404.0, 329.0) scale(1.3333333333333333)" fill="#E8A849">
+    <path d="M10.04 4.305c2.195 -.667 4.615 -.224 6.36 1.176c1.386 1.108 2.188 2.686 2.252 4.34l.003 .212l.091 .003c2.3 .107 4.143 1.961 4.25 4.27l.004 .211c0 2.407 -1.885 4.372 -4.255 4.482l-.21 .005h-11.878l-.222 -.008c-2.94 -.11 -5.317 -2.399 -5.43 -5.263l-.005 -.216c0 -2.747 2.08 -5.01 4.784 -5.417l.114 -.016l.07 -.181c.663 -1.62 2.056 -2.906 3.829 -3.518l.244 -.08z" />
+  </g>
+    <text x="450" y="343" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">MQTT 上报</text>
+    <text x="450" y="367" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">Topic: dyn/devices/:deviceId/readings</text>
+    <text x="450" y="391" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#9B8B7B">1秒级上报 · 断线自动重连</text>
+    <text x="450" y="411" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">设备密钥可通过 MQTT 自动下发</text>
+  </g>
+
+  
+  <g id="cap-ota">
+    <path fill="#FFFFFF" d="M390,440 H750 A10,10 0 0 1 760,450 V530 A10,10 0 0 1 750,540 H390 A10,10 0 0 1 380,530 V450 A10,10 0 0 1 390,440 Z" />
+    <path fill="none" stroke="#D4A574" stroke-width="1.5" stroke-opacity="0.3" d="M390,440 H750 A10,10 0 0 1 760,450 V530 A10,10 0 0 1 750,540 H390 A10,10 0 0 1 380,530 V450 A10,10 0 0 1 390,440 Z" />
+    <circle cx="420" cy="475" r="20" fill="#D4A574" fill-opacity="0.1" />
+    
+  <g transform="translate(404.0, 459.0) scale(1.3333333333333333)" fill="#D4A574">
+    <path d="M13 2l.018 .001l.016 .001l.083 .005l.011 .002h.011l.038 .009l.052 .008l.016 .006l.011 .001l.029 .011l.052 .014l.019 .009l.015 .004l.028 .014l.04 .017l.021 .012l.022 .01l.023 .015l.031 .017l.034 .024l.018 .011l.013 .012l.024 .017l.038 .034l.022 .017l.008 .01l.014 .012l.036 .041l.026 .027l.006 .009c.12 .147 .196 .322 .218 .513l.001 .012l.002 .041l.004 .064v6h5a1 1 0 0 1 .868 1.497l-.06 .091l-8 11c-.568 .783 -1.808 .38 -1.808 -.588v-6h-5a1 1 0 0 1 -.868 -1.497l.06 -.091l8 -11l.01 -.013l.018 -.024l.033 -.038l.018 -.022l.009 -.008l.013 -.014l.04 -.036l.028 -.026l.008 -.006a1 1 0 0 1 .402 -.199l.011 -.001l.027 -.005l.074 -.013l.011 -.001l.041 -.002z" />
+  </g>
+    <text x="450" y="473" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">OTA 在线更新</text>
+    <text x="450" y="497" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">Manifest: {"version":"0.2.1","url":"firmware.bin"}</text>
+    <text x="450" y="521" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#9B8B7B">仅支持 2.4GHz Wi-Fi</text>
+  </g>
+
+  
+  <g id="arch-diagram">
+    <path fill="#FFFFFF" d="M832,170 H1208 A12,12 0 0 1 1220,182 V578 A12,12 0 0 1 1208,590 H832 A12,12 0 0 1 820,578 V182 A12,12 0 0 1 832,170 Z" />
+    <path fill="none" stroke="#E0D8C8" stroke-width="1" d="M832,170 H1208 A12,12 0 0 1 1220,182 V578 A12,12 0 0 1 1208,590 H832 A12,12 0 0 1 820,578 V182 A12,12 0 0 1 832,170 Z" />
+    <text x="1020" y="200" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#2D5016">数据流架构</text>
+
+    
+    <path fill="#4A7C28" fill-opacity="0.1" d="M868,220 H1172 A8,8 0 0 1 1180,228 V262 A8,8 0 0 1 1172,270 H868 A8,8 0 0 1 860,262 V228 A8,8 0 0 1 868,220 Z" />
+    <text x="1020" y="250" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#2D5016">ESP32 采集层</text>
+
+    
+    <line x1="1020" y1="270" x2="1020" y2="300" stroke="#4A7C28" stroke-width="2" />
+    <polygon points="1020,300 1014,290 1026,290" fill="#4A7C28" />
+
+    
+    <path fill="#E8A849" fill-opacity="0.1" d="M868,305 H1172 A8,8 0 0 1 1180,313 V347 A8,8 0 0 1 1172,355 H868 A8,8 0 0 1 860,347 V313 A8,8 0 0 1 868,305 Z" />
+    <text x="1020" y="335" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#8B6914">传感器数据</text>
+
+    
+    <line x1="1020" y1="355" x2="1020" y2="385" stroke="#E8A849" stroke-width="2" />
+    <polygon points="1020,385 1014,375 1026,375" fill="#E8A849" />
+
+    
+    <path fill="#2D5016" fill-opacity="0.08" d="M868,390 H1002 A8,8 0 0 1 1010,398 V432 A8,8 0 0 1 1002,440 H868 A8,8 0 0 1 860,432 V398 A8,8 0 0 1 868,390 Z" />
+    <text x="935" y="420" text-anchor="middle" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="13" fill="#2D5016">MQTT</text>
+
+    <path fill="#2D5016" fill-opacity="0.08" d="M1038,390 H1172 A8,8 0 0 1 1180,398 V432 A8,8 0 0 1 1172,440 H1038 A8,8 0 0 1 1030,432 V398 A8,8 0 0 1 1038,390 Z" />
+    <text x="1105" y="420" text-anchor="middle" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="13" fill="#2D5016">HTTP</text>
+
+    
+    <line x1="1020" y1="440" x2="1020" y2="470" stroke="#2D5016" stroke-width="2" />
+    <polygon points="1020,470 1014,460 1026,460" fill="#2D5016" />
+
+    
+    <path fill="#2D5016" fill-opacity="0.1" d="M868,475 H1172 A8,8 0 0 1 1180,483 V517 A8,8 0 0 1 1172,525 H868 A8,8 0 0 1 860,517 V483 A8,8 0 0 1 868,475 Z" />
+    <text x="1020" y="505" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#2D5016">后端服务接收</text>
+
+    
+    <path fill="#F5F0E8" d="M856,545 H1184 A6,6 0 0 1 1190,551 V569 A6,6 0 0 1 1184,575 H856 A6,6 0 0 1 850,569 V551 A6,6 0 0 1 856,545 Z" />
+    <text x="1020" y="566" text-anchor="middle" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="11" fill="#6B7B6B">dyn/devices/:deviceId/readings</text>
+  </g>
+
+  
+  <text x="1220" y="700" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">05 / 18</text>
+</svg>

@@ -1,0 +1,164 @@
+/* ============================================================
+   PlantEcho · Verdant Echo 官网
+   Base & Design Tokens (base.css)
+   ============================================================ */
+
+:root {
+  /* Verdant Echo tokens (from tailwind.config.js) */
+  --primary: #154212;
+  --primary-container: #2d5a27;
+  --on-primary-container: #9dd090;
+  --primary-fixed: #bcf0ae;
+  --primary-fixed-dim: #a1d494;
+  --on-primary-fixed: #002201;
+  --secondary: #3d6751;
+  --secondary-container: #bfedd1;
+  --on-secondary-container: #254f3a;
+  --tertiary-fixed: #feddb3;
+  --on-tertiary-fixed-variant: #584324;
+  --tertiary-deep: #624c2c;
+  --error-container: #ffdad6;
+  --on-error-container: #93000a;
+  --bg: #f4f8f3;
+  --on-bg: #171d1b;
+  --on-surface: #1b211e;
+  --on-surface-variant: #465048;
+  --surface-bright: #f7faf6;
+  --surface-dim: #d3dad3;
+  --sc-lowest: #fbfdfa;
+  --sc-low: #eef3ee;
+  --sc: #e7ede7;
+  --sc-high: #e1e7e0;
+  --sc-highest: #dbe1da;
+  --outline: #72796e;
+  --outline-variant: #c2c9bb;
+  --hairline: rgba(45, 90, 39, .10);
+  --ink: #0f1f12;
+
+  /* mood temperatures */
+  --mood: var(--secondary);
+  --mood-soft: var(--secondary-container);
+
+  --shadow-soft: 0 1px 2px rgba(45, 90, 39, .04), 0 8px 24px rgba(45, 90, 39, .07);
+  --shadow-leaf: 0 1px 1px rgba(45, 90, 39, .03), 0 4px 18px rgba(45, 90, 39, .06);
+  --shadow-lift: 0 24px 60px rgba(20, 40, 18, .16), 0 6px 16px rgba(20, 40, 18, .08);
+
+  --ease: cubic-bezier(.2, 0, 0, 1);
+  --ease-soft: cubic-bezier(.25, .46, .45, .94);
+
+  --serif: "Fraunces", "Noto Serif SC", Georgia, serif;
+  --sans: "Noto Sans SC", "Segoe UI", system-ui, sans-serif;
+
+  --mar: clamp(20px, 6vw, 120px);
+  --maxw: 1240px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--sans);
+  color: var(--on-bg);
+  background: var(--bg);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+em {
+  font-style: italic;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--primary-fixed);
+  color: var(--on-primary-fixed);
+}
+
+/* custom scrollbar — 透明，hover 柔显 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 99px;
+}
+
+:hover::-webkit-scrollbar-thumb {
+  background: rgba(61, 103, 81, .28);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(61, 103, 81, .45);
+}
+
+/* 氛围层：渐变网格 + 颗粒 */
+.atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.mesh {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: .55;
+  will-change: transform;
+}
+
+.mesh-1 {
+  width: 60vw;
+  height: 60vw;
+  left: -15vw;
+  top: -20vh;
+  background: radial-gradient(circle at 30% 30%, var(--primary-fixed), transparent 70%);
+}
+
+.mesh-2 {
+  width: 55vw;
+  height: 55vw;
+  right: -20vw;
+  top: 25vh;
+  background: radial-gradient(circle at 60% 40%, var(--secondary-container), transparent 68%);
+}
+
+.mesh-3 {
+  width: 50vw;
+  height: 50vw;
+  left: 10vw;
+  bottom: -25vh;
+  background: radial-gradient(circle at 50% 50%, var(--tertiary-fixed), transparent 70%);
+  opacity: .4;
+}
+
+.grain {
+  position: absolute;
+  inset: -50%;
+  opacity: .05;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}

@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <!-- 1. 温润的浅绿背景 -->
+  <rect width="1280" height="720" fill="#F4F6F4"/>
+
+  <!-- 2. 顶部Header区域 -->
+  <g id="header-group">
+    <rect x="60" y="40" width="120" height="26" rx="13" fill="#2B583E" fill-opacity="0.08"/>
+    <text x="78" y="58" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="12" font-weight="bold" fill="#2B583E">云端大脑层</text>
+    <text x="196" y="60" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="32" font-weight="bold" fill="#1C2E24">服务端中枢：基于 Fastify 的模块化设计</text>
+    <line x1="60" y1="85" x2="1220" y2="85" stroke="#D1DAD4" stroke-width="1"/>
+  </g>
+
+  <!-- 3. 三列扁平卡片 (高度460px, 宽度370px, x=60, 455, 850) -->
+  
+  <!-- 卡片 1: Fastify 核心框架 -->
+  <g id="card-server-1">
+    <rect x="60" y="125" width="370" height="460" rx="12" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1.5"/>
+    <path d="M 60,137 A 12,12 0 0,1 72,125 L 418,125 A 12,12 0 0,1 430,137 L 430,140 L 60,140 Z" fill="#2B583E"/>
+    
+    <rect x="90" y="170" width="48" height="48" rx="24" fill="#2B583E" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/device-cpu" x="100" y="180" width="28" height="28" fill="#2B583E"/>
+
+    <text x="90" y="260" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="22" font-weight="bold" fill="#1C2E24">Fastify 极速架构</text>
+    <text x="90" y="295" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" font-weight="bold" fill="#8E5B3C">Node.js + TS 模块化后端</text>
+    
+    <text x="90" y="340" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="15" fill="#4D5F54">
+      <tspan x="90" dy="0">· <tspan fill="#1C2E24" font-weight="bold">严格的类型与校验</tspan>：全栈 TypeScript</tspan>
+      <tspan x="90" dy="28">  配合 Zod 进行极其严苛的输入模式校验</tspan>
+      <tspan x="90" dy="28">  ，确保设备密钥轮换接口的安全。</tspan>
+      <tspan x="90" dy="32">· <tspan fill="#1C2E24" font-weight="bold">低损耗高并发</tspan>：Fastify 相比 Express</tspan>
+      <tspan x="90" dy="28">  拥有几乎翻倍的吞吐率，有效减少底端</tspan>
+      <tspan x="90" dy="28">  多传感器高频推流的系统瓶颈。</tspan>
+      <tspan x="90" dy="32">· <tspan fill="#1C2E24" font-weight="bold">OpenAI 兼容规范</tspan>：完全实现 V1 标准</tspan>
+      <tspan x="90" dy="28">  对话接口，无缝兼容各种第三方应用。</tspan>
+    </text>
+  </g>
+
+  <!-- 卡片 2: SQLite WAL 模式 -->
+  <g id="card-server-2">
+    <rect x="455" y="125" width="370" height="460" rx="12" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1.5"/>
+    <path d="M 455,137 A 12,12 0 0,1 467,125 L 813,125 A 12,12 0 0,1 825,137 L 825,140 L 455,140 Z" fill="#8E5B3C"/>
+
+    <rect x="485" y="170" width="48" height="48" rx="24" fill="#8E5B3C" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/database" x="495" y="180" width="28" height="28" fill="#8E5B3C"/>
+
+    <text x="485" y="260" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="22" font-weight="bold" fill="#1C2E24">SQLite + WAL 引擎</text>
+    <text x="485" y="295" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" font-weight="bold" fill="#8E5B3C">轻量高效的单文件数据库</text>
+
+    <text x="485" y="340" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="15" fill="#4D5F54">
+      <tspan x="485" dy="0">· <tspan fill="#1C2E24" font-weight="bold">SQLite 本地化底座</tspan>：极简嵌入式架构</tspan>
+      <tspan x="485" dy="28">  ，在单机受限场景下兼顾多表级联查询</tspan>
+      <tspan x="485" dy="28">  ，零外部服务网络开销。</tspan>
+      <tspan x="485" dy="32">· <tspan fill="#1C2E24" font-weight="bold">WAL 模式开启</tspan>：启用 Write-Ahead Log</tspan>
+      <tspan x="485" dy="28">  （预写日志），实现读写并行不阻塞，</tspan>
+      <tspan x="485" dy="28">  优雅应对硬件高频多路读数写入。</tspan>
+      <tspan x="485" dy="32">· <tspan fill="#1C2E24" font-weight="bold">sqlite-vec 向量底座</tspan>：直接以原生库</tspan>
+      <tspan x="485" dy="28">  方式加载，在本地实现极速向量检索。</tspan>
+    </text>
+  </g>
+
+  <!-- 卡片 3: SSE 实时同步 -->
+  <g id="card-server-3">
+    <rect x="850" y="125" width="370" height="460" rx="12" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1.5"/>
+    <path d="M 850,137 A 12,12 0 0,1 862,125 L 1208,125 A 12,12 0 0,1 1220,137 L 1220,140 L 850,140 Z" fill="#DDA43B"/>
+
+    <rect x="880" y="170" width="48" height="48" rx="24" fill="#DDA43B" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/sun" x="890" y="180" width="28" height="28" fill="#DDA43B"/>
+
+    <text x="880" y="260" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="22" font-weight="bold" fill="#1C2E24">SSE 实时同步通道</text>
+    <text x="880" y="295" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" font-weight="bold" fill="#8E5B3C">sync_events 变更事件订阅</text>
+
+    <text x="880" y="340" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="15" fill="#4D5F54">
+      <tspan x="880" dy="0">· <tspan fill="#1C2E24" font-weight="bold">sync_events 审计表</tspan>：任何模块发生变</tspan>
+      <tspan x="880" dy="28">  更，自动写入事件流水，提供强一致性</tspan>
+      <tspan x="880" dy="28">  的增量更新证明。</tspan>
+      <tspan x="880" dy="32">· <tspan fill="#1C2E24" font-weight="bold">SSE 实时长连接</tspan>：Server-Sent Events</tspan>
+      <tspan x="880" dy="28">  推流通道，避免传统轮询（Polling）</tspan>
+      <tspan x="880" dy="28">  带来的网络抖动与多余开销。</tspan>
+      <tspan x="880" dy="32">· <tspan fill="#1C2E24" font-weight="bold">断线自动补收</tspan>：基于 <tspan font-family="Consolas, monospace">since</tspan> 参数，客</tspan>
+      <tspan x="880" dy="28">  户端重连自动拉取缺失增量，无缝拼接。</tspan>
+    </text>
+  </g>
+
+  <!-- 4. Footer 页脚 -->
+  <g id="footer-group">
+    <text x="60" y="685" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="10" fill="#809085">DYN Plant Pal | 期末项目答辩</text>
+    <text x="1200" y="685" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="10" fill="#809085" text-anchor="end">07</text>
+  </g>
+</svg>

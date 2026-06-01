@@ -1,0 +1,167 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  
+  <rect width="1280" height="720" fill="#F5F0E8" />
+
+  
+  <path fill="#4A7C28" d="M62,50 H62 A2,2 0 0 1 64,52 V108 A2,2 0 0 1 62,110 H62 A2,2 0 0 1 60,108 V52 A2,2 0 0 1 62,50 Z" />
+
+  
+  <text x="80" y="88" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="40" font-weight="bold" fill="#2D5016">
+    服务端架构
+  </text>
+
+  
+  <path fill="#2D5016" fill-opacity="0.06" d="M70,130 H1210 A10,10 0 0 1 1220,140 V170 A10,10 0 0 1 1210,180 H70 A10,10 0 0 1 60,170 V140 A10,10 0 0 1 70,130 Z" />
+  <text x="640" y="162" text-anchor="middle" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="18" fill="#2D5016" font-weight="bold">Node.js 24 + TypeScript + Fastify + SQLite + sqlite-vec + Zod</text>
+
+  
+  
+  
+  <g id="mod-device">
+    <path fill="#FFFFFF" d="M70,200 H320 A10,10 0 0 1 330,210 V300 A10,10 0 0 1 320,310 H70 A10,10 0 0 1 60,300 V210 A10,10 0 0 1 70,200 Z" />
+    <path fill="none" stroke="#4A7C28" stroke-width="1.5" stroke-opacity="0.3" d="M70,200 H320 A10,10 0 0 1 330,210 V300 A10,10 0 0 1 320,310 H70 A10,10 0 0 1 60,300 V210 A10,10 0 0 1 70,200 Z" />
+    
+  <g transform="translate(80.0, 215.0) scale(1.1666666666666667)" fill="#4A7C28">
+    <path d="M14.647 4.081a.724 .724 0 0 0 1.08 .448c2.439 -1.485 5.23 1.305 3.745 3.744a.724 .724 0 0 0 .447 1.08c2.775 .673 2.775 4.62 0 5.294a.724 .724 0 0 0 -.448 1.08c1.485 2.439 -1.305 5.23 -3.744 3.745a.724 .724 0 0 0 -1.08 .447c-.673 2.775 -4.62 2.775 -5.294 0a.724 .724 0 0 0 -1.08 -.448c-2.439 1.485 -5.23 -1.305 -3.745 -3.744a.724 .724 0 0 0 -.447 -1.08c-2.775 -.673 -2.775 -4.62 0 -5.294a.724 .724 0 0 0 .448 -1.08c-1.485 -2.439 1.305 -5.23 3.744 -3.745a.722 .722 0 0 0 1.08 -.447c.673 -2.775 4.62 -2.775 5.294 0zm-2.647 4.919a3 3 0 1 0 0 6a3 3 0 0 0 0 -6" />
+  </g>
+    <text x="116" y="235" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#2D5016">设备管理</text>
+    <text x="80" y="260" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">读数上传 · 待认领登记</text>
+    <text x="80" y="278" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">认领 · 密钥校验/轮换</text>
+    <text x="80" y="296" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">MQTT 自动下发设备密钥</text>
+  </g>
+
+  
+  <g id="mod-plant">
+    <path fill="#FFFFFF" d="M360,200 H610 A10,10 0 0 1 620,210 V300 A10,10 0 0 1 610,310 H360 A10,10 0 0 1 350,300 V210 A10,10 0 0 1 360,200 Z" />
+    <path fill="none" stroke="#4A7C28" stroke-width="1.5" stroke-opacity="0.3" d="M360,200 H610 A10,10 0 0 1 620,210 V300 A10,10 0 0 1 610,310 H360 A10,10 0 0 1 350,300 V210 A10,10 0 0 1 360,200 Z" />
+    
+  <g transform="translate(370.0, 215.0) scale(1.1666666666666667)" fill="#4A7C28">
+    <path d="M3.055 14.328l-.018 -.168l-.004 -.043a11 11 0 0 1 -.047 -1.12c.018 -6.29 4.29 -9.997 13 -9.997h4.014a1 1 0 0 1 1 1l-.002 2.057c-.498 8.701 -4.74 12.943 -11.998 12.943h-2.631a16 16 0 0 0 -.375 2.11a1 1 0 1 1 -1.988 -.22q .174 -1.568 .58 -2.947l-.118 -.146l-.208 -.28l-.157 -.229l-.182 -.293l-.098 -.171l-.065 -.122a6 6 0 0 1 -.397 -.941l-.072 -.237l-.085 -.327l-.057 -.268l-.043 -.242zm8.539 -4.242c-2.845 1.265 -4.854 3.13 -6.108 5.583q .098 .2 .218 .4l.185 .281l.07 .097q .12 .164 .258 .329l.197 .224h.649c1.037 -2.271 2.777 -3.946 5.343 -5.086a1 1 0 0 0 -.812 -1.828" />
+  </g>
+    <text x="406" y="235" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#2D5016">植物档案</text>
+    <text x="370" y="260" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">档案 · 状态 · 读数历史</text>
+    <text x="370" y="278" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">Care Profile 建议</text>
+    <text x="370" y="296" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">LLM / 模板双模式</text>
+  </g>
+
+  
+  <g id="mod-chat">
+    <path fill="#FFFFFF" d="M650,200 H900 A10,10 0 0 1 910,210 V300 A10,10 0 0 1 900,310 H650 A10,10 0 0 1 640,300 V210 A10,10 0 0 1 650,200 Z" />
+    <path fill="none" stroke="#E8A849" stroke-width="1.5" stroke-opacity="0.3" d="M650,200 H900 A10,10 0 0 1 910,210 V300 A10,10 0 0 1 900,310 H650 A10,10 0 0 1 640,300 V210 A10,10 0 0 1 650,200 Z" />
+    
+  <g transform="translate(660.0, 215.0) scale(1.1666666666666667)" fill="#E8A849">
+    <path d="M5.821 4.91c3.899 -2.765 9.468 -2.539 13.073 .535c3.667 3.129 4.168 8.238 1.152 11.898c-2.841 3.447 -7.965 4.583 -12.231 2.805l-.233 -.101l-4.374 .931l-.04 .006l-.035 .007h-.018l-.022 .005h-.038l-.033 .004l-.021 -.001l-.023 .001l-.033 -.003h-.035l-.022 -.004l-.022 -.002l-.035 -.007l-.034 -.005l-.016 -.004l-.024 -.005l-.049 -.016l-.024 -.005l-.011 -.005l-.022 -.007l-.045 -.02l-.03 -.012l-.011 -.006l-.014 -.006l-.031 -.018l-.045 -.024l-.016 -.011l-.037 -.026l-.04 -.027l-.002 -.004l-.013 -.009l-.043 -.04l-.025 -.02l-.006 -.007l-.056 -.062l-.013 -.014l-.011 -.014l-.039 -.056l-.014 -.019l-.005 -.01l-.042 -.073l-.007 -.012l-.004 -.008l-.007 -.012l-.014 -.038l-.02 -.042l-.004 -.016l-.004 -.01l-.017 -.061l-.007 -.018l-.002 -.015l-.005 -.019l-.005 -.033l-.008 -.042l-.002 -.031l-.003 -.01v-.016l-.004 -.054l.001 -.036l.001 -.023l.002 -.053l.004 -.025v-.019l.008 -.035l.005 -.034l.005 -.02l.004 -.02l.018 -.06l.003 -.013l1.15 -3.45l-.022 -.037c-2.21 -3.747 -1.209 -8.391 2.413 -11.119z" />
+  </g>
+    <text x="696" y="235" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#2D5016">聊天引擎</text>
+    <text x="660" y="260" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">流式 + 非流式对话</text>
+    <text x="660" y="278" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">LLM 不可用时 fallback</text>
+    <text x="660" y="296" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">OpenAI-compatible API</text>
+  </g>
+
+  
+  <g id="mod-memory">
+    <path fill="#FFFFFF" d="M940,200 H1210 A10,10 0 0 1 1220,210 V300 A10,10 0 0 1 1210,310 H940 A10,10 0 0 1 930,300 V210 A10,10 0 0 1 940,200 Z" />
+    <path fill="none" stroke="#E8A849" stroke-width="1.5" stroke-opacity="0.3" d="M940,200 H1210 A10,10 0 0 1 1220,210 V300 A10,10 0 0 1 1210,310 H940 A10,10 0 0 1 930,300 V210 A10,10 0 0 1 940,200 Z" />
+    
+  <g transform="translate(950.0, 215.0) scale(1.1666666666666667)" fill="#E8A849">
+    <path d="M3 15.731c1.968 1.507 5.234 2.269 9 2.269c3.76 0 7.025 -.76 9 -2.252v2.252c0 2.425 -3.895 3.936 -8.693 3.998l-.307 .002c-4.938 0 -9 -1.523 -9 -4z" />
+    <path d="M3 9.731c1.968 1.507 5.234 2.269 9 2.269c3.76 0 7.025 -.76 9 -2.252v2.252c0 2.477 -4.062 4 -9 4c-4.798 0 -8.77 -1.438 -8.979 -3.795l-.016 -.101l-.005 -.104z" />
+    <path d="M12 2c1.041 0 2.044 .068 2.977 .198l.469 .071q .84 .14 1.586 .348l.44 .131l.075 .024a11 11 0 0 1 .805 .3l.199 .086q .535 .242 .967 .53q .165 .11 .313 .225a3.8 3.8 0 0 1 .669 .668l.091 .128q .07 .105 .129 .211l.07 .139q .163 .35 .2 .73l.01 .211c0 2.477 -4.062 4 -9 4c-4.798 0 -8.77 -1.438 -8.979 -3.795a1 1 0 0 1 -.021 -.205l.005 -.104l.016 -.1c.205 -2.306 4.01 -3.733 8.667 -3.794z" />
+  </g>
+    <text x="986" y="235" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#2D5016">记忆系统</text>
+    <text x="950" y="260" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">AgentGal 生命周期管理</text>
+    <text x="950" y="278" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">FTS5 + BM25 + sqlite-vec</text>
+    <text x="950" y="296" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">Hybrid + 可选 Rerank</text>
+  </g>
+
+  
+  
+  <g id="mod-proactive">
+    <path fill="#FFFFFF" d="M70,330 H320 A10,10 0 0 1 330,340 V430 A10,10 0 0 1 320,440 H70 A10,10 0 0 1 60,430 V340 A10,10 0 0 1 70,330 Z" />
+    <path fill="none" stroke="#D4A574" stroke-width="1.5" stroke-opacity="0.3" d="M70,330 H320 A10,10 0 0 1 330,340 V430 A10,10 0 0 1 320,440 H70 A10,10 0 0 1 60,430 V340 A10,10 0 0 1 70,330 Z" />
+    
+  <g transform="translate(80.0, 345.0) scale(1.1666666666666667)" fill="#D4A574">
+    <path d="M13 2l.018 .001l.016 .001l.083 .005l.011 .002h.011l.038 .009l.052 .008l.016 .006l.011 .001l.029 .011l.052 .014l.019 .009l.015 .004l.028 .014l.04 .017l.021 .012l.022 .01l.023 .015l.031 .017l.034 .024l.018 .011l.013 .012l.024 .017l.038 .034l.022 .017l.008 .01l.014 .012l.036 .041l.026 .027l.006 .009c.12 .147 .196 .322 .218 .513l.001 .012l.002 .041l.004 .064v6h5a1 1 0 0 1 .868 1.497l-.06 .091l-8 11c-.568 .783 -1.808 .38 -1.808 -.588v-6h-5a1 1 0 0 1 -.868 -1.497l.06 -.091l8 -11l.01 -.013l.018 -.024l.033 -.038l.018 -.022l.009 -.008l.013 -.014l.04 -.036l.028 -.026l.008 -.006a1 1 0 0 1 .402 -.199l.011 -.001l.027 -.005l.074 -.013l.011 -.001l.041 -.002z" />
+  </g>
+    <text x="116" y="365" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#2D5016">主动发言</text>
+    <text x="80" y="390" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">传感器异常 · 天气提醒</text>
+    <text x="80" y="408" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">用户自定义提醒</text>
+    <text x="80" y="426" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">冷却去重 · LLM 润色</text>
+  </g>
+
+  
+  <g id="mod-sync">
+    <path fill="#FFFFFF" d="M360,330 H610 A10,10 0 0 1 620,340 V430 A10,10 0 0 1 610,440 H360 A10,10 0 0 1 350,430 V340 A10,10 0 0 1 360,330 Z" />
+    <path fill="none" stroke="#D4A574" stroke-width="1.5" stroke-opacity="0.3" d="M360,330 H610 A10,10 0 0 1 620,340 V430 A10,10 0 0 1 610,440 H360 A10,10 0 0 1 350,430 V340 A10,10 0 0 1 360,330 Z" />
+    
+  <g transform="translate(370.0, 345.0) scale(1.1666666666666667)" fill="#D4A574">
+    <path d="M11 4a5 5 0 1 1 -4.995 5.217l-.005 -.217l.005 -.217a5 5 0 0 1 4.995 -4.783z" />
+    <path d="M14.133 1.502a1 1 0 0 1 1.365 -.369a9.015 9.015 0 1 1 -10.404 14.622a1 1 0 1 1 1.312 -1.51a7.015 7.015 0 1 0 8.096 -11.378a1 1 0 0 1 -.369 -1.365z" />
+    <path d="M11 16a1 1 0 0 1 .993 .883l.007 .117v4a1 1 0 0 1 -1.993 .117l-.007 -.117v-4a1 1 0 0 1 1 -1z" />
+    <path d="M15 20a1 1 0 0 1 .117 1.993l-.117 .007h-8a1 1 0 0 1 -.117 -1.993l.117 -.007h8z" />
+  </g>
+    <text x="406" y="365" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#2D5016">实时同步</text>
+    <text x="370" y="390" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">SQLite sync_events</text>
+    <text x="370" y="408" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">SSE 实时推送</text>
+    <text x="370" y="426" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">多端实时刷新</text>
+  </g>
+
+  
+  <g id="mod-weather">
+    <path fill="#FFFFFF" d="M650,330 H900 A10,10 0 0 1 910,340 V430 A10,10 0 0 1 900,440 H650 A10,10 0 0 1 640,430 V340 A10,10 0 0 1 650,330 Z" />
+    <path fill="none" stroke="#4A7C28" stroke-width="1.5" stroke-opacity="0.3" d="M650,330 H900 A10,10 0 0 1 910,340 V430 A10,10 0 0 1 900,440 H650 A10,10 0 0 1 640,430 V340 A10,10 0 0 1 650,330 Z" />
+    
+  <g transform="translate(660.0, 345.0) scale(1.1666666666666667)" fill="#4A7C28">
+    <path d="M10.04 4.305c2.195 -.667 4.615 -.224 6.36 1.176c1.386 1.108 2.188 2.686 2.252 4.34l.003 .212l.091 .003c2.3 .107 4.143 1.961 4.25 4.27l.004 .211c0 2.407 -1.885 4.372 -4.255 4.482l-.21 .005h-11.878l-.222 -.008c-2.94 -.11 -5.317 -2.399 -5.43 -5.263l-.005 -.216c0 -2.747 2.08 -5.01 4.784 -5.417l.114 -.016l.07 -.181c.663 -1.62 2.056 -2.906 3.829 -3.518l.244 -.08z" />
+  </g>
+    <text x="696" y="365" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#2D5016">天气服务</text>
+    <text x="660" y="390" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">代理和风天气 QWeather</text>
+    <text x="660" y="408" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">实时天气 + 城市搜索</text>
+    <text x="660" y="426" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">雨天自动提醒带伞</text>
+  </g>
+
+  
+  <g id="mod-auth">
+    <path fill="#FFFFFF" d="M940,330 H1210 A10,10 0 0 1 1220,340 V430 A10,10 0 0 1 1210,440 H940 A10,10 0 0 1 930,430 V340 A10,10 0 0 1 940,330 Z" />
+    <path fill="none" stroke="#4A7C28" stroke-width="1.5" stroke-opacity="0.3" d="M940,330 H1210 A10,10 0 0 1 1220,340 V430 A10,10 0 0 1 1210,440 H940 A10,10 0 0 1 930,430 V340 A10,10 0 0 1 940,330 Z" />
+    
+  <g transform="translate(950.0, 345.0) scale(1.1666666666666667)" fill="#4A7C28">
+    <path d="M11.998 2l.118 .007l.059 .008l.061 .013l.111 .034a.993 .993 0 0 1 .217 .112l.104 .082l.255 .218a11 11 0 0 0 7.189 2.537l.342 -.01a1 1 0 0 1 1.005 .717a13 13 0 0 1 -9.208 16.25a1 1 0 0 1 -.502 0a13 13 0 0 1 -9.209 -16.25a1 1 0 0 1 1.005 -.717a11 11 0 0 0 7.531 -2.527l.263 -.225l.096 -.075a.993 .993 0 0 1 .217 -.112l.112 -.034a.97 .97 0 0 1 .119 -.021l.115 -.007zm3.71 7.293a1 1 0 0 0 -1.415 0l-3.293 3.292l-1.293 -1.292l-.094 -.083a1 1 0 0 0 -1.32 1.497l2 2l.094 .083a1 1 0 0 0 1.32 -.083l4 -4l.083 -.094a1 1 0 0 0 -.083 -1.32z" />
+  </g>
+    <text x="986" y="365" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#2D5016">访问鉴权</text>
+    <text x="950" y="390" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">APP_ACCESS_KEY 保护</text>
+    <text x="950" y="408" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#6B7B6B">设备密钥 hash 校验</text>
+    <text x="950" y="426" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">除设备读数外全量保护</text>
+  </g>
+
+  
+  <path fill="#FFFFFF" d="M72,470 H1208 A12,12 0 0 1 1220,482 V558 A12,12 0 0 1 1208,570 H72 A12,12 0 0 1 60,558 V482 A12,12 0 0 1 72,470 Z" />
+  <path fill="none" stroke="#E0D8C8" stroke-width="1" d="M72,470 H1208 A12,12 0 0 1 1220,482 V558 A12,12 0 0 1 1208,570 H72 A12,12 0 0 1 60,558 V482 A12,12 0 0 1 72,470 Z" />
+  <text x="640" y="500" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#2D5016">存储与校验层</text>
+
+  <path fill="#2D5016" fill-opacity="0.06" d="M106,515 H294 A6,6 0 0 1 300,521 V545 A6,6 0 0 1 294,551 H106 A6,6 0 0 1 100,545 V521 A6,6 0 0 1 106,515 Z" />
+  <text x="200" y="539" text-anchor="middle" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="13" fill="#2D5016">SQLite</text>
+
+  <path fill="#4A7C28" fill-opacity="0.06" d="M326,515 H514 A6,6 0 0 1 520,521 V545 A6,6 0 0 1 514,551 H326 A6,6 0 0 1 320,545 V521 A6,6 0 0 1 326,515 Z" />
+  <text x="420" y="539" text-anchor="middle" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="13" fill="#4A7C28">sqlite-vec</text>
+
+  <path fill="#E8A849" fill-opacity="0.06" d="M546,515 H734 A6,6 0 0 1 740,521 V545 A6,6 0 0 1 734,551 H546 A6,6 0 0 1 540,545 V521 A6,6 0 0 1 546,515 Z" />
+  <text x="640" y="539" text-anchor="middle" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="13" fill="#8B6914">FTS5 / BM25</text>
+
+  <path fill="#D4A574" fill-opacity="0.06" d="M766,515 H954 A6,6 0 0 1 960,521 V545 A6,6 0 0 1 954,551 H766 A6,6 0 0 1 760,545 V521 A6,6 0 0 1 766,515 Z" />
+  <text x="860" y="539" text-anchor="middle" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="13" fill="#8B6914">Zod</text>
+
+  <path fill="#4A7C28" fill-opacity="0.06" d="M986,515 H1174 A6,6 0 0 1 1180,521 V545 A6,6 0 0 1 1174,551 H986 A6,6 0 0 1 980,545 V521 A6,6 0 0 1 986,515 Z" />
+  <text x="1080" y="539" text-anchor="middle" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="13" fill="#4A7C28">background_jobs</text>
+
+  
+  <text x="640" y="595" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#9B8B7B">
+    plants · devices · sensor_readings · messages · plant_memories · plant_understandings · sync_events · proactive_event_log ...
+  </text>
+
+  
+  <circle cx="1200" cy="650" r="15" fill="#4A7C28" fill-opacity="0.06" />
+
+  
+  <text x="1220" y="700" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">06 / 18</text>
+</svg>

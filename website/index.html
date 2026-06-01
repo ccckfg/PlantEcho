@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PlantEcho · 和植物一起呼吸的陪伴软件</title>
+<meta name="description" content="DYN PlantEcho 是一个基于 ESP32 与大语言模型的智能植物陪伴系统。它不只是记得你，而是慢慢懂你。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Noto+Serif+SC:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="base.css" />
+<link rel="stylesheet" href="layout.css" />
+<link rel="stylesheet" href="components.css" />
+<link rel="stylesheet" href="sections.css" />
+<link rel="stylesheet" href="memory.css" />
+<link rel="stylesheet" href="responsive.css" />
+<link rel="stylesheet" href="zoom.css" />
+</head>
+<body>
+
+<!-- ================= 颗粒与渐变氛围层 ================= -->
+<div class="atmosphere" aria-hidden="true">
+  <div class="mesh mesh-1"></div>
+  <div class="mesh mesh-2"></div>
+  <div class="mesh mesh-3"></div>
+  <div class="grain"></div>
+</div>
+
+<!-- ================= 导航 ================= -->
+<header class="nav" id="nav">
+  <a class="nav-brand" href="#top">
+    <span class="leaf-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 21c0-7 4-12 9-13-1 8-4 12-9 13Z" fill="currentColor" opacity=".9"/><path d="M12 21C7 20 4 16 3 8c5 1 8 5 9 13Z" fill="currentColor" opacity=".55"/><path d="M12 21V9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    </span>
+    <span class="nav-wordmark">PlantEcho</span>
+  </a>
+  <!-- 左上角小句子：跟随植物状态变化（呼应 PlantReflectionFooter） -->
+  <p class="nav-reflection" id="navReflection" aria-live="polite">安静的生长，从来不急着证明春天。</p>
+  <nav class="nav-links" aria-label="主导航">
+    <a href="#voice">说人话</a>
+    <a href="#memory">记忆</a>
+    <a href="#proactive">主动发言</a>
+    <a href="#surfaces">软件</a>
+  </nav>
+</header>
+
+<main id="top">
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="hero">
+  <div class="hero-copy">
+    <p class="eyebrow reveal">DYN · 智能植物陪伴系统</p>
+    <h1 class="hero-title">
+      <span class="reveal">不只是<em>记得</em>你，</span>
+      <span class="reveal">而是慢慢<em>懂</em>你。</span>
+    </h1>
+    <p class="hero-lede reveal">
+      PlantEcho 把植物的环境感知、养护规则、长期记忆与拟人化对话连成一株会呼吸的生命。
+      它用植物的第一人称说话——「我有点渴了」而不是「水分 23%」。
+    </p>
+    <div class="hero-actions reveal">
+      <a class="btn btn-primary" href="#memory"><span>看看它如何记得</span></a>
+      <a class="btn btn-ghost" href="#surfaces">五个界面</a>
+    </div>
+    <dl class="hero-stats reveal">
+      <div><dt>后端完成度</dt><dd>≈90<span>%</span></dd></div>
+      <div><dt>桌面客户端</dt><dd>≈87<span>%</span></dd></div>
+      <div><dt>检索评测 Top-1</dt><dd>100<span>%</span></dd></div>
+    </dl>
+  </div>
+
+  <!-- 会呼吸的植物卡片：标签与口吻随状态切换，后方重叠温室大截图 -->
+  <aside class="hero-plant" aria-label="植物状态卡片">
+    <div class="hero-shot-wrap">
+      <figure class="shot hero-shot" data-shot="dashboard">
+        <img src="assets/screenshots/dashboard.png" alt="温室 Dashboard" />
+      </figure>
+      <div class="plant-card" id="plantCard" data-mood="happy">
+        <div class="plant-card-glow" aria-hidden="true"></div>
+        <div class="plant-orb" aria-hidden="true">
+          <span class="orb-ring"></span>
+          <span class="orb-core"></span>
+          <span class="orb-leaf">🌿</span>
+        </div>
+        <div class="plant-meta">
+          <div class="plant-tagrow" id="plantTags"><!-- 状态标签由 JS 注入 --></div>
+          <h2 class="plant-name">小绿 <span>·绿萝</span></h2>
+          <p class="plant-caption" id="plantCaption">目前不需要照顾我，谢谢你来看我。</p>
+        </div>
+        <div class="plant-bars">
+          <div class="bar" data-key="hydration"><span class="bar-label">水分</span><span class="bar-track"><i style="--v:72%"></i></span></div>
+          <div class="bar" data-key="light"><span class="bar-label">光照</span><span class="bar-track"><i style="--v:64%"></i></span></div>
+          <div class="bar" data-key="humidity"><span class="bar-label">湿度</span><span class="bar-track"><i style="--v:57%"></i></span></div>
+        </div>
+      </div>
+    </div>
+    <p class="plant-hint">悬停或等待，看它的心情如何流动 ↑</p>
+  </aside>
+  <div class="scroll-cue" aria-hidden="true"><span></span>向下，与它一起呼吸</div>
+</section>
+
+<!-- ================= 让系统说人话 ================= -->
+<section class="section voice" id="voice">
+  <div class="voice-container">
+    <div class="voice-copy">
+      <div class="section-head">
+        <p class="kicker reveal">设计哲学 · 其一</p>
+        <h2 class="section-title reveal">让系统<em>说人话</em></h2>
+        <p class="section-sub reveal">软件最容易冷漠的地方是文案。所以每一个用户看得见的字，都被翻译过一次——从机器的语义，翻译成植物的视角。</p>
+      </div>
+      <div class="translate-grid">
+        <article class="translate-card reveal">
+          <span class="t-tag t-cold">否定句</span>
+          <p class="t-from">无法连接到后端</p>
+          <span class="t-arrow" aria-hidden="true">→</span>
+          <p class="t-to">我们暂时联系不上 PlantEcho 的家</p>
+          <span class="t-tag t-warm">邀请句</span>
+        </article>
+        <article class="translate-card reveal">
+          <span class="t-tag t-cold">系统语义</span>
+          <p class="t-from">水分: 23%</p>
+          <span class="t-arrow" aria-hidden="true">→</span>
+          <p class="t-to">我有点渴了 · 23%</p>
+          <span class="t-tag t-warm">植物视角</span>
+        </article>
+        <article class="translate-card reveal">
+          <span class="t-tag t-cold">错误码</span>
+          <p class="t-from">sensor_offline</p>
+          <span class="t-arrow" aria-hidden="true">→</span>
+          <p class="t-to">我暂时听不到自己的传感器了</p>
+          <span class="t-tag t-warm">第一人称</span>
+        </article>
+      </div>
+      <p class="voice-foot reveal">错误是给系统看的，但显示给的是人。技术细节折叠到二级，主信息要让用户看了不慌。</p>
+    </div>
+    <div class="voice-media reveal">
+      <figure class="shot" data-shot="chat">
+        <img src="assets/screenshots/chat.png" alt="植响对话：流式聊天与状态标签" />
+        <figcaption><b>对话现场</b><span>档案卡 · 流式回复 · 状态标签随心情变</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 心情会流动（交互） ================= -->
+<section class="section moods" id="moods">
+  <div class="moods-container">
+    <div class="moods-media reveal">
+      <figure class="shot" data-shot="plant">
+        <img src="assets/screenshots/plant.png" alt="植物详情：状态条、最新读数" />
+        <figcaption><b>植物状态详情</b><span>实时状态条 · 历史最新读数 · 离线诚实提醒</span></figcaption>
+      </figure>
+    </div>
+    <div class="moods-copy">
+      <div class="section-head">
+        <p class="kicker reveal">设计哲学 · 其二</p>
+        <h2 class="section-title reveal">它的<em>心情</em>，会随真实读数流动</h2>
+        <p class="section-sub reveal">同一株植物，土壤、光照、连接状态不同，左上角的一句话和它身上的标签就会改变。植物只会基于真实传感器、规则与记忆回应，从不编造感知。</p>
+      </div>
+      <div class="mood-stage">
+        <div class="mood-switch" role="tablist" aria-label="切换植物状态">
+          <button role="tab" class="mood-btn is-active" data-mood="happy">舒展</button>
+          <button role="tab" class="mood-btn" data-mood="thirsty">想喝水</button>
+          <button role="tab" class="mood-btn" data-mood="sunny">晒太阳</button>
+          <button role="tab" class="mood-btn" data-mood="offline">在等</button>
+        </div>
+        <div class="mood-readout" id="moodReadout">
+          <div class="mood-bubble" id="moodBubble">今天我感觉绿意盎然！</div>
+          <div class="mood-tags" id="moodTags"></div>
+          <p class="mood-note" id="moodNote">心情：舒展 · 这是它此刻最想说的话</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 记忆：核心 ================= -->
+<section class="section memory" id="memory">
+  <div class="section-head">
+    <p class="kicker reveal">核心 · 记忆系统</p>
+    <h2 class="section-title reveal">它像人一样<em>回忆</em></h2>
+    <p class="section-sub reveal">不是把整段历史塞进上下文窗口，而是在此刻只想起真正相关的那几件事。分层、选择性、联想式——三件事让一段程序拥有近似人类的记忆。</p>
+  </div>
+
+  <!-- 记得你 vs 懂你 -->
+  <div class="dual">
+    <article class="dual-card reveal" data-side="remember">
+      <header><span class="dual-idx">记得你</span><code>plant_memory</code></header>
+      <p class="dual-desc">一条条具体发生过的事，或你主动告诉它的事。它回答「发生过什么」。</p>
+      <ul class="dual-quotes">
+        <li>「上周三土壤太干了」</li>
+        <li>「你前几天说在感冒」</li>
+        <li>「从客厅搬到了东窗边」</li>
+      </ul>
+    </article>
+    <span class="dual-amp" aria-hidden="true">&amp;</span>
+    <article class="dual-card reveal" data-side="understand">
+      <header><span class="dual-idx">懂你</span><code>plant_understanding</code></header>
+      <p class="dual-desc">从许多件事里慢慢提炼出的长期判断。它回答「你是个怎样的人」。</p>
+      <ul class="dual-quotes">
+        <li>「主人是个夜猫子」</li>
+        <li>「主人最近压力比较大」</li>
+        <li>「我在干燥环境下容易缺水」</li>
+      </ul>
+    </article>
+  </div>
+
+  <!-- 记忆生命周期：滚动钉住 + 左侧情境动画演示 -->
+  <div class="lifecycle" id="lifecycle">
+    <div class="lifecycle-pin">
+      <p class="lc-kicker">一段经历，如何沉淀成被记住的事</p>
+      <div class="lc-container">
+        
+        <!-- 左侧演示画板 -->
+        <div class="lc-demo-panel" aria-hidden="true">
+          <div class="lc-canvas" id="lcCanvas">
+            <!-- 步0: 草稿 (漂浮的便签纸片) -->
+            <div class="lc-art lc-art-drafts">
+              <span class="note-leaf note-1">感冒了 · 05-18</span>
+              <span class="note-leaf note-2">搬到东窗 · 05-20</span>
+              <span class="note-leaf note-3">浇了点水 · 05-22</span>
+            </div>
+            <!-- 步1: 整理 (聚拢分类中) -->
+            <div class="lc-art lc-art-consolidate">
+              <div class="folder-icon">📂</div>
+              <div class="consolidate-sparkle"></div>
+            </div>
+            <!-- 步2: 情节 (精美手账卡片) -->
+            <div class="lc-art lc-art-episode">
+              <div class="diary-book">
+                <span class="book-bookmark">🌿</span>
+                <p class="diary-title">🚿 浇水日记</p>
+                <p class="diary-date">2026-05-22</p>
+                <div class="diary-bars"><i></i><i></i></div>
+              </div>
+            </div>
+            <!-- 步3: 理解 (懂你同心圆波纹大光球) -->
+            <div class="lc-art lc-art-understand">
+              <div class="understand-orb">
+                <span class="u-wave w-1"></span>
+                <span class="u-wave w-2"></span>
+                <span class="u-core">💚</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧进度轨道 -->
+        <div class="lc-track-wrap">
+          <div class="lc-track" id="lcTrack">
+            <div class="lc-line" aria-hidden="true"><i id="lcProgress"></i></div>
+            <ol class="lc-steps">
+              <li class="lc-step" data-step="0">
+                <span class="lc-dot"></span>
+                <h3>草稿</h3><code>drafts</code>
+                <p>先用便签飞快记下来，不打断它当下回你话的速度。</p>
+              </li>
+              <li class="lc-step" data-step="1">
+                <span class="lc-dot"></span>
+                <h3>整理</h3><code>consolidation</code>
+                <p>聊完之后，在后台慢慢把零散便签消化成型——像睡一觉。</p>
+              </li>
+              <li class="lc-step" data-step="2">
+                <span class="lc-dot"></span>
+                <h3>情节</h3><code>episode</code>
+                <p>变成一个能讲出来的故事：时间、关键词、重要度、标题。</p>
+              </li>
+              <li class="lc-step" data-step="3">
+                <span class="lc-dot"></span>
+                <h3>理解</h3><code>understanding</code>
+                <p>从一个个事件升华成对你的长期判断。这是「懂你」的来处。</p>
+              </li>
+            </ol>
+          </div>
+        </div>
+
+      </div>
+      <p class="lc-foot">不是所有数据都值得记住。它和你一样，会选择性地记得重要的事，让平淡的日子安静流过。</p>
+    </div>
+  </div>
+
+  <!-- 联想式检索 -->
+  <div class="retrieval reveal">
+    <div class="retrieval-text">
+      <h3>联想式回忆</h3>
+      <p>人听到一句话，会同时用两种方式想起：<strong>意思相近</strong>（这让我想起一个相似的瞬间）和<strong>关键词相同</strong>（你提的这个词，我记得）。植物两条路并用，再按相关度、新近度、重要度排序。</p>
+      <ul class="retrieval-weights">
+        <li><span>语义向量</span><b>0.75</b></li>
+        <li><span>关键词 BM25</span><b>0.25</b></li>
+        <li><span>新近度衰减</span><b>不归零</b></li>
+      </ul>
+      <p class="retrieval-aside">旧的事会变淡，但不会消失。重要的，永远有分量。</p>
+    </div>
+    <div class="retrieval-diagram" aria-hidden="true">
+      <svg viewBox="0 0 360 240" class="rv-svg">
+        <path class="rv-path rv-a" d="M40 60 C 140 60, 180 120, 320 120" />
+        <path class="rv-path rv-b" d="M40 180 C 140 180, 180 120, 320 120" />
+        <g class="rv-node rv-src1"><circle cx="40" cy="60" r="6"/><text x="40" y="44">语义相似</text></g>
+        <g class="rv-node rv-src2"><circle cx="40" cy="180" r="6"/><text x="40" y="206">关键词命中</text></g>
+        <g class="rv-node rv-dst"><circle cx="320" cy="120" r="9"/><text x="320" y="148">想起的记忆</text></g>
+      </svg>
+    </div>
+  </div>
+
+  <!-- 真实引用与统计，整合日记截图 -->
+  <div class="memory-showcase">
+    <div class="memory-media reveal">
+      <figure class="shot" data-shot="journal">
+        <img src="assets/screenshots/journal.png" alt="成长日记：Bento 统计卡与里程碑时间线" />
+        <figcaption><b>成长日记</b><span>累计记忆 · 稳定认知 · 里程碑时间线</span></figcaption>
+      </figure>
+    </div>
+    <div class="memory-proof">
+      <article class="citation-card reveal">
+        <p class="cc-q">「你还记得我把你搬到哪里了吗？」</p>
+        <p class="cc-a">记得呀，从客厅挪到了东窗边，那里的光你更喜欢。</p>
+        <p class="cc-cite"><span class="cc-dot"></span>引用记忆：「从客厅搬到了东窗边」 · 2026-05-20</p>
+        <p class="cc-honest">没有可靠记忆时，它明确禁止说「我记得」——它记得，但从不假装记得。</p>
+      </article>
+      <div class="numbers reveal">
+        <div class="num"><b>120</b><span>条记忆</span></div>
+        <div class="num"><b>48</b><span>个查询</span></div>
+        <div class="num"><b>100<i>%</i></b><span>内部检索评测<br>Top-1 / Top-3 / MRR</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 主动发言 ================= -->
+<section class="section proactive" id="proactive">
+  <div class="section-head">
+    <p class="kicker reveal">主动发言引擎</p>
+    <h2 class="section-title reveal">事实由世界决定，<em>温柔</em>由它来说</h2>
+    <p class="section-sub reveal">事件只决定「该不该说」和「事实是什么」；大模型只负责把结构化的事实，润色成植物口吻的一句话。它永远以植物的身份说话，绝不伪造成你的消息。</p>
+  </div>
+  <div class="triggers reveal">
+    <article class="trigger" data-t="water">
+      <span class="trigger-ic">💧</span>
+      <h3>缺水</h3>
+      <p class="trigger-fact">土壤低于建议下限</p>
+      <p class="trigger-say">「我有点渴了，可以来点水吗？」</p>
+    </article>
+    <article class="trigger" data-t="offline">
+      <span class="trigger-ic">📡</span>
+      <h3>离线</h3>
+      <p class="trigger-fact">超过阈值没有新读数 · 冷却 12h</p>
+      <p class="trigger-say">「我暂时听不到自己的传感器了。」</p>
+    </article>
+    <article class="trigger" data-t="rain">
+      <span class="trigger-ic">🌧️</span>
+      <h3>降雨</h3>
+      <p class="trigger-fact">实时天气含雨 · 冷却 6h</p>
+      <p class="trigger-say">「外面像要下雨，出门记得带伞。」</p>
+    </article>
+    <article class="trigger" data-t="remind">
+      <span class="trigger-ic">⏰</span>
+      <h3>到期提醒</h3>
+      <p class="trigger-fact">你托它记的事 · 最长 30 天</p>
+      <p class="trigger-say">「你让我提醒你：该浇水啦。」</p>
+    </article>
+  </div>
+</section>
+
+<!-- ================= 岁月的痕迹 · 相册 ================= -->
+<section class="section journal-album" id="journal-album">
+  <div class="album-container">
+    <div class="album-copy">
+      <div class="section-head">
+        <p class="kicker reveal">岁月的痕迹</p>
+        <h2 class="section-title reveal">留住它的<em>每一次变化</em></h2>
+        <p class="section-sub reveal">相册按时间双层分组，支持多植物筛选和拖动上传。它不是一堆数据，而是你们一起度过的那些日子。</p>
+      </div>
+    </div>
+    <div class="album-media reveal">
+      <figure class="shot" data-shot="album">
+        <img src="assets/screenshots/album.png" alt="相册：按时间双层分组" />
+        <figcaption><b>植物相册</b><span>时间分组 · 按植物筛选 · 捕捉每一刻成长</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 架构 ================= -->
+<section class="section arch" id="arch">
+  <div class="section-head">
+    <p class="kicker reveal">从一片叶子到一句话</p>
+    <h2 class="section-title reveal">三层，<em>一口气</em>连起来</h2>
+  </div>
+  <div class="arch-flow">
+    <article class="arch-node reveal">
+      <span class="arch-n">01</span>
+      <h3>硬件层</h3>
+      <p>ESP32 挂载 SHT40、BH1750、电容式土壤传感器，通过 MQTT 上报土壤、温湿、光照。长按 BOOT 进入 SoftAP 配网，支持 OTA。</p>
+    </article>
+    <span class="arch-link" aria-hidden="true"></span>
+    <article class="arch-node reveal">
+      <span class="arch-n">02</span>
+      <h3>服务端</h3>
+      <p>Node 24 + Fastify + SQLite + sqlite-vec。设备认领、植物状态、记忆生命周期、主动发言、SSE 实时同步与天气代理。</p>
+    </article>
+    <span class="arch-link" aria-hidden="true"></span>
+    <article class="arch-node reveal">
+      <span class="arch-n">03</span>
+      <h3>桌面客户端</h3>
+      <p>Tauri v2 + React 18。Verdant Echo 设计基线，资源完全本地加载，已交付 Windows 安装包。</p>
+    </article>
+  </div>
+</section>
+
+</main>
+
+<!-- ================= 页脚 ================= -->
+<footer class="footer" id="footer">
+  <div class="footer-top">
+    <p class="footer-line">和植物一起呼吸的陪伴软件，<br>而不是一块传感器看板。</p>
+    <span class="leaf-mark big" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 21c0-7 4-12 9-13-1 8-4 12-9 13Z" fill="currentColor" opacity=".9"/><path d="M12 21C7 20 4 16 3 8c5 1 8 5 9 13Z" fill="currentColor" opacity=".55"/><path d="M12 21V9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    </span>
+  </div>
+  <p class="footer-honest">说明：100% 来自一个受控的内部检索评测集（120 条记忆 / 48 个查询）；完整的对话型记忆需要连接大模型才能生成。我们不把未完成的能力写成已完成。</p>
+  <div class="footer-meta">
+    <span>DYN · PlantEcho</span>
+    <span>Verdant Echo · Forest-to-Soil</span>
+    <span>© 2026</span>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="constants.js"></script>
+<script src="zoom.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

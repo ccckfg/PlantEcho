@@ -1,0 +1,102 @@
+.chat-loading-stage {
+  min-height: 12rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: 1rem 0;
+}
+
+.chat-loading-card {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  color: #31533b;
+  background: rgba(251, 253, 250, 0.76);
+  border: 1px solid rgba(45, 90, 39, 0.10);
+  box-shadow: 0 10px 28px rgba(45, 90, 39, 0.08);
+  animation: chat-loading-float 1.8s var(--ease-soft) infinite;
+}
+
+.chat-loading-orb {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 999px;
+  background: #6aa36a;
+  box-shadow: 0 0 0 0 rgba(106, 163, 106, 0.26);
+  animation: chat-loading-pulse 1.4s var(--ease-soft) infinite;
+}
+
+.chat-loading-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.chat-loading-lines span {
+  height: 2.5rem;
+  border-radius: 22px;
+  background:
+    linear-gradient(90deg, rgba(251, 253, 250, 0.50), rgba(251, 253, 250, 0.92), rgba(251, 253, 250, 0.50)),
+    rgba(251, 253, 250, 0.70);
+  background-size: 220% 100%;
+  animation: chat-loading-shimmer 1.65s var(--ease-soft) infinite;
+}
+
+.chat-loading-lines span:nth-child(1) {
+  width: 38%;
+}
+
+.chat-loading-lines span:nth-child(2) {
+  width: 48%;
+  align-self: flex-end;
+  background-color: rgba(191, 237, 209, 0.38);
+  animation-delay: 0.14s;
+}
+
+.chat-loading-lines span:nth-child(3) {
+  width: 32%;
+  animation-delay: 0.28s;
+}
+
+@keyframes chat-loading-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes chat-loading-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(106, 163, 106, 0.26);
+    opacity: 0.72;
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(106, 163, 106, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes chat-loading-shimmer {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-loading-card,
+  .chat-loading-orb,
+  .chat-loading-lines span {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <!-- Background -->
+  <rect width="1280" height="720" fill="#F5F0E8"/>
+
+  <!-- Top decorative bar -->
+  <rect x="60" y="50" width="4" height="60" rx="2" fill="#4A7C28"/>
+
+  <!-- Page title -->
+  <text x="80" y="88" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="40" font-weight="bold" fill="#2D5016">
+    记忆系统：AgentGal 生命周期
+  </text>
+
+  <!-- Lifecycle flow: 4 stages -->
+  <!-- Stage 1: Drafts -->
+  <g id="stage-drafts">
+    <rect x="60" y="140" width="260" height="160" rx="12" fill="#FFFFFF"/>
+    <rect x="60" y="140" width="260" height="160" rx="12" fill="none" stroke="#E8A849" stroke-width="1.5"/>
+    <circle cx="100" cy="175" r="16" fill="#E8A849" fill-opacity="0.15"/>
+    <text x="100" y="181" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#E8A849">1</text>
+    <text x="125" y="181" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">Drafts</text>
+    <text x="80" y="210" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">用户消息 · 传感器事件</text>
+    <text x="80" y="232" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">写入 memory_drafts</text>
+    <text x="80" y="260" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">不阻塞聊天响应</text>
+    <text x="80" y="280" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">传感器异常可 forceClose</text>
+  </g>
+
+  <!-- Arrow 1→2 -->
+  <line x1="325" y1="220" x2="365" y2="220" stroke="#E8A849" stroke-width="2"/>
+  <polygon points="365,220 355,214 355,226" fill="#E8A849"/>
+
+  <!-- Stage 2: Consolidation -->
+  <g id="stage-consolidation">
+    <rect x="370" y="140" width="260" height="160" rx="12" fill="#FFFFFF"/>
+    <rect x="370" y="140" width="260" height="160" rx="12" fill="none" stroke="#D4A574" stroke-width="1.5"/>
+    <circle cx="410" cy="175" r="16" fill="#D4A574" fill-opacity="0.15"/>
+    <text x="410" y="181" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#D4A574">2</text>
+    <text x="435" y="181" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">Consolidation</text>
+    <text x="390" y="210" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">background_jobs 调度</text>
+    <text x="390" y="232" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">closure detector 判断</text>
+    <text x="390" y="260" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">支持 dedupe · 失败重试</text>
+    <text x="390" y="280" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">stale running job 恢复</text>
+  </g>
+
+  <!-- Arrow 2→3 -->
+  <line x1="635" y1="220" x2="675" y2="220" stroke="#D4A574" stroke-width="2"/>
+  <polygon points="675,220 665,214 665,226" fill="#D4A574"/>
+
+  <!-- Stage 3: Episode -->
+  <g id="stage-episode">
+    <rect x="680" y="140" width="260" height="160" rx="12" fill="#FFFFFF"/>
+    <rect x="680" y="140" width="260" height="160" rx="12" fill="none" stroke="#4A7C28" stroke-width="1.5"/>
+    <circle cx="720" cy="175" r="16" fill="#4A7C28" fill-opacity="0.15"/>
+    <text x="720" y="181" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#4A7C28">3</text>
+    <text x="745" y="181" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">Episode</text>
+    <text x="700" y="210" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">EpisodeMemory 生成</text>
+    <text x="700" y="232" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">写入 plant_memories</text>
+    <text x="700" y="260" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">raw_dialogue 可追溯</text>
+    <text x="700" y="280" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">不进入向量索引文本</text>
+  </g>
+
+  <!-- Arrow 3→4 -->
+  <line x1="945" y1="220" x2="985" y2="220" stroke="#4A7C28" stroke-width="2"/>
+  <polygon points="985,220 975,214 975,226" fill="#4A7C28"/>
+
+  <!-- Stage 4: Understanding -->
+  <g id="stage-understanding">
+    <rect x="990" y="140" width="230" height="160" rx="12" fill="#FFFFFF"/>
+    <rect x="990" y="140" width="230" height="160" rx="12" fill="none" stroke="#2D5016" stroke-width="1.5"/>
+    <circle cx="1030" cy="175" r="16" fill="#2D5016" fill-opacity="0.15"/>
+    <text x="1030" y="181" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#2D5016">4</text>
+    <text x="1055" y="181" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#2D5016">Understanding</text>
+    <text x="1010" y="210" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">长期判断形成</text>
+    <text x="1010" y="232" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">plant_understandings</text>
+    <text x="1010" y="260" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">UnderstandingPatch 注入</text>
+    <text x="1010" y="280" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">内容变化追加 history</text>
+  </g>
+
+  <!-- Hybrid Retrieval Pipeline -->
+  <text x="80" y="340" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="22" font-weight="bold" fill="#2D5016">
+    混合检索管线
+  </text>
+
+  <!-- Pipeline steps -->
+  <g id="pipeline">
+    <!-- Step 1: Embedding -->
+    <rect x="60" y="370" width="140" height="60" rx="8" fill="#E8A849" fill-opacity="0.12"/>
+    <text x="130" y="398" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" font-weight="bold" fill="#8B6914">Embedding</text>
+    <text x="130" y="418" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#9B8B7B">Query 向量化</text>
+
+    <line x1="205" y1="400" x2="225" y2="400" stroke="#E8A849" stroke-width="1.5"/>
+    <polygon points="225,400 219,395 221,405" fill="#E8A849"/>
+
+    <!-- Step 2: Vector -->
+    <rect x="230" y="370" width="140" height="60" rx="8" fill="#4A7C28" fill-opacity="0.12"/>
+    <text x="300" y="398" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" font-weight="bold" fill="#4A7C28">sqlite-vec</text>
+    <text x="300" y="418" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#9B8B7B">向量候选</text>
+
+    <line x1="375" y1="400" x2="395" y2="400" stroke="#4A7C28" stroke-width="1.5"/>
+    <polygon points="395,400 389,395 391,405" fill="#4A7C28"/>
+
+    <!-- Step 3: BM25 -->
+    <rect x="400" y="370" width="140" height="60" rx="8" fill="#4A7C28" fill-opacity="0.12"/>
+    <text x="470" y="398" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" font-weight="bold" fill="#4A7C28">FTS5/BM25</text>
+    <text x="470" y="418" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#9B8B7B">全文候选</text>
+
+    <line x1="545" y1="400" x2="565" y2="400" stroke="#4A7C28" stroke-width="1.5"/>
+    <polygon points="565,400 559,395 561,405" fill="#4A7C28"/>
+
+    <!-- Step 4: Fusion -->
+    <rect x="570" y="370" width="160" height="60" rx="8" fill="#D4A574" fill-opacity="0.12"/>
+    <text x="650" y="398" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" font-weight="bold" fill="#8B6914">Hybrid Fusion</text>
+    <text x="650" y="418" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#9B8B7B">0.75 向量 + 0.25 BM25</text>
+
+    <line x1="735" y1="400" x2="755" y2="400" stroke="#D4A574" stroke-width="1.5"/>
+    <polygon points="755,400 749,395 751,405" fill="#D4A574"/>
+
+    <!-- Step 5: Rerank -->
+    <rect x="760" y="370" width="140" height="60" rx="8" fill="#E8A849" fill-opacity="0.12"/>
+    <text x="830" y="398" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" font-weight="bold" fill="#8B6914">Rerank</text>
+    <text x="830" y="418" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#9B8B7B">Qwen3-Reranker-8B</text>
+
+    <line x1="905" y1="400" x2="925" y2="400" stroke="#E8A849" stroke-width="1.5"/>
+    <polygon points="925,400 919,395 921,405" fill="#E8A849"/>
+
+    <!-- Step 6: Final -->
+    <rect x="930" y="370" width="140" height="60" rx="8" fill="#2D5016" fill-opacity="0.12"/>
+    <text x="1000" y="398" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" font-weight="bold" fill="#2D5016">最终排序</text>
+    <text x="1000" y="418" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#9B8B7B">更新 lastRecalledAt</text>
+  </g>
+
+  <!-- Scoring formula -->
+  <rect x="60" y="460" width="1160" height="100" rx="12" fill="#FFFFFF"/>
+  <rect x="60" y="460" width="1160" height="100" rx="12" fill="none" stroke="#E0D8C8" stroke-width="1"/>
+  <text x="80" y="495" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">最终排序公式</text>
+
+  <text x="80" y="530" font-family="Consolas, &quot;Courier New&quot;, monospace" font-size="16" fill="#2B2B2B">
+    final = <tspan fill="#4A7C28" font-weight="bold">relevance</tspan> × 0.50 + <tspan fill="#E8A849" font-weight="bold">recency</tspan> × 0.20 + <tspan fill="#D4A574" font-weight="bold">importance</tspan> × 0.30
+  </text>
+
+  <text x="80" y="550" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#9B8B7B">
+    relevance 来自 hybrid fusion 或 rerank · recency 使用指数衰减 · importance 来自记忆重要度
+  </text>
+
+  <!-- Layer context -->
+  <rect x="60" y="590" width="1160" height="80" rx="12" fill="#2D5016" fill-opacity="0.04"/>
+  <text x="80" y="620" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#2D5016">分层上下文</text>
+
+  <rect x="80" y="635" width="200" height="26" rx="5" fill="#2D5016" fill-opacity="0.08"/>
+  <text x="180" y="653" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#2D5016">稳定个性 · persona</text>
+
+  <rect x="300" y="635" width="200" height="26" rx="5" fill="#4A7C28" fill-opacity="0.08"/>
+  <text x="400" y="653" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#4A7C28">当前状态 · plant_status</text>
+
+  <rect x="520" y="635" width="200" height="26" rx="5" fill="#E8A849" fill-opacity="0.08"/>
+  <text x="620" y="653" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#8B6914">近期对话 · messages</text>
+
+  <rect x="740" y="635" width="200" height="26" rx="5" fill="#D4A574" fill-opacity="0.08"/>
+  <text x="840" y="653" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#8B6914">情节记忆 · memories</text>
+
+  <rect x="960" y="635" width="220" height="26" rx="5" fill="#2D5016" fill-opacity="0.08"/>
+  <text x="1070" y="653" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#2D5016">稳定理解 · understandings</text>
+
+  <!-- Page number -->
+  <text x="1220" y="700" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">07 / 18</text>
+</svg>

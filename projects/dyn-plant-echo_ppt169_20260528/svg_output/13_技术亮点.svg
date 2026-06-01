@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <!-- Background -->
+  <rect width="1280" height="720" fill="#F5F0E8"/>
+
+  <!-- Top decorative bar -->
+  <rect x="60" y="50" width="4" height="60" rx="2" fill="#4A7C28"/>
+
+  <!-- Page title -->
+  <text x="80" y="88" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="40" font-weight="bold" fill="#2D5016">
+    技术亮点
+  </text>
+
+  <!-- KPI Card 1: Retrieval accuracy -->
+  <g id="kpi-1">
+    <rect x="60" y="130" width="370" height="180" rx="14" fill="#FFFFFF"/>
+    <rect x="60" y="130" width="370" height="180" rx="14" fill="none" stroke="#4A7C28" stroke-width="2" stroke-opacity="0.3"/>
+    <use data-icon="tabler-filled/chart-bar" x="90" y="155" width="36" height="36" fill="#4A7C28"/>
+    <text x="90" y="215" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="44" font-weight="bold" fill="#4A7C28">100%</text>
+    <text x="210" y="215" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="20" fill="#2D5016">检索准确率</text>
+    <text x="90" y="245" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">Top-1 / Top-3 / MRR 均 100%</text>
+    <text x="90" y="268" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#9B8B7B">120 条记忆 + 48 个查询</text>
+    <text x="90" y="290" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">Hybrid + Rerank 组合</text>
+  </g>
+
+  <!-- KPI Card 2: Reranker -->
+  <g id="kpi-2">
+    <rect x="450" y="130" width="370" height="180" rx="14" fill="#FFFFFF"/>
+    <rect x="450" y="130" width="370" height="180" rx="14" fill="none" stroke="#E8A849" stroke-width="2" stroke-opacity="0.3"/>
+    <use data-icon="tabler-filled/bolt" x="480" y="155" width="36" height="36" fill="#E8A849"/>
+    <text x="480" y="215" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="28" font-weight="bold" fill="#E8A849">Qwen3</text>
+    <text x="600" y="215" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" fill="#2D5016">Reranker-8B</text>
+    <text x="480" y="245" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">可选 rerank 层，显著提升排序质量</text>
+    <text x="480" y="268" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#9B8B7B">自动从主 LLM 连接派生配置</text>
+    <text x="480" y="290" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">支持 SiliconFlow / DashScope 等</text>
+  </g>
+
+  <!-- KPI Card 3: OpenAI-compatible -->
+  <g id="kpi-3">
+    <rect x="840" y="130" width="380" height="180" rx="14" fill="#FFFFFF"/>
+    <rect x="840" y="130" width="380" height="180" rx="14" fill="none" stroke="#D4A574" stroke-width="2" stroke-opacity="0.3"/>
+    <use data-icon="tabler-filled/globe" x="870" y="155" width="36" height="36" fill="#D4A574"/>
+    <text x="870" y="215" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="24" font-weight="bold" fill="#D4A574">OpenAI</text>
+    <text x="990" y="215" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" fill="#2D5016">Compatible</text>
+    <text x="870" y="245" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">/v1/chat/completions</text>
+    <text x="870" y="268" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">/v1/models</text>
+    <text x="870" y="290" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">通过植物名标签路由对话</text>
+  </g>
+
+  <!-- Technical feature cards -->
+  <!-- Feature 1: SSE Sync -->
+  <g id="feat-sse">
+    <rect x="60" y="340" width="560" height="100" rx="12" fill="#FFFFFF"/>
+    <rect x="60" y="340" width="560" height="100" rx="12" fill="none" stroke="#4A7C28" stroke-width="1" stroke-opacity="0.2"/>
+    <circle cx="105" cy="390" r="22" fill="#4A7C28" fill-opacity="0.1"/>
+    <use data-icon="tabler-filled/globe" x="87" y="372" width="36" height="36" fill="#4A7C28"/>
+    <text x="145" y="382" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">实时同步 · SSE</text>
+    <text x="145" y="408" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">SQLite sync_events + SSE 推送</text>
+    <text x="145" y="428" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#9B8B7B">多端实时刷新 · 按 resource + plantId 重拉</text>
+  </g>
+
+  <!-- Feature 2: MQTT Auto Key -->
+  <g id="feat-mqtt">
+    <rect x="640" y="340" width="580" height="100" rx="12" fill="#FFFFFF"/>
+    <rect x="640" y="340" width="580" height="100" rx="12" fill="none" stroke="#E8A849" stroke-width="1" stroke-opacity="0.2"/>
+    <circle cx="685" cy="390" r="22" fill="#E8A849" fill-opacity="0.1"/>
+    <use data-icon="tabler-filled/shield-check" x="667" y="372" width="36" height="36" fill="#E8A849"/>
+    <text x="725" y="382" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">MQTT 自动密钥下发</text>
+    <text x="725" y="408" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">认领设备后通过 config topic 自动下发</text>
+    <text x="725" y="428" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#9B8B7B">离线设备保留手动填写兜底</text>
+  </g>
+
+  <!-- Feature 3: Proactive Engine -->
+  <g id="feat-proactive">
+    <rect x="60" y="460" width="560" height="100" rx="12" fill="#FFFFFF"/>
+    <rect x="60" y="460" width="560" height="100" rx="12" fill="none" stroke="#D4A574" stroke-width="1" stroke-opacity="0.2"/>
+    <circle cx="105" cy="510" r="22" fill="#D4A574" fill-opacity="0.1"/>
+    <use data-icon="tabler-filled/bolt" x="87" y="492" width="36" height="36" fill="#D4A574"/>
+    <text x="145" y="502" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">主动发言引擎</text>
+    <text x="145" y="528" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">传感器 + 天气 + 用户提醒三触发</text>
+    <text x="145" y="548" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#9B8B7B">冷却去重 · LLM 润色 · 植物口吻</text>
+  </g>
+
+  <!-- Feature 4: Hybrid Retrieval -->
+  <g id="feat-hybrid">
+    <rect x="640" y="460" width="580" height="100" rx="12" fill="#FFFFFF"/>
+    <rect x="640" y="460" width="580" height="100" rx="12" fill="none" stroke="#4A7C28" stroke-width="1" stroke-opacity="0.2"/>
+    <circle cx="685" cy="510" r="22" fill="#4A7C28" fill-opacity="0.1"/>
+    <use data-icon="tabler-filled/database" x="667" y="492" width="36" height="36" fill="#4A7C28"/>
+    <text x="725" y="502" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">混合记忆检索</text>
+    <text x="725" y="528" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">FTS5/BM25 + sqlite-vec 向量 + 可选 rerank</text>
+    <text x="725" y="548" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#9B8B7B">embedding 可选 · 无 embedding 时 BM25 兜底</text>
+  </g>
+
+  <!-- Bottom summary -->
+  <rect x="60" y="590" width="1160" height="80" rx="12" fill="#2D5016" fill-opacity="0.04"/>
+  <text x="640" y="625" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" fill="#2D5016">
+    <tspan font-weight="bold">6 项核心技术突破</tspan> · 全部经过真实验证 · 测试覆盖率持续提升
+  </text>
+  <text x="640" y="652" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#9B8B7B">
+    smoke:device-claim · smoke:memory-chat · smoke:memory-citation · smoke:rerank · evaluate:retrieval · Docker 部署验证
+  </text>
+
+  <!-- Page number -->
+  <text x="1220" y="700" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">13 / 18</text>
+</svg>

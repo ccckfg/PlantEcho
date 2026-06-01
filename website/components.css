@@ -1,0 +1,400 @@
+/* ============================================================
+   PlantEcho · Verdant Echo 官网
+   Re-usable UI Components (components.css)
+   ============================================================ */
+
+/* buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 15px;
+  padding: 14px 26px;
+  border-radius: 99px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform .25s var(--ease), box-shadow .35s var(--ease), background .35s var(--ease);
+}
+
+.btn:active {
+  transform: scale(.97);
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: var(--shadow-leaf);
+}
+
+.btn-primary:hover {
+  background: var(--primary-container);
+  box-shadow: var(--shadow-lift);
+  transform: translateY(-2px);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--primary);
+  border-color: var(--outline-variant);
+}
+
+.btn-ghost:hover {
+  background: var(--sc-low);
+  border-color: var(--primary-fixed-dim);
+}
+
+/* hero 植物卡片 */
+.plant-card {
+  position: relative;
+  width: min(100%, 400px);
+  background: linear-gradient(160deg, var(--surface-bright), var(--sc-low));
+  border: 1px solid var(--hairline);
+  border-radius: 32px;
+  padding: 34px 32px 30px;
+  box-shadow: var(--shadow-lift);
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform .6s var(--ease), box-shadow .6s var(--ease);
+}
+
+.plant-card-glow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: .7;
+  background: radial-gradient(120% 80% at 50% -10%, var(--mood-soft), transparent 60%);
+  transition: background .8s var(--ease);
+}
+
+.plant-orb {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  margin: 0 auto 22px;
+  display: grid;
+  place-items: center;
+}
+
+.orb-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--mood);
+  opacity: .4;
+  animation: breathe 5.5s var(--ease-soft) infinite;
+}
+
+.orb-core {
+  position: absolute;
+  inset: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, var(--mood-soft), var(--mood));
+  box-shadow: 0 8px 24px rgba(45, 90, 39, .22);
+  transition: background .8s var(--ease);
+}
+
+.orb-leaf {
+  position: relative;
+  font-size: 38px;
+  z-index: 1;
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, .12));
+  animation: sway 6s var(--ease-soft) infinite;
+}
+
+@keyframes breathe {
+  0%, 100% {
+    transform: scale(1);
+    opacity: .4;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: .15;
+  }
+}
+
+@keyframes sway {
+  0%, 100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+.plant-tagrow {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  min-height: 28px;
+  margin-bottom: 12px;
+}
+
+.p-tag {
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 99px;
+  background: var(--mood-soft);
+  color: var(--on-secondary-container);
+  border: 1px solid transparent;
+  white-space: nowrap;
+  animation: tagIn .45s var(--ease) both;
+}
+
+@keyframes tagIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.plant-name {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 27px;
+  color: var(--ink);
+}
+
+.plant-name span {
+  font-size: .6em;
+  color: var(--on-surface-variant);
+  font-weight: 400;
+}
+
+.plant-caption {
+  margin-top: 8px;
+  font-size: 15px;
+  color: var(--on-surface-variant);
+  min-height: 24px;
+  transition: opacity .4s var(--ease);
+}
+
+.plant-bars {
+  margin-top: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.bar {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  align-items: center;
+  gap: 14px;
+}
+
+.bar-label {
+  font-size: 12.5px;
+  color: var(--on-surface-variant);
+}
+
+.bar-track {
+  height: 7px;
+  border-radius: 99px;
+  background: var(--sc-high);
+  overflow: hidden;
+  position: relative;
+}
+
+.bar-track i {
+  position: absolute;
+  inset: 0;
+  width: var(--v, 0%);
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--mood), var(--primary-fixed-dim));
+  transition: width .9s var(--ease), background .8s var(--ease);
+}
+
+/* mood color states (shared) */
+[data-mood="happy"] {
+  --mood: #3d6751;
+  --mood-soft: #bfedd1;
+}
+
+[data-mood="thirsty"] {
+  --mood: #b3402f;
+  --mood-soft: #ffdad6;
+}
+
+[data-mood="sunny"] {
+  --mood: #9a6b1f;
+  --mood-soft: #feddb3;
+}
+
+[data-mood="offline"] {
+  --mood: #72796e;
+  --mood-soft: #dbe1da;
+}
+
+[data-mood="neutral"] {
+  --mood: #3d6751;
+  --mood-soft: #e1e7e0;
+}
+
+/* 说人话 · translate cards */
+.translate-card {
+  background: var(--sc-lowest);
+  border: 1px solid var(--hairline);
+  border-radius: 24px;
+  padding: 30px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+  box-shadow: var(--shadow-soft);
+  transition: transform .4s var(--ease), box-shadow .4s var(--ease);
+}
+
+.translate-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lift);
+}
+
+.t-tag {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  padding: 4px 11px;
+  border-radius: 99px;
+}
+
+.t-cold {
+  background: var(--sc-high);
+  color: var(--on-surface-variant);
+}
+
+.t-warm {
+  background: var(--secondary-container);
+  color: var(--on-secondary-container);
+}
+
+.t-from {
+  font-family: ui-monospace, monospace;
+  font-size: 15px;
+  color: var(--on-surface-variant);
+  text-decoration: line-through;
+  text-decoration-color: var(--outline-variant);
+}
+
+.t-arrow {
+  color: var(--primary-fixed-dim);
+  font-size: 20px;
+  align-self: center;
+  line-height: 1;
+}
+
+.t-to {
+  font-family: var(--serif);
+  font-size: 19px;
+  color: var(--primary-container);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+/* 主动发言 · trigger cards */
+.trigger {
+  background: var(--sc-lowest);
+  border: 1px solid var(--hairline);
+  border-radius: 24px;
+  padding: 28px 24px;
+  box-shadow: var(--shadow-soft);
+  transition: transform .4s var(--ease), box-shadow .4s var(--ease);
+}
+
+.trigger:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lift);
+}
+
+.trigger-ic {
+  font-size: 32px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.trigger h3 {
+  font-family: var(--serif);
+  font-size: 21px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.trigger-fact {
+  font-size: 12.5px;
+  color: var(--on-surface-variant);
+  padding: 5px 10px;
+  background: var(--sc-low);
+  border-radius: 8px;
+  display: inline-block;
+  margin-bottom: 14px;
+}
+
+.trigger-say {
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--primary-container);
+  padding: 13px 16px;
+  background: var(--secondary-container);
+  border-radius: 14px 14px 14px 4px;
+}
+
+/* 五个界面 · figure shot */
+.shot {
+  position: relative;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-soft);
+  background: var(--sc-low);
+  transition: transform .5s var(--ease), box-shadow .5s var(--ease);
+}
+
+.shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .7s var(--ease);
+}
+
+.shot:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lift);
+}
+
+.shot:hover img {
+  transform: scale(1.03);
+}
+
+.shot figcaption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 22px 18px 16px;
+  background: linear-gradient(transparent, rgba(13, 31, 18, .84));
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.shot figcaption b {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.shot figcaption span {
+  font-size: 12px;
+  opacity: .82;
+}

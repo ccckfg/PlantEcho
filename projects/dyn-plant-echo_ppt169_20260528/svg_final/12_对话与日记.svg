@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  
+  <rect width="1280" height="720" fill="#F5F0E8" />
+
+  
+  <path fill="#4A7C28" d="M62,50 H62 A2,2 0 0 1 64,52 V108 A2,2 0 0 1 62,110 H62 A2,2 0 0 1 60,108 V52 A2,2 0 0 1 62,50 Z" />
+
+  
+  <text x="80" y="88" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="40" font-weight="bold" fill="#2D5016">
+    植响对话 &amp; 成长日记
+  </text>
+
+  
+  <text x="80" y="150" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="20" font-weight="bold" fill="#4A7C28">植响对话</text>
+
+  <path fill="#FFFFFF" d="M72,170 H628 A12,12 0 0 1 640,182 V578 A12,12 0 0 1 628,590 H72 A12,12 0 0 1 60,578 V182 A12,12 0 0 1 72,170 Z" />
+  <path fill="none" stroke="#E0D8C8" stroke-width="1" d="M72,170 H628 A12,12 0 0 1 640,182 V578 A12,12 0 0 1 628,590 H72 A12,12 0 0 1 60,578 V182 A12,12 0 0 1 72,170 Z" />
+
+  
+  <path fill="#4A7C28" fill-opacity="0.06" d="M72,170 H628 A12,12 0 0 1 640,182 V208 A12,12 0 0 1 628,220 H72 A12,12 0 0 1 60,208 V182 A12,12 0 0 1 72,170 Z" />
+  <rect x="60" y="210" width="580" height="10" fill="#4A7C28" fill-opacity="0.06" />
+  
+  <g transform="translate(80.0, 180.0) scale(1.1666666666666667)" fill="#4A7C28">
+    <path d="M3.055 14.328l-.018 -.168l-.004 -.043a11 11 0 0 1 -.047 -1.12c.018 -6.29 4.29 -9.997 13 -9.997h4.014a1 1 0 0 1 1 1l-.002 2.057c-.498 8.701 -4.74 12.943 -11.998 12.943h-2.631a16 16 0 0 0 -.375 2.11a1 1 0 1 1 -1.988 -.22q .174 -1.568 .58 -2.947l-.118 -.146l-.208 -.28l-.157 -.229l-.182 -.293l-.098 -.171l-.065 -.122a6 6 0 0 1 -.397 -.941l-.072 -.237l-.085 -.327l-.057 -.268l-.043 -.242zm8.539 -4.242c-2.845 1.265 -4.854 3.13 -6.108 5.583q .098 .2 .218 .4l.185 .281l.07 .097q .12 .164 .258 .329l.197 .224h.649c1.037 -2.271 2.777 -3.946 5.343 -5.086a1 1 0 0 0 -.812 -1.828" />
+  </g>
+  <text x="115" y="200" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#2D5016">小绿</text>
+  <text x="115" y="216" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#9B8B7B">在线 · 正在光合作用中</text>
+
+  
+  
+  <path fill="#4A7C28" d="M412,240 H608 A12,12 0 0 1 620,252 V272 A12,12 0 0 1 608,284 H412 A12,12 0 0 1 400,272 V252 A12,12 0 0 1 412,240 Z" />
+  <text x="510" y="262" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#FFFFFF">你今天看起来怎么样？</text>
+  <text x="510" y="278" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="10" fill="#B8D4A0">14:32</text>
+
+  
+  <path fill="#F5F0E8" d="M92,300 H368 A12,12 0 0 1 380,312 V348 A12,12 0 0 1 368,360 H92 A12,12 0 0 1 80,348 V312 A12,12 0 0 1 92,300 Z" />
+  
+  <g transform="translate(95.0, 312.0) scale(0.8333333333333334)" fill="#4A7C28">
+    <path d="M3.055 14.328l-.018 -.168l-.004 -.043a11 11 0 0 1 -.047 -1.12c.018 -6.29 4.29 -9.997 13 -9.997h4.014a1 1 0 0 1 1 1l-.002 2.057c-.498 8.701 -4.74 12.943 -11.998 12.943h-2.631a16 16 0 0 0 -.375 2.11a1 1 0 1 1 -1.988 -.22q .174 -1.568 .58 -2.947l-.118 -.146l-.208 -.28l-.157 -.229l-.182 -.293l-.098 -.171l-.065 -.122a6 6 0 0 1 -.397 -.941l-.072 -.237l-.085 -.327l-.057 -.268l-.043 -.242zm8.539 -4.242c-2.845 1.265 -4.854 3.13 -6.108 5.583q .098 .2 .218 .4l.185 .281l.07 .097q .12 .164 .258 .329l.197 .224h.649c1.037 -2.271 2.777 -3.946 5.343 -5.086a1 1 0 0 0 -.812 -1.828" />
+  </g>
+  <text x="120" y="328" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#2B2B2B">今天阳光真好！我刚喝完水，</text>
+  <text x="120" y="348" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#2B2B2B">叶子都舒展开了呢～</text>
+  <text x="370" y="350" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="10" fill="#9B8B7B">14:32</text>
+
+  
+  <text x="80" y="395" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">快捷动作</text>
+  <path fill="#4A7C28" fill-opacity="0.1" d="M94,405 H156 A14,14 0 0 1 170,419 V419 A14,14 0 0 1 156,433 H94 A14,14 0 0 1 80,419 V419 A14,14 0 0 1 94,405 Z" />
+  <text x="125" y="424" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#4A7C28">已浇水</text>
+  <path fill="#E8A849" fill-opacity="0.1" d="M194,405 H256 A14,14 0 0 1 270,419 V419 A14,14 0 0 1 256,433 H194 A14,14 0 0 1 180,419 V419 A14,14 0 0 1 194,405 Z" />
+  <text x="225" y="424" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#8B6914">晒太阳</text>
+  <path fill="#D4A574" fill-opacity="0.1" d="M294,405 H386 A14,14 0 0 1 400,419 V419 A14,14 0 0 1 386,433 H294 A14,14 0 0 1 280,419 V419 A14,14 0 0 1 294,405 Z" />
+  <text x="340" y="424" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#8B6914">换了新位置</text>
+
+  
+  <path fill="#E8A849" fill-opacity="0.06" d="M88,445 H612 A8,8 0 0 1 620,453 V473 A8,8 0 0 1 612,481 H88 A8,8 0 0 1 80,473 V453 A8,8 0 0 1 88,445 Z" />
+  
+  <g transform="translate(95.0, 452.0) scale(0.8333333333333334)" fill="#E8A849">
+    <path d="M21.5 5.134a1 1 0 0 1 .493 .748l.007 .118v13a1 1 0 0 1 -1.5 .866a8 8 0 0 0 -7.5 -.266v-15.174a10 10 0 0 1 8.5 .708m-10.5 -.707l.001 15.174a8 8 0 0 0 -7.234 .117l-.327 .18l-.103 .044l-.049 .016l-.11 .026l-.061 .01l-.117 .006h-.042l-.11 -.012l-.077 -.014l-.108 -.032l-.126 -.056l-.095 -.056l-.089 -.067l-.06 -.056l-.073 -.082l-.064 -.089l-.022 -.036l-.032 -.06l-.044 -.103l-.016 -.049l-.026 -.11l-.01 -.061l-.004 -.049l-.002 -13.068a1 1 0 0 1 .5 -.866a10 10 0 0 1 8.5 -.707" />
+  </g>
+  <text x="120" y="470" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#8B6914">引用记忆: "从客厅搬到了东窗边" · 5月20日 · 相关度 0.91</text>
+
+  
+  <path fill="#2D5016" fill-opacity="0.04" d="M88,495 H612 A8,8 0 0 1 620,503 V537 A8,8 0 0 1 612,545 H88 A8,8 0 0 1 80,537 V503 A8,8 0 0 1 88,495 Z" />
+  
+  <g transform="translate(95.0, 505.0) scale(0.8333333333333334)" fill="#4A7C28">
+    <path d="M5.821 4.91c3.899 -2.765 9.468 -2.539 13.073 .535c3.667 3.129 4.168 8.238 1.152 11.898c-2.841 3.447 -7.965 4.583 -12.231 2.805l-.233 -.101l-4.374 .931l-.04 .006l-.035 .007h-.018l-.022 .005h-.038l-.033 .004l-.021 -.001l-.023 .001l-.033 -.003h-.035l-.022 -.004l-.022 -.002l-.035 -.007l-.034 -.005l-.016 -.004l-.024 -.005l-.049 -.016l-.024 -.005l-.011 -.005l-.022 -.007l-.045 -.02l-.03 -.012l-.011 -.006l-.014 -.006l-.031 -.018l-.045 -.024l-.016 -.011l-.037 -.026l-.04 -.027l-.002 -.004l-.013 -.009l-.043 -.04l-.025 -.02l-.006 -.007l-.056 -.062l-.013 -.014l-.011 -.014l-.039 -.056l-.014 -.019l-.005 -.01l-.042 -.073l-.007 -.012l-.004 -.008l-.007 -.012l-.014 -.038l-.02 -.042l-.004 -.016l-.004 -.01l-.017 -.061l-.007 -.018l-.002 -.015l-.005 -.019l-.005 -.033l-.008 -.042l-.002 -.031l-.003 -.01v-.016l-.004 -.054l.001 -.036l.001 -.023l.002 -.053l.004 -.025v-.019l.008 -.035l.005 -.034l.005 -.02l.004 -.02l.018 -.06l.003 -.013l1.15 -3.45l-.022 -.037c-2.21 -3.747 -1.209 -8.391 2.413 -11.119z" />
+  </g>
+  <text x="120" y="525" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#2D5016">
+    快捷动作渲染为<tspan font-weight="bold">系统操作 chip</tspan>，不是伪装成用户消息
+  </text>
+
+  
+  <path fill="#C45A28" fill-opacity="0.06" d="M88,555 H612 A8,8 0 0 1 620,563 V583 A8,8 0 0 1 612,591 H88 A8,8 0 0 1 80,583 V563 A8,8 0 0 1 88,555 Z" />
+  <text x="100" y="579" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#C45A28">⚠ PlantEcho 此刻无法联网，回复来自本地预设</text>
+
+  
+  <text x="700" y="150" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="20" font-weight="bold" fill="#4A7C28">成长日记</text>
+
+  <path fill="#FFFFFF" d="M692,170 H1208 A12,12 0 0 1 1220,182 V578 A12,12 0 0 1 1208,590 H692 A12,12 0 0 1 680,578 V182 A12,12 0 0 1 692,170 Z" />
+  <path fill="none" stroke="#E0D8C8" stroke-width="1" d="M692,170 H1208 A12,12 0 0 1 1220,182 V578 A12,12 0 0 1 1208,590 H692 A12,12 0 0 1 680,578 V182 A12,12 0 0 1 692,170 Z" />
+
+  
+  <text x="700" y="200" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#2D5016">Bento StatCard</text>
+
+  <path fill="#4A7C28" fill-opacity="0.08" d="M708,215 H812 A8,8 0 0 1 820,223 V267 A8,8 0 0 1 812,275 H708 A8,8 0 0 1 700,267 V223 A8,8 0 0 1 708,215 Z" />
+  <text x="760" y="240" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="22" font-weight="bold" fill="#4A7C28">15</text>
+  <text x="760" y="262" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#6B7B6B">天陪伴</text>
+
+  <path fill="#E8A849" fill-opacity="0.08" d="M838,215 H942 A8,8 0 0 1 950,223 V267 A8,8 0 0 1 942,275 H838 A8,8 0 0 1 830,267 V223 A8,8 0 0 1 838,215 Z" />
+  <text x="890" y="240" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="22" font-weight="bold" fill="#E8A849">3</text>
+  <text x="890" y="262" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#6B7B6B">次里程碑</text>
+
+  <path fill="#D4A574" fill-opacity="0.08" d="M968,215 H1072 A8,8 0 0 1 1080,223 V267 A8,8 0 0 1 1072,275 H968 A8,8 0 0 1 960,267 V223 A8,8 0 0 1 968,215 Z" />
+  <text x="1020" y="240" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="22" font-weight="bold" fill="#D4A574">12</text>
+  <text x="1020" y="262" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#6B7B6B">张照片</text>
+
+  
+  <text x="700" y="310" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#2D5016">里程碑时间线</text>
+
+  
+  <line x1="730" y1="330" x2="730" y2="560" stroke="#E0D8C8" stroke-width="2" />
+
+  
+  <circle cx="730" cy="350" r="8" fill="#E8A849" />
+  
+  <g transform="translate(722.0, 342.0) scale(0.6666666666666666)" fill="#FFFFFF">
+    <path d="M8.243 7.34l-6.38 .925l-.113 .023a1 1 0 0 0 -.44 1.684l4.622 4.499l-1.09 6.355l-.013 .11a1 1 0 0 0 1.464 .944l5.706 -3l5.693 3l.1 .046a1 1 0 0 0 1.352 -1.1l-1.091 -6.355l4.624 -4.5l.078 -.085a1 1 0 0 0 -.633 -1.62l-6.38 -.926l-2.852 -5.78a1 1 0 0 0 -1.794 0l-2.853 5.78z" />
+  </g>
+  <text x="755" y="345" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#2D5016">第一次发新芽</text>
+  <text x="755" y="365" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">5月15日 · 你给它留了言</text>
+
+  
+  <circle cx="730" cy="410" r="8" fill="#4A7C28" />
+  
+  <g transform="translate(722.0, 402.0) scale(0.6666666666666666)" fill="#FFFFFF">
+    <path d="M6.979 3.074a6 6 0 0 1 4.988 1.425l.037 .033l.034 -.03a6 6 0 0 1 4.733 -1.44l.246 .036a6 6 0 0 1 3.364 10.008l-.18 .185l-.048 .041l-7.45 7.379a1 1 0 0 1 -1.313 .082l-.094 -.082l-7.493 -7.422a6 6 0 0 1 3.176 -10.215z" />
+  </g>
+  <text x="755" y="405" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#2D5016">搬到了东窗边</text>
+  <text x="755" y="425" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">5月20日 · 光照明显改善</text>
+
+  
+  <circle cx="730" cy="470" r="8" fill="#D4A574" />
+  
+  <g transform="translate(722.0, 462.0) scale(0.6666666666666666)" fill="#FFFFFF">
+    <path d="M6 3a7 7 0 0 1 6.95 6.155a6.97 6.97 0 0 1 5.05 -2.155h3a1 1 0 0 1 1 1v1a7 7 0 0 1 -7 7h-2v4a1 1 0 0 1 -2 0v-7h-2a7 7 0 0 1 -7 -7v-2a1 1 0 0 1 1 -1z" />
+  </g>
+  <text x="755" y="465" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#2D5016">连续7天健康</text>
+  <text x="755" y="485" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">5月25日 · 系统自动庆祝</text>
+
+  
+  <path fill="#4A7C28" fill-opacity="0.06" d="M761,500 H949 A6,6 0 0 1 955,506 V522 A6,6 0 0 1 949,528 H761 A6,6 0 0 1 755,522 V506 A6,6 0 0 1 761,500 Z" />
+  <text x="770" y="519" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#4A7C28">hover 里程碑可直接留言</text>
+
+  
+  <path fill="#2D5016" fill-opacity="0.04" d="M70,610 H1210 A10,10 0 0 1 1220,620 V660 A10,10 0 0 1 1210,670 H70 A10,10 0 0 1 60,660 V620 A10,10 0 0 1 70,610 Z" />
+  
+  <g transform="translate(90.0, 625.0)" fill="#E8A849">
+    <path d="M4 11a1 1 0 0 1 .117 1.993l-.117 .007h-1a1 1 0 0 1 -.117 -1.993l.117 -.007h1z" />
+    <path d="M12 2a1 1 0 0 1 .993 .883l.007 .117v1a1 1 0 0 1 -1.993 .117l-.007 -.117v-1a1 1 0 0 1 1 -1z" />
+    <path d="M21 11a1 1 0 0 1 .117 1.993l-.117 .007h-1a1 1 0 0 1 -.117 -1.993l.117 -.007h1z" />
+    <path d="M4.893 4.893a1 1 0 0 1 1.32 -.083l.094 .083l.7 .7a1 1 0 0 1 -1.32 1.497l-.094 -.083l-.7 -.7a1 1 0 0 1 0 -1.414z" />
+    <path d="M17.693 4.893a1 1 0 0 1 1.497 1.32l-.083 .094l-.7 .7a1 1 0 0 1 -1.497 -1.32l.083 -.094l.7 -.7z" />
+    <path d="M14 18a1 1 0 0 1 1 1a3 3 0 0 1 -6 0a1 1 0 0 1 .883 -.993l.117 -.007h4z" />
+    <path d="M12 6a6 6 0 0 1 3.6 10.8a1 1 0 0 1 -.471 .192l-.129 .008h-6a1 1 0 0 1 -.6 -.2a6 6 0 0 1 3.6 -10.8z" />
+  </g>
+  <text x="125" y="647" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#2D5016">
+    "看见"和"被看见"形成闭环 —— <tspan font-weight="bold" fill="#4A7C28">里程碑可被回应，让互动不只是单向</tspan>
+  </text>
+
+  
+  <text x="1220" y="700" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">12 / 18</text>
+</svg>

@@ -1,0 +1,21 @@
+export const memoryConfig = {
+  historyHigh: 20,
+  historyLow: 8,
+  rawScanTurns: 30,
+  episodeSearchLimit: 3,
+  understandingSearchLimit: 3,
+  vectorCandidateLimit: 15,
+  bm25CandidateLimit: 15,
+  rerankTopN: 10,
+  recencyHalfLifeDays: 7,
+  relevanceWeight: 0.5,
+  recencyWeight: 0.2,
+  importanceWeight: 0.3,
+  vectorRelevanceWeight: 0.75,
+  bm25RelevanceWeight: 0.25,
+  hybridSearchEnabled: true,
+  duplicateEventWindowHours: 6,
+  queryTextLimit: 1800,
+  bm25TextLimit: 700,
+  understandingTextLimit: 1200
+} as const;

@@ -1,0 +1,28 @@
+{
+  "name": "dyn-plant-pal",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/shared",
+    "apps/server",
+    "apps/desktop"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace @dyn/shared && npm run build --workspace @dyn/server && npm run build --workspace @dyn/desktop",
+    "build:desktop": "npm run build --workspace @dyn/shared && npm run build --workspace @dyn/desktop",
+    "dev:server": "npm run dev --workspace @dyn/server",
+    "dev:desktop": "npm run dev --workspace @dyn/desktop",
+    "tauri:dev": "npm run tauri:dev --workspace @dyn/desktop",
+    "tauri:build": "npm run tauri:build --workspace @dyn/desktop",
+    "test": "npm run test --workspace @dyn/server",
+    "simulate": "npm run simulate --workspace @dyn/server",
+    "evaluate:retrieval": "npm run evaluate:retrieval --workspace @dyn/server",
+    "smoke:device-claim": "npm run smoke:device-claim --workspace @dyn/server",
+    "smoke:memory-chat": "npm run smoke:memory-chat --workspace @dyn/server",
+    "smoke:memory-citation": "npm run smoke:memory-citation --workspace @dyn/server",
+    "smoke:rerank": "npm run smoke:rerank --workspace @dyn/server"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  }
+}

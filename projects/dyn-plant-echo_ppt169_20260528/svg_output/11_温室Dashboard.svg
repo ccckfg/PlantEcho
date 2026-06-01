@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <defs>
+    <radialGradient id="dashGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#4A7C28" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#4A7C28" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1280" height="720" fill="#F5F0E8"/>
+  <rect width="1280" height="720" fill="url(#dashGlow)"/>
+
+  <!-- Top decorative bar -->
+  <rect x="60" y="50" width="4" height="60" rx="2" fill="#4A7C28"/>
+
+  <!-- Page title -->
+  <text x="80" y="88" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="40" font-weight="bold" fill="#2D5016">
+    温室 Dashboard
+  </text>
+  <text x="80" y="118" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" fill="#6B7B6B">
+    每次进入都有"被注视"的感觉
+  </text>
+
+  <!-- Greeting area -->
+  <rect x="60" y="150" width="1160" height="80" rx="12" fill="#FFFFFF"/>
+  <rect x="60" y="150" width="1160" height="80" rx="12" fill="none" stroke="#E0D8C8" stroke-width="1"/>
+  <use data-icon="tabler-filled/sun-high" x="90" y="168" width="36" height="36" fill="#E8A849"/>
+  <text x="140" y="195" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="24" font-weight="bold" fill="#2D5016">下午好，欢迎回到你的温室</text>
+  <text x="140" y="218" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#9B8B7B">根据时辰自动切换：早安 / 午安 / 下午好 / 晚上好</text>
+
+  <!-- Weather card -->
+  <rect x="60" y="250" width="280" height="120" rx="12" fill="#FFFFFF"/>
+  <rect x="60" y="250" width="280" height="120" rx="12" fill="none" stroke="#E0D8C8" stroke-width="1"/>
+  <use data-icon="tabler-filled/cloud" x="85" y="270" width="32" height="32" fill="#4A7C28"/>
+  <text x="130" y="290" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#2D5016">今日天气</text>
+  <text x="85" y="320" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">多云 24°C · 湿度 65%</text>
+  <text x="85" y="345" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">和风天气代理</text>
+
+  <!-- Watering button -->
+  <rect x="360" y="250" width="200" height="120" rx="12" fill="#4A7C28"/>
+  <use data-icon="tabler-filled/droplet" x="430" y="268" width="40" height="40" fill="#FFFFFF"/>
+  <text x="460" y="330" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#FFFFFF">一键浇水</text>
+  <text x="460" y="355" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#B8D4A0">5 秒撤销 toast</text>
+
+  <!-- Undo toast example -->
+  <rect x="600" y="270" width="300" height="50" rx="10" fill="#2D5016" fill-opacity="0.9"/>
+  <text x="620" y="295" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#FFFFFF">📝 你为小绿记录了一次浇水</text>
+  <text x="850" y="295" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#E8A849" font-weight="bold">撤销</text>
+
+  <!-- Plant card grid -->
+  <text x="80" y="410" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">我的植物</text>
+
+  <!-- Plant card 1 -->
+  <g id="plant-1">
+    <rect x="60" y="425" width="260" height="180" rx="12" fill="#FFFFFF"/>
+    <rect x="60" y="425" width="260" height="180" rx="12" fill="none" stroke="#4A7C28" stroke-width="1.5"/>
+    <circle cx="120" cy="470" r="25" fill="#4A7C28" fill-opacity="0.12"/>
+    <use data-icon="tabler-filled/leaf" x="100" y="450" width="40" height="40" fill="#4A7C28"/>
+    <text x="160" y="468" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">小绿</text>
+    <text x="160" y="492" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">绿萝 · 客厅东窗</text>
+    <rect x="80" y="510" width="100" height="24" rx="12" fill="#4A7C28" fill-opacity="0.1"/>
+    <text x="130" y="527" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#4A7C28">我有点渴了</text>
+    <rect x="190" y="510" width="110" height="24" rx="12" fill="#E8A849" fill-opacity="0.1"/>
+    <text x="245" y="527" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#8B6914">光照充足</text>
+    <text x="80" y="565" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">土壤 23% · 温度 24°C · 光照 850lux</text>
+    <text x="80" y="590" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#4A7C28" font-style="italic">"今天阳光真好，我在努力生长呢"</text>
+  </g>
+
+  <!-- Plant card 2 -->
+  <g id="plant-2">
+    <rect x="340" y="425" width="260" height="180" rx="12" fill="#FFFFFF"/>
+    <rect x="340" y="425" width="260" height="180" rx="12" fill="none" stroke="#E8A849" stroke-width="1.5"/>
+    <circle cx="400" cy="470" r="25" fill="#E8A849" fill-opacity="0.12"/>
+    <use data-icon="tabler-filled/seedling" x="380" y="450" width="40" height="40" fill="#E8A849"/>
+    <text x="440" y="468" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">小金</text>
+    <text x="440" y="492" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#6B7B6B">金枝玉叶 · 阳台</text>
+    <rect x="360" y="510" width="100" height="24" rx="12" fill="#4A7C28" fill-opacity="0.1"/>
+    <text x="410" y="527" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#4A7C28">状态良好</text>
+    <rect x="470" y="510" width="110" height="24" rx="12" fill="#D4A574" fill-opacity="0.1"/>
+    <text x="525" y="527" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="11" fill="#8B6914">温度偏高</text>
+    <text x="360" y="565" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">土壤 68% · 温度 31°C · 光照 1200lux</text>
+    <text x="360" y="590" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#E8A849" font-style="italic">"有点热，能帮我遮遮阳吗？"</text>
+  </g>
+
+  <!-- Plant card 3 (empty state) -->
+  <g id="plant-empty">
+    <rect x="620" y="425" width="260" height="180" rx="12" fill="#FFFFFF" fill-opacity="0.5"/>
+    <rect x="620" y="425" width="260" height="180" rx="12" fill="none" stroke="#E0D8C8" stroke-width="1" stroke-dasharray="6,4"/>
+    <circle cx="750" cy="495" r="25" fill="#4A7C28" fill-opacity="0.06"/>
+    <use data-icon="tabler-filled/leaf" x="730" y="475" width="40" height="40" fill="#4A7C28" fill-opacity="0.3"/>
+    <text x="750" y="540" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#9B8B7B">还没有植物？</text>
+    <text x="750" y="562" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#4A7C28">我在等你</text>
+  </g>
+
+  <!-- PlantReflectionFooter -->
+  <rect x="60" y="630" width="1160" height="50" rx="10" fill="#2D5016" fill-opacity="0.04"/>
+  <use data-icon="tabler-filled/leaf" x="90" y="642" width="24" height="24" fill="#4A7C28"/>
+  <text x="125" y="662" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#4A7C28" font-style="italic">
+    小绿说："今天已经是第 15 天了，谢谢你一直陪着我"
+  </text>
+  <text x="1100" y="662" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">PlantReflectionFooter</text>
+
+  <!-- Page number -->
+  <text x="1220" y="700" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">11 / 18</text>
+</svg>

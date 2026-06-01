@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <!-- 1. 温润的浅绿背景 -->
+  <rect width="1280" height="720" fill="#F4F6F4"/>
+
+  <!-- 2. 顶部Header区域 -->
+  <g id="header-group">
+    <rect x="60" y="40" width="105" height="26" rx="13" fill="#2B583E" fill-opacity="0.08"/>
+    <text x="78" y="58" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="12" font-weight="bold" fill="#2B583E">起源与初心</text>
+    <text x="180" y="60" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="32" font-weight="bold" fill="#1C2E24">让代码拥有温度：五大“人文关怀”原则</text>
+    <line x1="60" y1="85" x2="1220" y2="85" stroke="#D1DAD4" stroke-width="1"/>
+  </g>
+
+  <!-- 3. 三列扁平卡片排列 (高度460px, 宽度370px, 间距25px, x=60, 455, 850) -->
+  
+  <!-- 卡片 1: 原则一 -->
+  <g id="card-principle-1">
+    <!-- 纯白底板，无投影，扁平精细描边 -->
+    <rect x="60" y="125" width="370" height="460" rx="12" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1.5"/>
+    
+    <!-- 顶部强调细绿边 -->
+    <path d="M 60,137 A 12,12 0 0,1 72,125 L 418,125 A 12,12 0 0,1 430,137 L 430,140 L 60,140 Z" fill="#2B583E"/>
+    
+    <!-- 原则标志图标 (tabler-filled/message-circle) -->
+    <rect x="90" y="170" width="48" height="48" rx="24" fill="#2B583E" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/message-circle" x="100" y="180" width="28" height="28" fill="#2B583E"/>
+
+    <text x="90" y="260" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="22" font-weight="bold" fill="#1C2E24">原则一：系统说人话</text>
+    <text x="90" y="295" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" font-weight="bold" fill="#8E5B3C">植物视角与第一人称叙事</text>
+    
+    <!-- 详情描述 (tspan 精密控制多行换行) -->
+    <text x="90" y="340" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="15" fill="#4D5F54">
+      <tspan x="90" dy="0">· <tspan fill="#1C2E24" font-weight="bold">拟人化转译</tspan>：拒绝冷冰冰的系统字</tspan>
+      <tspan x="90" dy="28">  眼。把“水分: 23%”翻译成第一人</tspan>
+      <tspan x="90" dy="28">  称的“我有点渴了 · 23%”。</tspan>
+      <tspan x="90" dy="32">· <tspan fill="#1C2E24" font-weight="bold">邀请句式</tspan>：把所有的否定式报错转</tspan>
+      <tspan x="90" dy="28">  译为带有友好氛围的诚恳邀请。</tspan>
+      <tspan x="90" dy="32">· <tspan fill="#1C2E24" font-weight="bold">折叠技术细节</tspan>：将报错退回二级，</tspan>
+      <tspan x="90" dy="28">  主界面只显示温暖贴心的指引。</tspan>
+    </text>
+  </g>
+
+  <!-- 卡片 2: 原则二 -->
+  <g id="card-principle-2">
+    <!-- 纯白底板，无投影，扁平精细描边 -->
+    <rect x="455" y="125" width="370" height="460" rx="12" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1.5"/>
+    
+    <!-- 顶部强调细绿边 -->
+    <path d="M 455,137 A 12,12 0 0,1 467,125 L 813,125 A 12,12 0 0,1 825,137 L 825,140 L 455,140 Z" fill="#8E5B3C"/>
+
+    <!-- 原则标志图标 (tabler-filled/sun) -->
+    <rect x="485" y="170" width="48" height="48" rx="24" fill="#8E5B3C" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/sun" x="495" y="180" width="28" height="28" fill="#8E5B3C"/>
+
+    <text x="485" y="260" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="22" font-weight="bold" fill="#1C2E24">原则二：尊重用户的节奏</text>
+    <text x="485" y="295" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" font-weight="bold" fill="#8E5B3C">慢节奏宽容与呼吸感设计</text>
+
+    <!-- 详情描述 -->
+    <text x="485" y="340" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="15" fill="#4D5F54">
+      <tspan x="485" dy="0">· <tspan fill="#1C2E24" font-weight="bold">撤销优先于对话框</tspan>：高风险操作</tspan>
+      <tspan x="485" dy="28">  提供“5秒撤销 Toast”，而非弹出强</tspan>
+      <tspan x="485" dy="28">  占焦点、逼迫用户确认的模态框。</tspan>
+      <tspan x="485" dy="32">· <tspan fill="#1C2E24" font-weight="bold">温柔的等待文案</tspan>：用“正在看看窗</tspan>
+      <tspan x="485" dy="28">  外…”代替单调粗暴的“正在加载”。</tspan>
+      <tspan x="485" dy="32">· <tspan fill="#1C2E24" font-weight="bold">缓动过渡</tspan>：采用固定 380ms 的弹</tspan>
+      <tspan x="485" dy="28">  性过渡动效，模拟植物的缓慢生长。</tspan>
+    </text>
+  </g>
+
+  <!-- 卡片 3: 原则三 -->
+  <g id="card-principle-3">
+    <!-- 纯白底板，无投影，扁平精细描边 -->
+    <rect x="850" y="125" width="370" height="460" rx="12" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1.5"/>
+    
+    <!-- 顶部强调细绿边 -->
+    <path d="M 850,137 A 12,12 0 0,1 862,125 L 1208,125 A 12,12 0 0,1 1220,137 L 1220,140 L 850,140 Z" fill="#DDA43B"/>
+
+    <!-- 原则标志图标 (tabler-filled/heart) -->
+    <rect x="880" y="170" width="48" height="48" rx="24" fill="#DDA43B" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/heart" x="890" y="180" width="28" height="28" fill="#DDA43B"/>
+
+    <text x="880" y="260" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="22" font-weight="bold" fill="#1C2E24">原则三：控制权归用户</text>
+    <text x="880" y="295" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" font-weight="bold" fill="#8E5B3C">极致的诚实与人机信任建立</text>
+
+    <!-- 详情描述 -->
+    <text x="880" y="340" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="15" fill="#4D5F54">
+      <tspan x="880" dy="0">· <tspan fill="#1C2E24" font-weight="bold">不伪造消息</tspan>：一键浇水等行为显</tspan>
+      <tspan x="880" dy="28">  示为居中的系统记录气泡，绝对不在</tspan>
+      <tspan x="880" dy="28">  聊天界面中伪造用户发送了“浇水”。</tspan>
+      <tspan x="880" dy="32">· <tspan fill="#1C2E24" font-weight="bold">离线诚实兜底</tspan>：无法联网时直白告</tspan>
+      <tspan x="880" dy="28">  知“来自本地预设”，不糊弄用户。</tspan>
+      <tspan x="880" dy="32">· <tspan fill="#1C2E24" font-weight="bold">视觉极简克制</tspan>：未开发按钮绝不</tspan>
+      <tspan x="880" dy="28">  展示，杜绝无意义报错带来的挫折。</tspan>
+    </text>
+  </g>
+
+  <!-- 4. Footer 页脚 -->
+  <g id="footer-group">
+    <text x="60" y="685" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="10" fill="#809085">DYN Plant Pal | 期末项目答辩</text>
+    <text x="1200" y="685" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="10" fill="#809085" text-anchor="end">03</text>
+  </g>
+</svg>

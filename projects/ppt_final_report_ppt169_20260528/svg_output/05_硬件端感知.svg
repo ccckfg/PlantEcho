@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <!-- 1. 温润的浅绿背景 -->
+  <rect width="1280" height="720" fill="#F4F6F4"/>
+
+  <!-- 2. 顶部Header区域 -->
+  <g id="header-group">
+    <rect x="60" y="40" width="120" height="26" rx="13" fill="#2B583E" fill-opacity="0.08"/>
+    <text x="78" y="58" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="12" font-weight="bold" fill="#2B583E">硬件与物联层</text>
+    <text x="196" y="60" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="32" font-weight="bold" fill="#1C2E24">硬件端：多传感器感知与 MQTT 主动通信</text>
+    <line x1="60" y1="85" x2="1220" y2="85" stroke="#D1DAD4" stroke-width="1"/>
+  </g>
+
+  <!-- 3. 左列卡片：多源物理传感 (x=60, y=120, w=560, h=460) -->
+  <g id="left-card-sensors">
+    <!-- 纯白底板，无投影，扁平描边 -->
+    <rect x="60" y="120" width="560" height="460" rx="12" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1.5"/>
+    <path d="M 60,132 A 12,12 0 0,1 72,120 L 608,120 A 12,12 0 0,1 620,132 L 620,135 L 60,135 Z" fill="#8E5B3C"/>
+
+    <!-- 标题与图标 -->
+    <rect x="90" y="155" width="40" height="40" rx="20" fill="#8E5B3C" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/device-cpu" x="98" y="163" width="24" height="24" fill="#8E5B3C"/>
+    <text x="145" y="181" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="20" font-weight="bold" fill="#1C2E24">多源环境高精度传感器组</text>
+    <text x="145" y="205" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="13" fill="#809085">挂载 I2C 0x3C/0x44/0x23 通信总线</text>
+
+    <!-- 传感器明细 -->
+    <!-- 传感器1：土壤湿度 -->
+    <g id="sensor-detail-1">
+      <rect x="90" y="240" width="50" height="50" rx="6" fill="#F4F6F4" stroke="#D1DAD4" stroke-width="1"/>
+      <use data-icon="tabler-filled/leaf" x="100" y="250" width="30" height="30" fill="#2B583E"/>
+      <text x="160" y="260" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="15" font-weight="bold" fill="#1C2E24">电容式土壤湿度传感器 (GPIO34 / ADC)</text>
+      <text x="160" y="282" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="13" fill="#4D5F54">读取 soilRaw，在固件中转化为 soilPercent (0%-100%)。</text>
+    </g>
+
+    <!-- 传感器2：空气温湿度 -->
+    <g id="sensor-detail-2">
+      <rect x="90" y="340" width="50" height="50" rx="6" fill="#F4F6F4" stroke="#D1DAD4" stroke-width="1"/>
+      <use data-icon="tabler-filled/sun" x="100" y="350" width="30" height="30" fill="#DDA43B"/>
+      <text x="160" y="360" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="15" font-weight="bold" fill="#1C2E24">SHT40 瑞士高精度空气温湿度芯片</text>
+      <text x="160" y="382" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="13" fill="#4D5F54">I2C (0x44) 读取 airTempC &amp; airHumidityPercent，误差低至 ±1.5%。</text>
+    </g>
+
+    <!-- 传感器3：环境光照 -->
+    <g id="sensor-detail-3">
+      <rect x="90" y="440" width="50" height="50" rx="6" fill="#F4F6F4" stroke="#D1DAD4" stroke-width="1"/>
+      <use data-icon="tabler-filled/heart" x="100" y="450" width="30" height="30" fill="#8E5B3C"/>
+      <text x="160" y="460" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="15" font-weight="bold" fill="#1C2E24">GY-302 / BH1750 环境光照强传感器</text>
+      <text x="160" y="482" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="13" fill="#4D5F54">I2C (0x23) 采集环境光照 lux 值，作为植物日光浴与避光的计算基础。</text>
+    </g>
+  </g>
+
+  <!-- 4. 右列卡片：通信与配网 (x=660, y=120, w=560, h=460) -->
+  <g id="right-card-iot">
+    <!-- 纯白底板，无投影，扁平描边 -->
+    <rect x="660" y="120" width="560" height="460" rx="12" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1.5"/>
+    <path d="M 660,132 A 12,12 0 0,1 672,120 L 1208,120 A 12,12 0 0,1 1220,132 L 1220,135 L 660,135 Z" fill="#2B583E"/>
+
+    <!-- 标题与图标 -->
+    <rect x="690" y="155" width="40" height="40" rx="20" fill="#2B583E" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/message-circle" x="698" y="163" width="24" height="24" fill="#2B583E"/>
+    <text x="745" y="181" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="20" font-weight="bold" fill="#1C2E24">毫秒级 MQTT 协议与 SoftAP 配网</text>
+    <text x="745" y="205" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="13" fill="#809085">实现底端设备与云端高速闭环</text>
+
+    <!-- 通信细节 -->
+    <!-- 细节1：MQTT推流 -->
+    <g id="iot-detail-1">
+      <rect x="690" y="240" width="50" height="50" rx="6" fill="#F4F6F4" stroke="#D1DAD4" stroke-width="1"/>
+      <use data-icon="tabler-filled/database" x="700" y="250" width="30" height="30" fill="#8E5B3C"/>
+      <text x="760" y="260" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="15" font-weight="bold" fill="#1C2E24">秒级 MQTT 上报机制</text>
+      <text x="760" y="285" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="13" fill="#4D5F54">
+        <tspan x="760" dy="0">固件向主题 <tspan fill="#8E5B3C" font-family="Consolas, monospace">dyn/devices/:deviceId/readings</tspan> 发送 JSON 载</tspan>
+        <tspan x="760" dy="20">荷，服务器高并发 MQTT broker 实时捕获并秒级入库。</tspan>
+      </text>
+    </g>
+
+    <!-- 细节2：SoftAP配网 -->
+    <g id="iot-detail-2">
+      <rect x="690" y="355" width="50" height="50" rx="6" fill="#F4F6F4" stroke="#D1DAD4" stroke-width="1"/>
+      <use data-icon="tabler-filled/rocket" x="700" y="365" width="30" height="30" fill="#2B583E"/>
+      <text x="760" y="375" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="15" font-weight="bold" fill="#1C2E24">长按 3 秒 SoftAP 极简配网</text>
+      <text x="760" y="400" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="13" fill="#4D5F54">
+        <tspan x="760" dy="0">用户只需长按 BOOT 键约 3 秒，ESP32 自动开启 SoftAP 热点，</tspan>
+        <tspan x="760" dy="20">允许手机/电脑通过网页零门槛配网，Wi-Fi 配置安全写入 NVS。</tspan>
+      </text>
+    </g>
+
+    <!-- 提示区 (弱警示框) -->
+    <rect x="690" y="475" width="500" height="65" rx="8" fill="#F4F6F4" stroke="#D1DAD4" stroke-width="1"/>
+    <text x="710" y="500" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="13" fill="#4D5F54">
+      <tspan fill="#2B583E" font-weight="bold">技术保障</tspan>：网络连接失败时，设备将启动<tspan fill="#8E5B3C" font-weight="bold">离线重连指数退避算法</tspan>，
+    </text>
+    <text x="710" y="522" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="13" fill="#4D5F54">
+      避免无线信道拥堵；认领成功的密钥会自动自动回传硬件以提供底层鉴权。
+    </text>
+  </g>
+
+  <!-- 5. Footer 页脚 -->
+  <g id="footer-group">
+    <text x="60" y="685" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="10" fill="#809085">DYN Plant Pal | 期末项目答辩</text>
+    <text x="1200" y="685" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="10" fill="#809085" text-anchor="end">05</text>
+  </g>
+</svg>

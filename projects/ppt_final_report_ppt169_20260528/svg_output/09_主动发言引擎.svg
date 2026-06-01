@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <defs>
+    <!-- 精细小箭头 -->
+    <marker id="stepArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#2B583E"/>
+    </marker>
+  </defs>
+
+  <!-- 1. 温润的浅绿背景 -->
+  <rect width="1280" height="720" fill="#F4F6F4"/>
+
+  <!-- 2. 顶部Header区域 -->
+  <g id="header-group">
+    <rect x="60" y="40" width="120" height="26" rx="13" fill="#2B583E" fill-opacity="0.08"/>
+    <text x="78" y="58" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="12" font-weight="bold" fill="#2B583E">云端大脑层</text>
+    <text x="196" y="60" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="32" font-weight="bold" fill="#1C2E24">主动发言 Engine 与和风天气代理</text>
+    <line x1="60" y1="85" x2="1220" y2="85" stroke="#D1DAD4" stroke-width="1"/>
+  </g>
+
+  <!-- 3. 左半部分：主动发言事实提炼 (x=60, w=560) -->
+  <g id="left-event-engine">
+    <text x="60" y="145" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="22" font-weight="bold" fill="#2B583E">
+      从物理事实，到情感牵挂
+    </text>
+    <text x="60" y="185" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="15" fill="#4D5F54">
+      植物不会无病呻吟。每一次主动发言，都建立在真实客观的数据事件与极其严苛的冷却机制之上。
+    </text>
+
+    <!-- 步骤1：环境事件发生 -->
+    <g id="step-1">
+      <circle cx="80" cy="260" r="14" fill="#8E5B3C"/>
+      <text x="80" y="265" font-family="&apos;Plus Jakarta Sans&apos;, sans-serif" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">A</text>
+      <text x="110" y="265" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="16" font-weight="bold" fill="#1C2E24">监听环境事件源与 QWeather 天气</text>
+      <text x="110" y="290" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" fill="#4D5F54">
+        传感器捕捉到“长期缺水”、“持续高温”或和风天气预警“即将降雨”。
+      </text>
+    </g>
+
+    <!-- 连接线 A -> B -->
+    <path d="M 80,305 L 80,335" stroke="#8E5B3C" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#stepArrow)"/>
+
+    <!-- 步骤2：冷却锁机制 -->
+    <g id="step-2">
+      <circle cx="80" cy="365" r="14" fill="#2B583E"/>
+      <text x="80" y="370" font-family="&apos;Plus Jakarta Sans&apos;, sans-serif" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">B</text>
+      <text x="110" y="370" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="16" font-weight="bold" fill="#1C2E24">发言冷却阀门 (Cooldown Lock)</text>
+      <text x="110" y="395" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" fill="#4D5F54">
+        严格规避持续刷屏造成的用户打扰，设定不同事件的发言间隔阈值。
+      </text>
+    </g>
+
+    <!-- 连接线 B -> C -->
+    <path d="M 80,410 L 80,440" stroke="#8E5B3C" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#stepArrow)"/>
+
+    <!-- 步骤3：事实事实提炼 -->
+    <g id="step-3">
+      <circle cx="80" cy="470" r="14" fill="#DDA43B"/>
+      <text x="80" y="475" font-family="&apos;Plus Jakarta Sans&apos;, sans-serif" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">C</text>
+      <text x="110" y="475" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="16" font-weight="bold" fill="#1C2E24">生成客观事件事实</text>
+      <text x="110" y="500" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" fill="#4D5F54">
+        提炼为结构化事实（如：<tspan font-family="Consolas, monospace" fill="#8E5B3C">{"event": "rain_forecast", "hours": 3}</tspan>），输入大脑中枢。
+      </text>
+    </g>
+  </g>
+
+  <!-- 4. 右半部分：大模型情感润色与拟人表现 (x=660, w=560) -->
+  <g id="right-llm-rendering">
+    <text x="660" y="145" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="22" font-weight="bold" fill="#8E5B3C">
+      大模型润色与人文视角转译
+    </text>
+
+    <!-- 气泡1：即将下雨 -->
+    <g id="chat-bubble-rain">
+      <!-- 气泡底板 -->
+      <rect x="660" y="185" width="540" height="110" rx="12" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1"/>
+      <polygon points="680,295 690,308 700,295" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1"/>
+      <!-- 圆角修正叠底以防破线 -->
+      <polygon points="681,294 690,305 699,294" fill="#FFFFFF"/>
+
+      <rect x="685" y="205" width="24" height="24" rx="12" fill="#2B583E" fill-opacity="0.08"/>
+      <use data-icon="tabler-filled/sun" x="691" y="211" width="12" height="12" fill="#2B583E"/>
+      <text x="720" y="222" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="13" font-weight="bold" fill="#8E5B3C">和风天气降雨预警 · 3小时后下雨</text>
+      
+      <text x="685" y="255" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="15" font-weight="bold" fill="#1C2E24" font-style="italic">
+        “主人主人！窗外要飘来大雨云啦，我虽然爱水，但我不喜欢打雷，
+      </text>
+      <text x="685" y="280" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="15" font-weight="bold" fill="#2B583E">
+        等会记得带我回房间噢 🌧️”
+      </text>
+    </g>
+
+    <!-- 气泡2：严重干旱 -->
+    <g id="chat-bubble-dry">
+      <!-- 气泡底板 -->
+      <rect x="660" y="335" width="540" height="110" rx="12" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1"/>
+      <polygon points="680,445 690,458 700,445" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1"/>
+      <!-- 圆角修正叠底 -->
+      <polygon points="681,444 690,455 699,444" fill="#FFFFFF"/>
+
+      <rect x="685" y="355" width="24" height="24" rx="12" fill="#D64535" fill-opacity="0.08"/>
+      <use data-icon="tabler-filled/leaf" x="691" y="361" width="12" height="12" fill="#D64535"/>
+      <text x="720" y="372" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="13" font-weight="bold" fill="#D64535">土壤湿度严重干旱 · 18%</text>
+
+      <text x="685" y="405" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="15" font-weight="bold" fill="#1C2E24" font-style="italic">
+        “我的泥土已经变得干巴巴的，感觉叶子有些重了... 
+      </text>
+      <text x="685" y="430" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="15" font-weight="bold" fill="#8E5B3C">
+        现在可以为我送来一杯水吗？我好想念湿润的感觉呀 ☕”
+      </text>
+    </g>
+
+    <!-- 优势小金句 (Bento 风格底纹) -->
+    <rect x="660" y="480" width="540" height="115" rx="8" fill="#2B583E" fill-opacity="0.04" stroke="#D1DAD4" stroke-width="1"/>
+    <use data-icon="tabler-filled/message-circle" x="680" y="502" width="40" height="40" fill="#2B583E" fill-opacity="0.8"/>
+    <text x="735" y="515" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" font-weight="bold" fill="#1C2E24">
+      通过将物理阈值警报彻底转变为有温度的植物第一人称发言，
+    </text>
+    <text x="735" y="540" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" fill="#4D5F54">
+      用户对“水分 18%”的<tspan fill="#D64535" font-weight="bold">焦虑感</tspan>变为了对植物的<tspan fill="#2B583E" font-weight="bold">关怀与牵挂感</tspan>，
+    </text>
+    <text x="735" y="565" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" fill="#2B583E" font-weight="bold">
+      这是我们人文科技融合的核心表现。
+    </text>
+  </g>
+
+  <!-- 5. Footer 页脚 -->
+  <g id="footer-group">
+    <text x="60" y="685" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="10" fill="#809085">DYN Plant Pal | 期末项目答辩</text>
+    <text x="1200" y="685" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="10" fill="#809085" text-anchor="end">09</text>
+  </g>
+</svg>

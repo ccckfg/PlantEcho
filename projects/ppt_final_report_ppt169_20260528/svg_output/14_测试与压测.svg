@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <!-- 1. 温润的浅绿背景 -->
+  <rect width="1280" height="720" fill="#F4F6F4"/>
+
+  <!-- 2. 顶部Header区域 -->
+  <g id="header-group">
+    <rect x="60" y="40" width="120" height="26" rx="13" fill="#2B583E" fill-opacity="0.08"/>
+    <text x="78" y="58" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="12" font-weight="bold" fill="#2B583E">验证与质量层</text>
+    <text x="196" y="60" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="32" font-weight="bold" fill="#1C2E24">严谨的技术保障：全面的单元测试与链路压测</text>
+    <line x1="60" y1="85" x2="1220" y2="85" stroke="#D1DAD4" stroke-width="1"/>
+  </g>
+
+  <!-- 3. 四列扁平卡片横向平铺 (高度460px, 宽度260px, 间距30px, x=60, 350, 640, 930) -->
+  
+  <!-- 卡片 1: 单元测试 -->
+  <g id="kpi-card-1">
+    <rect x="60" y="125" width="260" height="460" rx="12" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1.5"/>
+    <path d="M 60,137 A 12,12 0 0,1 72,125 L 308,125 A 12,12 0 0,1 320,137 L 320,140 L 60,140 Z" fill="#2B583E"/>
+
+    <!-- KPI大数 (36px, Quicksand) -->
+    <text x="190" y="210" font-family="Quicksand, sans-serif" font-size="42" font-weight="bold" fill="#2B583E" text-anchor="middle">25 +</text>
+    <text x="190" y="240" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="13" font-weight="bold" fill="#809085" text-anchor="middle">Fastify 后端测试用例</text>
+    <line x1="90" y1="260" x2="290" y2="260" stroke="#D1DAD4" stroke-width="1"/>
+
+    <text x="85" y="300" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" fill="#4D5F54">
+      <tspan x="85" dy="0">· <tspan fill="#1C2E24" font-weight="bold">测试套件全覆盖</tspan>：后端核心</tspan>
+      <tspan x="85" dy="24">  路由、输入 schema 校验、设备</tspan>
+      <tspan x="85" dy="24">  认领逻辑单元测试通过率100%。</tspan>
+      <tspan x="85" dy="28">· <tspan fill="#1C2E24" font-weight="bold">SQLite WAL 测试</tspan>：在多线程</tspan>
+      <tspan x="85" dy="24">  并发写入读数场景下，无一例</tspan>
+      <tspan x="85" dy="24">  死锁与阻塞错误发生。</tspan>
+    </text>
+  </g>
+
+  <!-- 卡片 2: Smoke 链路测试 -->
+  <g id="kpi-card-2">
+    <rect x="350" y="125" width="260" height="460" rx="12" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1.5"/>
+    <path d="M 350,137 A 12,12 0 0,1 362,125 L 598,125 A 12,12 0 0,1 610,137 L 610,140 L 350,140 Z" fill="#8E5B3C"/>
+
+    <text x="480" y="210" font-family="Quicksand, sans-serif" font-size="42" font-weight="bold" fill="#8E5B3C" text-anchor="middle">4 / 4</text>
+    <text x="480" y="240" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="13" font-weight="bold" fill="#809085" text-anchor="middle">全链路 Smoke 压测</text>
+    <line x1="380" y1="260" x2="580" y2="260" stroke="#D1DAD4" stroke-width="1"/>
+
+    <text x="375" y="300" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" fill="#4D5F54">
+      <tspan x="375" dy="0">· <tspan fill="#1C2E24" font-weight="bold">四大链路压测全部通过</tspan>：</tspan>
+      <tspan x="375" dy="24">  1. 设备 claim 认领绑定闭环；</tspan>
+      <tspan x="375" dy="24">  2. memory-chat 长期记忆生成；</tspan>
+      <tspan x="375" dy="24">  3. memory-citation 引用回溯；</tspan>
+      <tspan x="375" dy="24">  4. Reranker 多候选召回排序。</tspan>
+      <tspan x="375" dy="28">· <tspan fill="#1C2E24" font-weight="bold">真实硬件现场模拟</tspan>：全天候</tspan>
+      <tspan x="375" dy="24">  长跑未见 MQTT 连接断连。</tspan>
+    </text>
+  </g>
+
+  <!-- 卡片 3: 向量检索率 -->
+  <g id="kpi-card-3">
+    <rect x="640" y="125" width="260" height="460" rx="12" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1.5"/>
+    <path d="M 640,137 A 12,12 0 0,1 652,125 L 888,125 A 12,12 0 0,1 900,137 L 900,140 L 640,140 Z" fill="#DDA43B"/>
+
+    <text x="770" y="210" font-family="Quicksand, sans-serif" font-size="42" font-weight="bold" fill="#DDA43B" text-anchor="middle">100 %</text>
+    <text x="770" y="240" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="13" font-weight="bold" fill="#809085" text-anchor="middle">Hybrid+Rerank 检索精度</text>
+    <line x1="670" y1="260" x2="870" y2="260" stroke="#D1DAD4" stroke-width="1"/>
+
+    <text x="665" y="300" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" fill="#4D5F54">
+      <tspan x="665" dy="0">· <tspan fill="#1C2E24" font-weight="bold">评估数据集表现优异</tspan>：</tspan>
+      <tspan x="665" dy="24">  在 120 条真实长期记忆与 48 </tspan>
+      <tspan x="665" dy="24">  个查询对的混淆召回评估中，</tspan>
+      <tspan x="665" dy="24">  Top-1、Top-3 及 MRR 指标</tspan>
+      <tspan x="665" dy="24">  均达成 100% 的准确率。</tspan>
+      <tspan x="665" dy="28">· <tspan fill="#1C2E24" font-weight="bold">杜绝大模型幻觉</tspan>：只说基于</tspan>
+      <tspan x="665" dy="24">  记忆的真话，不做编造感知。</tspan>
+    </text>
+  </g>
+
+  <!-- 卡片 4: 规范标准自律 -->
+  <g id="kpi-card-4">
+    <rect x="930" y="125" width="260" height="460" rx="12" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1.5"/>
+    <path d="M 930,137 A 12,12 0 0,1 942,125 L 1178,125 A 12,12 0 0,1 1190,137 L 1190,140 L 930,140 Z" fill="#2B583E"/>
+
+    <text x="1060" y="210" font-family="Quicksand, sans-serif" font-size="42" font-weight="bold" fill="#2B583E" text-anchor="middle">&lt; 300</text>
+    <text x="1060" y="240" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="13" font-weight="bold" fill="#809085" text-anchor="middle">文件行数控制规范</text>
+    <line x1="960" y1="260" x2="1160" y2="260" stroke="#D1DAD4" stroke-width="1"/>
+
+    <text x="955" y="300" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" fill="#4D5F54">
+      <tspan x="955" dy="0">· <tspan fill="#1C2E24" font-weight="bold">职责极其清晰分离</tspan>：</tspan>
+      <tspan x="955" dy="24">  遵循严苛开发自律规约，</tspan>
+      <tspan x="955" dy="24">  Server 模块的 API、业务与 DB </tspan>
+      <tspan x="955" dy="24">  均在独立文件维护，包内所有</tspan>
+      <tspan x="955" dy="24">  文件代码均严格在 300 行以内。</tspan>
+      <tspan x="955" dy="28">· <tspan fill="#1C2E24" font-weight="bold">桌面端完全重构</tspan>：拆分冗余</tspan>
+      <tspan x="955" dy="24">  Dashboard 与 Chat 的大型文件</tspan>
+      <tspan x="955" dy="24">  ，达成极致的 SoC 职责分离。</tspan>
+    </text>
+  </g>
+
+  <!-- 4. Footer 页脚 -->
+  <g id="footer-group">
+    <text x="60" y="685" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="10" fill="#809085">DYN Plant Pal | 期末项目答辩</text>
+    <text x="1200" y="685" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="10" fill="#809085" text-anchor="end">14</text>
+  </g>
+</svg>

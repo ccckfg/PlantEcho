@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  
+  <rect width="1280" height="720" fill="#F4F6F4" />
+
+  
+  <g id="header-group">
+    <path fill="#2B583E" fill-opacity="0.08" d="M73,40 H167 A13,13 0 0 1 180,53 V53 A13,13 0 0 1 167,66 H73 A13,13 0 0 1 60,53 V53 A13,13 0 0 1 73,40 Z" />
+    <text x="78" y="58" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" font-size="12" font-weight="bold" fill="#2B583E">终端体验层</text>
+    <text x="196" y="60" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="32" font-weight="bold" fill="#1C2E24">植响对话与里程碑成长日记</text>
+    <line x1="60" y1="85" x2="1220" y2="85" stroke="#D1DAD4" stroke-width="1" />
+  </g>
+
+  
+  <g id="left-concepts">
+    <text x="60" y="145" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="22" font-weight="bold" fill="#2B583E">
+      看见，与被看见
+    </text>
+    <text fill="#4D5F54" font-size="15" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="60" y="185">项目构建了人与植物的</text><text fill="#4D5F54" font-size="15" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="60" y="211">双向情感闭环，聊天室</text><text fill="#4D5F54" font-size="15" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="60" y="237">与成长日记里程碑不再</text><text fill="#4D5F54" font-size="15" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="60" y="263">只是数据看板，而是爱</text><text fill="#4D5F54" font-size="15" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="60" y="289">与记忆的见证地。</text><path fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1" d="M68,350 H362 A8,8 0 0 1 370,358 V577 A8,8 0 0 1 362,585 H68 A8,8 0 0 1 60,577 V358 A8,8 0 0 1 68,350 Z" />
+    
+    <path fill="#8E5B3C" fill-opacity="0.08" d="M98,375 H98 A18,18 0 0 1 116,393 V393 A18,18 0 0 1 98,411 H98 A18,18 0 0 1 80,393 V393 A18,18 0 0 1 98,375 Z" />
+    
+  <g transform="translate(88.0, 383.0) scale(0.8333333333333334)" fill="#8E5B3C">
+    <path d="M5.821 4.91c3.899 -2.765 9.468 -2.539 13.073 .535c3.667 3.129 4.168 8.238 1.152 11.898c-2.841 3.447 -7.965 4.583 -12.231 2.805l-.233 -.101l-4.374 .931l-.04 .006l-.035 .007h-.018l-.022 .005h-.038l-.033 .004l-.021 -.001l-.023 .001l-.033 -.003h-.035l-.022 -.004l-.022 -.002l-.035 -.007l-.034 -.005l-.016 -.004l-.024 -.005l-.049 -.016l-.024 -.005l-.011 -.005l-.022 -.007l-.045 -.02l-.03 -.012l-.011 -.006l-.014 -.006l-.031 -.018l-.045 -.024l-.016 -.011l-.037 -.026l-.04 -.027l-.002 -.004l-.013 -.009l-.043 -.04l-.025 -.02l-.006 -.007l-.056 -.062l-.013 -.014l-.011 -.014l-.039 -.056l-.014 -.019l-.005 -.01l-.042 -.073l-.007 -.012l-.004 -.008l-.007 -.012l-.014 -.038l-.02 -.042l-.004 -.016l-.004 -.01l-.017 -.061l-.007 -.018l-.002 -.015l-.005 -.019l-.005 -.033l-.008 -.042l-.002 -.031l-.003 -.01v-.016l-.004 -.054l.001 -.036l.001 -.023l.002 -.053l.004 -.025v-.019l.008 -.035l.005 -.034l.005 -.02l.004 -.02l.018 -.06l.003 -.013l1.15 -3.45l-.022 -.037c-2.21 -3.747 -1.209 -8.391 2.413 -11.119z" />
+  </g>
+    
+    <text x="128" y="398" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="16" font-weight="bold" fill="#1C2E24">对话流式回复</text>
+    <text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="80" y="435">基于 Server-Sent Events 流式</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="80" y="457">展现大模型回复字句，并自动</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="80" y="479">嵌入快捷动作，交互如流水般自然。</text><path fill="#2B583E" fill-opacity="0.08" d="M98,490 H98 A18,18 0 0 1 116,508 V508 A18,18 0 0 1 98,526 H98 A18,18 0 0 1 80,508 V508 A18,18 0 0 1 98,490 Z" />
+    
+  <g transform="translate(88.0, 498.0) scale(0.8333333333333334)" fill="#2B583E">
+    <path d="M8.813 11.612c.457 -.38 .918 -.38 1.386 .011l.108 .098l4.986 4.986l.094 .083a1 1 0 0 0 1.403 -1.403l-.083 -.094l-1.292 -1.293l.292 -.293l.106 -.095c.457 -.38 .918 -.38 1.386 .011l.108 .098l4.674 4.675a4 4 0 0 1 -3.775 3.599l-.206 .005h-12a4 4 0 0 1 -3.98 -3.603l6.687 -6.69l.106 -.095zm9.187 -9.612a4 4 0 0 1 3.995 3.8l.005 .2v9.585l-3.293 -3.292l-.15 -.137c-1.256 -1.095 -2.85 -1.097 -4.096 -.017l-.154 .14l-.307 .306l-2.293 -2.292l-.15 -.137c-1.256 -1.095 -2.85 -1.097 -4.096 -.017l-.154 .14l-5.307 5.306v-9.585a4 4 0 0 1 3.8 -3.995l.2 -.005h12zm-2.99 5l-.127 .007a1 1 0 0 0 0 1.986l.117 .007l.127 -.007a1 1 0 0 0 0 -1.986l-.117 -.007z" />
+  </g>
+
+    <text x="128" y="513" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="16" font-weight="bold" fill="#1C2E24">里程碑双向寄语</text>
+    <text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="80" y="550">日记里程碑卡片悬停即可写下</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="80" y="572">留言，空中留言寄语永久被写</text><text fill="#4D5F54" font-size="14" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" x="80" y="594">入植物的长期记忆。建立情感强关联。</text></g>
+
+  
+  <g id="right-feature-cards">
+    
+    <path fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1.5" d="M416,120 H1204 A16,16 0 0 1 1220,136 V569 A16,16 0 0 1 1204,585 H416 A16,16 0 0 1 400,569 V136 A16,16 0 0 1 416,120 Z" />
+
+    
+    <g id="chat-sub-card">
+      <path fill="#F4F6F4" stroke="#D1DAD4" stroke-width="1" d="M440,145 H780 A10,10 0 0 1 790,155 V550 A10,10 0 0 1 780,560 H440 A10,10 0 0 1 430,550 V155 A10,10 0 0 1 440,145 Z" />
+      <path fill="#2B583E" d="M440,145 H780 A10,10 0 0 1 790,155 V175 A10,10 0 0 1 780,185 H440 A10,10 0 0 1 430,175 V155 A10,10 0 0 1 440,145 Z" />
+      <rect x="430" y="170" width="360" height="15" fill="#2B583E" /> 
+      
+  <g transform="translate(450.0, 153.0)" fill="#FFFFFF">
+    <path d="M5.821 4.91c3.899 -2.765 9.468 -2.539 13.073 .535c3.667 3.129 4.168 8.238 1.152 11.898c-2.841 3.447 -7.965 4.583 -12.231 2.805l-.233 -.101l-4.374 .931l-.04 .006l-.035 .007h-.018l-.022 .005h-.038l-.033 .004l-.021 -.001l-.023 .001l-.033 -.003h-.035l-.022 -.004l-.022 -.002l-.035 -.007l-.034 -.005l-.016 -.004l-.024 -.005l-.049 -.016l-.024 -.005l-.011 -.005l-.022 -.007l-.045 -.02l-.03 -.012l-.011 -.006l-.014 -.006l-.031 -.018l-.045 -.024l-.016 -.011l-.037 -.026l-.04 -.027l-.002 -.004l-.013 -.009l-.043 -.04l-.025 -.02l-.006 -.007l-.056 -.062l-.013 -.014l-.011 -.014l-.039 -.056l-.014 -.019l-.005 -.01l-.042 -.073l-.007 -.012l-.004 -.008l-.007 -.012l-.014 -.038l-.02 -.042l-.004 -.016l-.004 -.01l-.017 -.061l-.007 -.018l-.002 -.015l-.005 -.019l-.005 -.033l-.008 -.042l-.002 -.031l-.003 -.01v-.016l-.004 -.054l.001 -.036l.001 -.023l.002 -.053l.004 -.025v-.019l.008 -.035l.005 -.034l.005 -.02l.004 -.02l.018 -.06l.003 -.013l1.15 -3.45l-.022 -.037c-2.21 -3.747 -1.209 -8.391 2.413 -11.119z" />
+  </g>
+      <text x="485" y="171" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="14" font-weight="bold" fill="#FFFFFF">植响对话 (Chat Room)</text>
+
+      
+      
+      <path d="M 450,215 L 460,205 L 730,205 L 730,285 L 450,285 Z" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1" />
+      <path fill="#2B583E" fill-opacity="0.08" d="M473,215 H473 A8,8 0 0 1 481,223 V223 A8,8 0 0 1 473,231 H473 A8,8 0 0 1 465,223 V223 A8,8 0 0 1 473,215 Z" />
+      
+  <g transform="translate(468.0, 218.0) scale(0.4166666666666667)" fill="#2B583E">
+    <path d="M3.055 14.328l-.018 -.168l-.004 -.043a11 11 0 0 1 -.047 -1.12c.018 -6.29 4.29 -9.997 13 -9.997h4.014a1 1 0 0 1 1 1l-.002 2.057c-.498 8.701 -4.74 12.943 -11.998 12.943h-2.631a16 16 0 0 0 -.375 2.11a1 1 0 1 1 -1.988 -.22q .174 -1.568 .58 -2.947l-.118 -.146l-.208 -.28l-.157 -.229l-.182 -.293l-.098 -.171l-.065 -.122a6 6 0 0 1 -.397 -.941l-.072 -.237l-.085 -.327l-.057 -.268l-.043 -.242zm8.539 -4.242c-2.845 1.265 -4.854 3.13 -6.108 5.583q .098 .2 .218 .4l.185 .281l.07 .097q .12 .164 .258 .329l.197 .224h.649c1.037 -2.271 2.777 -3.946 5.343 -5.086a1 1 0 0 0 -.812 -1.828" />
+  </g>
+      <text x="490" y="228" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" font-size="11" fill="#8E5B3C" font-weight="bold">小绿 · 思考了3秒</text>
+      <text x="465" y="255" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" font-size="13" fill="#1C2E24">
+        “昨天泥土干干的时候，你为我唱了一首歌，
+      </text>
+      <text x="465" y="275" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" font-size="13" fill="#2B583E" font-weight="bold">
+        小绿已经把歌声藏在树叶里啦 🎶”
+      </text>
+
+      
+      <path fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1" d="M505,305 H715 A15,15 0 0 1 730,320 V320 A15,15 0 0 1 715,335 H505 A15,15 0 0 1 490,320 V320 A15,15 0 0 1 505,305 Z" />
+      
+  <g transform="translate(510.0, 312.0) scale(0.6666666666666666)" fill="#3B8756">
+    <path d="M3.055 14.328l-.018 -.168l-.004 -.043a11 11 0 0 1 -.047 -1.12c.018 -6.29 4.29 -9.997 13 -9.997h4.014a1 1 0 0 1 1 1l-.002 2.057c-.498 8.701 -4.74 12.943 -11.998 12.943h-2.631a16 16 0 0 0 -.375 2.11a1 1 0 1 1 -1.988 -.22q .174 -1.568 .58 -2.947l-.118 -.146l-.208 -.28l-.157 -.229l-.182 -.293l-.098 -.171l-.065 -.122a6 6 0 0 1 -.397 -.941l-.072 -.237l-.085 -.327l-.057 -.268l-.043 -.242zm8.539 -4.242c-2.845 1.265 -4.854 3.13 -6.108 5.583q .098 .2 .218 .4l.185 .281l.07 .097q .12 .164 .258 .329l.197 .224h.649c1.037 -2.271 2.777 -3.946 5.343 -5.086a1 1 0 0 0 -.812 -1.828" />
+  </g>
+      <text x="535" y="325" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" font-size="12" fill="#4D5F54">📝 <tspan fill="#1C2E24" font-weight="bold">你</tspan>为小绿记录了一次浇水</text>
+
+      
+      <path fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1" d="M458,475 H762 A8,8 0 0 1 770,483 V532 A8,8 0 0 1 762,540 H458 A8,8 0 0 1 450,532 V483 A8,8 0 0 1 458,475 Z" />
+      
+      
+      <path fill="#2B583E" fill-opacity="0.08" d="M475,487 H530 A10,10 0 0 1 540,497 V497 A10,10 0 0 1 530,507 H475 A10,10 0 0 1 465,497 V497 A10,10 0 0 1 475,487 Z" />
+      <text x="502" y="501" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" font-size="10" font-weight="bold" fill="#2B583E" text-anchor="middle">💧 已浇水</text>
+      
+      <path fill="#2B583E" fill-opacity="0.08" d="M560,487 H615 A10,10 0 0 1 625,497 V497 A10,10 0 0 1 615,507 H560 A10,10 0 0 1 550,497 V497 A10,10 0 0 1 560,487 Z" />
+      <text x="587" y="501" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" font-size="10" font-weight="bold" fill="#2B583E" text-anchor="middle">☀️ 已晒太阳</text>
+
+      <text x="465" y="528" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" font-size="12" fill="#809085">输入悄悄话...</text>
+    </g>
+
+    
+    <g id="journal-sub-card">
+      <path fill="#F4F6F4" stroke="#D1DAD4" stroke-width="1" d="M820,145 H1180 A10,10 0 0 1 1190,155 V550 A10,10 0 0 1 1180,560 H820 A10,10 0 0 1 810,550 V155 A10,10 0 0 1 820,145 Z" />
+      <path fill="#8E5B3C" d="M820,145 H1180 A10,10 0 0 1 1190,155 V175 A10,10 0 0 1 1180,185 H820 A10,10 0 0 1 810,175 V155 A10,10 0 0 1 820,145 Z" />
+      <rect x="810" y="170" width="380" height="15" fill="#8E5B3C" /> 
+      
+  <g transform="translate(830.0, 153.0)" fill="#FFFFFF">
+    <path d="M8.813 11.612c.457 -.38 .918 -.38 1.386 .011l.108 .098l4.986 4.986l.094 .083a1 1 0 0 0 1.403 -1.403l-.083 -.094l-1.292 -1.293l.292 -.293l.106 -.095c.457 -.38 .918 -.38 1.386 .011l.108 .098l4.674 4.675a4 4 0 0 1 -3.775 3.599l-.206 .005h-12a4 4 0 0 1 -3.98 -3.603l6.687 -6.69l.106 -.095zm9.187 -9.612a4 4 0 0 1 3.995 3.8l.005 .2v9.585l-3.293 -3.292l-.15 -.137c-1.256 -1.095 -2.85 -1.097 -4.096 -.017l-.154 .14l-.307 .306l-2.293 -2.292l-.15 -.137c-1.256 -1.095 -2.85 -1.097 -4.096 -.017l-.154 .14l-5.307 5.306v-9.585a4 4 0 0 1 3.8 -3.995l.2 -.005h12zm-2.99 5l-.127 .007a1 1 0 0 0 0 1.986l.117 .007l.127 -.007a1 1 0 0 0 0 -1.986l-.117 -.007z" />
+  </g>
+      <text x="865" y="171" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="14" font-weight="bold" fill="#FFFFFF">成长日记 (Milestone Journal)</text>
+
+      
+      <path fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1" d="M838,200 H1162 A8,8 0 0 1 1170,208 V252 A8,8 0 0 1 1162,260 H838 A8,8 0 0 1 830,252 V208 A8,8 0 0 1 838,200 Z" />
+      <text x="850" y="235" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="15" font-weight="bold" fill="#1C2E24">成长积分：<tspan fill="#2B583E">1280</tspan></text>
+      <text x="980" y="235" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="15" font-weight="bold" fill="#1C2E24">羁绊深度：<tspan fill="#8E5B3C">极深 (98)</tspan></text>
+
+      
+      <line x1="850" y1="285" x2="850" y2="530" stroke="#D1DAD4" stroke-width="2" />
+      
+      
+      <circle cx="850" cy="305" r="6" fill="#3B8756" />
+      <path fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1" d="M876,285 H1164 A6,6 0 0 1 1170,291 V369 A6,6 0 0 1 1164,375 H876 A6,6 0 0 1 870,369 V291 A6,6 0 0 1 876,285 Z" />
+      
+      <path d="M 870,291 A 6,6 0 0,1 876,285 L 890,285 L 870,305 Z" fill="#DDA43B" />
+      
+      <text x="890" y="308" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="12" font-weight="bold" fill="#8E5B3C">2026-05-25  |  长期记忆生成</text>
+      <text x="890" y="330" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" font-size="13" font-weight="bold" fill="#1C2E24">“你第一次为我唱歌”</text>
+      <text x="890" y="352" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" font-size="11" fill="#2B583E">💬 你的回应：“小绿要快快长大噢”</text>
+
+      
+      <circle cx="850" cy="425" r="6" fill="#3B8756" />
+      <path fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1" d="M876,405 H1164 A6,6 0 0 1 1170,411 V489 A6,6 0 0 1 1164,495 H876 A6,6 0 0 1 870,489 V411 A6,6 0 0 1 876,405 Z" />
+      <text x="890" y="428" font-family="Quicksand, 'Microsoft YaHei', sans-serif" font-size="12" font-weight="bold" fill="#809085">2026-05-20  |  设备首次被认领</text>
+      <text x="890" y="452" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" font-size="13" font-weight="bold" fill="#1C2E24">“小绿的第一天，请多关照”</text>
+      <text x="890" y="475" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" font-size="11" fill="#809085">悬停里程碑以留下你的寄语...</text>
+    </g>
+  </g>
+
+  
+  <g id="footer-group">
+    <text x="60" y="685" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" font-size="10" fill="#809085">DYN Plant Pal | 期末项目答辩</text>
+    <text x="1200" y="685" font-family="'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif" font-size="10" fill="#809085" text-anchor="end">11</text>
+  </g>
+</svg>

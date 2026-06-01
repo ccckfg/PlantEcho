@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <defs>
+    <!-- 指向性精细箭头 -->
+    <marker id="loopArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#2B583E"/>
+    </marker>
+  </defs>
+
+  <!-- 1. 温润的浅绿背景 -->
+  <rect width="1280" height="720" fill="#F4F6F4"/>
+
+  <!-- 2. 顶部Header区域 -->
+  <g id="header-group">
+    <rect x="60" y="40" width="120" height="26" rx="13" fill="#2B583E" fill-opacity="0.08"/>
+    <text x="78" y="58" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="12" font-weight="bold" fill="#2B583E">云端大脑层</text>
+    <text x="196" y="60" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="32" font-weight="bold" fill="#1C2E24">记忆系统：AgentGal 生命周期的降维落地</text>
+    <line x1="60" y1="85" x2="1220" y2="85" stroke="#D1DAD4" stroke-width="1"/>
+  </g>
+
+  <!-- 3. 左侧记忆理论与检索优化 (x=60, w=330) -->
+  <g id="left-memory-theory">
+    <text x="60" y="145" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="22" font-weight="bold" fill="#2B583E">
+      让植物真正认识你
+    </text>
+    <text x="60" y="185" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="15" fill="#4D5F54">
+      <tspan x="60" dy="0">项目颠覆了传统的无状态</tspan>
+      <tspan x="60" dy="26">大模型对话，通过将读数与</tspan>
+      <tspan x="60" dy="26">交互转化为植物“脑海”中的</tspan>
+      <tspan x="60" dy="26">长期记忆，实现拟人共鸣。</tspan>
+    </text>
+
+    <!-- 检索优化机制卡片 (弱框卡片) -->
+    <rect x="60" y="325" width="310" height="260" rx="8" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1"/>
+    
+    <rect x="80" y="345" width="36" height="36" rx="18" fill="#8E5B3C" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/database" x="88" y="353" width="20" height="20" fill="#8E5B3C"/>
+    
+    <text x="128" y="368" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="16" font-weight="bold" fill="#1C2E24">BM25 + 向量双路检索</text>
+    <text x="80" y="405" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" fill="#4D5F54">
+      <tspan x="80" dy="0">融合 FTS5 (BM25) 与 sqlite-vec </tspan>
+      <tspan x="80" dy="22">向量进行 Hybrid 双路召回，兼顾</tspan>
+      <tspan x="80" dy="22">关键词硬匹配与高层语义联想。</tspan>
+    </text>
+
+    <rect x="80" y="475" width="36" height="36" rx="18" fill="#2B583E" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/brain" x="88" y="483" width="20" height="20" fill="#2B583E"/>
+
+    <text x="128" y="498" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="16" font-weight="bold" fill="#1C2E24">Reranker 精准重排</text>
+    <text x="80" y="535" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" fill="#4D5F54">
+      <tspan x="80" dy="0">通过 Rerank 机制对召回结果再</tspan>
+      <tspan x="80" dy="22">度精准过滤，杜绝大模型“胡言</tspan>
+      <tspan x="80" dy="22">乱语”编造感知，准确度达100%。</tspan>
+    </text>
+  </g>
+
+  <!-- 4. 右侧记忆生命周期闭环演进图 (x=400, w=820) -->
+  <g id="right-memory-cycle">
+    <!-- 主背景大卡片 -->
+    <rect x="400" y="120" width="820" height="465" rx="16" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1.5"/>
+
+    <!-- 循环节点 1：Drafts 草稿 (左上) -->
+    <g id="node-drafts">
+      <rect x="440" y="150" width="320" height="150" rx="10" fill="#F4F6F4" stroke="#D1DAD4" stroke-width="1"/>
+      <rect x="460" y="165" width="40" height="40" rx="20" fill="#2B583E" fill-opacity="0.08"/>
+      <use data-icon="tabler-filled/photo" x="470" y="175" width="20" height="20" fill="#2B583E"/>
+      <text x="515" y="190" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="18" font-weight="bold" fill="#1C2E24">1. Drafts (草稿记录)</text>
+      
+      <text x="460" y="230" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" fill="#4D5F54">
+        <tspan x="460" dy="0">高频环境传感器读数（土壤/温度/光照</tspan>
+        <tspan x="460" dy="22">）与用户零散聊天流，实时被静默写入</tspan>
+        <tspan x="460" dy="22">临时草稿流水区，保持底层高性能吞吐。</tspan>
+      </text>
+    </g>
+
+    <!-- 连接线 1 -> 2 -->
+    <path d="M 775,225 L 870,225" stroke="#2B583E" stroke-width="2" marker-end="url(#loopArrow)"/>
+    <text x="822" y="215" font-family="&apos;Plus Jakarta Sans&apos;, sans-serif" font-size="12" font-weight="bold" fill="#2B583E" text-anchor="middle">Asynchronous</text>
+
+    <!-- 循环节点 2：Consolidation 整合 (右上) -->
+    <g id="node-consolidation">
+      <rect x="885" y="150" width="310" height="150" rx="10" fill="#F4F6F4" stroke="#D1DAD4" stroke-width="1"/>
+      <rect x="905" y="165" width="40" height="40" rx="20" fill="#8E5B3C" fill-opacity="0.08"/>
+      <use data-icon="tabler-filled/database" x="915" y="175" width="20" height="20" fill="#8E5B3C"/>
+      <text x="960" y="190" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="18" font-weight="bold" fill="#1C2E24">2. Consolidation (整合)</text>
+      
+      <text x="905" y="230" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" fill="#4D5F54">
+        <tspan x="905" dy="0">系统后台异步任务定时唤醒，对</tspan>
+        <tspan x="905" dy="22">一段时间内的读数波动与对话流</tspan>
+        <tspan x="905" dy="22">进行聚类分析，提炼核心因果事实。</tspan>
+      </text>
+    </g>
+
+    <!-- 连接线 2 -> 3 -->
+    <path d="M 1040,315 L 1040,395" stroke="#2B583E" stroke-width="2" marker-end="url(#loopArrow)"/>
+    <text x="1052" y="360" font-family="&apos;Plus Jakarta Sans&apos;, sans-serif" font-size="12" font-weight="bold" fill="#2B583E">Synthesize</text>
+
+    <!-- 循环节点 3：Episode 事件 (右下) -->
+    <g id="node-episode">
+      <rect x="885" y="415" width="310" height="150" rx="10" fill="#F4F6F4" stroke="#D1DAD4" stroke-width="1"/>
+      <rect x="905" y="430" width="40" height="40" rx="20" fill="#DDA43B" fill-opacity="0.08"/>
+      <use data-icon="tabler-filled/brain" x="915" y="440" width="20" height="20" fill="#DDA43B"/>
+      <text x="960" y="455" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="18" font-weight="bold" fill="#1C2E24">3. Episode (生命片段)</text>
+      
+      <text x="905" y="495" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" fill="#4D5F54">
+        <tspan x="905" dy="0">事实被加工为一段带有时空印记</tspan>
+        <tspan x="905" dy="22">的植物主观叙事（如：“星期四下午</tspan>
+        <tspan x="905" dy="22">，我的泥土非常干燥，雅宁为我浇了水”）。</tspan>
+      </text>
+    </g>
+
+    <!-- 连接线 3 -> 4 -->
+    <path d="M 870,490 L 775,490" stroke="#2B583E" stroke-width="2" marker-end="url(#loopArrow)"/>
+    <text x="822" y="480" font-family="&apos;Plus Jakarta Sans&apos;, sans-serif" font-size="12" font-weight="bold" fill="#2B583E" text-anchor="middle">Vectorization</text>
+
+    <!-- 循环节点 4：Understanding 理解 (左下) -->
+    <g id="node-understanding">
+      <rect x="440" y="415" width="320" height="150" rx="10" fill="#F4F6F4" stroke="#D1DAD4" stroke-width="1"/>
+      <rect x="460" y="430" width="40" height="40" rx="20" fill="#2B583E" fill-opacity="0.08"/>
+      <use data-icon="tabler-filled/heart" x="470" y="440" width="20" height="20" fill="#2B583E"/>
+      <text x="515" y="455" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="18" font-weight="bold" fill="#1C2E24">4. Understanding (认知与人设)</text>
+      
+      <text x="460" y="495" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" fill="#4D5F54">
+        <tspan x="460" dy="0">高重要度 Episode 被转化为向量写入</tspan>
+        <tspan x="460" dy="22">长期记忆，永久融入植物的认知世界，</tspan>
+        <tspan x="460" dy="22">对后续的所有对话提供稳定的人设基础。</tspan>
+      </text>
+    </g>
+
+    <!-- 连接线 4 -> 1 -->
+    <path d="M 600,400 L 600,315" stroke="#2B583E" stroke-width="2" marker-end="url(#loopArrow)"/>
+    <text x="612" y="360" font-family="&apos;Plus Jakarta Sans&apos;, sans-serif" font-size="12" font-weight="bold" fill="#2B583E">Recall Loop</text>
+  </g>
+
+  <!-- 5. Footer 页脚 -->
+  <g id="footer-group">
+    <text x="60" y="685" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="10" fill="#809085">DYN Plant Pal | 期末项目答辩</text>
+    <text x="1200" y="685" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="10" fill="#809085" text-anchor="end">08</text>
+  </g>
+</svg>

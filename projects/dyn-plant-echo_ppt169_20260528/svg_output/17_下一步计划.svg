@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <!-- Background -->
+  <rect width="1280" height="720" fill="#F5F0E8"/>
+
+  <!-- Top decorative bar -->
+  <rect x="60" y="50" width="4" height="60" rx="2" fill="#4A7C28"/>
+
+  <!-- Page title -->
+  <text x="80" y="88" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="40" font-weight="bold" fill="#2D5016">
+    下一步计划
+  </text>
+
+  <!-- Priority items -->
+  <!-- P1 -->
+  <g id="plan-1">
+    <rect x="60" y="130" width="560" height="100" rx="12" fill="#FFFFFF"/>
+    <rect x="60" y="130" width="560" height="100" rx="12" fill="none" stroke="#4A7C28" stroke-width="1.5"/>
+    <circle cx="100" cy="180" r="20" fill="#4A7C28"/>
+    <text x="100" y="187" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF">1</text>
+    <text x="135" y="172" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">设备管理闭环</text>
+    <text x="135" y="198" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">设备删除/停用 · 批量管理 · 历史无密钥设备强制迁移</text>
+    <text x="135" y="220" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">后端 92% → 100%</text>
+  </g>
+
+  <!-- P2 -->
+  <g id="plan-2">
+    <rect x="640" y="130" width="580" height="100" rx="12" fill="#FFFFFF"/>
+    <rect x="640" y="130" width="580" height="100" rx="12" fill="none" stroke="#E8A849" stroke-width="1.5"/>
+    <circle cx="680" cy="180" r="20" fill="#E8A849"/>
+    <text x="680" y="187" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF">2</text>
+    <text x="715" y="172" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">深度 LLM 联调</text>
+    <text x="715" y="198" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">更自然的语料压测 closure / generator prompt</text>
+    <text x="715" y="220" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">提升记忆生成质量</text>
+  </g>
+
+  <!-- P3 -->
+  <g id="plan-3">
+    <rect x="60" y="250" width="560" height="100" rx="12" fill="#FFFFFF"/>
+    <rect x="60" y="250" width="560" height="100" rx="12" fill="none" stroke="#D4A574" stroke-width="1.5"/>
+    <circle cx="100" cy="300" r="20" fill="#D4A574"/>
+    <text x="100" y="307" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF">3</text>
+    <text x="135" y="292" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">ESP32 现场验证</text>
+    <text x="135" y="318" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">MQTT 长跑 · OTA 升级演练 · 土壤校准</text>
+    <text x="135" y="340" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">真实环境稳定性验证</text>
+  </g>
+
+  <!-- P4 -->
+  <g id="plan-4">
+    <rect x="640" y="250" width="580" height="100" rx="12" fill="#FFFFFF"/>
+    <rect x="640" y="250" width="580" height="100" rx="12" fill="none" stroke="#4A7C28" stroke-width="1.5"/>
+    <circle cx="680" cy="300" r="20" fill="#4A7C28"/>
+    <text x="680" y="307" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF">4</text>
+    <text x="715" y="292" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">数据库 Migration</text>
+    <text x="715" y="318" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">新增 schema 走递增 migration · 补备份/回滚</text>
+    <text x="715" y="340" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">工程化规范化</text>
+  </g>
+
+  <!-- P5 -->
+  <g id="plan-5">
+    <rect x="60" y="370" width="560" height="100" rx="12" fill="#FFFFFF"/>
+    <rect x="60" y="370" width="560" height="100" rx="12" fill="none" stroke="#E8A849" stroke-width="1.5"/>
+    <circle cx="100" cy="420" r="20" fill="#E8A849"/>
+    <text x="100" y="427" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF">5</text>
+    <text x="135" y="412" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">端到端测试</text>
+    <text x="135" y="438" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">background_jobs 重试 · sync_events 断线补收</text>
+    <text x="135" y="460" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">全链路覆盖</text>
+  </g>
+
+  <!-- P6 -->
+  <g id="plan-6">
+    <rect x="640" y="370" width="580" height="100" rx="12" fill="#FFFFFF"/>
+    <rect x="640" y="370" width="580" height="100" rx="12" fill="none" stroke="#D4A574" stroke-width="1.5"/>
+    <circle cx="680" cy="420" r="20" fill="#D4A574"/>
+    <text x="680" y="427" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF">6</text>
+    <text x="715" y="412" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">桌面客户端二阶段</text>
+    <text x="715" y="438" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">档案表单 · 趋势图 · 提醒管理 · 深色模式</text>
+    <text x="715" y="460" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">用户体验提升</text>
+  </g>
+
+  <!-- Desktop Phase 2 detail -->
+  <rect x="60" y="500" width="1160" height="120" rx="12" fill="#FFFFFF"/>
+  <rect x="60" y="500" width="1160" height="120" rx="12" fill="none" stroke="#E0D8C8" stroke-width="1"/>
+  <text x="80" y="530" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#2D5016">桌面客户端二阶段详细规划</text>
+
+  <g id="desktop-phase2">
+    <rect x="80" y="545" width="150" height="30" rx="6" fill="#4A7C28" fill-opacity="0.08"/>
+    <text x="155" y="565" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#2D5016">编辑档案表单</text>
+
+    <rect x="245" y="545" width="150" height="30" rx="6" fill="#E8A849" fill-opacity="0.08"/>
+    <text x="320" y="565" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#8B6914">读数趋势图</text>
+
+    <rect x="410" y="545" width="150" height="30" rx="6" fill="#D4A574" fill-opacity="0.08"/>
+    <text x="485" y="565" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#8B6914">提醒管理 UI</text>
+
+    <rect x="575" y="545" width="120" height="30" rx="6" fill="#2D5016" fill-opacity="0.08"/>
+    <text x="635" y="565" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#2D5016">深色模式</text>
+
+    <rect x="710" y="545" width="150" height="30" rx="6" fill="#4A7C28" fill-opacity="0.08"/>
+    <text x="785" y="565" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#2D5016">头像裁剪工具</text>
+
+    <rect x="875" y="545" width="150" height="30" rx="6" fill="#E8A849" fill-opacity="0.08"/>
+    <text x="950" y="565" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#8B6914">相册编辑功能</text>
+
+    <rect x="1040" y="545" width="150" height="30" rx="6" fill="#D4A574" fill-opacity="0.08"/>
+    <text x="1115" y="565" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#8B6914">多用户体系</text>
+  </g>
+
+  <text x="80" y="605" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="13" fill="#9B8B7B">
+    目标：从"可用"到"好用"，让每个功能都体现人文关怀
+  </text>
+
+  <!-- Bottom vision -->
+  <rect x="60" y="640" width="1160" height="50" rx="10" fill="#2D5016" fill-opacity="0.04"/>
+  <use data-icon="tabler-filled/seedling" x="90" y="652" width="24" height="24" fill="#4A7C28"/>
+  <text x="125" y="672" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#2D5016">
+    <tspan font-weight="bold">持续迭代</tspan> · 以植物的节奏成长 · 以用户的需求驱动
+  </text>
+
+  <!-- Page number -->
+  <text x="1220" y="700" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">17 / 18</text>
+</svg>

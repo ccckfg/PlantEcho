@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <defs>
+    <!-- 精细小箭头 -->
+    <marker id="connArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#8E5B3C"/>
+    </marker>
+  </defs>
+
+  <!-- 1. 温润的浅绿背景 -->
+  <rect width="1280" height="720" fill="#F4F6F4"/>
+
+  <!-- 2. 顶部Header区域 -->
+  <g id="header-group">
+    <rect x="60" y="40" width="120" height="26" rx="13" fill="#2B583E" fill-opacity="0.08"/>
+    <text x="78" y="58" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="12" font-weight="bold" fill="#2B583E">系统整体架构</text>
+    <text x="196" y="60" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="32" font-weight="bold" fill="#1C2E24">端到端智能陪伴系统的全景拓扑</text>
+    <line x1="60" y1="85" x2="1220" y2="85" stroke="#D1DAD4" stroke-width="1"/>
+  </g>
+
+  <!-- 3. 左侧架构描述栏 (x=60, w=340) -->
+  <g id="left-description-bar">
+    <text x="60" y="145" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="22" font-weight="bold" fill="#2B583E">
+      三层深度互联闭环
+    </text>
+    <text x="60" y="185" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="15" fill="#4D5F54">
+      <tspan x="60" dy="0">DYN Plant Pal 采用</tspan>
+      <tspan x="60" dy="26">「底端物理环境感知 + 云端记忆</tspan>
+      <tspan x="60" dy="26">思考中枢 + 顶端多端人机共情展现」</tspan>
+      <tspan x="60" dy="26">的三层垂直物联架构。</tspan>
+    </text>
+
+    <!-- 核心通信特色 (弱卡片) -->
+    <rect x="60" y="320" width="320" height="265" rx="8" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1"/>
+    
+    <rect x="80" y="340" width="36" height="36" rx="18" fill="#8E5B3C" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/device-cpu" x="88" y="348" width="20" height="20" fill="#8E5B3C"/>
+    
+    <text x="128" y="363" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="16" font-weight="bold" fill="#1C2E24">特色一：异步 MQTT 读数</text>
+    <text x="80" y="400" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" fill="#4D5F54">
+      <tspan x="80" dy="0">硬件采用极低开销的 MQTT 协议</tspan>
+      <tspan x="80" dy="22">实现毫秒级的读数同步与认领下发。</tspan>
+    </text>
+
+    <rect x="80" y="465" width="36" height="36" rx="18" fill="#2B583E" fill-opacity="0.08"/>
+    <use data-icon="tabler-filled/message-circle" x="88" y="473" width="20" height="20" fill="#2B583E"/>
+
+    <text x="128" y="488" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="16" font-weight="bold" fill="#1C2E24">特色二：SSE 实时反向推</text>
+    <text x="80" y="525" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="14" fill="#4D5F54">
+      <tspan x="80" dy="0">多端同步采用 SQLite sync-SSE</tspan>
+      <tspan x="80" dy="22">通道，确保设备状态实时静默刷新。</tspan>
+    </text>
+  </g>
+
+  <!-- 4. 右侧极致精致的三层架构拓扑框图 (x=415, w=805) -->
+  <g id="layered-architecture-map">
+    <!-- 背景大导板框 -->
+    <rect x="415" y="120" width="805" height="465" rx="16" fill="#FFFFFF" stroke="#D1DAD4" stroke-width="1.5"/>
+
+    <!-- 【第三层：多端客户端层】 (顶层) -->
+    <g id="layer-3-client">
+      <rect x="445" y="145" width="745" height="100" rx="10" fill="#F4F6F4" stroke="#D1DAD4" stroke-width="1"/>
+      <rect x="465" y="157" width="130" height="26" rx="4" fill="#2B583E"/>
+      <text x="477" y="174" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF">客户端 (Tauri v2 + React)</text>
+      
+      <!-- 各模块小框 -->
+      <rect x="465" y="195" width="160" height="36" rx="6" fill="#FFFFFF" stroke="#2B583E" stroke-width="1"/>
+      <use data-icon="tabler-filled/sun" x="475" y="203" width="20" height="20" fill="#2B583E"/>
+      <text x="502" y="218" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="13" font-weight="bold" fill="#1C2E24">温室 Dashboard</text>
+
+      <rect x="640" y="195" width="160" height="36" rx="6" fill="#FFFFFF" stroke="#2B583E" stroke-width="1"/>
+      <use data-icon="tabler-filled/message-circle" x="650" y="203" width="20" height="20" fill="#2B583E"/>
+      <text x="677" y="218" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="13" font-weight="bold" fill="#1C2E24">植响流式对话</text>
+
+      <rect x="815" y="195" width="160" height="36" rx="6" fill="#FFFFFF" stroke="#2B583E" stroke-width="1"/>
+      <use data-icon="tabler-filled/photo" x="825" y="203" width="20" height="20" fill="#2B583E"/>
+      <text x="852" y="218" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="13" font-weight="bold" fill="#1C2E24">Bento 日记与相册</text>
+
+      <rect x="990" y="195" width="180" height="36" rx="6" fill="#FFFFFF" stroke="#2B583E" stroke-width="1"/>
+      <use data-icon="tabler-filled/device-cpu" x="1000" y="203" width="20" height="20" fill="#2B583E"/>
+      <text x="1027" y="218" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="13" font-weight="bold" fill="#1C2E24">Tauri 统一配网/同步</text>
+    </g>
+
+    <!-- 顶层与中层连接线 (SSE 同步 + HTTP API) -->
+    <path d="M 600,285 L 600,245" stroke="#8E5B3C" stroke-width="2" stroke-dasharray="4,4" marker-start="url(#connArrow)"/>
+    <text x="612" y="270" font-family="&apos;Plus Jakarta Sans&apos;, sans-serif" font-size="12" font-weight="bold" fill="#8E5B3C">SSE 实时推流</text>
+    
+    <path d="M 1030,245 L 1030,285" stroke="#8E5B3C" stroke-width="2" marker-end="url(#connArrow)"/>
+    <text x="1042" y="270" font-family="&apos;Plus Jakarta Sans&apos;, sans-serif" font-size="12" font-weight="bold" fill="#8E5B3C">HTTP RESTful API</text>
+
+    <!-- 【第二层：云端中枢大脑层】 (中层) -->
+    <g id="layer-2-server">
+      <rect x="445" y="295" width="745" height="120" rx="10" fill="#F4F6F4" stroke="#D1DAD4" stroke-width="1"/>
+      <rect x="465" y="307" width="165" height="26" rx="4" fill="#8E5B3C"/>
+      <text x="477" y="324" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF">服务端中枢 (TypeScript + Fastify)</text>
+
+      <!-- 服务端内部核心子系统 -->
+      <rect x="465" y="347" width="220" height="50" rx="6" fill="#FFFFFF" stroke="#8E5B3C" stroke-width="1.5"/>
+      <use data-icon="tabler-filled/database" x="475" y="357" width="30" height="30" fill="#8E5B3C"/>
+      <text x="512" y="370" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="13" font-weight="bold" fill="#1C2E24">SQLite + WAL 存储</text>
+      <text x="512" y="388" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="10" fill="#4D5F54">认领关系/物联读数历史</text>
+
+      <rect x="700" y="347" width="235" height="50" rx="6" fill="#FFFFFF" stroke="#8E5B3C" stroke-width="1.5"/>
+      <use data-icon="tabler-filled/brain" x="710" y="357" width="30" height="30" fill="#8E5B3C"/>
+      <text x="748" y="370" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="13" font-weight="bold" fill="#1C2E24">sqlite-vec 记忆引擎</text>
+      <text x="748" y="388" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="10" fill="#4D5F54">长期记忆 RAG &amp; Rerank 混合</text>
+
+      <rect x="950" y="347" width="220" height="50" rx="6" fill="#FFFFFF" stroke="#8E5B3C" stroke-width="1.5"/>
+      <use data-icon="tabler-filled/message-circle" x="960" y="357" width="30" height="30" fill="#8E5B3C"/>
+      <text x="998" y="370" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="13" font-weight="bold" fill="#1C2E24">LLM 主动发言 Engine</text>
+      <text x="998" y="388" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="10" fill="#4D5F54">事件冷却与人设情感润色</text>
+    </g>
+
+    <!-- 中层与底层连接线 (MQTT readings + config) -->
+    <path d="M 640,465 L 640,415" stroke="#2B583E" stroke-width="2" marker-start="url(#connArrow)"/>
+    <text x="652" y="445" font-family="&apos;Plus Jakarta Sans&apos;, sans-serif" font-size="12" font-weight="bold" fill="#2B583E">MQTT readings 秒级推</text>
+
+    <path d="M 980,415 L 980,465" stroke="#2B583E" stroke-width="2" marker-end="url(#connArrow)"/>
+    <text x="992" y="445" font-family="&apos;Plus Jakarta Sans&apos;, sans-serif" font-size="12" font-weight="bold" fill="#2B583E">MQTT config 密钥持久下发</text>
+
+    <!-- 【第一层：硬件物理感知端】 (底层) -->
+    <g id="layer-1-hardware">
+      <rect x="445" y="475" width="745" height="90" rx="10" fill="#F4F6F4" stroke="#D1DAD4" stroke-width="1"/>
+      <rect x="465" y="487" width="130" height="26" rx="4" fill="#2B583E"/>
+      <text x="477" y="504" font-family="Quicksand, &apos;Microsoft YaHei&apos;, sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF">硬件底层固件 (ESP32)</text>
+
+      <!-- 硬件模块 -->
+      <rect x="465" y="522" width="220" height="32" rx="4" fill="#FFFFFF" stroke="#2B583E" stroke-width="1"/>
+      <use data-icon="tabler-filled/device-cpu" x="475" y="528" width="20" height="20" fill="#2B583E"/>
+      <text x="502" y="543" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="12" font-weight="bold" fill="#1C2E24">I2C 多传感器感知组 (SHT40/GY-302)</text>
+
+      <rect x="700" y="522" width="235" height="32" rx="4" fill="#FFFFFF" stroke="#2B583E" stroke-width="1"/>
+      <use data-icon="tabler-filled/leaf" x="710" y="528" width="20" height="20" fill="#2B583E"/>
+      <text x="738" y="543" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="12" font-weight="bold" fill="#1C2E24">ADC 电容式土壤湿度干湿度标定</text>
+
+      <rect x="950" y="522" width="220" height="32" rx="4" fill="#FFFFFF" stroke="#2B583E" stroke-width="1"/>
+      <use data-icon="tabler-filled/rocket" x="960" y="528" width="20" height="20" fill="#2B583E"/>
+      <text x="988" y="543" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="12" font-weight="bold" fill="#1C2E24">SoftAP极简配网 与 OTAManifest</text>
+    </g>
+  </g>
+
+  <!-- 5. Footer 页脚 -->
+  <g id="footer-group">
+    <text x="60" y="685" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="10" fill="#809085">DYN Plant Pal | 期末项目答辩</text>
+    <text x="1200" y="685" font-family="&apos;Plus Jakarta Sans&apos;, &apos;Microsoft YaHei&apos;, sans-serif" font-size="10" fill="#809085" text-anchor="end">04</text>
+  </g>
+</svg>

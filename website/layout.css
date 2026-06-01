@@ -1,0 +1,234 @@
+/* ============================================================
+   PlantEcho · Verdant Echo 官网
+   Layout & Structural (layout.css)
+   ============================================================ */
+
+/* 导航 */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 18px var(--mar);
+  transition: background .42s var(--ease), box-shadow .42s var(--ease), padding .42s var(--ease);
+}
+
+.nav.scrolled {
+  background: rgba(247, 250, 246, .78);
+  backdrop-filter: blur(18px) saturate(1.3);
+  box-shadow: 0 1px 0 var(--hairline);
+  padding-top: 13px;
+  padding-bottom: 13px;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-shrink: 0;
+}
+
+.leaf-mark {
+  display: inline-flex;
+  width: 26px;
+  height: 26px;
+  color: var(--primary-container);
+}
+
+.leaf-mark svg {
+  width: 100%;
+  height: 100%;
+}
+
+.leaf-mark.big {
+  width: 54px;
+  height: 54px;
+  color: var(--primary-fixed-dim);
+}
+
+.nav-wordmark {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: .01em;
+  color: var(--primary);
+}
+
+.nav-reflection {
+  flex: 1;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 14.5px;
+  color: var(--secondary);
+  opacity: .85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity .42s var(--ease);
+}
+
+.nav-links {
+  display: flex;
+  gap: 26px;
+  flex-shrink: 0;
+}
+
+.nav-links a {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--on-surface-variant);
+  position: relative;
+  padding: 4px 0;
+}
+
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 100%;
+  bottom: 0;
+  height: 1.5px;
+  background: var(--primary);
+  transition: right .35s var(--ease);
+}
+
+.nav-links a:hover {
+  color: var(--primary);
+}
+
+.nav-links a:hover::after {
+  right: 0;
+}
+
+@media (max-width: 880px) {
+  .nav-reflection {
+    display: none;
+  }
+  .nav-links {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 560px) {
+  .nav-links a:nth-child(n+3) {
+    display: none;
+  }
+}
+
+/* 通用 section */
+.section {
+  padding: clamp(80px, 11vw, 150px) var(--mar);
+  max-width: var(--maxw);
+  margin-inline: auto;
+}
+
+.section-head {
+  max-width: 760px;
+  margin-bottom: clamp(40px, 6vw, 72px);
+}
+
+.kicker,
+.eyebrow {
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--secondary);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.kicker::before,
+.eyebrow::before {
+  content: "";
+  width: 26px;
+  height: 1.5px;
+  background: var(--secondary);
+  opacity: .6;
+}
+
+.section-title {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(30px, 5.2vw, 56px);
+  line-height: 1.08;
+  letter-spacing: -.01em;
+  color: var(--ink);
+}
+
+.section-title em {
+  font-style: italic;
+  color: var(--primary-container);
+}
+
+.section-sub {
+  margin-top: 22px;
+  font-size: clamp(15px, 1.6vw, 18.5px);
+  color: var(--on-surface-variant);
+  max-width: 640px;
+}
+
+/* reveal base */
+.reveal {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.reveal.in {
+  opacity: 1;
+  transform: none;
+  transition: opacity .55s var(--ease-soft), transform .55s var(--ease-soft);
+}
+
+/* 页脚 */
+.footer {
+  background: linear-gradient(180deg, #15301a, #0c2010);
+  color: #dce4d4;
+  padding: clamp(70px, 10vw, 120px) var(--mar) 50px;
+  margin-top: 60px;
+}
+
+.footer-top {
+  max-width: var(--maxw);
+  margin-inline: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.footer-line {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(28px, 5vw, 52px);
+  line-height: 1.12;
+  letter-spacing: -.01em;
+  color: #fff;
+}
+
+.footer-honest {
+  max-width: 680px;
+  margin: 48px auto 0;
+  font-size: 13px;
+  color: rgba(220, 228, 212, .6);
+  padding-top: 28px;
+  border-top: 1px solid rgba(189, 240, 174, .15);
+}
+
+.footer-meta {
+  max-width: var(--maxw);
+  margin: 36px auto 0;
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+  color: rgba(220, 228, 212, .5);
+  letter-spacing: .04em;
+}

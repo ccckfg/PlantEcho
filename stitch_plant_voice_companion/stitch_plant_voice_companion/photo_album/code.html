@@ -1,0 +1,306 @@
+<!DOCTYPE html><html class="light" lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>PlantEcho - 相册</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#493517",
+                        "on-tertiary-container": "#dcbd95",
+                        "error-container": "#ffdad6",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#dee4e1",
+                        "on-primary-fixed-variant": "#23501e",
+                        "inverse-surface": "#2c3230",
+                        "secondary-fixed-dim": "#a4d1b6",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#42493e",
+                        "surface-bright": "#f5faf7",
+                        "on-secondary-container": "#436d57",
+                        "surface-container": "#eaefec",
+                        "primary": "#154212",
+                        "primary-fixed": "#bcf0ae",
+                        "on-secondary-fixed": "#002113",
+                        "on-tertiary-fixed": "#281801",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed": "#002201",
+                        "on-primary-container": "#9dd090",
+                        "secondary": "#3d6751",
+                        "outline": "#72796e",
+                        "background": "#f5faf7",
+                        "surface-container-highest": "#dee4e1",
+                        "inverse-on-surface": "#edf2ef",
+                        "secondary-fixed": "#bfedd1",
+                        "surface-container-high": "#e4e9e6",
+                        "primary-container": "#2d5a27",
+                        "on-secondary-fixed-variant": "#254f3a",
+                        "inverse-primary": "#a1d494",
+                        "on-primary": "#ffffff",
+                        "surface-tint": "#3b6934",
+                        "on-surface": "#171d1b",
+                        "surface-container-low": "#f0f5f2",
+                        "primary-fixed-dim": "#a1d494",
+                        "tertiary-fixed": "#feddb3",
+                        "surface": "#f5faf7",
+                        "surface-dim": "#d6dbd8",
+                        "secondary-container": "#bfedd1",
+                        "tertiary-fixed-dim": "#e1c299",
+                        "tertiary-container": "#624c2c",
+                        "outline-variant": "#c2c9bb",
+                        "on-background": "#171d1b",
+                        "on-secondary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed-variant": "#584324"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "64px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "xxl": "48px",
+                        "lg": "24px",
+                        "xl": "32px",
+                        "md": "16px",
+                        "gutter": "16px",
+                        "margin-mobile": "20px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "headline-xl": ["Quicksand"],
+                        "headline-lg": ["Quicksand"],
+                        "headline-md": ["Quicksand"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Quicksand"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col h-screen py-lg px-md w-64 bg-surface-container-low dark:bg-surface-container-lowest rounded-r-lg flex-shrink-0 border-r border-surface-variant">
+<div class="flex items-center gap-sm mb-xl px-sm">
+<span class="material-symbols-outlined text-primary text-3xl" data-weight="fill">eco</span>
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">PlantEcho</span>
+</div>
+
+<div class="flex flex-col gap-sm flex-grow">
+<!-- Inactive -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-secondary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined">potted_plant</span>
+<span class="font-label-md text-label-md">植物温室</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-secondary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined">forum</span>
+<span class="font-label-md text-label-md">植响对话</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-secondary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-md text-label-md">成长日记</span>
+</a>
+<!-- Active -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-primary dark:text-primary-fixed font-bold border-r-4 border-primary dark:border-primary-fixed bg-secondary-container/30 transition-transform scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-weight="fill">photo_library</span>
+<span class="font-label-md text-label-md">相册</span>
+</a>
+</div>
+<button class="mt-auto bg-primary-container text-on-primary-container font-label-md text-label-md py-md px-lg rounded-full flex items-center justify-center gap-sm hover:bg-surface-tint transition-colors text-white">
+<span class="material-symbols-outlined">add</span>
+            Add New Plant
+        </button>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col h-screen overflow-hidden">
+<!-- TopAppBar (Mobile Only) -->
+<header class="flex md:hidden justify-between items-center w-full px-margin-mobile py-md bg-surface dark:bg-surface-dim z-10 relative shadow-sm">
+<div class="flex items-center gap-sm">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">PlantEcho</span>
+</div>
+<div class="flex items-center gap-md text-on-surface-variant">
+<span class="material-symbols-outlined cursor-pointer hover:bg-surface-container-high transition-colors p-sm rounded-full">search</span>
+<div class="w-8 h-8 rounded-full bg-secondary-container overflow-hidden">
+<img alt="User profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARP-SO-zK7U0EEQgJePfSWkyJDQ6rklb4Pmz0SCL0DFDsnlp5xr4vw67IeKfj2Is3Ho5Ltfxt0kCDtaxGOyQIQOhI0D6QTh9qd8PnWZomHPhmvMRbPXkUMBipyoztVajBOFy_K1_fRmSCQGZsJAXtm5ilw9j6a92t43nQU98v1_U-efrpV3yI7_5FIVRZ4kyvx2YvV9NXmCTRhHdEKFK59s4V5N2MrnejkMlwhPLYf9aK3OyOoVH-1ZEFS1wjt8s0Y1lnnPZPDeRo">
+</div>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto px-margin-mobile md:px-margin-desktop py-xl">
+<!-- Page Header & Filters -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-xxl">
+<div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface mb-sm">相册</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">记录植物生长的每一个瞬间。</p>
+</div>
+<button class="bg-primary-container text-on-primary hover:bg-surface-tint transition-colors rounded-full px-lg py-sm font-label-md text-label-md flex items-center gap-sm self-start md:self-auto text-white shadow-sm shadow-primary-container/20">
+<span class="material-symbols-outlined">upload</span>
+                    上传照片
+                </button>
+</div>
+<!-- Filter Bar -->
+<div class="flex flex-wrap items-center gap-sm mb-xl">
+<button class="bg-primary-container text-white px-md py-sm rounded-full font-label-md text-label-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">calendar_month</span>
+                    按日期
+                </button>
+<button class="bg-surface-container border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors px-md py-sm rounded-full font-label-md text-label-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">local_florist</span>
+                    按植物
+                </button>
+<button class="bg-surface-container border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors px-md py-sm rounded-full font-label-md text-label-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">favorite</span>
+                    收藏夹
+                </button>
+</div>
+<!-- Photo Grid Section: Oct 2023 -->
+<div class="mb-xxl">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-md">2023年 10月</h2>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-md md:gap-lg">
+<!-- Photo Card 1 -->
+<div class="group relative rounded-[24px] overflow-hidden bg-white shadow-lg shadow-primary-container/5 aspect-square border border-surface-variant">
+<img alt="Plant photo" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="A close-up shot of a healthy Monstera plant leaf catching morning sunlight. Soft, airy background with a light greenish tint. Minimalist and modern aesthetic, focusing on the organic textures of the leaf veins." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPq9mIaP0YXXMRaasJ758LdKo6wYJZfSLg7zWatewlqlPXdxHpslFerjjKlM7v4AkmlQvu2Rc5WKjaShzBeWDlaOL_el8MnoGSz7FV4Hh1KiN_lgdbrrttpFrHqA74AmIrMW24tZqBJ26e-qpq8UEN-BbdsxgM5JWuWufGVzjvlxrU-8RhjG2KlOYteSBiJGCanHNgXAUzSWTBlpCulPwT8g1q0iiWyf6uAOk9sXERSYBiEJWoaH2etlgav-cnAyoi5nt1_XSg6Ks">
+<!-- Plant Tag -->
+<div class="absolute top-sm left-sm bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm px-3 py-1 rounded-full shadow-sm">
+                            Luna
+                        </div>
+<!-- Hover Overlay -->
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-md">
+<div class="flex gap-sm justify-end">
+<button class="bg-surface/90 text-primary hover:bg-surface p-2 rounded-full backdrop-blur-sm transition-colors" title="分享">
+<span class="material-symbols-outlined">share</span>
+</button>
+<button class="bg-surface/90 text-primary hover:bg-surface p-2 rounded-full backdrop-blur-sm transition-colors" title="查看日记">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Photo Card 2 -->
+<div class="group relative rounded-[24px] overflow-hidden bg-white shadow-lg shadow-primary-container/5 aspect-square border border-surface-variant">
+<img alt="Plant photo" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="A collection of small succulent plants in minimalist white ceramic pots sitting on a wooden windowsill. Bright, diffused daylight creates soft shadows. The overall mood is peaceful and verdant." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-M24MlIDJYjha7PaYRX89-Z25mhvSFBit_V8sY14wRCAUTEm1Yi1vYtVa0o9bVuaawsNl06qaSHStqSYTHJpm8AmhPMFBB29iU0hNTj4fjMovb4ukLft7RY5YBIqVzjY5I3JVzbk0WvcCYRueYzw3l-E_hWWCMLDu-QZsPXy_1drQ2Owv2Rp_xCUdL6EcfFMp1qvKGLPytOSQkvZELJ-kApmzCR-8AszTa3QS8Ez2OX_eG9E76NG9agjLfEjMv0cwnEae1AoRFA0">
+<!-- Plant Tag -->
+<div class="absolute top-sm left-sm bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm px-3 py-1 rounded-full shadow-sm">
+                            Rusty
+                        </div>
+<!-- Hover Overlay -->
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-md">
+<div class="flex gap-sm justify-end">
+<button class="bg-surface/90 text-primary hover:bg-surface p-2 rounded-full backdrop-blur-sm transition-colors" title="分享">
+<span class="material-symbols-outlined">share</span>
+</button>
+<button class="bg-surface/90 text-primary hover:bg-surface p-2 rounded-full backdrop-blur-sm transition-colors" title="查看日记">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Photo Card 3 -->
+<div class="group relative rounded-[24px] overflow-hidden bg-white shadow-lg shadow-primary-container/5 aspect-square border border-surface-variant">
+<img alt="Plant photo" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="An indoor shot of a lush Pothos plant trailing down from a macrame hanger. The background is a clean white wall illuminated by natural light, emphasizing the vibrant green foliage." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7STUE9mJmu05XuqSqokF7rXuIfXy42wiWTieFg8BN0TNBphhH93DTsMxcLvB1VwW6yk3ziJYVSRiSHnrSQH25964eblMi2b-JhpDE_hTAN3uKwzHO6MrD_Oyi6vWhMR0zRclUJCKoGoNsCoXHpuEIff6NC0hCUJq-d_jkDmulweirXsdJy2PZqpIRWkLMZ_P4IEVwrSPLL3Q_q9w9X61Lm_9uXYyhh6vn5lxMKn7Ok6GQCMNKdOSc3sjZ6x9HyJ-Ugt0RoLMhiNY">
+<!-- Plant Tag -->
+<div class="absolute top-sm left-sm bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm px-3 py-1 rounded-full shadow-sm">
+                            Ivy
+                        </div>
+<!-- Hover Overlay -->
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-md">
+<div class="flex gap-sm justify-end">
+<button class="bg-surface/90 text-primary hover:bg-surface p-2 rounded-full backdrop-blur-sm transition-colors" title="分享">
+<span class="material-symbols-outlined">share</span>
+</button>
+<button class="bg-surface/90 text-primary hover:bg-surface p-2 rounded-full backdrop-blur-sm transition-colors" title="查看日记">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Photo Grid Section: Sep 2023 -->
+<div class="mb-xxl">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-md">2023年 9月</h2>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-md md:gap-lg">
+<!-- Photo Card 4 -->
+<div class="group relative rounded-[24px] overflow-hidden bg-white shadow-lg shadow-primary-container/5 aspect-square border border-surface-variant">
+<img alt="Plant photo" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="A macro photograph of cactus spines catching golden hour sunlight. The background is softly blurred into warm, earthy tones. The image conveys a sense of delicate natural architecture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB22t9oS05MhHo73xDcWxRh03oY_jHnj1LvAt2_QYVfHAryru7N0J2ghjV_x1gH_QznpRoAr0pWOSBLbWKm6qQvw4922eh10tQDseihRPZGP4bnKWNYHYIYdieGlxlyCzOFey_DNzTAcxyZKfLx7UHwAPSCsj_agxcM_mv6yX52qgjWg4wiqaoeeTw9JwdHpdtpR3D9sGRqPtDpXgpMtpP8Rdj4OiNAclHm75lq-cR2UWh1Ry2yz_Ru2wlDmYNA0amC_1Lkoyb8yX8">
+<!-- Plant Tag -->
+<div class="absolute top-sm left-sm bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm px-3 py-1 rounded-full shadow-sm">
+                            Spike
+                        </div>
+<!-- Hover Overlay -->
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-md">
+<div class="flex gap-sm justify-end">
+<button class="bg-surface/90 text-primary hover:bg-surface p-2 rounded-full backdrop-blur-sm transition-colors" title="分享">
+<span class="material-symbols-outlined">share</span>
+</button>
+<button class="bg-surface/90 text-primary hover:bg-surface p-2 rounded-full backdrop-blur-sm transition-colors" title="查看日记">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 md:hidden shadow-lg bg-surface-container dark:bg-inverse-surface rounded-t-lg">
+<!-- Inactive -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-highest rounded-lg px-2 py-1 transition-colors" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-label-sm text-label-sm mt-1">Dashboard</span>
+</a>
+<!-- Inactive -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-highest rounded-lg px-2 py-1 transition-colors" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="font-label-sm text-label-sm mt-1">Echo</span>
+</a>
+<!-- Inactive -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-highest rounded-lg px-2 py-1 transition-colors" href="#">
+<span class="material-symbols-outlined">history_edu</span>
+<span class="font-label-sm text-label-sm mt-1">Journal</span>
+</a>
+<!-- Active -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 scale-95 transition-all" href="#">
+<span class="material-symbols-outlined" data-weight="fill">diversity_3</span>
+<span class="font-label-sm text-label-sm mt-1">Social</span>
+</a>
+</nav>
+
+
+</body></html>

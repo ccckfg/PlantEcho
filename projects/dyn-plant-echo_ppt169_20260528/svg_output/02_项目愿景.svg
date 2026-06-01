@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#4A7C28" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#4A7C28" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1280" height="720" fill="#F5F0E8"/>
+  <rect width="1280" height="720" fill="url(#bgGlow)"/>
+
+  <!-- Top decorative bar -->
+  <rect x="60" y="50" width="4" height="60" rx="2" fill="#4A7C28"/>
+
+  <!-- Page title -->
+  <text x="80" y="88" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="40" font-weight="bold" fill="#2D5016">
+    为什么要做 PlantEcho?
+  </text>
+  <text x="80" y="118" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" fill="#6B7B6B">
+    不是传感器看板，而是陪伴软件
+  </text>
+
+  <!-- Central quote area -->
+  <rect x="140" y="170" width="1000" height="120" rx="16" fill="#FFFFFF"/>
+  <rect x="140" y="170" width="1000" height="120" rx="16" fill="none" stroke="#E0D8C8" stroke-width="1"/>
+  <!-- Quote mark -->
+  <text x="175" y="225" font-family="Georgia, serif" font-size="60" fill="#4A7C28" fill-opacity="0.3">"</text>
+  <text x="640" y="230" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="24" fill="#2D5016" font-weight="bold">
+    植物本身就是慢的载体，软件的响应也应该耐心
+  </text>
+  <text x="640" y="265" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" fill="#9B8B7B">
+    —— PlantEcho 设计哲学
+  </text>
+
+  <!-- Five principles in organic layout -->
+  <!-- Principle 1 -->
+  <g id="principle-1">
+    <circle cx="160" cy="400" r="30" fill="#4A7C28" fill-opacity="0.12"/>
+    <use data-icon="tabler-filled/message-circle" x="140" y="380" width="40" height="40" fill="#4A7C28"/>
+    <text x="160" y="455" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">说人话</text>
+    <text x="160" y="480" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">把否定句翻译成邀请句</text>
+  </g>
+
+  <!-- Principle 2 -->
+  <g id="principle-2">
+    <circle cx="390" cy="400" r="30" fill="#E8A849" fill-opacity="0.12"/>
+    <use data-icon="tabler-filled/clock" x="370" y="380" width="40" height="40" fill="#E8A849"/>
+    <text x="390" y="455" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">尊重节奏</text>
+    <text x="390" y="480" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">5秒撤销，380ms缓动</text>
+  </g>
+
+  <!-- Principle 3 -->
+  <g id="principle-3">
+    <circle cx="620" cy="400" r="30" fill="#D4A574" fill-opacity="0.12"/>
+    <use data-icon="tabler-filled/shield-check" x="600" y="380" width="40" height="40" fill="#D4A574"/>
+    <text x="620" y="455" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">操作信任</text>
+    <text x="620" y="480" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">控制权还给用户</text>
+  </g>
+
+  <!-- Principle 4 -->
+  <g id="principle-4">
+    <circle cx="850" cy="400" r="30" fill="#4A7C28" fill-opacity="0.12"/>
+    <use data-icon="tabler-filled/heart" x="830" y="380" width="40" height="40" fill="#4A7C28"/>
+    <text x="850" y="455" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">共情细节</text>
+    <text x="850" y="480" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">时间感问候，里程碑庆祝</text>
+  </g>
+
+  <!-- Principle 5 -->
+  <g id="principle-5">
+    <circle cx="1080" cy="400" r="30" fill="#E8A849" fill-opacity="0.12"/>
+    <use data-icon="tabler-filled/leaf" x="1060" y="380" width="40" height="40" fill="#E8A849"/>
+    <text x="1080" y="455" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">呼吸感</text>
+    <text x="1080" y="480" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">渐变遮罩，柔和动效</text>
+  </g>
+
+  <!-- Connecting organic line -->
+  <path d="M160,420 Q300,440 390,420 Q520,400 620,420 Q750,440 850,420 Q980,400 1080,420" fill="none" stroke="#4A7C28" stroke-width="1.5" stroke-opacity="0.2"/>
+
+  <!-- Bottom insight -->
+  <rect x="200" y="540" width="880" height="80" rx="12" fill="#2D5016" fill-opacity="0.05"/>
+  <use data-icon="tabler-filled/bulb" x="230" y="558" width="32" height="32" fill="#E8A849"/>
+  <text x="280" y="580" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" fill="#2D5016">
+    核心洞察：<tspan font-weight="bold" fill="#4A7C28">PlantEcho 不是让植物"说话"，而是让用户感受到植物的存在</tspan>
+  </text>
+
+  <!-- Decorative elements -->
+  <circle cx="1200" cy="100" r="20" fill="#4A7C28" fill-opacity="0.06"/>
+  <circle cx="80" cy="650" r="15" fill="#E8A849" fill-opacity="0.08"/>
+
+  <!-- Page number -->
+  <text x="1220" y="700" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">02 / 18</text>
+</svg>

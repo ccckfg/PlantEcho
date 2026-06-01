@@ -1,0 +1,17 @@
+import { initialSchemaMigration } from "./001_initial_schema.js";
+import { embeddingProviderMetadataMigration } from "./002_embedding_provider_metadata.js";
+import { proactiveEngineMigration } from "./003_proactive_engine.js";
+
+export interface DatabaseMigration {
+  version: number;
+  name: string;
+  up: string;
+}
+
+export const migrations: DatabaseMigration[] = [
+  initialSchemaMigration,
+  embeddingProviderMetadataMigration,
+  proactiveEngineMigration
+].sort((a, b) => a.version - b.version);
+
+export const latestSchemaVersion = migrations.at(-1)?.version ?? 0;

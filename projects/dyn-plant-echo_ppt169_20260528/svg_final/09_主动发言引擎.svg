@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  
+  <rect width="1280" height="720" fill="#F5F0E8" />
+
+  
+  <path fill="#4A7C28" d="M62,50 H62 A2,2 0 0 1 64,52 V108 A2,2 0 0 1 62,110 H62 A2,2 0 0 1 60,108 V52 A2,2 0 0 1 62,50 Z" />
+
+  
+  <text x="80" y="88" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="40" font-weight="bold" fill="#2D5016">
+    主动发言引擎
+  </text>
+  <text x="80" y="118" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" fill="#6B7B6B">
+    让植物不只被动回答，还能主动关心主人
+  </text>
+
+  
+  
+  <g id="trigger-sensor">
+    <path fill="#FFFFFF" d="M72,150 H408 A12,12 0 0 1 420,162 V318 A12,12 0 0 1 408,330 H72 A12,12 0 0 1 60,318 V162 A12,12 0 0 1 72,150 Z" />
+    <path fill="none" stroke="#4A7C28" stroke-width="1.5" stroke-opacity="0.3" d="M72,150 H408 A12,12 0 0 1 420,162 V318 A12,12 0 0 1 408,330 H72 A12,12 0 0 1 60,318 V162 A12,12 0 0 1 72,150 Z" />
+    <circle cx="100" cy="185" r="20" fill="#4A7C28" fill-opacity="0.12" />
+    
+  <g transform="translate(84.0, 169.0) scale(1.3333333333333333)" fill="#4A7C28">
+    <path d="M10.708 2.372a2.382 2.382 0 0 0 -.71 .686l-4.892 7.26c-1.981 3.314 -1.22 7.466 1.767 9.882c2.969 2.402 7.286 2.402 10.254 0c2.987 -2.416 3.748 -6.569 1.795 -9.836l-4.919 -7.306c-.722 -1.075 -2.192 -1.376 -3.295 -.686z" />
+  </g>
+    <text x="130" y="190" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">传感器异常</text>
+    <path fill="#4A7C28" fill-opacity="0.1" d="M293,170 H387 A13,13 0 0 1 400,183 V183 A13,13 0 0 1 387,196 H293 A13,13 0 0 1 280,183 V183 A13,13 0 0 1 293,170 Z" />
+    <text x="340" y="188" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#4A7C28" font-weight="bold">最高优先级</text>
+    <text x="80" y="220" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">1. soil_low — "我有点渴了"</text>
+    <text x="80" y="242" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">2. sensor_offline — 离线提醒</text>
+    <text x="80" y="264" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">3. 过湿/温度/光照异常</text>
+    <text x="80" y="295" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">冷却: 30分钟 · 离线: 12小时</text>
+  </g>
+
+  
+  <g id="trigger-weather">
+    <path fill="#FFFFFF" d="M452,150 H788 A12,12 0 0 1 800,162 V318 A12,12 0 0 1 788,330 H452 A12,12 0 0 1 440,318 V162 A12,12 0 0 1 452,150 Z" />
+    <path fill="none" stroke="#E8A849" stroke-width="1.5" stroke-opacity="0.3" d="M452,150 H788 A12,12 0 0 1 800,162 V318 A12,12 0 0 1 788,330 H452 A12,12 0 0 1 440,318 V162 A12,12 0 0 1 452,150 Z" />
+    <circle cx="480" cy="185" r="20" fill="#E8A849" fill-opacity="0.12" />
+    
+  <g transform="translate(464.0, 169.0) scale(1.3333333333333333)" fill="#E8A849">
+    <path d="M10.04 4.305c2.195 -.667 4.615 -.224 6.36 1.176c1.386 1.108 2.188 2.686 2.252 4.34l.003 .212l.091 .003c2.3 .107 4.143 1.961 4.25 4.27l.004 .211c0 2.407 -1.885 4.372 -4.255 4.482l-.21 .005h-11.878l-.222 -.008c-2.94 -.11 -5.317 -2.399 -5.43 -5.263l-.005 -.216c0 -2.747 2.08 -5.01 4.784 -5.417l.114 -.016l.07 -.181c.663 -1.62 2.056 -2.906 3.829 -3.518l.244 -.08z" />
+  </g>
+    <text x="510" y="190" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">天气提醒</text>
+    <text x="460" y="220" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">检测到下雨或降水</text>
+    <text x="460" y="242" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">自动提醒主人带伞</text>
+    <text x="460" y="264" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">每个植物各发一条</text>
+    <text x="460" y="295" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">冷却: 6小时 · 未配置时安静跳过</text>
+  </g>
+
+  
+  <g id="trigger-reminder">
+    <path fill="#FFFFFF" d="M832,150 H1208 A12,12 0 0 1 1220,162 V318 A12,12 0 0 1 1208,330 H832 A12,12 0 0 1 820,318 V162 A12,12 0 0 1 832,150 Z" />
+    <path fill="none" stroke="#D4A574" stroke-width="1.5" stroke-opacity="0.3" d="M832,150 H1208 A12,12 0 0 1 1220,162 V318 A12,12 0 0 1 1208,330 H832 A12,12 0 0 1 820,318 V162 A12,12 0 0 1 832,150 Z" />
+    <circle cx="860" cy="185" r="20" fill="#D4A574" fill-opacity="0.12" />
+    
+  <g transform="translate(844.0, 169.0) scale(1.3333333333333333)" fill="#D4A574">
+    <path d="M16 2a1 1 0 0 1 .993 .883l.007 .117v1h1a3 3 0 0 1 2.995 2.824l.005 .176v12a3 3 0 0 1 -2.824 2.995l-.176 .005h-12a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-12a3 3 0 0 1 2.824 -2.995l.176 -.005h1v-1a1 1 0 0 1 1.993 -.117l.007 .117v1h6v-1a1 1 0 0 1 1 -1zm3 7h-14v9.625c0 .705 .386 1.286 .883 1.366l.117 .009h12c.513 0 .936 -.53 .993 -1.215l.007 -.16v-9.625z" />
+    <path d="M12 12a1 1 0 0 1 .993 .883l.007 .117v3a1 1 0 0 1 -1.993 .117l-.007 -.117v-2a1 1 0 0 1 -.117 -1.993l.117 -.007h1z" />
+  </g>
+    <text x="890" y="190" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="18" font-weight="bold" fill="#2D5016">用户提醒</text>
+    <text x="840" y="220" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">"十分钟后提醒我浇水"</text>
+    <text x="840" y="242" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">"明天早上8点提醒我带伞"</text>
+    <text x="840" y="264" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">规则解析中文时间表达</text>
+    <text x="840" y="295" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">最长跨度: 30天 · background_jobs 持久化</text>
+  </g>
+
+  
+  <text x="80" y="370" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="20" font-weight="bold" fill="#2D5016">数据流</text>
+
+  <g id="dataflow">
+    
+    <path fill="#4A7C28" fill-opacity="0.1" d="M68,395 H212 A8,8 0 0 1 220,403 V437 A8,8 0 0 1 212,445 H68 A8,8 0 0 1 60,437 V403 A8,8 0 0 1 68,395 Z" />
+    <text x="140" y="425" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#2D5016">事件触发</text>
+
+    <line x1="225" y1="420" x2="265" y2="420" stroke="#4A7C28" stroke-width="1.5" />
+    <polygon points="265,420 259,415 261,425" fill="#4A7C28" />
+
+    
+    <path fill="#E8A849" fill-opacity="0.1" d="M278,395 H422 A8,8 0 0 1 430,403 V437 A8,8 0 0 1 422,445 H278 A8,8 0 0 1 270,437 V403 A8,8 0 0 1 278,395 Z" />
+    <text x="350" y="425" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#8B6914">evaluateReading</text>
+
+    <line x1="435" y1="420" x2="475" y2="420" stroke="#E8A849" stroke-width="1.5" />
+    <polygon points="475,420 469,415 471,425" fill="#E8A849" />
+
+    
+    <path fill="#D4A574" fill-opacity="0.1" d="M488,395 H632 A8,8 0 0 1 640,403 V437 A8,8 0 0 1 632,445 H488 A8,8 0 0 1 480,437 V403 A8,8 0 0 1 488,395 Z" />
+    <text x="560" y="425" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#8B6914">sensorTriggers</text>
+
+    <line x1="645" y1="420" x2="685" y2="420" stroke="#D4A574" stroke-width="1.5" />
+    <polygon points="685,420 679,415 681,425" fill="#D4A574" />
+
+    
+    <path fill="#C45A28" fill-opacity="0.08" d="M698,395 H842 A8,8 0 0 1 850,403 V437 A8,8 0 0 1 842,445 H698 A8,8 0 0 1 690,437 V403 A8,8 0 0 1 698,395 Z" />
+    <text x="770" y="425" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#C45A28">冷却去重</text>
+
+    <line x1="855" y1="420" x2="895" y2="420" stroke="#C45A28" stroke-width="1.5" />
+    <polygon points="895,420 889,415 891,425" fill="#C45A28" />
+
+    
+    <path fill="#2D5016" fill-opacity="0.1" d="M908,395 H1052 A8,8 0 0 1 1060,403 V437 A8,8 0 0 1 1052,445 H908 A8,8 0 0 1 900,437 V403 A8,8 0 0 1 908,395 Z" />
+    <text x="980" y="425" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#2D5016">LLM 润色</text>
+
+    <line x1="1065" y1="420" x2="1105" y2="420" stroke="#2D5016" stroke-width="1.5" />
+    <polygon points="1105,420 1099,415 1101,425" fill="#2D5016" />
+
+    
+    <path fill="#4A7C28" fill-opacity="0.15" d="M1118,395 H1212 A8,8 0 0 1 1220,403 V437 A8,8 0 0 1 1212,445 H1118 A8,8 0 0 1 1110,437 V403 A8,8 0 0 1 1118,395 Z" />
+    <text x="1165" y="425" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" font-weight="bold" fill="#4A7C28">发言</text>
+  </g>
+
+  
+  <g id="outputs">
+    <line x1="1165" y1="445" x2="1165" y2="475" stroke="#4A7C28" stroke-width="1.5" />
+    <polygon points="1165,475 1160,465 1170,465" fill="#4A7C28" />
+
+    <path fill="#4A7C28" fill-opacity="0.08" d="M1056,480 H1144 A6,6 0 0 1 1150,486 V510 A6,6 0 0 1 1144,516 H1056 A6,6 0 0 1 1050,510 V486 A6,6 0 0 1 1056,480 Z" />
+    <text x="1100" y="504" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#2D5016">messages</text>
+
+    <path fill="#E8A849" fill-opacity="0.08" d="M1166,480 H1254 A6,6 0 0 1 1260,486 V510 A6,6 0 0 1 1254,516 H1166 A6,6 0 0 1 1160,510 V486 A6,6 0 0 1 1166,480 Z" />
+    <text x="1210" y="504" text-anchor="middle" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#8B6914">sync_events</text>
+  </g>
+
+  
+  <path fill="#2D5016" fill-opacity="0.04" d="M72,540 H1208 A12,12 0 0 1 1220,552 V608 A12,12 0 0 1 1208,620 H72 A12,12 0 0 1 60,608 V552 A12,12 0 0 1 72,540 Z" />
+  
+  <g transform="translate(90.0, 558.0) scale(1.1666666666666667)" fill="#E8A849">
+    <path d="M4 11a1 1 0 0 1 .117 1.993l-.117 .007h-1a1 1 0 0 1 -.117 -1.993l.117 -.007h1z" />
+    <path d="M12 2a1 1 0 0 1 .993 .883l.007 .117v1a1 1 0 0 1 -1.993 .117l-.007 -.117v-1a1 1 0 0 1 1 -1z" />
+    <path d="M21 11a1 1 0 0 1 .117 1.993l-.117 .007h-1a1 1 0 0 1 -.117 -1.993l.117 -.007h1z" />
+    <path d="M4.893 4.893a1 1 0 0 1 1.32 -.083l.094 .083l.7 .7a1 1 0 0 1 -1.32 1.497l-.094 -.083l-.7 -.7a1 1 0 0 1 0 -1.414z" />
+    <path d="M17.693 4.893a1 1 0 0 1 1.497 1.32l-.083 .094l-.7 .7a1 1 0 0 1 -1.497 -1.32l.083 -.094l.7 -.7z" />
+    <path d="M14 18a1 1 0 0 1 1 1a3 3 0 0 1 -6 0a1 1 0 0 1 .883 -.993l.117 -.007h4z" />
+    <path d="M12 6a6 6 0 0 1 3.6 10.8a1 1 0 0 1 -.471 .192l-.129 .008h-6a1 1 0 0 1 -.6 -.2a6 6 0 0 1 3.6 -10.8z" />
+  </g>
+  <text x="130" y="578" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="16" font-weight="bold" fill="#2D5016">设计亮点</text>
+  <text x="130" y="603" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#6B7B6B">
+    事件只决定"该不该说"和"事实是什么"；<tspan font-weight="bold" fill="#4A7C28">LLM 只负责把结构化事实润色成植物口吻的一句话</tspan>
+  </text>
+
+  
+  <path fill="#FFFFFF" d="M70,630 H610 A10,10 0 0 1 620,640 V670 A10,10 0 0 1 610,680 H70 A10,10 0 0 1 60,670 V640 A10,10 0 0 1 70,630 Z" />
+  <path fill="none" stroke="#E0D8C8" stroke-width="1" d="M70,630 H610 A10,10 0 0 1 620,640 V670 A10,10 0 0 1 610,680 H70 A10,10 0 0 1 60,670 V640 A10,10 0 0 1 70,630 Z" />
+  
+  <g transform="translate(80.0, 640.0) scale(1.1666666666666667)" fill="#4A7C28">
+    <path d="M3.055 14.328l-.018 -.168l-.004 -.043a11 11 0 0 1 -.047 -1.12c.018 -6.29 4.29 -9.997 13 -9.997h4.014a1 1 0 0 1 1 1l-.002 2.057c-.498 8.701 -4.74 12.943 -11.998 12.943h-2.631a16 16 0 0 0 -.375 2.11a1 1 0 1 1 -1.988 -.22q .174 -1.568 .58 -2.947l-.118 -.146l-.208 -.28l-.157 -.229l-.182 -.293l-.098 -.171l-.065 -.122a6 6 0 0 1 -.397 -.941l-.072 -.237l-.085 -.327l-.057 -.268l-.043 -.242zm8.539 -4.242c-2.845 1.265 -4.854 3.13 -6.108 5.583q .098 .2 .218 .4l.185 .281l.07 .097q .12 .164 .258 .329l.197 .224h.649c1.037 -2.271 2.777 -3.946 5.343 -5.086a1 1 0 0 0 -.812 -1.828" />
+  </g>
+  <text x="120" y="662" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="14" fill="#2D5016" font-style="italic">
+    "今天外面下雨了，记得带伞哦～我会乖乖待在家里的"
+  </text>
+
+  
+  <text x="1220" y="700" font-family="&quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, Arial, sans-serif" font-size="12" fill="#9B8B7B">09 / 18</text>
+</svg>
