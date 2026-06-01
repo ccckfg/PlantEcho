@@ -1,11 +1,17 @@
+import type { AppUser, AuthSession } from "@dyn/shared";
+
 const STORAGE_KEY = "dyn.backend.connection.v1";
 
 export interface BackendConnectionInput {
   baseUrl: string;
-  apiKey: string;
+  username: string;
+  password: string;
 }
 
-export interface BackendConnection extends BackendConnectionInput {
+export interface BackendConnection {
+  baseUrl: string;
+  token: string;
+  user: AppUser;
   connectedAt: string;
 }
 
@@ -26,11 +32,13 @@ export const normalizeBackendUrl = (rawUrl: string): string => {
   return `${url.origin}${pathname}`;
 };
 
-export const createBackendConnection = (
-  input: BackendConnectionInput
-): BackendConnection => ({
+export const createBackendConnection = (input: {
+  baseUrl: string;
+  session: AuthSession;
+}): BackendConnection => ({
   baseUrl: normalizeBackendUrl(input.baseUrl),
-  apiKey: input.apiKey.trim(),
+  token: input.session.token,
+  user: input.session.user,
   connectedAt: new Date().toISOString()
 });
 
@@ -40,11 +48,20 @@ export const loadConnection = (): BackendConnection | null => {
     if (!raw) return null;
 
     const parsed = JSON.parse(raw) as Partial<BackendConnection>;
-    if (!parsed.baseUrl || typeof parsed.baseUrl !== "string") return null;
+    if (
+      !parsed.baseUrl ||
+      typeof parsed.baseUrl !== "string" ||
+      !parsed.token ||
+      typeof parsed.token !== "string" ||
+      !parsed.user
+    ) {
+      return null;
+    }
 
     return {
       baseUrl: normalizeBackendUrl(parsed.baseUrl),
-      apiKey: typeof parsed.apiKey === "string" ? parsed.apiKey : "",
+      token: parsed.token,
+      user: parsed.user as AppUser,
       connectedAt:
         typeof parsed.connectedAt === "string"
           ? parsed.connectedAt

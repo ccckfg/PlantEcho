@@ -3,6 +3,7 @@ import Fastify from "fastify";
 import { corsMethods } from "./config/http.js";
 import { migrate } from "./db/migrate.js";
 import { registerAppAuth } from "./modules/auth/appAuth.js";
+import { registerAuthRoutes } from "./modules/auth/routes.js";
 import { registerChatRoutes } from "./modules/chat/routes.js";
 import { registerDeviceRoutes } from "./modules/devices/routes.js";
 import { createMqttBroker } from "./modules/iot/mqttBroker.js";
@@ -38,7 +39,8 @@ export const buildApp = async () => {
   await registerAppAuth(app);
 
   app.get("/health", async () => ({ ok: true, service: "dyn-server" }));
-  app.get("/api/v1/auth/check", async () => ({ ok: true }));
+  app.get("/api/v1/auth/check", async (request) => ({ ok: true, user: request.currentUser ?? null }));
+  await app.register(registerAuthRoutes);
   await app.register(registerDeviceRoutes);
   await app.register(registerPlantRoutes);
   await app.register(registerChatRoutes);

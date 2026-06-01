@@ -5,7 +5,7 @@ import { BackendConnect } from "@/components/BackendConnect";
 import { DesktopFrame } from "@/components/window/DesktopFrame";
 import { MobileFrame } from "@/components/mobile/MobileFrame";
 import { MobileShell } from "@/components/mobile/MobileShell";
-import { getApiConnection } from "@/lib/api";
+import { clearApiConnection, getApiConnection } from "@/lib/api";
 import type { BackendConnection } from "@/lib/connection";
 import { useIsMobile } from "@/lib/usePlatform";
 import { useSyncStream } from "@/hooks/useSyncStream";
@@ -27,6 +27,11 @@ export default function App() {
   const [editingConnection, setEditingConnection] = useState(false);
   const isMobile = useIsMobile();
   useSyncStream(connection);
+  const logout = () => {
+    clearApiConnection();
+    setConnection(null);
+    setEditingConnection(false);
+  };
 
   // 外壳与页面随平台切换；桌面端渲染路径与现状完全一致。
   const Frame = isMobile ? MobileFrame : DesktopFrame;
@@ -72,11 +77,19 @@ export default function App() {
   return (
     <Frame>
       {isMobile ? (
-        <MobileShell connectionLabel={connection.baseUrl} onDisconnect={() => setEditingConnection(true)}>
+        <MobileShell
+          connection={connection}
+          onDisconnect={() => setEditingConnection(true)}
+          onLogout={logout}
+        >
           {routes}
         </MobileShell>
       ) : (
-        <AppShell connectionLabel={connection.baseUrl} onDisconnect={() => setEditingConnection(true)}>
+        <AppShell
+          connection={connection}
+          onDisconnect={() => setEditingConnection(true)}
+          onLogout={logout}
+        >
           {routes}
         </AppShell>
       )}

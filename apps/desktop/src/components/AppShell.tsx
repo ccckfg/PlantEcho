@@ -2,12 +2,15 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { SideNav } from "./SideNav";
 import { Icon } from "./UI";
+import { UserMenu } from "./UserMenu";
 import { PendingDeviceWidget } from "./devices/PendingDeviceWidget";
+import type { BackendConnection } from "@/lib/connection";
 
 interface AppShellProps {
   children: ReactNode;
-  connectionLabel?: string;
+  connection?: BackendConnection;
   onDisconnect?: () => void;
+  onLogout?: () => void;
 }
 
 const routeSection = (pathname: string): string => {
@@ -15,7 +18,7 @@ const routeSection = (pathname: string): string => {
   return seg ? `/${seg}` : "/";
 };
 
-export function AppShell({ children, connectionLabel, onDisconnect }: AppShellProps) {
+export function AppShell({ children, connection, onDisconnect, onLogout }: AppShellProps) {
   const location = useLocation();
   const mainRef = useRef<HTMLElement | null>(null);
   const [scrolled, setScrolled] = useState(false);
@@ -39,7 +42,7 @@ export function AppShell({ children, connectionLabel, onDisconnect }: AppShellPr
     <div className="flex h-full overflow-hidden bg-background">
       <SideNav />
       <div className="flex-1 h-full min-w-0 flex flex-col bg-surface">
-        {connectionLabel ? (
+        {connection ? (
           <header
             className={`shrink-0 flex items-center justify-end gap-sm bg-surface/70 backdrop-blur-md px-lg py-sm transition-all duration-300 ease-standard ${
               scrolled
@@ -48,12 +51,13 @@ export function AppShell({ children, connectionLabel, onDisconnect }: AppShellPr
             }`}
           >
             <PendingDeviceWidget />
+            {onLogout ? <UserMenu connection={connection} onLogout={onLogout} /> : null}
             <span
               className="min-w-0 inline-flex items-center gap-xs rounded-full bg-surface-container/80 px-md py-xs text-label-sm font-label-sm text-on-surface-variant ring-1 ring-surface-container-highest/40 transition-colors duration-200 hover:bg-surface-container"
-              title={connectionLabel}
+              title={connection.baseUrl}
             >
               <Icon name="dns" className="text-[16px]" />
-              <span className="truncate max-w-[280px]">{connectionLabel}</span>
+              <span className="truncate max-w-[280px]">{connection.baseUrl}</span>
             </span>
             {onDisconnect ? (
               <button

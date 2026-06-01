@@ -35,7 +35,7 @@ docker push ccckfg/dyn:latest
 本地容器验证覆盖：
 
 - `/health` 返回 `ok: true`。
-- `APP_ACCESS_KEY` 开启后，未带密钥访问受保护接口返回 401。
+- 账号密码登录后返回 token；未带 token 访问受保护接口返回 401。
 - 未认领设备首次上报返回 `PENDING_DEVICE`，并出现在 pending 列表。
 - 认领设备并新建植物后返回 `dyn_dev_...` 设备密钥。
 - 使用生成的设备密钥再次上报读数，读数写入新植物。
@@ -49,13 +49,17 @@ docker build -t ccckfg/dyn:latest .
 docker run -d --name dyn-e2e-test `
   -p 18787:8787 `
   -p 11883:1883 `
-  -e APP_ACCESS_KEY=dyn-local-e2e-key `
+  -e AUTH_TOKEN_SECRET=dyn-local-e2e-secret `
   -e PROACTIVE_ENABLED=false `
   ccckfg/dyn:latest
 
 Invoke-RestMethod http://127.0.0.1:18787/health
 
-$headers = @{ "x-api-key" = "dyn-local-e2e-key" }
+$session = Invoke-RestMethod http://127.0.0.1:18787/api/v1/auth/register `
+  -Method Post `
+  -ContentType "application/json" `
+  -Body '{"username":"owner","password":"garden-pass-1","displayName":"园丁"}'
+$headers = @{ Authorization = "Bearer $($session.token)" }
 Invoke-RestMethod http://127.0.0.1:18787/api/v1/plants -Headers $headers
 
 docker rm -f dyn-e2e-test
@@ -64,7 +68,7 @@ docker rm -f dyn-e2e-test
 已验证内容：
 
 - `/health` 可访问。
-- `APP_ACCESS_KEY` 启用后，受保护接口无密钥返回 401。
+- 账号密码登录后可访问受保护接口；无 token 返回 401。
 - 未认领设备首次上报进入 pending。
 - 认领设备并新建植物后，新 `plantId` 可出现在植物列表。
 - 使用生成的设备密钥再次上报，读数写入对应植物，不串到默认植物。
@@ -116,7 +120,9 @@ MQTT_ENABLED=true
 MQTT_HOST=0.0.0.0
 MQTT_PORT=1883
 
-APP_ACCESS_KEY=请换成高强度随机字符串
+AUTH_TOKEN_SECRET=请换成高强度随机字符串
+AUTH_TOKEN_TTL_HOURS=168
+AUTH_REGISTRATION_ENABLED=true
 
 DEFAULT_PLANT_ID=plant-demo
 DEFAULT_DEVICE_ID=esp32-demo
@@ -183,7 +189,10 @@ docker compose up -d
 
 ```bash
 curl http://127.0.0.1:8787/health
-curl -H "x-api-key: $APP_ACCESS_KEY" http://127.0.0.1:8787/api/v1/plants
+curl -X POST http://127.0.0.1:8787/api/v1/auth/login \
+  -H "content-type: application/json" \
+  -d '{"username":"owner","password":"你的密码"}'
+curl -H "Authorization: Bearer <login_token>" http://127.0.0.1:8787/api/v1/plants
 docker logs --tail 100 dyn-server
 ```
 
@@ -210,7 +219,7 @@ config topic: dyn/devices/<deviceId>/config
 
 ## 灰度注意事项
 
-- `APP_ACCESS_KEY` 必须设置；桌面端连接后端时填写同一个密钥。
+- 建议设置 `AUTH_TOKEN_SECRET`；桌面端和移动端连接后端时使用账号密码登录，首次部署后注册第一个管理员账号。
 - `docker-compose.yml` 为了便于本地校验，将 `dyn.env` 标记为可选；服务器真实部署时仍必须创建 `/opt/dyn/dyn.env`。
 - SQLite 数据在 `/opt/dyn/data/dyn.sqlite`，升级前先备份 `/opt/dyn/data`。
 - 容器默认会 seed 一个 demo 植物和 demo 设备；真实设备建议走 pending → claim 流程。

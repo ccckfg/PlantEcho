@@ -1,16 +1,24 @@
-import { claimDeviceSchema, deviceReadingSchema } from "@dyn/shared";
+import {
+  bulkDeviceActionSchema,
+  claimDeviceSchema,
+  deviceReadingSchema,
+  updateDeviceSchema
+} from "@dyn/shared";
 import type { FastifyInstance } from "fastify";
 import { sendError } from "../../shared/http.js";
 import { recordDeviceReading } from "../readings/readingService.js";
 import {
+  applyBulkDeviceAction,
   claimDevice,
+  deleteDevice,
   getClaimedDevices,
   getPendingDevices,
   ignorePendingDevice,
   isAuthorizedDevice,
   isKnownDevice,
   registerPendingDevice,
-  rotateDeviceKey
+  rotateDeviceKey,
+  setDeviceEnabled
 } from "./deviceService.js";
 
 const headerValue = (value: string | string[] | undefined): string | undefined =>
@@ -48,6 +56,33 @@ export const registerDeviceRoutes = async (app: FastifyInstance): Promise<void> 
     try {
       const { deviceId } = request.params as { deviceId: string };
       return reply.send(rotateDeviceKey(deviceId));
+    } catch (error) {
+      return sendError(reply, error);
+    }
+  });
+
+  app.patch("/api/v1/devices/:deviceId", async (request, reply) => {
+    try {
+      const { deviceId } = request.params as { deviceId: string };
+      const input = updateDeviceSchema.parse(request.body);
+      return reply.send({ device: setDeviceEnabled(deviceId, input.status === "active") });
+    } catch (error) {
+      return sendError(reply, error);
+    }
+  });
+
+  app.delete("/api/v1/devices/:deviceId", async (request, reply) => {
+    try {
+      const { deviceId } = request.params as { deviceId: string };
+      return reply.send({ device: deleteDevice(deviceId) });
+    } catch (error) {
+      return sendError(reply, error);
+    }
+  });
+
+  app.post("/api/v1/devices/bulk", async (request, reply) => {
+    try {
+      return reply.send(applyBulkDeviceAction(bulkDeviceActionSchema.parse(request.body)));
     } catch (error) {
       return sendError(reply, error);
     }

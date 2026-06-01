@@ -10,18 +10,40 @@ GET /health
 
 ## App Auth
 
-如果服务端配置了 `APP_ACCESS_KEY`，除设备上报外的 `/api/*` 与 `/v1/*`
-接口都需要携带密钥：
+应用接口现在使用账号密码登录后返回的 token。除 `/health`、设备上报、
+`/api/v1/auth/status`、`/api/v1/auth/register`、`/api/v1/auth/login`
+外，客户端应携带：
 
 ```http
-x-api-key: <APP_ACCESS_KEY>
-Authorization: Bearer <APP_ACCESS_KEY>
+Authorization: Bearer <login_token>
 ```
 
-桌面端连接检查：
+登录与注册：
 
 ```http
+GET /api/v1/auth/status
+POST /api/v1/auth/register
+POST /api/v1/auth/login
 GET /api/v1/auth/check
+GET /api/v1/auth/me
+```
+
+首个注册用户会成为管理员。管理员用户管理：
+
+```http
+GET /api/v1/auth/users
+POST /api/v1/auth/users
+PATCH /api/v1/auth/users/:userId
+```
+
+请求示例：
+
+```json
+{
+  "username": "owner",
+  "password": "at-least-8",
+  "displayName": "小绿的主人"
+}
 ```
 
 ## Plants
@@ -82,7 +104,7 @@ Payload:
 
 ## Device Claim
 
-待认领设备列表和认领接口受 `APP_ACCESS_KEY` 保护：
+待认领设备列表和认领接口受登录 token 保护：
 
 ```http
 GET /api/v1/devices
@@ -90,7 +112,12 @@ GET /api/v1/devices/pending
 POST /api/v1/devices/:deviceId/claim
 POST /api/v1/devices/:deviceId/ignore
 POST /api/v1/devices/:deviceId/rotate-key
+PATCH /api/v1/devices/:deviceId
+DELETE /api/v1/devices/:deviceId
+POST /api/v1/devices/bulk
 ```
+
+停用设备会保留绑定与历史读数，但后续设备密钥校验不再通过；删除为软删除，设备继续上报时会重新进入待认领。
 
 绑定已有植物：
 

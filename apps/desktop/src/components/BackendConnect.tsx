@@ -1,6 +1,7 @@
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { APP_BRAND } from "@/config/branding";
 import { getApiConnection, setApiConnection, testApiConnection } from "@/lib/api";
+import { registerWithPassword } from "@/lib/authApi";
 import type { BackendConnection } from "@/lib/connection";
 import { BrandMark } from "./BrandMark";
 import { Icon } from "./UI";
@@ -10,35 +11,45 @@ interface BackendConnectProps {
   onCancel?: () => void;
 }
 
+type ConnectMode = "login" | "register";
 type ConnectState = "idle" | "testing" | "connected";
 
 const formatConnectionError = (caught: unknown): string => {
   const message = caught instanceof Error ? caught.message : String(caught);
   if (/Failed to fetch|NetworkError|Load failed/i.test(message)) {
-    return "无法连接到后端服务。请确认后端已启动：npm run dev:server，并检查地址/端口是否为 http://127.0.0.1:8787 或 http://localhost:8787。";
+    return "我们暂时联系不上 PlantEcho 的家。请确认后端已启动，并检查地址/端口是否为 http://127.0.0.1:8787。";
   }
-  return message || "连接失败";
+  return message || "登录失败";
 };
 
 export function BackendConnect({ onConnected, onCancel }: BackendConnectProps) {
   const savedConnection = getApiConnection();
+  const [mode, setMode] = useState<ConnectMode>("login");
   const [baseUrl, setBaseUrl] = useState(savedConnection?.baseUrl ?? "");
-  const [apiKey, setApiKey] = useState(savedConnection?.apiKey ?? "");
-  const [showKey, setShowKey] = useState(false);
+  const [username, setUsername] = useState(savedConnection?.user.username ?? "");
+  const [displayName, setDisplayName] = useState(savedConnection?.user.displayName ?? "");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [state, setState] = useState<ConnectState>("idle");
   const [error, setError] = useState("");
 
-  const canConnect = baseUrl.trim().length > 0 && apiKey.trim().length > 0;
+  const canConnect =
+    baseUrl.trim().length > 0 &&
+    username.trim().length >= 3 &&
+    password.length >= 8;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!canConnect || state === "testing") return;
-
     setState("testing");
     setError("");
 
     try {
-      const connection = await testApiConnection({ baseUrl, apiKey });
+      const input = { baseUrl, username, password };
+      const connection =
+        mode === "register"
+          ? await registerWithPassword({ ...input, displayName: displayName.trim() || undefined })
+          : await testApiConnection(input);
       setApiConnection(connection);
       setState("connected");
       onConnected(connection);
@@ -50,72 +61,97 @@ export function BackendConnect({ onConnected, onCancel }: BackendConnectProps) {
 
   return (
     <main className="h-full bg-surface flex items-center justify-center p-lg relative overflow-hidden">
-      {/* 装饰性背景光斑 — 让登录页不那么"工具感" */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10"
-        style={{
-          background:
-            "radial-gradient(60% 40% at 30% 20%, rgba(161, 212, 148, 0.25), transparent 70%), radial-gradient(50% 40% at 80% 90%, rgba(191, 237, 209, 0.30), transparent 70%)"
-        }}
-      />
       <section className="dialog-pop-in w-full max-w-xl bg-surface-container-lowest/95 backdrop-blur-md ring-1 ring-surface-container-highest/60 rounded-lg shadow-soft p-xl">
         <div className="flex items-start gap-md">
           <BrandMark size="lg" className="shadow-leaf" />
           <div className="min-w-0">
-            <h1 className="font-display text-headline-lg text-on-surface">后端连接</h1>
+            <h1 className="font-display text-headline-lg text-on-surface">登录 PlantEcho</h1>
             <p className="text-body-md text-on-surface-variant mt-xs leading-relaxed">
               {onCancel
-                ? "可以切换到另一个 DYN 后端服务。"
-                : `${APP_BRAND.name} 需要一个可访问的 DYN 后端服务，才能听到植物的声音。`}
+                ? "可以换一个后端，或用另一个账号回来照看花园。"
+                : `${APP_BRAND.name} 需要先确认你是谁，才会打开植物的小屋。`}
             </p>
           </div>
         </div>
 
-        <form className="mt-xl flex flex-col gap-lg" onSubmit={handleSubmit}>
-          <label className="flex flex-col gap-xs">
-            <span className="text-label-md font-label-md text-on-surface">后端地址</span>
-            <div className="flex items-center gap-sm rounded-md ring-1 ring-surface-container-highest bg-surface px-md py-sm transition-all duration-200 ease-standard focus-within:ring-2 focus-within:ring-primary/50 focus-within:bg-surface-container-lowest">
-              <Icon name="dns" className="text-on-surface-variant" />
-              <input
-                value={baseUrl}
-                onChange={(event) => setBaseUrl(event.target.value)}
-                placeholder="http://127.0.0.1:8787"
-                className="w-full bg-transparent outline-none text-body-md text-on-surface placeholder:text-on-surface-variant/60"
-                autoComplete="url"
-              />
-            </div>
-          </label>
+        <div className="mt-lg flex rounded-full bg-surface-container p-xs">
+          {[
+            { key: "login", label: "登录" },
+            { key: "register", label: "注册" }
+          ].map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => setMode(item.key as ConnectMode)}
+              className={`flex-1 rounded-full px-md py-sm text-label-md font-label-md transition-all duration-300 ease-emphasized ${
+                mode === item.key
+                  ? "bg-primary text-on-primary shadow-leaf"
+                  : "text-on-surface-variant hover:bg-surface-container-high"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
 
-          <label className="flex flex-col gap-xs">
-            <span className="text-label-md font-label-md text-on-surface">访问密钥</span>
-            <div className="flex items-center gap-sm rounded-md ring-1 ring-surface-container-highest bg-surface px-md py-sm transition-all duration-200 ease-standard focus-within:ring-2 focus-within:ring-primary/50 focus-within:bg-surface-container-lowest">
-              <Icon name="key" className="text-on-surface-variant" />
+        <form className="mt-lg flex flex-col gap-md" onSubmit={handleSubmit}>
+          <Field icon="dns" label="后端地址">
+            <input
+              value={baseUrl}
+              onChange={(event) => setBaseUrl(event.target.value)}
+              placeholder="http://127.0.0.1:8787"
+              className="w-full bg-transparent outline-none text-body-md text-on-surface placeholder:text-on-surface-variant/60"
+              autoComplete="url"
+            />
+          </Field>
+
+          <Field icon="person" label="账号">
+            <input
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              placeholder="your_name"
+              className="w-full bg-transparent outline-none text-body-md text-on-surface placeholder:text-on-surface-variant/60"
+              autoComplete="username"
+            />
+          </Field>
+
+          {mode === "register" ? (
+            <Field icon="badge" label="显示名称">
               <input
-                value={apiKey}
-                onChange={(event) => setApiKey(event.target.value)}
-                type={showKey ? "text" : "password"}
-                placeholder="APP_ACCESS_KEY"
+                value={displayName}
+                onChange={(event) => setDisplayName(event.target.value)}
+                placeholder="小绿的主人"
                 className="w-full bg-transparent outline-none text-body-md text-on-surface placeholder:text-on-surface-variant/60"
-                autoComplete="current-password"
+                autoComplete="name"
               />
-              <button
-                type="button"
-                onClick={() => setShowKey((value) => !value)}
-                className="w-9 h-9 rounded-full grid place-items-center text-on-surface-variant hover:bg-surface-container transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-primary/40"
-                aria-label={showKey ? "隐藏密钥" : "显示密钥"}
-              >
-                <Icon name={showKey ? "visibility_off" : "visibility"} />
-              </button>
-            </div>
-          </label>
+            </Field>
+          ) : null}
+
+          <Field icon="key" label="密码">
+            <input
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              type={showPassword ? "text" : "password"}
+              placeholder="至少 8 位"
+              className="w-full bg-transparent outline-none text-body-md text-on-surface placeholder:text-on-surface-variant/60"
+              autoComplete={mode === "register" ? "new-password" : "current-password"}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((value) => !value)}
+              className="w-9 h-9 rounded-full grid place-items-center text-on-surface-variant hover:bg-surface-container transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-primary/40"
+              aria-label={showPassword ? "隐藏密码" : "显示密码"}
+            >
+              <Icon name={showPassword ? "visibility_off" : "visibility"} />
+            </button>
+          </Field>
 
           {error ? (
             <div
               role="alert"
               className="dialog-pop-in flex items-start gap-sm rounded-md bg-error-container ring-1 ring-error/20 text-on-error-container px-md py-sm text-body-sm"
             >
-              <Icon name="error" filled className="shrink-0" />
+              <Icon name="info" className="shrink-0" />
               <span className="break-words">{error}</span>
             </div>
           ) : null}
@@ -123,7 +159,7 @@ export function BackendConnect({ onConnected, onCancel }: BackendConnectProps) {
           <div className="flex flex-col sm:flex-row gap-sm sm:items-center sm:justify-between">
             <p className="text-body-sm text-on-surface-variant inline-flex items-center gap-xs">
               <Icon name="lock" className="text-[14px]" />
-              密钥仅保存在本机，并随请求发送给后端。
+              登录凭证仅保存在本机，用来和后端确认你的身份。
             </p>
             <div className="flex flex-col sm:flex-row gap-sm sm:justify-end">
               {onCancel ? (
@@ -146,12 +182,32 @@ export function BackendConnect({ onConnected, onCancel }: BackendConnectProps) {
                   name={state === "testing" ? "progress_activity" : "login"}
                   className={state === "testing" ? "animate-spin" : "transition-transform duration-300 ease-emphasized group-hover:translate-x-0.5"}
                 />
-                {state === "testing" ? "连接中" : "连接"}
+                {state === "testing" ? "正在确认" : mode === "register" ? "注册并进入" : "登录"}
               </button>
             </div>
           </div>
         </form>
       </section>
     </main>
+  );
+}
+
+function Field({
+  icon,
+  label,
+  children
+}: {
+  icon: string;
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <label className="flex flex-col gap-xs">
+      <span className="text-label-md font-label-md text-on-surface">{label}</span>
+      <div className="flex items-center gap-sm rounded-md ring-1 ring-surface-container-highest bg-surface px-md py-sm transition-all duration-200 ease-standard focus-within:ring-2 focus-within:ring-primary/50 focus-within:bg-surface-container-lowest">
+        <Icon name={icon} className="text-on-surface-variant" />
+        {children}
+      </div>
+    </label>
   );
 }

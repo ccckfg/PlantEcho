@@ -14,11 +14,14 @@ test("unknown device becomes pending, then claimed device requires its generated
   const { registerDeviceConfigPublisher } = await import("../iot/deviceConfigChannel.js");
   const {
     claimDevice,
+    applyBulkDeviceAction,
+    deleteDevice,
     getClaimedDevices,
     getPendingDevices,
     ignorePendingDevice,
     isAuthorizedDevice,
-    registerPendingDevice
+    registerPendingDevice,
+    setDeviceEnabled
   } = await import("./deviceService.js");
 
   const countReadings = (deviceId: string): number => {
@@ -82,8 +85,21 @@ test("unknown device becomes pending, then claimed device requires its generated
     assert.equal(isAuthorizedDevice(deviceId, "wrong"), false);
     assert.equal(isAuthorizedDevice(deviceId, claimed.deviceApiKey), true);
 
+    const disabled = setDeviceEnabled(deviceId, false);
+    assert.equal(disabled.status, "disabled");
+    assert.equal(isAuthorizedDevice(deviceId, claimed.deviceApiKey), false);
+    const enabled = setDeviceEnabled(deviceId, true);
+    assert.equal(enabled.status, "active");
+    assert.equal(isAuthorizedDevice(deviceId, claimed.deviceApiKey), true);
+
     insertReading(deviceId, env.DEFAULT_PLANT_ID, normalizeReadingPayload(payload));
     assert.equal(countReadings(deviceId), 1);
+
+    const deleted = deleteDevice(deviceId);
+    assert.equal(deleted.status, "deleted");
+    assert.equal(getClaimedDevices().some((device) => device.id === deviceId), false);
+    const restored = applyBulkDeviceAction({ deviceIds: [deviceId], action: "enable" });
+    assert.equal(restored.devices[0]?.status, "active");
   } finally {
     registerDeviceConfigPublisher(null);
     closeDb();

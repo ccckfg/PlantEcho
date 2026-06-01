@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CareProfile, CareProfileSuggestion, ClaimDeviceInput, PendingDevice, PlantSummary } from "@dyn/shared";
 import { Icon } from "@/components/UI";
-import { api, type DeviceClaimResult } from "@/lib/api";
+import { api } from "@/lib/api";
+import { deviceApi, type DeviceClaimResult } from "@/lib/deviceApi";
 import { CareProfileEditor } from "@/components/plants/CareProfileEditor";
 import { ExistingPlantSelect, NewPlantFields } from "./DeviceClaimFields";
 
@@ -105,7 +106,7 @@ export function PendingDeviceClaimForm({
               },
               deviceName: deviceName.trim() || undefined
             };
-      const result = await api.claimDevice(activeDeviceId, input);
+      const result = await deviceApi.claimDevice(activeDeviceId, input);
       onClaimed(result);
       onChanged();
     } catch (caught) {
@@ -120,7 +121,7 @@ export function PendingDeviceClaimForm({
     setIgnoring(true);
     setError("");
     try {
-      await api.ignorePendingDevice(activeDeviceId);
+      await deviceApi.ignorePendingDevice(activeDeviceId);
       setDeviceId(devices.find((device) => device.id !== activeDeviceId)?.id ?? "");
       onChanged();
     } catch (caught) {

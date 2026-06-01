@@ -1,8 +1,22 @@
 import { timingSafeEqual } from "node:crypto";
+import type { AppUser } from "@dyn/shared";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { env } from "../../config/env.js";
+import { requireActiveUser } from "./authService.js";
+import { verifyAuthToken } from "./token.js";
 
-const PUBLIC_PATHS = ["/health"];
+declare module "fastify" {
+  interface FastifyRequest {
+    currentUser?: AppUser;
+  }
+}
+
+const PUBLIC_PATHS = [
+  "/health",
+  "/api/v1/auth/status",
+  "/api/v1/auth/register",
+  "/api/v1/auth/login"
+];
 const PROTECTED_PREFIXES = ["/api/", "/v1/"];
 const DEVICE_READING_PATH = /^\/api\/v1\/devices\/[^/]+\/readings$/;
 
@@ -23,7 +37,15 @@ const extractAccessKey = (request: FastifyRequest): string => {
   return scheme?.toLowerCase() === "bearer" ? token?.trim() ?? "" : "";
 };
 
+const extractBearerToken = (request: FastifyRequest): string => {
+  const authorization = request.headers.authorization;
+  if (!authorization) return "";
+  const [scheme, token] = authorization.split(" ");
+  return scheme?.toLowerCase() === "bearer" ? token?.trim() ?? "" : "";
+};
+
 const isOpenAiCompatPath = (path: string): boolean => path.startsWith("/v1/");
+const allowsLegacyAccessKey = (path: string): boolean => !path.startsWith("/api/v1/auth/");
 
 const matchesSecret = (candidate: string, expected: string): boolean => {
   const candidateBuffer = Buffer.from(candidate, "utf8");
@@ -34,7 +56,6 @@ const matchesSecret = (candidate: string, expected: string): boolean => {
 
 export const registerAppAuth = async (app: FastifyInstance) => {
   const expectedKey = env.APP_ACCESS_KEY.trim();
-  if (!expectedKey) return;
 
   app.addHook("onRequest", async (request, reply) => {
     if (request.method === "OPTIONS") return;
@@ -42,8 +63,17 @@ export const registerAppAuth = async (app: FastifyInstance) => {
     const path = request.url.split("?")[0] ?? request.url;
     if (!isProtectedPath(path) || isPublicPath(path)) return;
 
+    const tokenPayload = verifyAuthToken(extractBearerToken(request));
+    const user = tokenPayload ? requireActiveUser(tokenPayload.sub) : null;
+    if (user) {
+      request.currentUser = user;
+      return;
+    }
+
     const providedKey = extractAccessKey(request);
-    if (providedKey && matchesSecret(providedKey, expectedKey)) return;
+    if (allowsLegacyAccessKey(path) && expectedKey && providedKey && matchesSecret(providedKey, expectedKey)) {
+      return;
+    }
 
     if (isOpenAiCompatPath(path)) {
       return reply.status(401).send({
@@ -58,7 +88,7 @@ export const registerAppAuth = async (app: FastifyInstance) => {
 
     return reply.status(401).send({
       error: "UNAUTHORIZED",
-      message: "Invalid or missing application access key"
+      message: "请先用账号密码登录。"
     });
   });
 };

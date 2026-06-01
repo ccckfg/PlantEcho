@@ -1,25 +1,22 @@
 import type {
   CareProfile,
   CareProfileSuggestion,
-  ClaimDeviceInput,
-  DeviceRecord,
   EpisodeMemory,
   MemoryCitation,
   PlantHealthSummary,
   PlantStatus,
   PlantSummary,
-  PendingDevice,
   SuggestCareProfileInput,
   Understanding
 } from "@dyn/shared";
 import {
   clearConnection,
-  createBackendConnection,
   loadConnection,
   saveConnection,
   type BackendConnection,
   type BackendConnectionInput
 } from "./connection";
+import { loginWithPassword } from "./authApi";
 
 let activeConnection = loadConnection();
 
@@ -53,9 +50,8 @@ const buildHeaders = (
   if (hasBody && !headers.has("content-type")) {
     headers.set("content-type", "application/json");
   }
-  if (connection.apiKey) {
-    headers.set("x-api-key", connection.apiKey);
-    headers.set("authorization", `Bearer ${connection.apiKey}`);
+  if (connection.token) {
+    headers.set("authorization", `Bearer ${connection.token}`);
   }
   return headers;
 };
@@ -74,7 +70,7 @@ const readErrorDetail = async (res: Response): Promise<string> => {
 export const testApiConnection = async (
   input: BackendConnectionInput
 ): Promise<BackendConnection> => {
-  const connection = createBackendConnection(input);
+  const connection = await loginWithPassword(input);
   const res = await fetch(`${connection.baseUrl}/api/v1/auth/check`, {
     headers: buildHeaders(connection)
   });
@@ -87,7 +83,7 @@ export const testApiConnection = async (
   return connection;
 };
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const connection = requireConnection();
   const hasBody = init?.body !== undefined && init.body !== null;
   const res = await fetch(`${connection.baseUrl}${path}`, {
@@ -179,12 +175,6 @@ export interface WeatherNowResult {
   cachedAt: string | null;
 }
 
-export interface DeviceClaimResult {
-  device: DeviceRecord;
-  deviceApiKey: string;
-  deliveredToDevice?: boolean;
-}
-
 export interface PlantReflection {
   text: string;
   usedLlm: boolean;
@@ -200,24 +190,6 @@ export interface PlantStatusTags {
 export const api = {
   health: () => request<{ ok: boolean; service: string }>("/health"),
   weatherNow: () => request<WeatherNowResult>("/api/v1/weather/now"),
-  listDevices: () => request<{ devices: DeviceRecord[] }>("/api/v1/devices"),
-  listPendingDevices: () =>
-    request<{ devices: PendingDevice[] }>("/api/v1/devices/pending"),
-  claimDevice: (deviceId: string, input: ClaimDeviceInput) =>
-    request<DeviceClaimResult>(`/api/v1/devices/${encodeURIComponent(deviceId)}/claim`, {
-      method: "POST",
-      body: JSON.stringify(input)
-    }),
-  ignorePendingDevice: (deviceId: string) =>
-    request<{ device: PendingDevice }>(
-      `/api/v1/devices/${encodeURIComponent(deviceId)}/ignore`,
-      { method: "POST" }
-    ),
-  rotateDeviceKey: (deviceId: string) =>
-    request<DeviceClaimResult>(
-      `/api/v1/devices/${encodeURIComponent(deviceId)}/rotate-key`,
-      { method: "POST" }
-    ),
   listPlants: () => request<{ plants: PlantSummary[] }>("/api/v1/plants"),
   suggestCareProfile: (input: SuggestCareProfileInput) =>
     request<{ suggestion: CareProfileSuggestion }>("/api/v1/plants/care-profile/suggest", {

@@ -62,7 +62,10 @@ export interface DeviceRecord {
   plantId: string;
   name: string;
   hasApiKey: boolean;
+  status: "active" | "disabled" | "deleted";
   lastSeenAt: string | null;
+  disabledAt: string | null;
+  deletedAt: string | null;
   createdAt: string;
 }
 

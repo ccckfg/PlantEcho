@@ -1,4 +1,4 @@
-import type { DeviceRecord, PendingDevice } from "@dyn/shared";
+import type { DeviceRecord, DeviceStatus, PendingDevice } from "@dyn/shared";
 import { getDb } from "../../db/connection.js";
 import { nowIso } from "../../shared/time.js";
 
@@ -7,7 +7,10 @@ type DeviceRow = {
   plant_id: string;
   name: string;
   api_key_hash: string | null;
+  status: DeviceStatus;
   last_seen_at: string | null;
+  disabled_at: string | null;
+  deleted_at: string | null;
   created_at: string;
 };
 
@@ -36,7 +39,10 @@ const toDevice = (row: DeviceRow): DeviceRecord => ({
   plantId: row.plant_id,
   name: row.name,
   hasApiKey: Boolean(row.api_key_hash),
+  status: row.status,
   lastSeenAt: row.last_seen_at,
+  disabledAt: row.disabled_at,
+  deletedAt: row.deleted_at,
   createdAt: row.created_at
 });
 
@@ -49,17 +55,19 @@ const toPendingDevice = (row: PendingDeviceRow): PendingDevice => ({
   claimStatus: row.claim_status
 });
 
-export const getDevice = (deviceId: string): DeviceRecord | null => {
+export const getDevice = (deviceId: string, includeDeleted = false): DeviceRecord | null => {
   const row = getDb().prepare("SELECT * FROM devices WHERE id = ?").get(deviceId) as
     | DeviceRow
     | undefined;
-  return row ? toDevice(row) : null;
+  if (!row || (!includeDeleted && row.status === "deleted")) return null;
+  return toDevice(row);
 };
 
 export const listDevices = (): DeviceRecord[] => {
   const rows = getDb()
     .prepare(
       `SELECT * FROM devices
+       WHERE status <> 'deleted'
        ORDER BY COALESCE(last_seen_at, created_at) DESC, id ASC`
     )
     .all() as DeviceRow[];
@@ -67,10 +75,10 @@ export const listDevices = (): DeviceRecord[] => {
 };
 
 export const getDeviceAuthHash = (deviceId: string): string | null | undefined => {
-  const row = getDb().prepare("SELECT api_key_hash FROM devices WHERE id = ?").get(deviceId) as
-    | { api_key_hash: string | null }
+  const row = getDb().prepare("SELECT api_key_hash, status FROM devices WHERE id = ?").get(deviceId) as
+    | { api_key_hash: string | null; status: DeviceStatus }
     | undefined;
-  return row?.api_key_hash;
+  return row?.status === "active" ? row.api_key_hash : undefined;
 };
 
 export const getDevicePlantId = (deviceId: string): string | null => {
@@ -134,7 +142,10 @@ export const insertClaimedDevice = (
        ON CONFLICT(id) DO UPDATE SET
          plant_id = excluded.plant_id,
          name = excluded.name,
-         api_key_hash = excluded.api_key_hash`
+         api_key_hash = excluded.api_key_hash,
+         status = 'active',
+         disabled_at = NULL,
+         deleted_at = NULL`
     )
     .run(deviceId, plantId, name, apiKeyHash, now);
   markPendingDevice(deviceId, "claimed");
@@ -149,6 +160,34 @@ export const updateDeviceApiKeyHash = (
     .prepare("UPDATE devices SET api_key_hash = ? WHERE id = ?")
     .run(apiKeyHash, deviceId);
   return getDevice(deviceId);
+};
+
+export const updateDeviceStatus = (
+  deviceId: string,
+  status: Exclude<DeviceStatus, "deleted">
+): DeviceRecord | null => {
+  const now = nowIso();
+  getDb()
+    .prepare(
+      `UPDATE devices SET
+         status = ?,
+         disabled_at = CASE WHEN ? = 'disabled' THEN ? ELSE NULL END,
+         deleted_at = NULL
+       WHERE id = ?`
+    )
+    .run(status, status, now, deviceId);
+  return getDevice(deviceId);
+};
+
+export const softDeleteDevice = (deviceId: string): DeviceRecord | null => {
+  const now = nowIso();
+  getDb()
+    .prepare(
+      `UPDATE devices SET status = 'deleted', deleted_at = ?, disabled_at = NULL
+       WHERE id = ? AND status <> 'deleted'`
+    )
+    .run(now, deviceId);
+  return getDevice(deviceId, true);
 };
 
 export const markPendingDevice = (

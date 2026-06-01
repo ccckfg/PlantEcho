@@ -86,7 +86,7 @@ PlantEcho 的设计目标不是"高效的传感器看板"，而是"和植物一�
 - **主动发言 Engine**：缺水/离线/降雨/到期提醒先生成事件事实，冷却占位后由 LLM 润色为植物口吻消息。
 - **同步**：SQLite `sync_events` + SSE，多端实时刷新。
 - **天气**：代理和风天气/QWeather。
-- **访问密钥**：可选 `APP_ACCESS_KEY` 保护除设备读数外的接口。
+- **用户与登录**：前端通过后端地址 + 账号密码登录；后端提供注册、登录、当前用户、管理员用户管理接口，使用 HMAC token 保护除设备读数/注册登录外的应用接口。`APP_ACCESS_KEY` 仅作为旧版兼容入口与 token secret 兜底。
 
 ### 3. 客户端层（`apps/desktop`）
 
@@ -105,7 +105,8 @@ PlantEcho 的设计目标不是"高效的传感器看板"，而是"和植物一�
 共享 UI 与机制：
 
 - `AppShell`、`SideNav`、`Card`、`Chip`、`Icon`、`ProgressBar`、`Empty`、`Toast`（带 undo action 槽）。
-- `BackendConnect`：启动时输入后端地址 + 访问密钥，验连后注入 `x-api-key`/`Authorization`。
+- `BackendConnect`：桌面端与移动端共用启动入口，输入后端地址 + 账号密码登录，或在首次使用时注册账号；登录后本机保存 token 与当前用户信息。
+- `UserMenu`：桌面端 Header 与移动端 AppBar 共用账号入口，管理员可新增用户、启停账号、调整角色。
 - `PlantStatusTagChips`：`GET /api/v1/plants/:id/status-tags` 拉取 1-2 个短标签；不可用时规则兜底。
 - `PlantReflectionFooter`：左下角植物口吻一句话，优先 `GET /api/v1/plants/:id/reflection`。
 - 同步层：根部订阅 `GET /api/v1/sync/stream`，按 `resource + plantId` 重拉数据。
@@ -148,7 +149,7 @@ PlantEcho 的设计目标不是"高效的传感器看板"，而是"和植物一�
 
 ## 核心 API
 
-- 设备：`POST /api/v1/devices/:deviceId/readings`、`GET/POST/.../api/v1/devices`（认领/忽略/密钥轮换）。
+- 设备：`POST /api/v1/devices/:deviceId/readings`、`GET/POST/PATCH/DELETE/.../api/v1/devices`（认领/忽略/密钥轮换、停用/启用、软删除、批量管理）。
 - MQTT：`dyn/devices/:deviceId/readings` 上报读数，`dyn/devices/:deviceId/config` 下发设备密钥；认领设备需 deviceId 作为 username、API Key 作为 password。
 - 植物：`GET/POST /api/v1/plants`、`PATCH /api/v1/plants/:id`、`/care-profile/suggest`、`/reflection`、`/status-tags`、`/readings/latest`、`/readings`。
 - 聊天：`POST /api/v1/plants/:id/chat`、`/chat/stream`、`GET /messages`。
@@ -157,7 +158,7 @@ PlantEcho 的设计目标不是"高效的传感器看板"，而是"和植物一�
 - 相册：`GET/POST /photos`、`DELETE /photos/:photoId`、`GET /media/photos/:photoId`。
 - 同步：`GET /api/v1/sync/events?since=`、`/api/v1/sync/stream?since=`。
 - 天气：`/api/v1/weather/now`、`/api/v1/weather/locations?q=`。
-- 应用密钥：`GET /api/v1/auth/check`。
+- 用户认证：`POST /api/v1/auth/register`、`POST /api/v1/auth/login`、`GET /api/v1/auth/check`、`GET/POST/PATCH /api/v1/auth/users`。
 
 ---
 
@@ -208,7 +209,7 @@ ESP32 真实验证（2026-05-25）：OLED/SHT40/GY-302/土壤 ADC 实测可用�
 
 ### 后端
 
-- 设备删除/停用、批量管理、历史无密钥设备强制迁移。
+- 历史无密钥设备强制迁移。
 - 后台任务/同步事件的多实例分布式化（外部 pub/sub）。
 - 天气城市切换 UI。
 - 生产级日志策略、版本化发布流程、Docker Hub 推送凭证收口。
@@ -234,7 +235,7 @@ ESP32 真实验证（2026-05-25）：OLED/SHT40/GY-302/土壤 ADC 实测可用�
 - 提醒管理 UI。
 - 深色模式。
 - 相册：编辑描述、收藏、设为封面。
-- 多用户体系。
+- 多用户体系的权限边界细化（当前已支持注册、登录、管理员用户管理）。
 - 安卓端：`tauri android init` 与 APK/真机验证（需本机 Android SDK/NDK/JDK）尚未在本环境执行，仅 UI + 配置 + 文档就绪。
 
 ---
@@ -286,13 +287,13 @@ npm run dev:desktop        # 仅 web 调试 (http://localhost:5173)
 npm run tauri:build        # 重新生成 Windows 安装包
 ```
 
-默认服务地址：`http://127.0.0.1:8787`。客户端启动后需手动输入后端地址 + 访问密钥，后端如配 `APP_ACCESS_KEY` 则强制校验。
+默认服务地址：`http://127.0.0.1:8787`。客户端启动后需手动输入后端地址 + 账号密码；首次使用可注册首个管理员账号，之后通过登录 token 访问后端。
 
 ---
 
 ## 下一步优先级
 
-1. **设备认领闭环**：设备删除/停用、批量管理、历史无密钥迁移。
+1. **设备认领闭环**：历史无密钥迁移、真实设备长跑验证。
 2. **真实 LLM 深度联调**：用更自然的语料压测 closure / generator prompt。
 3. **设备鉴权收口**：ESP32 自动接收认领密钥的真实现场验证，保留离线手动写入兜底。
 4. **数据库 migration**：新增 schema 走递增 migration，补备份/回滚。

@@ -1,4 +1,5 @@
 import type {
+  BulkDeviceActionInput,
   ClaimDeviceInput,
   DeviceReadingPayload,
   DeviceRecord,
@@ -16,7 +17,9 @@ import {
   listDevices,
   listPendingDevices,
   markPendingDevice,
+  softDeleteDevice,
   updateDeviceApiKeyHash,
+  updateDeviceStatus,
   upsertPendingDevice
 } from "./deviceRepository.js";
 import {
@@ -124,4 +127,53 @@ export const rotateDeviceKey = (deviceId: string): DeviceClaimResult => {
     payload: { action: "key_rotated", deviceId }
   });
   return { device, deviceApiKey: apiKey, deliveredToDevice: sendDeviceCredentials(deviceId, apiKey) };
+};
+
+export const setDeviceEnabled = (deviceId: string, enabled: boolean): DeviceRecord => {
+  const existing = getDevice(deviceId, enabled);
+  if (!existing) throw new Error(`Device ${deviceId} not found`);
+  const device = updateDeviceStatus(deviceId, enabled ? "active" : "disabled");
+  if (!device) throw new Error(`Device ${deviceId} not found`);
+  publishSyncEvent({
+    type: "devices.changed",
+    plantId: device.plantId,
+    payload: { action: enabled ? "enabled" : "disabled", deviceId }
+  });
+  return device;
+};
+
+export const deleteDevice = (deviceId: string): DeviceRecord => {
+  const existing = getDevice(deviceId);
+  if (!existing) throw new Error(`Device ${deviceId} not found`);
+  const device = softDeleteDevice(deviceId);
+  if (!device) throw new Error(`Device ${deviceId} not found`);
+  publishSyncEvent({
+    type: "devices.changed",
+    plantId: device.plantId,
+    payload: { action: "deleted", deviceId }
+  });
+  return device;
+};
+
+export const applyBulkDeviceAction = (
+  input: BulkDeviceActionInput
+): { devices: DeviceRecord[]; notFound: string[] } => {
+  const devices: DeviceRecord[] = [];
+  const notFound: string[] = [];
+  for (const deviceId of input.deviceIds) {
+    try {
+      const device =
+        input.action === "delete"
+          ? deleteDevice(deviceId)
+          : setDeviceEnabled(deviceId, input.action === "enable");
+      devices.push(device);
+    } catch {
+      notFound.push(deviceId);
+    }
+  }
+  publishSyncEvent({
+    type: "devices.changed",
+    payload: { action: `bulk_${input.action}`, deviceIds: input.deviceIds }
+  });
+  return { devices, notFound };
 };

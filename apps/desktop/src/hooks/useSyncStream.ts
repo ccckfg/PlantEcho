@@ -27,5 +27,5 @@ export function useSyncStream(connection: BackendConnection | null): void {
       stopped = true;
       controller.abort();
     };
-  }, [connection?.baseUrl, connection?.apiKey]);
+  }, [connection?.baseUrl, connection?.token]);
 }

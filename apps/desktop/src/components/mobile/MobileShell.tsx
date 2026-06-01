@@ -3,12 +3,15 @@ import { useLocation } from "react-router-dom";
 import { BrandMark } from "@/components/BrandMark";
 import { Icon } from "@/components/UI";
 import { PendingDeviceWidget } from "@/components/devices/PendingDeviceWidget";
+import { UserMenu } from "@/components/UserMenu";
+import type { BackendConnection } from "@/lib/connection";
 import { MobileTabBar } from "./MobileTabBar";
 
 interface MobileShellProps {
   children: ReactNode;
-  connectionLabel?: string;
+  connection?: BackendConnection;
   onDisconnect?: () => void;
+  onLogout?: () => void;
 }
 
 const routeSection = (pathname: string): string => {
@@ -24,7 +27,7 @@ const TITLES: Record<string, string> = {
   "/album": "相册"
 };
 
-export function MobileShell({ children, connectionLabel, onDisconnect }: MobileShellProps) {
+export function MobileShell({ children, connection, onDisconnect, onLogout }: MobileShellProps) {
   const location = useLocation();
   const mainRef = useRef<HTMLElement | null>(null);
   const [scrolled, setScrolled] = useState(false);
@@ -70,12 +73,13 @@ export function MobileShell({ children, connectionLabel, onDisconnect }: MobileS
             {title}
           </h1>
           <PendingDeviceWidget />
-          {connectionLabel && onDisconnect ? (
+          {connection && onLogout ? <UserMenu connection={connection} onLogout={onLogout} /> : null}
+          {connection && onDisconnect ? (
             <button
               type="button"
               onClick={onDisconnect}
               aria-label="更换后端"
-              title={connectionLabel}
+              title={connection.baseUrl}
               className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-on-surface-variant transition-all duration-200 ease-standard hover:bg-secondary-container/40 hover:text-primary active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/40"
             >
               <Icon name="sync_alt" className="text-[18px]" />

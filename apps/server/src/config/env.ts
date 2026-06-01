@@ -27,6 +27,9 @@ const envSchema = z.object({
   DEFAULT_PLANT_ID: z.string().default("plant-demo"),
   DEFAULT_DEVICE_ID: z.string().default("esp32-demo"),
   APP_ACCESS_KEY: z.string().optional().default(""),
+  AUTH_TOKEN_SECRET: z.string().optional().default(""),
+  AUTH_TOKEN_TTL_HOURS: z.coerce.number().int().positive().default(168),
+  AUTH_REGISTRATION_ENABLED: z.coerce.boolean().default(true),
   LLM_API_URL: z.string().optional().default(""),
   LLM_API_KEY: z.string().optional().default(""),
   LLM_MODEL_ID: z.string().optional().default(""),
@@ -68,6 +71,7 @@ const normalizeWeatherHost = (value: string): string => {
 
 export const env = {
   ...parsed,
+  AUTH_TOKEN_SECRET: parsed.AUTH_TOKEN_SECRET || parsed.APP_ACCESS_KEY || "dyn-local-dev-secret",
   RERANK_API_URL: rerankUrlFromBase(parsed.RERANK_API_URL || parsed.LLM_API_URL),
   RERANK_API_KEY: parsed.RERANK_API_KEY || parsed.LLM_API_KEY,
   weatherApiKey: parsed.QWEATHER_API_KEY || parsed.WeatherKey,

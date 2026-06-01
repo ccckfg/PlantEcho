@@ -2,7 +2,8 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import type { DeviceRecord, PendingDevice, PlantSummary } from "@dyn/shared";
 import { useSyncRefresh } from "@/hooks/useSyncRefresh";
-import { api, type DeviceClaimResult } from "@/lib/api";
+import { api } from "@/lib/api";
+import { deviceApi, type DeviceClaimResult } from "@/lib/deviceApi";
 import { useAsync } from "@/lib/useAsync";
 import { Icon } from "@/components/UI";
 import { ClaimedDeviceList } from "./ClaimedDeviceList";
@@ -14,8 +15,8 @@ type DeviceTab = "pending" | "claimed";
 export function PendingDeviceWidget() {
   const refresh = useSyncRefresh({ resources: ["devices", "plants"] });
   const [localRefresh, setLocalRefresh] = useState(0);
-  const pending = useAsync(() => api.listPendingDevices(), [refresh, localRefresh]);
-  const claimed = useAsync(() => api.listDevices(), [refresh, localRefresh]);
+  const pending = useAsync(() => deviceApi.listPendingDevices(), [refresh, localRefresh]);
+  const claimed = useAsync(() => deviceApi.listDevices(), [refresh, localRefresh]);
   const plants = useAsync(() => api.listPlants(), [refresh, localRefresh]);
   const [open, setOpen] = useState(false);
 
