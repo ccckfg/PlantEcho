@@ -220,6 +220,7 @@ config topic: dyn/devices/<deviceId>/config
 ## 灰度注意事项
 
 - 建议设置 `AUTH_TOKEN_SECRET`；桌面端和移动端连接后端时使用账号密码登录，首次部署后注册第一个管理员账号。
+- 管理用户请在服务器上使用后端 CLI，例如 `npm run user --workspace @dyn/server -- list-users`；登录会话可用 `list-sessions` 查看 IP 与 User-Agent。普通用户可在前端账号弹窗中查看并撤销自己的登录会话。
 - `docker-compose.yml` 为了便于本地校验，将 `dyn.env` 标记为可选；服务器真实部署时仍必须创建 `/opt/dyn/dyn.env`。
 - SQLite 数据在 `/opt/dyn/data/dyn.sqlite`，升级前先备份 `/opt/dyn/data`。
 - 容器默认会 seed 一个 demo 植物和 demo 设备；真实设备建议走 pending → claim 流程。

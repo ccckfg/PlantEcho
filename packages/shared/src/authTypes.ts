@@ -49,3 +49,16 @@ export interface AuthSession {
   token: string;
   user: AppUser;
 }
+
+export interface AuthLoginSession {
+  id: string;
+  userId: string;
+  username: string;
+  userAgent: string;
+  ipAddress: string;
+  createdAt: string;
+  expiresAt: string;
+  lastSeenAt: string;
+  revokedAt: string | null;
+  current?: boolean;
+}

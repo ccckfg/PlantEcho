@@ -3,11 +3,13 @@ import type { AppUser } from "@dyn/shared";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { env } from "../../config/env.js";
 import { requireActiveUser } from "./authService.js";
-import { verifyAuthToken } from "./token.js";
+import { getAuthSessionByTokenHash, touchAuthSession } from "./authRepository.js";
+import { authTokenHash, verifyAuthToken } from "./token.js";
 
 declare module "fastify" {
   interface FastifyRequest {
     currentUser?: AppUser;
+    currentSessionId?: string;
   }
 }
 
@@ -63,10 +65,19 @@ export const registerAppAuth = async (app: FastifyInstance) => {
     const path = request.url.split("?")[0] ?? request.url;
     if (!isProtectedPath(path) || isPublicPath(path)) return;
 
-    const tokenPayload = verifyAuthToken(extractBearerToken(request));
+    const bearerToken = extractBearerToken(request);
+    const tokenHash = authTokenHash(bearerToken);
+    const tokenPayload = verifyAuthToken(bearerToken);
     const user = tokenPayload ? requireActiveUser(tokenPayload.sub) : null;
-    if (user) {
+    const session = tokenPayload ? getAuthSessionByTokenHash(tokenHash) : null;
+    const sessionActive =
+      session &&
+      !session.revokedAt &&
+      Date.parse(session.expiresAt) > Date.now();
+    if (user && sessionActive) {
       request.currentUser = user;
+      request.currentSessionId = session.id;
+      touchAuthSession(tokenHash);
       return;
     }
 

@@ -86,7 +86,7 @@ PlantEcho 的设计目标不是"高效的传感器看板"，而是"和植物一�
 - **主动发言 Engine**：缺水/离线/降雨/到期提醒先生成事件事实，冷却占位后由 LLM 润色为植物口吻消息。
 - **同步**：SQLite `sync_events` + SSE，多端实时刷新。
 - **天气**：代理和风天气/QWeather。
-- **用户与登录**：前端通过后端地址 + 账号密码登录；后端提供注册、登录、当前用户、管理员用户管理接口，使用 HMAC token 保护除设备读数/注册登录外的应用接口。`APP_ACCESS_KEY` 仅作为旧版兼容入口与 token secret 兜底。
+- **用户与登录**：前端通过后端地址 + 账号密码登录；后端提供注册、登录、当前用户接口，使用 HMAC token 保护除设备读数/注册登录外的应用接口，并记录登录会话的 IP 与 User-Agent。管理员用户管理交给后端 CLI。`APP_ACCESS_KEY` 仅作为旧版兼容入口与 token secret 兜底。
 
 ### 3. 客户端层（`apps/desktop`）
 
@@ -106,7 +106,7 @@ PlantEcho 的设计目标不是"高效的传感器看板"，而是"和植物一�
 
 - `AppShell`、`SideNav`、`Card`、`Chip`、`Icon`、`ProgressBar`、`Empty`、`Toast`（带 undo action 槽）。
 - `BackendConnect`：桌面端与移动端共用启动入口，输入后端地址 + 账号密码登录，或在首次使用时注册账号；登录后本机保存 token 与当前用户信息。
-- `UserMenu`：桌面端 Header 与移动端 AppBar 共用账号入口，管理员可新增用户、启停账号、调整角色。
+- `UserMenu`：桌面端 Header 与移动端 AppBar 共用账号入口，展示当前账号、后端地址与当前用户登录会话；用户可撤销自己的会话。
 - `PlantStatusTagChips`：`GET /api/v1/plants/:id/status-tags` 拉取 1-2 个短标签；不可用时规则兜底。
 - `PlantReflectionFooter`：左下角植物口吻一句话，优先 `GET /api/v1/plants/:id/reflection`。
 - 同步层：根部订阅 `GET /api/v1/sync/stream`，按 `resource + plantId` 重拉数据。
@@ -158,7 +158,7 @@ PlantEcho 的设计目标不是"高效的传感器看板"，而是"和植物一�
 - 相册：`GET/POST /photos`、`DELETE /photos/:photoId`、`GET /media/photos/:photoId`。
 - 同步：`GET /api/v1/sync/events?since=`、`/api/v1/sync/stream?since=`。
 - 天气：`/api/v1/weather/now`、`/api/v1/weather/locations?q=`。
-- 用户认证：`POST /api/v1/auth/register`、`POST /api/v1/auth/login`、`GET /api/v1/auth/check`、`GET/POST/PATCH /api/v1/auth/users`。
+- 用户认证：`POST /api/v1/auth/register`、`POST /api/v1/auth/login`、`GET /api/v1/auth/check`、`GET /api/v1/auth/me`、`GET/DELETE /api/v1/auth/sessions`；管理员用户管理使用 `npm run user --workspace @dyn/server -- ...` CLI。
 
 ---
 
@@ -235,7 +235,7 @@ ESP32 真实验证（2026-05-25）：OLED/SHT40/GY-302/土壤 ADC 实测可用�
 - 提醒管理 UI。
 - 深色模式。
 - 相册：编辑描述、收藏、设为封面。
-- 多用户体系的权限边界细化（当前已支持注册、登录、管理员用户管理）。
+- 多用户体系的权限边界细化（当前已支持注册、登录、CLI 用户管理与登录会话记录）。
 - 安卓端：`tauri android init` 与 APK/真机验证（需本机 Android SDK/NDK/JDK）尚未在本环境执行，仅 UI + 配置 + 文档就绪。
 
 ---

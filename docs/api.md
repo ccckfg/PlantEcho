@@ -26,15 +26,19 @@ POST /api/v1/auth/register
 POST /api/v1/auth/login
 GET /api/v1/auth/check
 GET /api/v1/auth/me
+GET /api/v1/auth/sessions
+DELETE /api/v1/auth/sessions/:sessionId
 ```
 
-首个注册用户会成为管理员。管理员用户管理：
+首个注册用户会成为管理员。用户管理不暴露前端界面，改用后端 CLI：
 
-```http
-GET /api/v1/auth/users
-POST /api/v1/auth/users
-PATCH /api/v1/auth/users/:userId
+```powershell
+npm run user --workspace @dyn/server -- list-users
+npm run user --workspace @dyn/server -- create-user --username owner --password garden-pass-1 --role admin
+npm run user --workspace @dyn/server -- list-sessions
 ```
+
+前端账号弹窗只管理当前用户自己的登录会话，可查看登录设备/IP/User-Agent/最近活跃时间，并撤销指定会话。
 
 请求示例：
 

@@ -1,12 +1,16 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 import { env } from "../../config/env.js";
 
 export interface AuthTokenPayload {
   sub: string;
   role: "admin" | "user";
+  jti: string;
   iat: number;
   exp: number;
 }
+
+export const authTokenHash = (token: string): string =>
+  createHash("sha256").update(token, "utf8").digest("hex");
 
 const encode = (value: unknown): string =>
   Buffer.from(JSON.stringify(value), "utf8").toString("base64url");
@@ -21,6 +25,7 @@ export const issueAuthToken = (input: { userId: string; role: "admin" | "user" }
   const payload: AuthTokenPayload = {
     sub: input.userId,
     role: input.role,
+    jti: randomUUID(),
     iat: now,
     exp: now + env.AUTH_TOKEN_TTL_HOURS * 3600
   };

@@ -10,11 +10,31 @@
 
 ---
 
+## 目录
+
+- [它是什么](#它是什么)
+- [架构一览](#架构一览)
+- [设计哲学：让系统说人话](#设计哲学让系统说人话)
+- [界面一览](#界面一览)
+- [记忆系统：它像人一样回忆](#记忆系统它像人一样回忆)
+- [Prompt 组装：植物怎么开口](#prompt-组装植物怎么开口)
+- [主动发言引擎](#主动发言引擎)
+- [OpenAI 兼容接口](#openai-兼容接口)
+- [硬件（ESP32）](#硬件esp32)
+- [完整搭建指南](#完整搭建指南)
+  - [第一步：烧录硬件固件](#第一步烧录硬件固件)
+  - [第二步：Docker 部署后端](#第二步docker-部署后端)
+  - [第三步：选择客户端](#第三步选择客户端)
+- [配置说明](#配置说明)
+- [文档](#文档)
+
+---
+
 ## 它是什么
 
 PlantEcho 把一株植物的**环境感知、养护规则、长期记忆与拟人化对话**连成一个整体。
 
-ESP32 采集土壤、温湿、光照数据，后端把冰冷的数字翻译成植物视角的心情与文案——「我有点渴了」而不是「水分 23%」。植物会记住发生过的事，会在缺水、离线、降雨时主动开口，会随着时间慢慢懂你。
+这个项目面向喜欢在家养植物的用户，想法挺简单——用传感器采集植物周围的环境数据，结合大语言模型，让植物"会说话"，以拟人化的方式提醒用户浇水、晒太阳、避光，让养植物这件事不只是定期打理，而是多一点陪伴感。
 
 ---
 
@@ -29,6 +49,10 @@ ESP32 采集土壤、温湿、光照数据，后端把冰冷的数字翻译成�
 | **硬件层** | ESP32 · SHT40 · BH1750 · 电容式土壤传感器 | 采集读数、SoftAP 配网、MQTT 上报、OTA 升级 |
 | **服务端** | Node.js 24 · Fastify · SQLite · sqlite-vec | 设备认领、植物状态、记忆生命周期、主动发言、SSE 同步 |
 | **客户端** | Tauri v2 · React 18 · Vite · Tailwind | 桌面（Windows）与安卓移动端，运行时检测分流 |
+
+---
+
+> 想直接跑起来？跳到 [完整搭建指南](#完整搭建指南) —— 硬件烧录 → Docker 部署 → 客户端，三步打通全链路。
 
 ---
 
@@ -164,35 +188,116 @@ GET  /v1/models/:model
 
 ---
 
-## Docker 一键部署
+## 完整搭建指南
+
+PlantEcho 由三部分组成：**硬件（ESP32 + 传感器）→ 后端（Docker）→ 客户端（桌面 / 安卓 / 任意 OpenAI 兼容前端）**。以下按顺序走完即可打通全链路。
+
+### 第一步：烧录硬件固件
+
+> 假设你已按上方硬件 BOM 接好传感器并连上电脑。
+
+固件工程位于 `hardware/esp32_oled`，使用 PlatformIO 构建。
+
+```bash
+cd hardware/esp32_oled
+
+# 1. 复制配置模板并填入你的 Wi-Fi 信息与 MQTT 服务器地址
+cp include/config.example.h include/config.h
+# 编辑 include/config.h：
+#   - WIFI_SSID / WIFI_PASSWORD
+#   - MQTT_SERVER（填你跑后端的那台机器的局域网 IP）
+
+# 2. 通过 PlatformIO 编译并烧录（CLI 或 VS Code 插件均可）
+pio run -t upload
+
+# 3. 串口监视确认上线
+pio device monitor
+```
+
+ESP32 启动后会自动连 Wi-Fi → 连 MQTT → 开始上报传感器数据。配网也可用长按 BOOT 键进入 SoftAP 模式完成（仅 2.4GHz Wi-Fi）。
+
+### 第二步：Docker 部署后端
+
+准备一个 `dyn.env` 文件（可基于项目根目录的 `.env.example` 修改），核心变量：
+
+```bash
+# dyn.env —— 必填
+LLM_API_URL=https://api.openai.com/v1
+LLM_API_KEY=sk-你的密钥
+LLM_MODEL_ID=gpt-4o
+APP_ACCESS_KEY=设置一个高强度随机字符串
+
+# 可选：和风天气（用于降雨提醒等场景）
+WeatherKey=你的和风天气key
+WeatherLocation=101200113
+```
+
+然后使用项目根目录的 `docker-compose.yml` 一键启动：
 
 ```bash
 # 拉取镜像
-docker pull ccckfg/dyn:latest
+docker compose pull
 
-# 启动（替换 YOUR_KEY 为高强度随机字符串）
-docker run -d --name dyn-server --restart unless-stopped \
-  -e APP_ACCESS_KEY=YOUR_KEY \
-  -e LLM_API_URL=https://api.openai.com/v1 \
-  -e LLM_API_KEY=sk-... \
-  -e LLM_MODEL_ID=gpt-4o \
-  -v /opt/dyn/data:/app/data \
-  -p 8787:8787 -p 1883:1883 \
-  ccckfg/dyn:latest
+# 启动（-d 后台运行）
+docker compose up -d
 
 # 验证
 curl http://127.0.0.1:8787/health
 ```
 
-或使用项目根目录的 `docker-compose.yml`（同目录需 `dyn.env`）：
+或者用 `docker run` 单行启动：
 
 ```bash
-docker compose pull && docker compose up -d
+docker run -d --name dyn-server --restart unless-stopped \
+  --env-file ./dyn.env \
+  -v ./data:/app/data \
+  -p 8787:8787 -p 1883:1883 \
+  ccckfg/dyn:latest
 ```
 
-**健康检查：** `GET /health` · HTTP 端口 `8787` · MQTT 端口 `1883`
+> 端口说明：HTTP `8787`（REST + SSE）、MQTT `1883`（设备通信）。如需外网访问，请在前置 Nginx / Caddy 反向代理，不要直接暴露这两个端口。
 
-> 注意：当前为单实例 SQLite 部署，不要同时启动多个后端容器写同一数据目录；升级前先备份 `/opt/dyn/data`。
+### 第三步：选择客户端
+
+后端跑起来之后，你离和植物聊天只差一个"说话的窗口"。
+
+**最省心的方式：直接下载官方客户端**
+
+去 [GitHub Releases](https://github.com/ccckfg/DYN/releases) 找到最新版本，Windows、macOS、安卓都有预编译包，装完填上后端地址和 `APP_ACCESS_KEY`，几秒钟就能摸到你的植物。
+
+| 平台 | 包名 |
+|---|---|
+| Windows | `PlantEcho_*.msi` / `PlantEcho_*.exe` |
+| macOS | `PlantEcho_*.dmg` |
+| Android | `PlantEcho_*.apk` |
+
+> 如果想从源码自行构建安卓 / 桌面端，见 [`docs/android-build.md`](docs/android-build.md)。
+
+**更有趣的玩法：植物无处不在**
+
+这里有一个值得聊聊的设计——PlantEcho 后端的聊天接口是 **OpenAI 兼容的**（`POST /v1/chat/completions`）。也就是说，任何支持自定义 API 地址的工具，都能立刻把一株植物变成一个"AI 模型"来对话。
+
+这意味着你的植物可以出现在这些地方：
+
+| 场景 | 怎么接 |
+|---|---|
+| **ChatBox / Cherry Studio / Open WebUI** | 添加自定义 API 提供商，地址 `http://<IP>:8787/v1`，API Key 填 `APP_ACCESS_KEY` |
+| **手机快捷指令** | 调 OpenAI SDK，base_url 指到后端，消息体用 `<植物名>...</植物名>` 包裹 |
+| **微信公众号 / 飞书 Bot / Telegram** | 搭一个轻量 webhook 中转，背后还是同一套 `/v1/chat/completions` |
+| **Raycast / Alfred / 终端** | 只要是能配自定义 endpoint 的 AI 插件，都能接 |
+
+```bash
+# 用 curl 试试 —— 把植物当模型调用
+curl http://<IP>:8787/v1/chat/completions \
+  -H "Authorization: Bearer <APP_ACCESS_KEY>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "plant-demo",
+    "messages": [{"role": "user", "content": "<小绿>今天感觉怎么样？</小绿>"}]
+  }'
+```
+
+这不是一个封闭的 APP，而是一株可以嫁接到你整个数字工作流里的植物。
 
 ---
 

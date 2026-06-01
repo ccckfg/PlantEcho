@@ -1,10 +1,8 @@
 import type {
-  AppUser,
   AuthLoginInput,
+  AuthLoginSession,
   AuthRegisterInput,
-  AuthSession,
-  CreateUserInput,
-  UpdateUserInput
+  AuthSession
 } from "@dyn/shared";
 import {
   createBackendConnection,
@@ -60,20 +58,22 @@ export const registerWithPassword = async (
 };
 
 export const authApi = {
-  listUsers: (baseUrl: string, token: string) =>
-    authRequest<{ users: AppUser[] }>(baseUrl, "/api/v1/auth/users", {
+  status: (baseUrl: string) =>
+    authRequest<{ hasUsers: boolean; registrationEnabled: boolean }>(
+      baseUrl,
+      "/api/v1/auth/status"
+    ),
+  listSessions: (baseUrl: string, token: string) =>
+    authRequest<{ sessions: AuthLoginSession[] }>(baseUrl, "/api/v1/auth/sessions", {
       headers: { authorization: `Bearer ${token}` }
     }),
-  createUser: (baseUrl: string, token: string, input: CreateUserInput) =>
-    authRequest<AuthSession>(baseUrl, "/api/v1/auth/users", {
-      method: "POST",
-      headers: { authorization: `Bearer ${token}` },
-      body: JSON.stringify(input)
-    }),
-  updateUser: (baseUrl: string, token: string, userId: string, input: UpdateUserInput) =>
-    authRequest<{ user: AppUser }>(baseUrl, `/api/v1/auth/users/${encodeURIComponent(userId)}`, {
-      method: "PATCH",
-      headers: { authorization: `Bearer ${token}` },
-      body: JSON.stringify(input)
-    })
+  revokeSession: (baseUrl: string, token: string, sessionId: string) =>
+    authRequest<{ session: AuthLoginSession }>(
+      baseUrl,
+      `/api/v1/auth/sessions/${encodeURIComponent(sessionId)}`,
+      {
+        method: "DELETE",
+        headers: { authorization: `Bearer ${token}` }
+      }
+    )
 };
