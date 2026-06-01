@@ -7,6 +7,7 @@ import { plantImage, useNow } from "@/lib/format";
 import { getSensorConnection } from "@/lib/sensorStatus";
 import { streamPlantChat } from "@/lib/chatStream";
 import { useAsync } from "@/lib/useAsync";
+import { useChatAutoScroll } from "@/hooks/useChatAutoScroll";
 import { useSyncRefresh } from "@/hooks/useSyncRefresh";
 import { BrandMark } from "@/components/BrandMark";
 import { SensorStatusBadge } from "@/components/SensorStatusBadge";
@@ -74,9 +75,12 @@ export function ChatScreen({ plantId, plants, onSwitch }: ChatScreenProps) {
     };
   }, [plantId, messagesRefresh, manualRefresh]);
 
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages.length, messages[messages.length - 1]?.content]);
+  useChatAutoScroll({
+    scrollRef,
+    resetKey: plantId,
+    loading: messagesLoading,
+    tailKey: `${messages.length}:${messages[messages.length - 1]?.content ?? ""}`
+  });
 
   const sensorConnection = getSensorConnection(reading.data?.latest, now);
   const status = deriveStatus(reading.data?.latest, summary?.careProfile, now);
