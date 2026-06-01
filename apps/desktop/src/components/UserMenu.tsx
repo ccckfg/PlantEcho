@@ -17,11 +17,11 @@ export function UserMenu({ connection, onLogout }: UserMenuProps) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-xs rounded-full bg-surface-container/80 px-md py-xs text-label-sm font-label-sm text-on-surface-variant ring-1 ring-surface-container-highest/40 transition-colors duration-200 hover:bg-surface-container"
+        className="inline-flex h-9 w-9 sm:h-auto sm:w-auto items-center justify-center sm:gap-xs rounded-full bg-surface-container/80 text-label-sm font-label-sm text-on-surface-variant ring-1 ring-surface-container-highest/40 transition-all duration-200 hover:bg-surface-container active:scale-95 sm:px-md sm:py-xs"
         title={connection.user.displayName}
       >
         <Icon name="person" className="text-[16px]" />
-        <span className="max-w-[160px] truncate">{connection.user.displayName}</span>
+        <span className="max-w-[160px] truncate hidden sm:inline">{connection.user.displayName}</span>
       </button>
       {open ? (
         <AccountDialog

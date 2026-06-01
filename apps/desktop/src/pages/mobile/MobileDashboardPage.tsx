@@ -7,7 +7,7 @@ import { useAsync } from "@/lib/useAsync";
 import { useSyncRefresh } from "@/hooks/useSyncRefresh";
 import { useToast } from "@/components/Toast";
 import { Card, Icon, Empty } from "@/components/UI";
-import { DashboardSkeleton, PlantCard, WeatherPill } from "@/components/dashboard/DashboardWidgets";
+import { DashboardSkeleton, PlantCard } from "@/components/dashboard/DashboardWidgets";
 import { PlantReflectionCard } from "@/components/plants/PlantReflectionCard";
 
 const GREETINGS = [
@@ -87,40 +87,85 @@ export function MobileDashboardPage() {
     }, 5000);
   };
 
+  // 本地极简天气状态处理
+  const weather = weatherState.data?.weather;
+  const weatherIcon = weather?.text.includes("雨")
+    ? "rainy"
+    : weather?.text.includes("云")
+      ? "partly_cloudy_day"
+      : weather?.text.includes("阴")
+        ? "cloud"
+        : "wb_sunny";
+  const temp = weather?.temperatureC != null ? `${Math.round(weather.temperatureC)}°C` : "—";
+  const weatherLabel = weatherState.loading
+    ? "读取中"
+    : weatherState.error
+      ? "天气不可用"
+      : weatherState.data?.configured === false
+        ? "未配置"
+        : weather?.text ?? "实时天气";
+
   return (
-    <div className="flex flex-col gap-lg px-margin-mobile py-md pb-xxl">
-      <header className="flex flex-col gap-sm">
-        <div className="inline-flex items-center gap-xs self-start rounded-full bg-secondary-container/40 px-md py-xs text-label-sm font-label-sm text-on-secondary-container ring-1 ring-secondary-fixed-dim/45">
-          <Icon name="eco" className="text-[14px] text-secondary" />
-          {greetingNow()}，{todayLabel()}
+    <div className="flex flex-col gap-lg px-md py-md pb-xxl">
+      <header className="flex flex-col gap-md">
+        {/* 一体化温室控制卡片 (Greenhouse Hub) */}
+        <div className="flex flex-col gap-md rounded-md bg-gradient-to-br from-surface-container-lowest to-surface p-md border border-hairline shadow-leaf relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
+          
+          {/* 上半部：问候语、指示与微天气 */}
+          <div className="flex items-center justify-between gap-md min-w-0">
+            <div className="flex flex-col gap-xs min-w-0">
+              <div className="inline-flex items-center gap-xs self-start rounded-full bg-secondary-container/40 px-md py-xs text-label-sm font-label-sm text-on-secondary-container ring-1 ring-secondary-fixed-dim/30">
+                <Icon name="eco" className="text-[12px] text-secondary" />
+                {greetingNow()}
+              </div>
+              <p className="font-body text-body-md font-semibold text-on-surface leading-tight mt-xs">
+                {plantsState.data?.plants.length
+                  ? `今天，有 ${plantsState.data.plants.length} 株植物在等您`
+                  : "探索您的私人温室花园"}
+              </p>
+              <span className="text-[12px] text-on-surface-variant font-mono">{todayLabel()}</span>
+            </div>
+
+            {/* 本地渲染的高颜值超微天气胶囊 */}
+            <div className="flex items-center gap-xs bg-surface-container-low/50 py-xs px-sm rounded-full border border-hairline shrink-0 select-none">
+              <Icon
+                name={weatherIcon}
+                filled
+                className="text-[#F59E0B] text-[20px]"
+              />
+              <div className="flex flex-col leading-none">
+                <span className="text-body-sm font-bold tabular-nums text-on-surface">{temp}</span>
+                <span className="text-[10px] text-on-surface-variant font-label-sm">{weatherLabel}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 下半部：一键浇水与为它拍一张（圆角统一为 rounded-md 且与控制中心完美契合） */}
+          <div className="border-t border-hairline/80 pt-md mt-xs flex gap-sm">
+            <button
+              type="button"
+              onClick={recordWatering}
+              disabled={!firstPlant || recordingWater}
+              className="group flex flex-1 items-center justify-center gap-xs rounded-md bg-surface-container-low/60 hover:bg-secondary-container/30 px-md py-sm font-label-md text-label-md text-primary border border-hairline transition-all duration-200 ease-standard active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Icon
+                name={recordingWater ? "progress_activity" : "water_drop"}
+                className={`text-[16px] text-primary transition-transform duration-300 group-hover:scale-110 ${recordingWater ? "animate-spin" : ""}`}
+              />
+              {recordingWater ? "正在记录…" : "一键浇水"}
+            </button>
+            <Link
+              to="/album?upload=1"
+              className="group flex flex-1 items-center justify-center gap-xs rounded-md bg-surface-container-low/60 hover:bg-secondary-container/30 px-md py-sm font-label-md text-label-md text-primary border border-hairline transition-all duration-200 ease-standard active:scale-[0.98]"
+            >
+              <Icon name="photo_camera" className="text-[16px] text-primary transition-transform duration-300 group-hover:scale-110" />
+              为它拍一张
+            </Link>
+          </div>
         </div>
-        <p className="font-body text-body-md text-on-surface-variant leading-relaxed">
-          {plantsState.data?.plants.length
-            ? `今天，有 ${plantsState.data.plants.length} 株植物在等你看一眼。`
-            : "把第一株植物接进来，让这里慢慢热闹起来。"}
-        </p>
-        <WeatherPill state={weatherState} />
-        <div className="flex flex-wrap gap-sm">
-          <button
-            type="button"
-            onClick={recordWatering}
-            disabled={!firstPlant || recordingWater}
-            className="group flex flex-1 items-center justify-center gap-sm rounded-full bg-surface-container-lowest px-lg py-md font-label-md text-label-md text-primary ring-1 ring-outline-variant transition-all duration-200 ease-standard hover:bg-secondary-container/30 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-primary/40"
-          >
-            <Icon
-              name={recordingWater ? "progress_activity" : "water_drop"}
-              className={`text-[18px] ${recordingWater ? "animate-spin" : ""}`}
-            />
-            {recordingWater ? "正在记下来…" : "一键浇水"}
-          </button>
-          <Link
-            to="/album?upload=1"
-            className="group flex flex-1 items-center justify-center gap-sm rounded-full bg-surface-container-lowest px-lg py-md font-label-md text-label-md text-primary ring-1 ring-outline-variant transition-all duration-200 ease-standard hover:bg-secondary-container/30 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary/40"
-          >
-            <Icon name="photo_camera" className="text-[18px]" />
-            为它拍一张
-          </Link>
-        </div>
+
+        {/* 植物格言卡片，交由父容器 gap 统一控制上下留白 */}
         {firstPlant ? <PlantReflectionCard /> : null}
       </header>
 
@@ -143,7 +188,7 @@ export function MobileDashboardPage() {
             <Empty
               icon="cloud_off"
               title="我们暂时联系不上后端"
-              description="要不要稍后再试一次？dev:server 启动后会立刻好起来。"
+              description="要要不要稍后再试一次？dev:server 启动后会立刻好起来。"
             />
           </Card>
         ) : plantsState.data && plantsState.data.plants.length > 0 ? (
@@ -160,7 +205,7 @@ export function MobileDashboardPage() {
               description="先连一台 ESP32 设备，让第一片叶子抵达这里。"
             />
           </Card>
-        )}
+        ) as unknown as React.ReactNode}
       </section>
     </div>
   );

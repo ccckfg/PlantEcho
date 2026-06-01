@@ -42,7 +42,7 @@ export function PlantReflectionCard() {
   const text = reflection.data?.reflection.text || FALLBACK_REFLECTION;
 
   return (
-    <div className="group/reflection relative shrink-0 mb-lg overflow-hidden rounded-md px-md py-md bg-gradient-to-br from-secondary-container/45 via-surface-container-lowest/70 to-surface-container-low/40 ring-1 ring-secondary-fixed-dim/30 shadow-[0_1px_2px_rgba(45,90,39,0.04),0_10px_22px_-14px_rgba(45,90,39,0.16)] transition-shadow duration-420 ease-emphasized">
+    <div className="group/reflection relative shrink-0 overflow-hidden rounded-md px-md py-md bg-gradient-to-br from-secondary-container/45 via-surface-container-lowest/70 to-surface-container-low/40 ring-1 ring-secondary-fixed-dim/30 shadow-[0_1px_2px_rgba(45,90,39,0.04),0_10px_22px_-14px_rgba(45,90,39,0.16)] transition-shadow duration-420 ease-emphasized">
       {/* 角落柔光 — 营造空间层次 */}
       <div
         aria-hidden
