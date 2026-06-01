@@ -132,8 +132,11 @@ PlantEcho 的设计目标不是"高效的传感器看板"，而是"和植物一�
 - `packages/shared`：共享 schema 和类型定义。
 - `hardware/esp32_oled`：ESP32 真实硬件固件。
 - `docs`：API、记忆系统、主动发言设计文档。
-- `stitch_plant_voice_companion`：Verdant Echo 设计稿原件。
+- `stitch_plant_voice_companion`：Verdant Echo 设计稿原件（已在 Git 中忽略）。
+- `projects`：汇报文案及 PPT 生成源文件目录，包含 SVG 与编译产物（已在 Git 中忽略）。
+- `AgentGal`：记忆生命周期本地临时存储与实验目录（已在 Git 中忽略）。
 - `background.md`：本文件。
+
 
 ---
 
