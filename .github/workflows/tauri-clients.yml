@@ -88,6 +88,13 @@ jobs:
       - name: Build shared package
         run: npm run build --workspace @dyn/shared
 
+      - name: Remove stale desktop bundles
+        shell: pwsh
+        run: |
+          Get-ChildItem -LiteralPath "apps/desktop/src-tauri/target" -Directory -Recurse -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -match "[/\\]release[/\\]bundle$" } |
+            Remove-Item -Recurse -Force
+
       - name: Build Tauri desktop client
         uses: tauri-apps/tauri-action@v0.6.2
         env:
