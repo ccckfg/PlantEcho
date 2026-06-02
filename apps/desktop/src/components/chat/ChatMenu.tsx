@@ -32,13 +32,13 @@ export function ChatMenu({ open, plantId, onClose, onRefresh }: ChatMenuProps) {
   if (!open) return null;
 
   const itemClass =
-    "group flex w-full items-center gap-sm rounded-md px-md py-sm text-left font-label-md text-label-md text-on-surface transition-colors duration-200 ease-standard hover:bg-secondary-container/40 hover:text-primary focus-visible:outline-none focus-visible:bg-secondary-container/50";
+    "group flex w-full items-center gap-sm rounded-md px-3 py-sm text-left font-label-md text-label-md text-on-surface transition-colors duration-200 ease-standard hover:bg-secondary-container/40 hover:text-primary focus-visible:outline-none focus-visible:bg-secondary-container/50";
 
   return (
     <div
       ref={ref}
       role="menu"
-      className="absolute right-lg top-[72px] z-30 w-40 rounded-lg border border-surface-container-highest/60 bg-surface-container-lowest/95 backdrop-blur-md p-xs shadow-modal dialog-pop-in origin-top-right"
+      className="absolute right-lg top-[72px] z-30 w-[136px] rounded-lg border border-surface-container-highest/60 bg-surface-container-lowest/95 backdrop-blur-md p-xs shadow-modal dialog-pop-in origin-top-right"
     >
       <Link to={`/plant/${encodeURIComponent(plantId)}`} onClick={onClose} className={itemClass} role="menuitem">
         <Icon name="psychiatry" className="text-[18px] text-secondary transition-transform duration-300 ease-emphasized group-hover:scale-110" />
