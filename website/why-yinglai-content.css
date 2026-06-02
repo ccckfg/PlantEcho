@@ -1,0 +1,273 @@
+/* ============================================================
+   PlantEcho · Why 应籁内容区块样式
+   ============================================================ */
+
+/* 庄子三籁卡片网格 */
+.why-section-lais {
+  padding: 100px 0;
+}
+
+.lais-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  margin-top: 60px;
+}
+
+.lai-card {
+  background: rgba(251, 253, 250, 0.65);
+  border: 1px solid var(--hairline);
+  border-radius: 24px;
+  padding: 40px 32px;
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px);
+  transition: all 0.4s var(--ease);
+  position: relative;
+  overflow: hidden;
+}
+
+.lai-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 80% at 50% -10%, var(--primary-fixed-dim), transparent 50%);
+  opacity: 0;
+  transition: opacity 0.4s var(--ease);
+}
+
+.lai-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lift);
+  border-color: var(--primary-fixed-dim);
+}
+
+.lai-card:hover::before {
+  opacity: 0.15;
+}
+
+.lai-card-content {
+  position: relative;
+  z-index: 1;
+}
+
+.lai-icon {
+  font-size: 36px;
+  margin-bottom: 24px;
+  display: block;
+}
+
+.lai-card h3 {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.lai-source {
+  font-size: 13px;
+  font-family: var(--serif);
+  color: var(--secondary);
+  opacity: 0.8;
+  display: block;
+  margin-bottom: 20px;
+  letter-spacing: 0.05em;
+}
+
+.lai-desc {
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--on-surface-variant);
+}
+
+/* 听见与回声大玻璃卡片 */
+.why-section-echo {
+  padding: 80px 0;
+}
+
+.echo-glass-card {
+  background: linear-gradient(145deg, rgba(251, 253, 250, 0.75), rgba(238, 243, 238, 0.75));
+  border: 1px solid var(--hairline);
+  border-radius: 36px;
+  padding: 60px 50px;
+  box-shadow: var(--shadow-lift);
+  max-width: 900px;
+  margin: 0 auto;
+  backdrop-filter: blur(15px);
+  position: relative;
+  overflow: hidden;
+}
+
+.echo-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary-container);
+  background: var(--primary-fixed);
+  padding: 4px 10px;
+  border-radius: 99px;
+  display: inline-block;
+  letter-spacing: 0.15em;
+  margin-bottom: 24px;
+}
+
+.echo-title {
+  font-size: clamp(26px, 3.5vw, 38px);
+  color: var(--ink);
+  font-weight: 400;
+  margin-bottom: 24px;
+  line-height: 1.2;
+}
+
+.echo-title em {
+  font-style: italic;
+  color: var(--primary);
+}
+
+.echo-text {
+  font-size: 15.5px;
+  line-height: 1.8;
+  color: var(--on-surface-variant);
+  margin-bottom: 20px;
+}
+
+/* 演算公式区域 */
+.formula-box {
+  background: rgba(21, 66, 18, 0.05);
+  border: 1.5px dashed var(--primary-fixed-dim);
+  border-radius: 20px;
+  padding: 24px 30px;
+  margin-top: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.f-word {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--primary-container);
+}
+
+.f-plus,
+.f-equal {
+  font-size: 18px;
+  color: var(--secondary);
+  font-weight: 500;
+}
+
+.f-result {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--primary);
+  background: var(--primary-fixed);
+  padding: 6px 18px;
+  border-radius: 99px;
+  box-shadow: var(--shadow-leaf);
+}
+
+/* 创作者深夜对话流 */
+.why-section-chat {
+  padding: 100px 0;
+}
+
+.chat-header {
+  margin-bottom: 60px;
+  text-align: center;
+}
+
+.chat-timeline {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  position: relative;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* 对话框容器 */
+.chat-bubble-wrap {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.chat-bubble-wrap.left {
+  justify-content: flex-start;
+}
+
+.chat-bubble-wrap.right {
+  justify-content: flex-end;
+}
+
+.chat-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--primary-fixed-dim);
+  color: var(--primary);
+  font-family: var(--serif);
+  font-weight: 600;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  box-shadow: var(--shadow-leaf);
+  flex-shrink: 0;
+}
+
+.chat-bubble-wrap.right .chat-avatar {
+  background: var(--secondary-container);
+  color: var(--on-secondary-container);
+  order: 2;
+}
+
+/* 气泡本体样式 */
+.chat-bubble {
+  max-width: min(80%, 480px);
+  padding: 16px 20px;
+  box-shadow: var(--shadow-soft);
+  position: relative;
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+.chat-bubble-wrap.left .chat-bubble {
+  background: rgba(251, 253, 250, 0.95);
+  border: 1px solid var(--hairline);
+  color: var(--on-surface);
+  border-radius: 4px 20px 20px 20px;
+}
+
+.chat-bubble-wrap.right .chat-bubble {
+  background: var(--primary-container);
+  color: #fff;
+  border: 1px solid transparent;
+  border-radius: 20px 4px 20px 20px;
+  box-shadow: var(--shadow-lift);
+}
+
+.chat-sender-name {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--secondary);
+  margin-bottom: 5px;
+  display: block;
+}
+
+.chat-bubble-wrap.right .chat-sender-name {
+  color: var(--primary-fixed-dim);
+  text-align: right;
+}
+
+.chat-time {
+  font-size: 10px;
+  opacity: 0.55;
+  display: block;
+  margin-top: 6px;
+  text-align: right;
+}

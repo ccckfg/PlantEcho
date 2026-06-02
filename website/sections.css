@@ -14,6 +14,7 @@
   line-height: 1.0; letter-spacing: -.025em; color: var(--ink); margin: 18px 0 0;
 }
 .hero-title span { display: block; }
+.hero-title .reveal { opacity: 1; transform: none; }
 .hero-title em { font-style: italic; font-weight: 500; color: var(--primary); }
 .hero-lede { margin-top: 30px; font-size: clamp(16px, 1.8vw, 19px); color: var(--on-surface-variant); max-width: 520px; }
 .hero-actions { margin-top: 38px; display: flex; gap: 14px; flex-wrap: wrap; }
@@ -58,7 +59,6 @@
   margin-top: 30px; max-width: 640px; font-size: 15px; color: var(--on-surface-variant);
   padding-left: 20px; border-left: 2px solid var(--primary-fixed-dim);
 }
-
 /* 心情流动 · Section Specifics */
 .moods-container { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: clamp(30px, 5vw, 60px); align-items: center; }
 .moods-media { width: 100%; }
@@ -134,4 +134,123 @@
 .arch-link::after {
   content: ""; position: absolute; right: -2px; top: -3px; border-left: 7px solid var(--primary-fixed-dim);
   border-top: 4px solid transparent; border-bottom: 4px solid transparent;
+}
+
+/* 架构卡片下方的 GitHub 详情联动栏 */
+.arch-github-bar {
+  max-width: 680px;
+  margin: 54px auto 0;
+  background: rgba(21, 66, 18, 0.04);
+  border: 1.5px dashed var(--primary-fixed-dim);
+  border-radius: 99px;
+  padding: 14px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  box-shadow: var(--shadow-soft);
+}
+
+.arch-github-text {
+  font-size: 13.5px;
+  color: var(--on-surface-variant);
+  font-family: var(--sans);
+  line-height: 1.4;
+}
+
+.arch-github-btn {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 13.5px;
+  padding: 10px 22px;
+  border-radius: 99px;
+  background: var(--primary);
+  color: #fff;
+  transition: all 0.3s var(--ease);
+  white-space: nowrap;
+  box-shadow: var(--shadow-leaf);
+  cursor: pointer;
+}
+
+.arch-github-btn:hover {
+  background: var(--primary-container);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+}
+
+/* 客户端下载中心 Bento Grid 样式 */
+.download-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+  margin-top: 48px;
+}
+
+.download-card {
+  background: rgba(251, 253, 250, 0.72);
+  border: 1px solid var(--hairline);
+  border-radius: 26px;
+  padding: 36px 30px;
+  box-shadow: var(--shadow-soft);
+  transition: all 0.4s var(--ease);
+  backdrop-filter: blur(14px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.download-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lift);
+  border-color: var(--primary-fixed-dim);
+}
+
+.dl-icon {
+  font-size: 38px;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.download-card h3 {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0;
+}
+
+.dl-desc {
+  font-size: 13.5px;
+  color: var(--on-surface-variant);
+  line-height: 1.6;
+  flex-grow: 1; /* 让按钮底部对齐 */
+  margin-bottom: 18px;
+}
+
+.download-card .btn {
+  width: 100%;
+  padding: 12px 18px;
+  font-size: 13.5px;
+}
+
+.dl-geek {
+  border-style: dashed;
+  border-color: var(--outline);
+}
+
+/* 手机端架构与下载布局适配 */
+@media (max-width: 600px) {
+  .arch-github-bar {
+    border-radius: 24px;
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
+    gap: 16px;
+  }
+  .arch-github-btn {
+    width: 100%;
+  }
 }

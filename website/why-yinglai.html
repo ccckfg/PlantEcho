@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Why 应籁 · PlantEcho 中文命名的心路历程</title>
+  <meta name="description" content="籁是它的声音，应是让它被听见。在这里，探索 PlantEcho 智能植物陪伴系统中文翻译背后的老庄哲学与人机共鸣。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Noto+Serif+SC:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <!-- 复用主页 base.css 变量以保证风格统一 -->
+  <link rel="stylesheet" href="base.css" />
+  <!-- 引入本页专有样式 -->
+  <link rel="stylesheet" href="why-yinglai.css" />
+  <link rel="stylesheet" href="why-yinglai-content.css" />
+  <link rel="stylesheet" href="why-yinglai-action.css" />
+</head>
+<body>
+
+<!-- ================= 颗粒与渐变氛围层 ================= -->
+<div class="atmosphere" aria-hidden="true">
+  <div class="mesh mesh-1"></div>
+  <div class="mesh mesh-2"></div>
+  <div class="mesh mesh-3"></div>
+  <div class="grain"></div>
+</div>
+
+<!-- ================= 极简返回主页导航 ================= -->
+<header class="why-nav" id="whyNav">
+  <a class="why-nav-back" href="index.html">
+    <span class="back-arrow">←</span>
+    <span class="back-text">返回主页</span>
+  </a>
+  <span class="why-nav-brand">PlantEcho · 应籁</span>
+</header>
+
+<main class="why-container">
+
+  <!-- ================= 巨幕开场 (Hero) ================= -->
+  <section class="why-hero">
+    <div class="hero-intro">
+      <span class="intro-eyebrow">TRANSLATION ORIGIN</span>
+      <h1 class="hero-main-title">
+        <span class="title-line font-serif">籁是它的声音，</span>
+        <span class="title-line font-serif highlight">应是让它被听见。</span>
+      </h1>
+      <p class="hero-desc">
+        我们并不满足于将 PlantEcho 翻译为一个冷冰冰的、以用户为中心的监测指标名称。
+        在无数灵感碰撞的深夜，我们回归植物本位，找到了千年前庄子对于万物呼吸的回答。
+      </p>
+      <div class="down-cue">
+        <span class="cue-mouse"></span>
+        <span class="cue-text">轻抚卷轴，向下探索</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 庄子齐物论与三籁 ================= -->
+  <section class="why-section-lais" id="threeLaisSection">
+    <div class="lais-header text-center">
+      <span class="section-kicker">庄子 · 齐物论</span>
+      <h2 class="section-title">寻找中国智慧的「三籁」</h2>
+      <p class="section-subtitle">
+        在庄子的声音哲学里，宇宙万物的声响被分为三种境界：人籁、地籁与天籁。
+      </p>
+    </div>
+
+    <!-- 动态注入三籁卡片容器 -->
+    <div class="lais-cards-grid" id="laisCardsContainer"></div>
+  </section>
+
+  <!-- ================= 失落的“听见”与回声 ================= -->
+  <section class="why-section-echo">
+    <div class="echo-glass-card">
+      <div class="echo-badge">THE LOST HELLO</div>
+      <h2 class="echo-title font-serif">万物皆有声，但缺一个<em>“听见”</em></h2>
+      <p class="echo-text">
+        庄子笔下的「天籁」是自然本身的声音，是生命最本真舒展的状态。但「天籁」是一个被动的名词，世人也早已将其引申为某种完美的乐曲。
+      </p>
+      <p class="echo-text">
+        我们打造的产品不是一块冷冰冰的数据看板，而是让植物与人互相对话的陪伴体。
+        我们顺着 <strong>PlantEcho (植物回响)</strong> 里的 <strong>Echo (回声)</strong> 望去，脑海里划过山谷中唱山歌的画面——
+        一应一答，有来有回。
+      </p>
+      <div class="formula-box">
+        <span class="f-word">籁 (声音)</span>
+        <span class="f-plus">+</span>
+        <span class="f-word">应 (听见与对唱)</span>
+        <span class="f-equal">=</span>
+        <span class="f-result">应籁 (PlantEcho)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 创作者对话现场 (Bento Chat Timeline) ================= -->
+  <section class="why-section-chat">
+    <div class="chat-header">
+      <span class="section-kicker">深夜十点半的碰撞</span>
+      <h2 class="section-title">起名心路历程实录</h2>
+      <p class="section-subtitle">
+        翻开两位主创的真实讨论手稿，看“应籁”二字如何从深夜的纠结中活了过来。
+      </p>
+    </div>
+
+    <!-- 动态注入对话时间线容器 -->
+    <div class="chat-timeline" id="chatTimelineContainer"></div>
+  </section>
+
+  <!-- ================= 尾声与呼吸 ================= -->
+  <section class="why-footer-action">
+    <div class="action-card">
+      <div class="leaf-logo">🌿</div>
+      <h2 class="action-title font-serif">去和你的植物见个面</h2>
+      <p class="action-desc">
+        理解了这声回响的来由，不妨重新回到主页，探寻那株正在安静呼吸的小生命。
+      </p>
+      <a class="btn-yinglai-home" href="index.html">返回 PlantEcho 首页</a>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= 极简页脚 ================= -->
+<footer class="why-footer">
+  <p style="margin-bottom: 8px;">© 2026 PlantEcho · 籁是声音，应是听见</p>
+  <p style="font-size: 11.5px; opacity: 0.85;">
+    <a href="index.html" style="margin-right: 12px; text-decoration: underline;">返回主页</a>
+    <a href="https://github.com/ccckfg/PlantEcho" target="_blank" rel="noopener" style="text-decoration: underline;">GitHub 仓库</a>
+  </p>
+</footer>
+
+<!-- 引入 GSAP 核心库与 ScrollTrigger -->
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<!-- 引入数据层 -->
+<script src="why-yinglai-data.js"></script>
+<!-- 引入本页专属逻辑与动画层 -->
+<script src="why-yinglai.js"></script>
+</body>
+</html>

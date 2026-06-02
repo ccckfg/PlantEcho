@@ -7,14 +7,16 @@
 <meta name="description" content="DYN PlantEcho 是一个基于 ESP32 与大语言模型的智能植物陪伴系统。它不只是记得你，而是慢慢懂你。" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Noto+Serif+SC:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Noto+Serif+SC:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+<noscript><link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Noto+Serif+SC:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet" /></noscript>
 <link rel="stylesheet" href="base.css" />
 <link rel="stylesheet" href="layout.css" />
 <link rel="stylesheet" href="components.css?v=1.0.1" />
-<link rel="stylesheet" href="sections.css" />
-<link rel="stylesheet" href="memory.css" />
-<link rel="stylesheet" href="responsive.css" />
+<link rel="stylesheet" href="sections.css?v=1.0.3" />
+<link rel="stylesheet" href="memory.css?v=1.0.1" />
+<link rel="stylesheet" href="responsive.css?v=1.0.1" />
 <link rel="stylesheet" href="zoom.css" />
+<link rel="stylesheet" href="why-popover.css?v=1.0.1" />
 </head>
 <body>
 
@@ -41,6 +43,7 @@
     <a href="#memory">记忆</a>
     <a href="#proactive">主动发言</a>
     <a href="#surfaces">软件</a>
+    <a href="https://github.com/ccckfg/PlantEcho" target="_blank" rel="noopener" aria-label="GitHub 仓库">GitHub</a>
   </nav>
 </header>
 
@@ -49,7 +52,7 @@
 <!-- ================= HERO ================= -->
 <section class="hero" id="hero">
   <div class="hero-copy">
-    <p class="eyebrow reveal">DYN · 智能植物陪伴系统</p>
+    <p class="eyebrow reveal">应籁 · 智能植物陪伴系统</p>
     <h1 class="hero-title">
       <span class="reveal">不只是<em>记得</em>你，</span>
       <span class="reveal">而是慢慢<em>懂</em>你。</span>
@@ -401,8 +404,52 @@
     <span class="arch-link" aria-hidden="true"></span>
     <article class="arch-node reveal">
       <span class="arch-n">03</span>
-      <h3>桌面客户端</h3>
-      <p>Tauri v2 + React 18。Verdant Echo 设计基线，资源完全本地加载，已交付 Windows 安装包。</p>
+      <h3>多端客户端</h3>
+      <p>Tauri v2 + React 18。支持 Windows、macOS 与 Android 安卓版；同时支持 OpenAI 兼容 API 极客开放接口。</p>
+    </article>
+  </div>
+
+  <!-- GitHub 联动了解详情条 -->
+  <div class="arch-github-bar reveal">
+    <p class="arch-github-text">对底层的硬件 SoftAP 配网、MQTT 通信或 Docker 一键容器部署感兴趣？</p>
+    <a class="arch-github-btn" href="https://github.com/ccckfg/PlantEcho" target="_blank" rel="noopener">从 GitHub 了解详情 →</a>
+  </div>
+</section>
+
+<!-- ================= 客户端下载中心 (对应导航栏 软件 锚点) ================= -->
+<section class="section surfaces" id="surfaces">
+  <div class="section-head text-center">
+    <p class="kicker reveal">SOFTWARE DOWNLOAD</p>
+    <h2 class="section-title reveal">多端客户端<em>下载中心</em></h2>
+    <p class="section-sub reveal" style="margin-inline: auto;">
+      我们交付了支持多端运行的原生客户端，轻量、安全、资源完全本地加载。同时提供了 OpenAI 兼容 API，让植物接入您的任何工作流。
+    </p>
+  </div>
+
+  <div class="download-grid">
+    <article class="download-card reveal">
+      <span class="dl-icon" aria-hidden="true">🪟</span>
+      <h3>Windows 客户端</h3>
+      <p class="dl-desc">适合 Windows 10/11，支持开机自启、系统托盘常驻与空气感呼吸微动效。</p>
+      <a class="btn btn-primary" href="https://github.com/ccckfg/PlantEcho/releases" target="_blank" rel="noopener">下载 .msi 包</a>
+    </article>
+    <article class="download-card reveal">
+      <span class="dl-icon" aria-hidden="true">🍏</span>
+      <h3>macOS 客户端</h3>
+      <p class="dl-desc">全面适配 Intel 与 Apple M1/M2/M3 芯片，视网膜高分屏无缝贴合呈现。</p>
+      <a class="btn btn-primary" href="https://github.com/ccckfg/PlantEcho/releases" target="_blank" rel="noopener">下载 .dmg 包</a>
+    </article>
+    <article class="download-card reveal">
+      <span class="dl-icon" aria-hidden="true">🤖</span>
+      <h3>Android 客户端</h3>
+      <p class="dl-desc">专为安卓移动设备定制的轻量级安装包，随时随地在手心倾听植物状态。</p>
+      <a class="btn btn-primary" href="https://github.com/ccckfg/PlantEcho/releases" target="_blank" rel="noopener">下载 .apk 包</a>
+    </article>
+    <article class="download-card reveal dl-geek">
+      <span class="dl-icon" aria-hidden="true">⚡</span>
+      <h3>OpenAI API 接入</h3>
+      <p class="dl-desc">将植物独立暴露为标准 OpenAI Model 接口，支持桥接 Raycast 等任何 AI 客户端。</p>
+      <a class="btn btn-ghost" href="https://github.com/ccckfg/PlantEcho#openai-兼容接口" target="_blank" rel="noopener">浏览接入文档</a>
     </article>
   </div>
 </section>
@@ -419,18 +466,21 @@
   </div>
   <p class="footer-honest">说明：100% 来自一个受控的内部检索评测集（120 条记忆 / 48 个查询）；完整的对话型记忆需要连接大模型才能生成。我们不把未完成的能力写成已完成。</p>
   <div class="footer-meta">
-    <span>DYN · PlantEcho</span>
+    <span>应籁 · PlantEcho</span>
     <span>Verdant Echo · Forest-to-Soil</span>
+    <a href="https://github.com/ccckfg/PlantEcho" target="_blank" rel="noopener" style="text-decoration: underline; opacity: 0.85;">GitHub 仓库</a>
     <span>© 2026</span>
   </div>
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="constants.js"></script>
-<script src="zoom.js"></script>
-<script src="main.js?v=1.0.1"></script>
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script src="constants.js?v=1.0.2"></script>
+<script src="zoom.js?v=1.0.2"></script>
+<script src="lifecycle.js?v=1.0.1"></script>
+<script src="why-popover.js?v=1.0.1"></script>
+<script src="main.js?v=1.0.4"></script>
 <!-- 引入 PlantEcho <-> 应籁 3D Morph 交互动效脚本 -->
-<script src="interactive-echo.js?v=1.0.1"></script>
+<script src="interactive-echo.js?v=1.0.2"></script>
 </body>
 </html>

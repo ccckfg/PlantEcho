@@ -6,6 +6,8 @@
 
 *不只是记得你，而是慢慢懂你。*
 
+[🌐 访问官方网站 (plant.ccckfg.com)](https://plant.ccckfg.com)
+
 </div>
 
 ---

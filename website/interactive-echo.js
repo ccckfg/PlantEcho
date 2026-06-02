@@ -154,6 +154,13 @@
       // 播放“唤醒”涟漪声波
       createRipple(target, e);
 
+      // 唤醒上方气泡Popover (仅在“英文”切换成“中文”时触发；反向点击则销毁气泡)
+      const popover = window.WhyYinglaiPopover;
+      if (popover) {
+        if (isEng) popover.show(target);
+        else popover.destroy();
+      }
+
       if (typeof gsap === "undefined" || reduce) {
         // 无 GSAP 动画或用户限制动效时的极速切换降级
         target.textContent = nextText;
@@ -262,6 +269,7 @@
       makeEchoInteractive();
       initClickDelegation();
       initCardDealingAnimation();
+      if (window.WhyYinglaiPopover) window.WhyYinglaiPopover.bindGlobalDismiss();
     }, 100);
   });
 })();

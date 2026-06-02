@@ -1,0 +1,59 @@
+/* ============================================================
+   PlantEcho 官网 · Why 应籁浮层样式 (why-popover.css)
+   ============================================================ */
+.why-popover {
+  position: fixed;
+  z-index: 10000;
+  background: linear-gradient(135deg, rgba(251, 253, 250, 0.96), rgba(240, 245, 239, 0.96));
+  border: 1.5px solid var(--primary-fixed-dim);
+  border-radius: 20px;
+  padding: 16px 22px;
+  box-shadow: 0 12px 40px rgba(21, 66, 18, 0.12), var(--shadow-leaf);
+  backdrop-filter: blur(16px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  pointer-events: auto;
+  width: 156px;
+  transition: border-color 0.3s ease;
+}
+
+.why-popover-title {
+  font-family: var(--serif);
+  font-size: 16.5px;
+  font-weight: 500;
+  color: var(--primary-container);
+  letter-spacing: 0.02em;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.why-popover-title em {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 600;
+  margin-right: 3px;
+  color: var(--primary);
+}
+
+.why-popover-link {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--on-primary-fixed);
+  background: var(--primary-fixed);
+  padding: 5px 14px;
+  border-radius: 99px;
+  transition: all 0.25s var(--ease);
+  box-shadow: 0 2px 6px rgba(45, 90, 39, 0.12);
+  display: inline-block;
+  opacity: 0;
+  text-align: center;
+}
+
+.why-popover-link:hover {
+  background: var(--primary-container);
+  color: #fff;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(45, 90, 39, 0.2);
+}

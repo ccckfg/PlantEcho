@@ -45,7 +45,7 @@
 .lc-track { position: relative; max-width: 1000px; margin-inline: auto; }
 .lc-line { position: absolute; left: 0; right: 0; top: 13px; height: 2px; background: var(--sc-high); border-radius: 99px; }
 .lc-line i {
-  position: absolute inset: 0; width: 0%; border-radius: 99px;
+  position: absolute; inset: 0 auto 0 0; width: 0%; border-radius: 99px;
   background: linear-gradient(90deg, var(--primary-fixed-dim), var(--primary-container));
 }
 .lc-steps { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }

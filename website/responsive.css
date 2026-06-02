@@ -90,24 +90,101 @@
 
 /* 屏幕宽度在 760px 以下（记忆生命周期整理步骤） */
 @media (max-width: 760px) {
+  .lc-container {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+  .lc-demo-panel {
+    height: clamp(190px, 42vw, 260px);
+    border-radius: 24px;
+  }
+  .lc-track,
+  .lc-track-wrap {
+    width: 100%;
+    max-width: 100%;
+  }
   .lc-steps {
     grid-template-columns: 1fr 1fr;
   }
   .lc-line {
     display: none;
   }
+}
+
+/* 屏幕宽度在 560px 以下（手机端彻底折叠为单栏，防文字拥挤折行） */
+@media (max-width: 560px) {
+  .lc-kicker {
+    margin-bottom: 24px;
+  }
+  .lc-demo-panel {
+    position: sticky;
+    top: 72px;
+    z-index: 4;
+    height: 210px;
+  }
+  .note-leaf {
+    padding: 9px 12px;
+    font-size: 12px;
+  }
+  .folder-icon {
+    font-size: 58px;
+  }
+  .diary-book {
+    width: 132px;
+    height: 166px;
+    padding: 28px 18px;
+  }
+  .understand-orb {
+    width: 96px;
+    height: 96px;
+  }
+  .lc-steps {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding-left: 38px;
+  }
   .lc-step {
-    opacity: 1;
+    min-height: 128px;
+    padding-top: 0;
+    opacity: 0.35; /* 恢复未激活半透明状态 */
+    transition: opacity 0.4s var(--ease);
+  }
+  .lc-step.active {
+    opacity: 1; /* 激活时高亮变实 */
+  }
+  .lc-dot {
+    top: 4px;
+    left: -38px;
+  }
+  /* 恢复垂直进度线轨道，并通过 90度旋转将 GSAP 的 width 变换为 height 渲染 */
+  .lc-line {
+    display: block !important;
+    left: 8px; /* 完美对齐圆点中心 (18px 的中心) */
+    top: 4px;
+    width: 2px;
+    height: calc(100% - 8px); /* 从第一个圆圈垂直拉伸至最后一个圆圈 */
+    background: var(--sc-high);
+  }
+  .lc-line i {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0%; /* GSAP 在滚动时写入此宽度 */
+    height: 2px; /* 转化为纵向进度线的宽度 */
+    background: linear-gradient(90deg, var(--primary-fixed-dim), var(--primary-container));
+    transform: rotate(90deg);
+    transform-origin: 0 0;
   }
 }
 
 /* 屏幕宽度在 520px 以下（主动发言列表） */
 
 
-/* 屏幕宽度在 680px 以下（手机端隐藏生命周期动画画布，保存阅读体验） */
+/* 屏幕宽度在 680px 以下（手机端保持生命周期动画画布） */
 @media (max-width: 680px) {
-  .lc-demo-panel {
-    display: none;
+  .lc-container {
+    grid-template-columns: 1fr;
   }
 }
 

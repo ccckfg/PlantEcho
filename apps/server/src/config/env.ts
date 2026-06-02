@@ -19,7 +19,7 @@ const emptyToUndefined = (value: unknown): unknown => (value === "" ? undefined 
 
 const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(8787),
-  HOST: z.string().default("127.0.0.1"),
+  HOST: z.string().default("0.0.0.0"),
   DYN_DATA_DIR: z.string().default("data"),
   MQTT_ENABLED: z.coerce.boolean().default(true),
   MQTT_HOST: z.string().default("0.0.0.0"),

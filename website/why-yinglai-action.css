@@ -1,0 +1,87 @@
+/* ============================================================
+   PlantEcho · Why 应籁尾部与响应式样式
+   ============================================================ */
+
+/* 尾部行动召唤 */
+.why-footer-action {
+  padding: 100px 0 140px;
+  display: flex;
+  justify-content: center;
+}
+
+.action-card {
+  background: linear-gradient(135deg, #15301a, #0c2010);
+  color: #fff;
+  border-radius: 36px;
+  padding: 70px 50px;
+  text-align: center;
+  max-width: 700px;
+  width: 100%;
+  box-shadow: var(--shadow-lift);
+  position: relative;
+}
+
+.leaf-logo {
+  font-size: 48px;
+  margin-bottom: 24px;
+  animation: floatSway 5s ease-in-out infinite alternate;
+}
+
+.action-title {
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 300;
+  margin-bottom: 16px;
+}
+
+.action-desc {
+  font-size: 15.5px;
+  color: rgba(220, 228, 212, 0.75);
+  margin-bottom: 36px;
+  max-width: 500px;
+  margin-inline: auto;
+}
+
+.btn-yinglai-home {
+  display: inline-block;
+  font-weight: 600;
+  font-size: 15px;
+  padding: 16px 36px;
+  border-radius: 99px;
+  background: var(--primary-fixed);
+  color: var(--on-primary-fixed);
+  box-shadow: var(--shadow-leaf);
+  cursor: pointer;
+  transition: all 0.35s var(--ease);
+}
+
+.btn-yinglai-home:hover {
+  background: #fff;
+  color: var(--primary);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: var(--shadow-lift);
+}
+
+@keyframes floatSway {
+  from { transform: translateY(-5px) rotate(-4deg); }
+  to { transform: translateY(5px) rotate(4deg); }
+}
+
+/* 专题页页脚 */
+.why-footer {
+  text-align: center;
+  padding: 40px var(--mar);
+  font-size: 12.5px;
+  color: var(--on-surface-variant);
+  opacity: 0.65;
+  border-top: 1px solid var(--hairline);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .why-hero { min-height: 80vh; }
+  .formula-box { gap: 10px; padding: 16px; }
+  .f-word { font-size: 17px; }
+  .f-result { font-size: 19px; padding: 4px 12px; }
+  .echo-glass-card { padding: 40px 24px; }
+  .action-card { padding: 50px 24px; }
+}

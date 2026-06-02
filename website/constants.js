@@ -17,4 +17,10 @@
     sunny:   "向光不是急切，是每一天慢慢转身。",
     offline: "沉默，也是生长的一部分。",
   };
+
+  global.PAGE_TIMINGS = {
+    heroMoodCycleMs: 3000,
+    moodSwitchCycleMs: 2600,
+    proactiveCarouselCycleMs: 3200,
+  };
 })(window);
