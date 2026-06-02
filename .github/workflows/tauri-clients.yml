@@ -218,13 +218,15 @@ jobs:
 
           const gradlePath = "apps/desktop/src-tauri/gen/android/app/build.gradle.kts";
           let gradle = fs.readFileSync(gradlePath, "utf8");
-          if (!gradle.includes("java.io.FileInputStream")) {
-            gradle = `import java.io.FileInputStream\nimport java.util.Properties\n${gradle}`;
-          } else if (!gradle.includes("java.util.Properties")) {
-            gradle = gradle.replace(
-              /import java\.io\.FileInputStream\s*/,
-              "import java.io.FileInputStream\nimport java.util.Properties\n"
-            );
+          const imports = [];
+          if (!gradle.includes("import java.io.FileInputStream")) {
+            imports.push("import java.io.FileInputStream");
+          }
+          if (!gradle.includes("import java.util.Properties")) {
+            imports.push("import java.util.Properties");
+          }
+          if (imports.length > 0) {
+            gradle = `${imports.join("\n")}\n${gradle}`;
           }
 
           if (!gradle.includes("signingConfigs")) {
