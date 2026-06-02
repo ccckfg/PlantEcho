@@ -11,6 +11,7 @@ on:
       - ".github/workflows/tauri-clients.yml"
       - "apps/desktop/**"
       - "packages/shared/**"
+      - "scripts/ci/**"
       - "package.json"
       - "package-lock.json"
   workflow_dispatch:
@@ -101,10 +102,8 @@ jobs:
           name: plantecho-${{ matrix.label }}
           if-no-files-found: error
           path: |
-            apps/desktop/src-tauri/target/**/release/bundle/**/*.app
-            apps/desktop/src-tauri/target/**/release/bundle/**/*.app.tar.gz
             apps/desktop/src-tauri/target/**/release/bundle/**/*.dmg
-            apps/desktop/src-tauri/target/**/release/bundle/**/*.msi
+            apps/desktop/src-tauri/target/**/release/bundle/**/*zh-CN.msi
             apps/desktop/src-tauri/target/**/release/bundle/**/*.exe
 
   android:
@@ -206,7 +205,7 @@ jobs:
           node scripts/ci/configure-android-signing.mjs
 
       - name: Build signed Tauri Android client
-        run: npm run tauri --workspace @dyn/desktop -- android build
+        run: npm run tauri --workspace @dyn/desktop -- android build --apk
 
       - name: Upload Android artifacts
         uses: actions/upload-artifact@v4
@@ -215,7 +214,6 @@ jobs:
           if-no-files-found: error
           path: |
             apps/desktop/src-tauri/gen/android/app/build/outputs/**/*.apk
-            apps/desktop/src-tauri/gen/android/app/build/outputs/**/*.aab
 
   release:
     name: Publish GitHub Release
@@ -236,7 +234,7 @@ jobs:
           set -euo pipefail
           mkdir -p dist/release-assets
           find dist/artifacts -type f \
-            \( -name '*.apk' -o -name '*.aab' -o -name '*.msi' -o -name '*.exe' -o -name '*.dmg' -o -name '*.app.tar.gz' \) \
+            \( -name '*.apk' -o -name '*zh-CN.msi' -o -name '*.exe' -o -name '*.dmg' \) \
             -print0 | while IFS= read -r -d '' file; do
               artifact="${file#dist/artifacts/}"
               artifact="${artifact%%/*}"

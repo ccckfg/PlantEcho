@@ -1,8 +1,10 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 
 const paths = {
   manifest: "apps/desktop/src-tauri/gen/android/app/src/main/AndroidManifest.xml",
   gradle: "apps/desktop/src-tauri/gen/android/app/build.gradle.kts",
+  sourceIcons: "apps/desktop/src-tauri/icons/android",
+  targetRes: "apps/desktop/src-tauri/gen/android/app/src/main/res",
 };
 
 function enableCleartextTraffic() {
@@ -16,6 +18,17 @@ function enableCleartextTraffic() {
     '<application android:usesCleartextTraffic="true"',
   );
   writeFileSync(paths.manifest, manifest);
+}
+
+function syncAndroidIcons() {
+  if (!existsSync(paths.sourceIcons)) {
+    throw new Error("Android icon resources are missing. Run `tauri icon` first.");
+  }
+
+  cpSync(paths.sourceIcons, paths.targetRes, {
+    recursive: true,
+    force: true,
+  });
 }
 
 function ensureGradleImports(gradle) {
@@ -54,6 +67,25 @@ function ensureSigningConfig(gradle) {
   return gradle.replace(/android\s*\{\s*/, (match) => `${match}\n${signingConfig}`);
 }
 
+function ensureAbiSplits(gradle) {
+  if (gradle.includes("isUniversalApk = true")) {
+    return gradle;
+  }
+
+  const abiSplits = `    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "armeabi-v7a", "x86_64")
+            isUniversalApk = true
+        }
+    }
+
+`;
+
+  return gradle.replace(/android\s*\{\s*/, (match) => `${match}\n${abiSplits}`);
+}
+
 function attachReleaseSigning(gradle) {
   const releaseSigningPattern =
     /signingConfig\s*=\s*signingConfigs\.getByName\("release"\)/;
@@ -76,9 +108,11 @@ function configureGradleSigning() {
   let gradle = readFileSync(paths.gradle, "utf8");
   gradle = ensureGradleImports(gradle);
   gradle = ensureSigningConfig(gradle);
+  gradle = ensureAbiSplits(gradle);
   gradle = attachReleaseSigning(gradle);
   writeFileSync(paths.gradle, gradle);
 }
 
 enableCleartextTraffic();
+syncAndroidIcons();
 configureGradleSigning();
