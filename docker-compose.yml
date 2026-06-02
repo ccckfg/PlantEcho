@@ -4,8 +4,7 @@ services:
     container_name: dyn-server
     restart: unless-stopped
     env_file:
-      - path: ./dyn.env
-        required: false
+      - ./dyn.env
     environment:
       HOST: 0.0.0.0
       PORT: 8787
