@@ -158,14 +158,14 @@ function PhotoLightbox({
       aria-label="照片预览"
     >
       <div
-        className="dialog-pop-in relative flex flex-col items-stretch gap-md w-[min(80vw,1100px)] max-h-[calc(100vh-3rem)]"
+        className="dialog-pop-in relative flex flex-col items-center gap-md max-w-[90vw] max-h-[calc(100vh-4rem)]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative flex-1 min-h-0 grid place-items-center rounded-lg bg-black/30 ring-1 ring-white/10 overflow-hidden">
+        <div className="relative rounded-lg bg-black/10 ring-1 ring-white/10 overflow-hidden w-fit h-fit flex items-center justify-center shadow-2xl">
           <img
             src={mediaUrl(photo.src)}
             alt={photo.caption || photo.plantName}
-            className="max-w-full max-h-full object-contain"
+            className="max-w-[85vw] max-h-[72vh] object-contain block"
             onError={(event) => {
               event.currentTarget.src = plantImage(photo.plantId);
             }}
