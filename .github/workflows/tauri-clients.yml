@@ -76,7 +76,6 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            apps/desktop/src-tauri/target
           key: ${{ runner.os }}-${{ matrix.label }}-cargo-${{ hashFiles('apps/desktop/src-tauri/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-${{ matrix.label }}-cargo-
@@ -87,13 +86,6 @@ jobs:
 
       - name: Build shared package
         run: npm run build --workspace @dyn/shared
-
-      - name: Remove stale desktop bundles
-        shell: pwsh
-        run: |
-          Get-ChildItem -LiteralPath "apps/desktop/src-tauri/target" -Directory -Recurse -ErrorAction SilentlyContinue |
-            Where-Object { $_.FullName -match "[/\\]release[/\\]bundle$" } |
-            Remove-Item -Recurse -Force
 
       - name: Build Tauri desktop client
         uses: tauri-apps/tauri-action@v0.6.2
@@ -163,7 +155,6 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            apps/desktop/src-tauri/target
           key: android-cargo-${{ hashFiles('apps/desktop/src-tauri/Cargo.lock') }}
           restore-keys: |
             android-cargo-
