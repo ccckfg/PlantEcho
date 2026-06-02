@@ -1,4 +1,4 @@
-# DYN Server API
+# PlantEcho Server API
 
 默认地址：`http://127.0.0.1:8787`
 

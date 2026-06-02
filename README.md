@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🌿 DYN · PlantEcho
+# 🌿 PlantEcho
 
 **和植物一起呼吸的陪伴软件，而不是一块传感器看板。**
 
@@ -263,7 +263,7 @@ docker run -d --name dyn-server --restart unless-stopped \
 
 **最省心的方式：直接下载官方客户端**
 
-去 [GitHub Releases](https://github.com/ccckfg/DYN/releases) 找到最新版本，Windows、macOS、安卓都有预编译包，装完填上后端地址和 `APP_ACCESS_KEY`，几秒钟就能摸到你的植物。
+去 [GitHub Releases](https://github.com/ccckfg/PlantEcho/releases) 找到最新版本，Windows、macOS、安卓都有预编译包，装完填上后端地址和 `APP_ACCESS_KEY`，几秒钟就能摸到你的植物。
 
 | 平台 | 包名 |
 |---|---|
@@ -333,7 +333,7 @@ curl http://<IP>:8787/v1/chat/completions \
 
 <div align="center">
 
-**DYN · PlantEcho** — Verdant Echo · Forest-to-Soil · © 2026
+**PlantEcho** — Verdant Echo · Forest-to-Soil · © 2026
 
 *沉默，也是生长的一部分。*
 

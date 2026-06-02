@@ -1,6 +1,6 @@
 # Database
 
-DYN Server uses SQLite. On startup, `migrate()` applies versioned migrations,
+PlantEcho Server uses SQLite. On startup, `migrate()` applies versioned migrations,
 seeds demo data when needed, and rebuilds search indexes.
 
 ## Migration Flow

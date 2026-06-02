@@ -29,7 +29,7 @@ npx tauri android init
 
 ## 明文 HTTP（连局域网后端必读）
 
-DYN 后端默认跑在 `http://192.168.x.x:8787`（明文 HTTP）。Android 9+ 默认禁止明文流量，需在 init 生成的工程里开启一次：
+PlantEcho 后端默认跑在 `http://192.168.x.x:8787`（明文 HTTP）。Android 9+ 默认禁止明文流量，需在 init 生成的工程里开启一次：
 
 编辑 `src-tauri/gen/android/app/src/main/AndroidManifest.xml`，在 `<application>` 标签上加：
 

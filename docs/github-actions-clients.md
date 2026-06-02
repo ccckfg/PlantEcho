@@ -5,13 +5,13 @@
 - Windows x64：Tauri Windows 安装包（MSI / NSIS）。
 - macOS arm64：Apple Silicon 桌面客户端。
 - macOS x64：Intel Mac 桌面客户端。
-- Android：release 模式、使用私有 keystore 签名的 APK/AAB。
+- Android：release 模式、使用私有 keystore 签名的 APK。
 
 构建产物会作为 GitHub Actions workflow artifacts 上传到对应 run 页面。
 
 ## Android release 签名 secrets
 
-Android release 包必须使用私有 keystore 签名。workflow 会拒绝生成 unsigned 或 debug APK，避免出现“无法安装”或“debug 包特别大”的情况。
+Android release 包必须使用私有 keystore 签名。workflow 会拒绝生成 unsigned 或 debug APK，避免出现“无法安装”或“debug 包特别大”的情况。Release 只发布 APK，不发布 AAB。
 
 在本机生成 keystore：
 

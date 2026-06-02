@@ -1,6 +1,6 @@
 # PlantEcho Desktop (Tauri v2)
 
-DYN Plant Pal 的 Windows / 跨平台桌面客户端。基于 **Tauri v2 + React + Vite + TypeScript + Tailwind**，UI 严格沿用 Verdant Echo 设计 token（Forest-to-Soil 配色、Quicksand + Plus Jakarta Sans）。
+PlantEcho 的 Windows / 跨平台桌面客户端。基于 **Tauri v2 + React + Vite + TypeScript + Tailwind**，UI 严格沿用 Verdant Echo 设计 token（Forest-to-Soil 配色、Quicksand + Plus Jakarta Sans）。
 
 ## 页面
 

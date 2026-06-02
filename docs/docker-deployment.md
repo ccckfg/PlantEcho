@@ -1,4 +1,4 @@
-# DYN 后端 Docker 部署指南
+# PlantEcho 后端 Docker 部署指南
 
 本文用于把 `apps/server` 后端部署到服务器，适合初步上线灰度测试。镜像只包含 Node.js 后端和 `packages/shared`，不会打包本地 `.env`、SQLite 数据库、桌面端产物或硬件源码。
 
