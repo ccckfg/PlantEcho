@@ -1,6 +1,10 @@
 import cors from "@fastify/cors";
 import Fastify from "fastify";
-import { corsMethods } from "./config/http.js";
+import {
+  corsMethods,
+  privateNetworkAllowHeader,
+  privateNetworkRequestHeader
+} from "./config/http.js";
 import { migrate } from "./db/migrate.js";
 import { registerAppAuth } from "./modules/auth/appAuth.js";
 import { registerAuthRoutes } from "./modules/auth/routes.js";
@@ -35,9 +39,21 @@ export const buildApp = async () => {
     warn: (message) => app.log.warn(message),
     error: (message) => app.log.error(message)
   });
+  app.addHook("onRequest", async (request, reply) => {
+    const privateNetworkRequest = request.headers[privateNetworkRequestHeader];
+    const asksForPrivateNetwork =
+      Array.isArray(privateNetworkRequest)
+        ? privateNetworkRequest.includes("true")
+        : privateNetworkRequest === "true";
+    if (asksForPrivateNetwork) {
+      reply.header(privateNetworkAllowHeader, "true");
+    }
+  });
+
   await app.register(cors, { origin: true, methods: corsMethods });
   await registerAppAuth(app);
 
+  app.get("/", async () => ({ ok: true, service: "PlantEcho backend" }));
   app.get("/health", async () => ({ ok: true, service: "dyn-server" }));
   app.get("/api/v1/auth/check", async (request) => ({ ok: true, user: request.currentUser ?? null }));
   await app.register(registerAuthRoutes);
