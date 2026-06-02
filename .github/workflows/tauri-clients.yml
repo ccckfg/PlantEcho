@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: tauri-clients-${{ github.ref }}
@@ -203,64 +203,7 @@ jobs:
           printf 'password=%s\n' "$ANDROID_KEY_PASSWORD" >> keystore.properties
           printf 'storeFile=%s\n' "$KEYSTORE_PATH" >> keystore.properties
           cd "$GITHUB_WORKSPACE"
-          node <<'JS'
-          const fs = require("node:fs");
-
-          const manifestPath = "apps/desktop/src-tauri/gen/android/app/src/main/AndroidManifest.xml";
-          let manifest = fs.readFileSync(manifestPath, "utf8");
-          if (!manifest.includes("android:usesCleartextTraffic")) {
-            manifest = manifest.replace(
-              /<application\b/,
-              '<application android:usesCleartextTraffic="true"'
-            );
-            fs.writeFileSync(manifestPath, manifest);
-          }
-
-          const gradlePath = "apps/desktop/src-tauri/gen/android/app/build.gradle.kts";
-          let gradle = fs.readFileSync(gradlePath, "utf8");
-          const imports = [];
-          if (!gradle.includes("import java.io.FileInputStream")) {
-            imports.push("import java.io.FileInputStream");
-          }
-          if (!gradle.includes("import java.util.Properties")) {
-            imports.push("import java.util.Properties");
-          }
-          if (imports.length > 0) {
-            gradle = `${imports.join("\n")}\n${gradle}`;
-          }
-
-          if (!gradle.includes("signingConfigs")) {
-            const signingConfig = `    signingConfigs {
-                create("release") {
-                    val keystorePropertiesFile = rootProject.file("keystore.properties")
-                    val keystoreProperties = Properties()
-                    if (keystorePropertiesFile.exists()) {
-                        keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-                    }
-                    keyAlias = keystoreProperties["keyAlias"] as String
-                    keyPassword = keystoreProperties["password"] as String
-                    storeFile = file(keystoreProperties["storeFile"] as String)
-                    storePassword = keystoreProperties["password"] as String
-                }
-            }
-
-          `;
-            gradle = gradle.replace(/android\s*\{\s*/, (match) => `${match}\n${signingConfig}`);
-          }
-
-          if (!/signingConfig\s*=\s*signingConfigs\.getByName\("release"\)/.test(gradle)) {
-            const next = gradle.replace(
-              /getByName\("release"\)\s*\{\s*/,
-              (match) => `${match}\n            signingConfig = signingConfigs.getByName("release")\n`
-            );
-            if (next === gradle) {
-              throw new Error("Could not find Gradle release buildType to attach Android signing config.");
-            }
-            gradle = next;
-          }
-
-          fs.writeFileSync(gradlePath, gradle);
-          JS
+          node scripts/ci/configure-android-signing.mjs
 
       - name: Build signed Tauri Android client
         run: npm run tauri --workspace @dyn/desktop -- android build
@@ -273,3 +216,39 @@ jobs:
           path: |
             apps/desktop/src-tauri/gen/android/app/build/outputs/**/*.apk
             apps/desktop/src-tauri/gen/android/app/build/outputs/**/*.aab
+
+  release:
+    name: Publish GitHub Release
+    needs:
+      - desktop
+      - android
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download client artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist/artifacts
+
+      - name: Prepare release assets
+        run: |
+          set -euo pipefail
+          mkdir -p dist/release-assets
+          find dist/artifacts -type f \
+            \( -name '*.apk' -o -name '*.aab' -o -name '*.msi' -o -name '*.exe' -o -name '*.dmg' -o -name '*.app.tar.gz' \) \
+            -print0 | while IFS= read -r -d '' file; do
+              artifact="${file#dist/artifacts/}"
+              artifact="${artifact%%/*}"
+              cp "$file" "dist/release-assets/${artifact}-$(basename "$file")"
+            done
+          test "$(find dist/release-assets -type f | wc -l)" -gt 0
+          ls -lh dist/release-assets
+
+      - name: Publish release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          name: PlantEcho ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          files: dist/release-assets/*
+          fail_on_unmatched_files: true
