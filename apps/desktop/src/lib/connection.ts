@@ -16,7 +16,11 @@ export interface BackendConnection {
 }
 
 export const normalizeBackendUrl = (rawUrl: string): string => {
-  const trimmed = rawUrl.trim();
+  const trimmed = rawUrl
+    .trim()
+    .replace(/[：﹕꞉]/g, ":")
+    .replace(/[／⁄∕]/g, "/")
+    .replace(/\s+/g, "");
   if (!trimmed) throw new Error("请输入后端地址");
 
   const withProtocol = /^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed)
@@ -30,6 +34,15 @@ export const normalizeBackendUrl = (rawUrl: string): string => {
 
   const pathname = url.pathname.replace(/\/+$/, "");
   return `${url.origin}${pathname}`;
+};
+
+export const isLoopbackBackendUrl = (rawUrl: string): boolean => {
+  try {
+    const host = new URL(normalizeBackendUrl(rawUrl)).hostname.toLowerCase();
+    return host === "localhost" || host === "127.0.0.1" || host === "::1";
+  } catch {
+    return false;
+  }
 };
 
 export const createBackendConnection = (input: {

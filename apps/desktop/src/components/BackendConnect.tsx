@@ -3,7 +3,12 @@ import { APP_BRAND } from "@/config/branding";
 import { InteractiveEcho } from "./InteractiveEcho";
 import { getApiConnection, setApiConnection, testApiConnection } from "@/lib/api";
 import { registerWithPassword } from "@/lib/authApi";
-import type { BackendConnection } from "@/lib/connection";
+import {
+  isLoopbackBackendUrl,
+  type BackendConnection
+} from "@/lib/connection";
+import { useIsMobile } from "@/lib/usePlatform";
+import { useAuthViewportLock } from "@/hooks/useAuthViewportLock";
 import { BrandMark } from "./BrandMark";
 import { Icon } from "./UI";
 
@@ -15,18 +20,26 @@ interface BackendConnectProps {
 type ConnectMode = "login" | "register";
 type ConnectState = "idle" | "testing" | "connected";
 
+const DEFAULT_BACKEND_HINT = "http://后端电脑IP:8787";
+
 const formatConnectionError = (caught: unknown): string => {
   const message = caught instanceof Error ? caught.message : String(caught);
-  if (/Failed to fetch|NetworkError|Load failed/i.test(message)) {
-    return "我们暂时联系不上 PlantEcho 的家。请确认后端已启动，并检查地址/端口是否为 http://127.0.0.1:8787。";
+  if (/Failed to fetch|NetworkError|Load failed|Network request failed|ERR_/i.test(message)) {
+    return "我们暂时联系不上 PlantEcho 的家。";
   }
   return message || "登录失败";
 };
 
 export function BackendConnect({ onConnected, onCancel }: BackendConnectProps) {
+  const keyboardOpen = useAuthViewportLock();
+  const isMobile = useIsMobile();
   const savedConnection = getApiConnection();
+  const savedBaseUrl =
+    isMobile && savedConnection?.baseUrl && isLoopbackBackendUrl(savedConnection.baseUrl)
+      ? ""
+      : savedConnection?.baseUrl ?? "";
   const [mode, setMode] = useState<ConnectMode>("login");
-  const [baseUrl, setBaseUrl] = useState(savedConnection?.baseUrl ?? "");
+  const [baseUrl, setBaseUrl] = useState(savedBaseUrl);
   const [username, setUsername] = useState(savedConnection?.user.username ?? "");
   const [displayName, setDisplayName] = useState(savedConnection?.user.displayName ?? "");
   const [password, setPassword] = useState("");
@@ -42,6 +55,10 @@ export function BackendConnect({ onConnected, onCancel }: BackendConnectProps) {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!canConnect || state === "testing") return;
+    if (isMobile && isLoopbackBackendUrl(baseUrl)) {
+      setError("手机端请填写后端电脑的局域网 IP，不能使用 127.0.0.1。");
+      return;
+    }
     setState("testing");
     setError("");
 
@@ -61,15 +78,19 @@ export function BackendConnect({ onConnected, onCancel }: BackendConnectProps) {
   };
 
   return (
-    <main className="h-full bg-surface flex items-center justify-center p-lg relative overflow-hidden">
-      <section className="dialog-pop-in w-full max-w-xl bg-surface-container-lowest/95 backdrop-blur-md ring-1 ring-surface-container-highest/60 rounded-lg shadow-soft p-xl">
-        <div className="flex items-start gap-md">
-          <BrandMark size="lg" className="shadow-leaf" />
+    <main
+      className="bg-surface flex items-center justify-center p-lg relative overflow-hidden overscroll-none max-sm:p-sm"
+      style={{ height: "var(--auth-viewport-height, 100dvh)" }}
+    >
+      <section className={`dialog-pop-in w-full max-w-xl max-h-full bg-surface-container-lowest/95 backdrop-blur-md ring-1 ring-surface-container-highest/60 rounded-lg shadow-soft overflow-hidden max-sm:rounded-[28px] ${keyboardOpen ? "p-md max-sm:p-sm" : "p-xl max-sm:p-md"}`}>
+        <div className={`flex items-start gap-md max-sm:items-center max-sm:gap-sm ${keyboardOpen ? "max-sm:hidden" : ""}`}>
+          <BrandMark size={isMobile ? "md" : "lg"} className="shadow-leaf" />
           <div className="min-w-0">
-            <h1 className="font-display text-headline-lg text-on-surface flex items-center gap-xs">
-              登录 <InteractiveEcho />
+            <h1 className="font-display text-headline-lg text-on-surface flex min-w-0 items-center gap-xs max-sm:text-[28px] max-sm:leading-tight">
+              <span className="shrink-0">{mode === "register" ? "注册" : "登录"}</span>
+              <InteractiveEcho className="min-w-0 shrink whitespace-nowrap max-sm:text-[28px]" />
             </h1>
-            <p className="text-body-md text-on-surface-variant mt-xs leading-relaxed">
+            <p className="text-body-md text-on-surface-variant mt-xs leading-relaxed max-sm:text-[15px] max-sm:leading-snug">
               {onCancel
                 ? "可以换一个后端，或用另一个账号回来照看花园。"
                 : `${APP_BRAND.name} 需要先确认你是谁，才会打开植物的小屋。`}
@@ -77,7 +98,7 @@ export function BackendConnect({ onConnected, onCancel }: BackendConnectProps) {
           </div>
         </div>
 
-        <div className="mt-lg flex rounded-full bg-surface-container p-xs">
+        <div className={`flex rounded-full bg-surface-container p-xs ${keyboardOpen ? "mt-0" : "mt-lg max-sm:mt-md"}`}>
           {[
             { key: "login", label: "登录" },
             { key: "register", label: "注册" }
@@ -97,13 +118,13 @@ export function BackendConnect({ onConnected, onCancel }: BackendConnectProps) {
           ))}
         </div>
 
-        <form className="mt-lg flex flex-col gap-md" onSubmit={handleSubmit}>
+        <form className={`flex flex-col ${keyboardOpen ? "mt-sm gap-xs" : "mt-lg gap-md max-sm:mt-md max-sm:gap-sm"}`} onSubmit={handleSubmit}>
           <Field icon="dns" label="后端地址">
             <input
               value={baseUrl}
               onChange={(event) => setBaseUrl(event.target.value)}
-              placeholder="http://127.0.0.1:8787"
-              className="w-full bg-transparent outline-none text-body-md text-on-surface placeholder:text-on-surface-variant/60"
+              placeholder={DEFAULT_BACKEND_HINT}
+              className="w-full bg-transparent outline-none text-[16px] leading-6 text-on-surface placeholder:text-on-surface-variant/60"
               autoComplete="url"
             />
           </Field>
@@ -113,7 +134,7 @@ export function BackendConnect({ onConnected, onCancel }: BackendConnectProps) {
               value={username}
               onChange={(event) => setUsername(event.target.value)}
               placeholder="your_name"
-              className="w-full bg-transparent outline-none text-body-md text-on-surface placeholder:text-on-surface-variant/60"
+              className="w-full bg-transparent outline-none text-[16px] leading-6 text-on-surface placeholder:text-on-surface-variant/60"
               autoComplete="username"
             />
           </Field>
@@ -124,7 +145,7 @@ export function BackendConnect({ onConnected, onCancel }: BackendConnectProps) {
                 value={displayName}
                 onChange={(event) => setDisplayName(event.target.value)}
                 placeholder="小绿的主人"
-                className="w-full bg-transparent outline-none text-body-md text-on-surface placeholder:text-on-surface-variant/60"
+                className="w-full bg-transparent outline-none text-[16px] leading-6 text-on-surface placeholder:text-on-surface-variant/60"
                 autoComplete="name"
               />
             </Field>
@@ -136,7 +157,7 @@ export function BackendConnect({ onConnected, onCancel }: BackendConnectProps) {
               onChange={(event) => setPassword(event.target.value)}
               type={showPassword ? "text" : "password"}
               placeholder="至少 8 位"
-              className="w-full bg-transparent outline-none text-body-md text-on-surface placeholder:text-on-surface-variant/60"
+              className="w-full bg-transparent outline-none text-[16px] leading-6 text-on-surface placeholder:text-on-surface-variant/60"
               autoComplete={mode === "register" ? "new-password" : "current-password"}
             />
             <button
@@ -160,7 +181,7 @@ export function BackendConnect({ onConnected, onCancel }: BackendConnectProps) {
           ) : null}
 
           <div className="flex flex-col sm:flex-row gap-sm sm:items-center sm:justify-between">
-            <p className="text-body-sm text-on-surface-variant inline-flex items-center gap-xs">
+            <p className="text-body-sm text-on-surface-variant inline-flex items-center gap-xs max-sm:text-[15px] max-sm:leading-snug">
               <Icon name="lock" className="text-[14px] shrink-0" />
               登录凭证仅保存在本机，用来和后端确认你的身份。
             </p>
@@ -179,7 +200,7 @@ export function BackendConnect({ onConnected, onCancel }: BackendConnectProps) {
               <button
                 type="submit"
                 disabled={!canConnect || state === "testing"}
-                className="w-full sm:w-auto shrink-0 whitespace-nowrap group inline-flex items-center justify-center gap-sm rounded-full bg-primary text-on-primary px-xl py-md font-label-md text-label-md shadow-soft transition-all duration-200 ease-standard hover:bg-surface-tint hover:shadow-modal active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                className="w-full sm:w-auto shrink-0 whitespace-nowrap group inline-flex items-center justify-center gap-sm rounded-full bg-primary text-on-primary px-xl py-md font-label-md text-label-md shadow-soft transition-all duration-200 ease-standard hover:bg-surface-tint hover:shadow-modal active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-surface max-sm:py-sm"
               >
                 <Icon
                   name={state === "testing" ? "progress_activity" : "login"}
@@ -206,8 +227,8 @@ function Field({
 }) {
   return (
     <label className="flex flex-col gap-xs">
-      <span className="text-label-md font-label-md text-on-surface">{label}</span>
-      <div className="flex items-center gap-sm rounded-md ring-1 ring-surface-container-highest bg-surface px-md py-sm transition-all duration-200 ease-standard focus-within:ring-2 focus-within:ring-primary/50 focus-within:bg-surface-container-lowest">
+      <span className="text-label-md font-label-md text-on-surface max-sm:text-[15px]">{label}</span>
+      <div className="flex items-center gap-sm rounded-md ring-1 ring-surface-container-highest bg-surface px-md py-sm transition-all duration-200 ease-standard focus-within:ring-2 focus-within:ring-primary/50 focus-within:bg-surface-container-lowest max-sm:rounded-[24px] max-sm:px-sm max-sm:py-[9px]">
         <Icon name={icon} className="text-on-surface-variant" />
         {children}
       </div>
