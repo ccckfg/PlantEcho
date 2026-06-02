@@ -177,7 +177,7 @@ export function MobileChatScreen({ plantId, plants, onSwitch }: MobileChatScreen
           />
         </div>
         {statusOpen ? (
-          <div className="dialog-pop-in mt-sm grid grid-cols-3 gap-sm rounded-md bg-surface-container-low/70 p-md ring-1 ring-surface-container-highest/40">
+          <div className="dialog-pop-in absolute left-margin-mobile right-margin-mobile top-[calc(100%-4px)] z-30 grid grid-cols-3 gap-sm rounded-md bg-surface-container-lowest/95 backdrop-blur-md p-md shadow-modal ring-1 ring-surface-container-highest/60">
             <ProgressBar label="水分" icon="water_drop" value={status.hydration} />
             <ProgressBar label="光照" icon="light_mode" value={status.light} />
             <ProgressBar label="湿度" icon="air" value={status.humidity} />
