@@ -25,6 +25,7 @@ concurrency:
 env:
   NODE_VERSION: "24"
   CARGO_TERM_COLOR: always
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   desktop:
@@ -93,8 +94,18 @@ jobs:
         with:
           projectPath: apps/desktop
           args: ${{ matrix.args }}
-          uploadWorkflowArtifacts: true
-          workflowArtifactNamePattern: plantecho-${{ matrix.label }}-[bundle]
+
+      - name: Upload desktop artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: plantecho-${{ matrix.label }}
+          if-no-files-found: error
+          path: |
+            apps/desktop/src-tauri/target/**/release/bundle/**/*.app
+            apps/desktop/src-tauri/target/**/release/bundle/**/*.app.tar.gz
+            apps/desktop/src-tauri/target/**/release/bundle/**/*.dmg
+            apps/desktop/src-tauri/target/**/release/bundle/**/*.msi
+            apps/desktop/src-tauri/target/**/release/bundle/**/*.exe
 
   android:
     name: Build android-release-signed
@@ -120,7 +131,6 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
-          cache: gradle
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
@@ -251,11 +261,13 @@ jobs:
           JS
 
       - name: Build signed Tauri Android client
-        uses: tauri-apps/tauri-action@v0.6.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run tauri --workspace @dyn/desktop -- android build
+
+      - name: Upload Android artifacts
+        uses: actions/upload-artifact@v4
         with:
-          projectPath: apps/desktop
-          mobile: android
-          uploadWorkflowArtifacts: true
-          workflowArtifactNamePattern: plantecho-android-signed-[bundle]
+          name: plantecho-android-signed
+          if-no-files-found: error
+          path: |
+            apps/desktop/src-tauri/gen/android/app/build/outputs/**/*.apk
+            apps/desktop/src-tauri/gen/android/app/build/outputs/**/*.aab
