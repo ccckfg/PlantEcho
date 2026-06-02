@@ -2,6 +2,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { APP_BRAND } from "@/config/branding";
 import { BrandMark } from "@/components/BrandMark";
 import { Icon } from "@/components/UI";
+import { InteractiveEcho } from "@/components/InteractiveEcho";
 
 /** 仅在真正的 Tauri webview 内才有 __TAURI_INTERNALS__；普通浏览器里为 undefined。 */
 const isTauri = (): boolean =>
@@ -15,16 +16,27 @@ const runWindowAction = (action: (appWindow: ReturnType<typeof getCurrentWindow>
 export function WindowTitleBar() {
   return (
     <header
-      data-tauri-drag-region
       onDoubleClick={() => runWindowAction((appWindow) => appWindow.toggleMaximize())}
       className="h-9 shrink-0 select-none border-b border-surface-container-highest/55 bg-surface-container-lowest/96 text-on-surface shadow-[0_1px_0_rgba(45,90,39,0.04)]"
     >
-      <div data-tauri-drag-region className="flex h-full items-center justify-between pl-sm">
-        <div data-tauri-drag-region className="flex min-w-0 items-center gap-xs">
-          <BrandMark size="sm" className="h-6 w-6" />
-          <span className="truncate text-label-md font-label-md text-primary">
-            {APP_BRAND.name}
-          </span>
+      <div className="flex h-full items-center justify-between">
+        <div className="flex h-full min-w-0 flex-1 items-center">
+          <div data-tauri-drag-region className="flex h-full shrink-0 items-center pl-sm pr-xs">
+            <BrandMark size="sm" className="h-6 w-6" />
+          </div>
+          <div
+            className="flex min-w-0 items-center"
+            onMouseDown={(event) => event.stopPropagation()}
+            onPointerDown={(event) => event.stopPropagation()}
+            onDoubleClick={(event) => event.stopPropagation()}
+          >
+            <InteractiveEcho
+              english={APP_BRAND.name}
+              chinese="应籁"
+              className="text-primary font-bold text-label-md truncate"
+            />
+          </div>
+          <div data-tauri-drag-region className="h-full min-w-4 flex-1" />
         </div>
         <div className="flex h-full items-stretch">
           <TitleBarButton

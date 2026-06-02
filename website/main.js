@@ -175,7 +175,6 @@
       gsap.to(".rv-path", { strokeDashoffset: 0, duration: 1.4, ease: "power2.inOut", stagger: 0.25, scrollTrigger: { trigger: ".retrieval", start: "top 70%", toggleActions: "play none none none" } });
       gsap.from(".rv-dst", { scale: 0, transformOrigin: "320px 120px", duration: 0.6, ease: "back.out(2)", delay: 0.9, scrollTrigger: { trigger: ".retrieval", start: "top 70%", toggleActions: "play none none none" } });
       gsap.fromTo(".translate-card", { opacity: 0, y: 34, rotationX: 12 }, { opacity: 1, y: 0, rotationX: 0, duration: 0.75, ease: "back.out(1.3)", stagger: 0.1, scrollTrigger: { trigger: ".translate-grid", start: "top 88%", toggleActions: "play none none none" } });
-      gsap.fromTo(".arch-node", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.75, ease: "power2.out", stagger: 0.12, scrollTrigger: { trigger: ".arch-flow", start: "top 88%", toggleActions: "play none none none" } });
 
       $$(".shot").forEach((sh) => {
         gsap.fromTo(sh, { opacity: 0, y: 50, rotationX: 10, perspective: 1000 }, { opacity: 1, y: 0, rotationX: 0, duration: 0.8, ease: "power2.out", scrollTrigger: { trigger: sh, start: "top 90%", toggleActions: "play none none none" } });

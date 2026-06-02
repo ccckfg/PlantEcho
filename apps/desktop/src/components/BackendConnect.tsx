@@ -1,5 +1,6 @@
 import { useState, type FormEvent, type ReactNode } from "react";
 import { APP_BRAND } from "@/config/branding";
+import { InteractiveEcho } from "./InteractiveEcho";
 import { getApiConnection, setApiConnection, testApiConnection } from "@/lib/api";
 import { registerWithPassword } from "@/lib/authApi";
 import type { BackendConnection } from "@/lib/connection";
@@ -65,7 +66,9 @@ export function BackendConnect({ onConnected, onCancel }: BackendConnectProps) {
         <div className="flex items-start gap-md">
           <BrandMark size="lg" className="shadow-leaf" />
           <div className="min-w-0">
-            <h1 className="font-display text-headline-lg text-on-surface">登录 PlantEcho</h1>
+            <h1 className="font-display text-headline-lg text-on-surface flex items-center gap-xs">
+              登录 <InteractiveEcho />
+            </h1>
             <p className="text-body-md text-on-surface-variant mt-xs leading-relaxed">
               {onCancel
                 ? "可以换一个后端，或用另一个账号回来照看花园。"
@@ -158,29 +161,29 @@ export function BackendConnect({ onConnected, onCancel }: BackendConnectProps) {
 
           <div className="flex flex-col sm:flex-row gap-sm sm:items-center sm:justify-between">
             <p className="text-body-sm text-on-surface-variant inline-flex items-center gap-xs">
-              <Icon name="lock" className="text-[14px]" />
+              <Icon name="lock" className="text-[14px] shrink-0" />
               登录凭证仅保存在本机，用来和后端确认你的身份。
             </p>
-            <div className="flex flex-col sm:flex-row gap-sm sm:justify-end">
+            <div className="flex flex-col sm:flex-row gap-sm sm:justify-end w-full sm:w-auto">
               {onCancel ? (
                 <button
                   type="button"
                   onClick={onCancel}
                   disabled={state === "testing"}
-                  className="inline-flex items-center justify-center gap-sm rounded-full ring-1 ring-secondary-fixed-dim bg-surface-container-lowest px-lg py-md font-label-md text-label-md text-primary transition-all duration-200 ease-standard hover:bg-secondary-container/30 hover:ring-secondary-fixed active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-primary/40"
+                  className="w-full sm:w-auto shrink-0 whitespace-nowrap inline-flex items-center justify-center gap-sm rounded-full ring-1 ring-secondary-fixed-dim bg-surface-container-lowest px-lg py-md font-label-md text-label-md text-primary transition-all duration-200 ease-standard hover:bg-secondary-container/30 hover:ring-secondary-fixed active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-primary/40"
                 >
-                  <Icon name="arrow_back" />
+                  <Icon name="arrow_back" className="shrink-0" />
                   返回应用
                 </button>
               ) : null}
               <button
                 type="submit"
                 disabled={!canConnect || state === "testing"}
-                className="group inline-flex items-center justify-center gap-sm rounded-full bg-primary text-on-primary px-xl py-md font-label-md text-label-md shadow-soft transition-all duration-200 ease-standard hover:bg-surface-tint hover:shadow-modal active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                className="w-full sm:w-auto shrink-0 whitespace-nowrap group inline-flex items-center justify-center gap-sm rounded-full bg-primary text-on-primary px-xl py-md font-label-md text-label-md shadow-soft transition-all duration-200 ease-standard hover:bg-surface-tint hover:shadow-modal active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               >
                 <Icon
                   name={state === "testing" ? "progress_activity" : "login"}
-                  className={state === "testing" ? "animate-spin" : "transition-transform duration-300 ease-emphasized group-hover:translate-x-0.5"}
+                  className={state === "testing" ? "animate-spin shrink-0" : "transition-transform duration-300 ease-emphasized group-hover:translate-x-0.5 shrink-0"}
                 />
                 {state === "testing" ? "正在确认" : mode === "register" ? "注册并进入" : "登录"}
               </button>

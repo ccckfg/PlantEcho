@@ -398,3 +398,36 @@
   font-size: 12px;
   opacity: .82;
 }
+
+/* ============================================================
+   Interactive Echo Style (Plantecho <-> 应籁 3D Morph)
+   ============================================================ */
+.interactive-echo-container {
+  display: inline-block;
+  perspective: 400px;
+  vertical-align: middle;
+}
+
+.interactive-echo-text {
+  display: inline-block;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: text-shadow 0.3s ease, color 0.3s ease;
+  position: relative;
+  font-weight: 600;
+  border-bottom: 1.5px dashed var(--accent-light, #2ecc71);
+  padding-bottom: 1px;
+}
+
+.interactive-echo-text:hover {
+  color: var(--accent, #27ae60);
+  text-shadow: 0 0 8px rgba(46, 204, 113, 0.45);
+}
+
+.echo-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(46, 204, 113, 0.4) 0%, rgba(46, 204, 113, 0) 70%);
+  pointer-events: none;
+  z-index: 9999;
+}
