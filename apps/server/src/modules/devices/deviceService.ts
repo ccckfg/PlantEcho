@@ -1,4 +1,5 @@
 import type {
+  AppUser,
   BulkDeviceActionInput,
   ClaimDeviceInput,
   DeviceReadingPayload,
@@ -7,6 +8,7 @@ import type {
 } from "@dyn/shared";
 import { getPlant, createPlant } from "../plants/plantRepository.js";
 import { nowIso } from "../../shared/time.js";
+import { getUserById, getUserByUsername } from "../auth/authRepository.js";
 import { publishDeviceConfig } from "../iot/deviceConfigChannel.js";
 import { publishSyncEvent } from "../sync/syncBus.js";
 import {
@@ -34,6 +36,8 @@ export interface DeviceClaimResult {
   deliveredToDevice: boolean;
 }
 
+type UserScope = Pick<AppUser, "id" | "username"> | string | null;
+
 export const isKnownDevice = (deviceId: string): boolean => Boolean(getDevice(deviceId));
 
 export const isAuthorizedDevice = (deviceId: string, apiKey?: string): boolean => {
@@ -50,11 +54,23 @@ const sendDeviceCredentials = (deviceId: string, apiKey: string): boolean =>
     issuedAt: nowIso()
   });
 
+const userIdentifiers = (scope: UserScope = null): string[] => {
+  if (!scope) return [];
+  if (typeof scope === "string") return [scope];
+  return [scope.id, scope.username];
+};
+
+const resolvePayloadUserId = (value?: string): string | null => {
+  const candidate = value?.trim();
+  if (!candidate) return null;
+  return getUserById(candidate)?.id ?? getUserByUsername(candidate)?.id ?? candidate;
+};
+
 export const registerPendingDevice = (
   deviceId: string,
   payload: DeviceReadingPayload
 ): PendingDevice => {
-  const userId = payload.userId?.trim() || null;
+  const userId = resolvePayloadUserId(payload.userId);
   const pending = upsertPendingDevice(deviceId, payload, payload.rssi ?? null, userId);
   publishSyncEvent({
     type: "devices.changed",
@@ -64,21 +80,22 @@ export const registerPendingDevice = (
 };
 
 export const getPendingDevices = (
-  userId: string | null = null
-): PendingDevice[] => listPendingDevices(userId);
+  user: UserScope = null
+): PendingDevice[] => listPendingDevices(userIdentifiers(user));
 
 export const getClaimedDevices = (): DeviceRecord[] => listDevices();
 
 export const ignorePendingDevice = (
   deviceId: string,
-  userId: string | null = null
+  user: UserScope = null
 ): PendingDevice => {
-  const pending = getPendingDevice(deviceId, userId);
+  const identifiers = userIdentifiers(user);
+  const pending = getPendingDevice(deviceId, identifiers);
   if (!pending || pending.claimStatus !== "pending") {
     throw new Error(`Pending device ${deviceId} not found`);
   }
   markPendingDevice(deviceId, "ignored");
-  const updated = getPendingDevice(deviceId, userId);
+  const updated = getPendingDevice(deviceId, identifiers);
   if (!updated) throw new Error(`Pending device ${deviceId} not found`);
   publishSyncEvent({
     type: "devices.changed",
@@ -90,9 +107,9 @@ export const ignorePendingDevice = (
 export const claimDevice = (
   deviceId: string,
   input: ClaimDeviceInput,
-  userId: string | null = null
+  user: UserScope = null
 ): DeviceClaimResult => {
-  const pending = getPendingDevice(deviceId, userId);
+  const pending = getPendingDevice(deviceId, userIdentifiers(user));
   const existing = getDevice(deviceId);
   if (!pending && !existing) throw new Error(`Pending device ${deviceId} not found`);
 

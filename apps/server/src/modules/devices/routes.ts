@@ -30,14 +30,14 @@ export const registerDeviceRoutes = async (app: FastifyInstance): Promise<void> 
   }));
 
   app.get("/api/v1/devices/pending", async (request) => ({
-    devices: getPendingDevices(request.currentUser?.id ?? null)
+    devices: getPendingDevices(request.currentUser ?? null)
   }));
 
   app.post("/api/v1/devices/:deviceId/claim", async (request, reply) => {
     try {
       const { deviceId } = request.params as { deviceId: string };
       const input = claimDeviceSchema.parse(request.body);
-      return reply.status(201).send(claimDevice(deviceId, input, request.currentUser?.id ?? null));
+      return reply.status(201).send(claimDevice(deviceId, input, request.currentUser ?? null));
     } catch (error) {
       return sendError(reply, error);
     }
@@ -46,7 +46,7 @@ export const registerDeviceRoutes = async (app: FastifyInstance): Promise<void> 
   app.post("/api/v1/devices/:deviceId/ignore", async (request, reply) => {
     try {
       const { deviceId } = request.params as { deviceId: string };
-      return reply.send({ device: ignorePendingDevice(deviceId, request.currentUser?.id ?? null) });
+      return reply.send({ device: ignorePendingDevice(deviceId, request.currentUser ?? null) });
     } catch (error) {
       return sendError(reply, error);
     }

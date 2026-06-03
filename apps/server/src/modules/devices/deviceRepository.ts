@@ -116,28 +116,41 @@ export const upsertPendingDevice = (
   return getPendingDevice(deviceId)!;
 };
 
+const normalizeUserIdentifiers = (
+  userIdentifiers: string | readonly string[] | null
+): string[] => {
+  if (!userIdentifiers) return [];
+  const values = Array.isArray(userIdentifiers) ? userIdentifiers : [userIdentifiers];
+  return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
+};
+
 export const getPendingDevice = (
   deviceId: string,
-  userId: string | null = null
+  userIdentifiers: string | readonly string[] | null = null
 ): PendingDevice | null => {
-  const query = userId
-    ? "SELECT * FROM pending_devices WHERE id = ? AND (user_id IS NULL OR user_id = ?)"
+  const identifiers = normalizeUserIdentifiers(userIdentifiers);
+  const placeholders = identifiers.map(() => "?").join(", ");
+  const query = identifiers.length
+    ? `SELECT * FROM pending_devices
+       WHERE id = ? AND (user_id IS NULL OR user_id IN (${placeholders}))`
     : "SELECT * FROM pending_devices WHERE id = ?";
-  const args = userId ? [deviceId, userId] : [deviceId];
+  const args = identifiers.length ? [deviceId, ...identifiers] : [deviceId];
   const row = getDb().prepare(query).get(...args) as PendingDeviceRow | undefined;
   return row ? toPendingDevice(row) : null;
 };
 
 export const listPendingDevices = (
-  userId: string | null = null
+  userIdentifiers: string | readonly string[] | null = null
 ): PendingDevice[] => {
-  const query = userId
+  const identifiers = normalizeUserIdentifiers(userIdentifiers);
+  const placeholders = identifiers.map(() => "?").join(", ");
+  const query = identifiers.length
     ? `SELECT * FROM pending_devices
-       WHERE claim_status = 'pending' AND (user_id IS NULL OR user_id = ?)
+       WHERE claim_status = 'pending' AND (user_id IS NULL OR user_id IN (${placeholders}))
        ORDER BY last_seen_at DESC`
     : "SELECT * FROM pending_devices WHERE claim_status = 'pending' ORDER BY last_seen_at DESC";
-  const rows = userId
-    ? getDb().prepare(query).all(userId)
+  const rows = identifiers.length
+    ? getDb().prepare(query).all(...identifiers)
     : getDb().prepare(query).all();
   return (rows as PendingDeviceRow[]).map(toPendingDevice);
 };

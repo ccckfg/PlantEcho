@@ -70,6 +70,18 @@ test("unknown device becomes pending, then claimed device requires its generated
     const scopedIgnored = ignorePendingDevice(scopedId, "user-a");
     assert.equal(scopedIgnored.claimStatus, "ignored");
 
+    const usernameScopedId = `test-device-${randomUUID()}`;
+    const usernameScoped = registerPendingDevice(usernameScopedId, { ...payload, userId: "ccckfg" });
+    assert.equal(usernameScoped.userId, "ccckfg");
+    assert.equal(
+      getPendingDevices({ id: "user-id-1", username: "ccckfg" }).some((device) => device.id === usernameScopedId),
+      true
+    );
+    assert.equal(
+      getPendingDevices({ id: "user-id-2", username: "other" }).some((device) => device.id === usernameScopedId),
+      false
+    );
+
     const ignoredId = `test-device-${randomUUID()}`;
     registerPendingDevice(ignoredId, payload);
     assert.equal(getPendingDevices().some((device) => device.id === ignoredId), true);
