@@ -16,8 +16,14 @@ constexpr uint8_t BH1750_RESET = 0x07;
 constexpr uint8_t BH1750_CONTINUOUS_HIGH_RES = 0x10;
 
 int soilPercentFromRaw(int raw) {
-  const int percent = map(raw, SOIL_RAW_DRY, SOIL_RAW_WET, 0, 100);
-  return constrain(percent, 0, 100);
+  const int basePercent = map(raw, SOIL_RAW_DRY, SOIL_RAW_WET, 0, 100);
+  const int calibratedPercent = map(
+      basePercent,
+      SOIL_PERCENT_DRY_READING,
+      SOIL_PERCENT_WET_READING,
+      0,
+      SOIL_PERCENT_WET_TARGET);
+  return constrain(calibratedPercent, 0, 100);
 }
 
 bool writeBh1750Command(uint8_t address, uint8_t command) {

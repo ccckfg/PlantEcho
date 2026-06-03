@@ -77,6 +77,9 @@ constexpr uint8_t BH1750_ADDRESS_SECONDARY = 0x5C;
 
 constexpr int SOIL_RAW_DRY = 3200;
 constexpr int SOIL_RAW_WET = 1300;
+constexpr int SOIL_PERCENT_DRY_READING = 5;
+constexpr int SOIL_PERCENT_WET_READING = 81;
+constexpr int SOIL_PERCENT_WET_TARGET = 90;
 
 constexpr unsigned long SAMPLE_INTERVAL_MS = 1000;
 constexpr unsigned long DISPLAY_INTERVAL_MS = 250;

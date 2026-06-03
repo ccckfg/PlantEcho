@@ -142,11 +142,19 @@ The default calibration is only a starting point:
 ```cpp
 constexpr int SOIL_RAW_DRY = 3200;
 constexpr int SOIL_RAW_WET = 1300;
+constexpr int SOIL_PERCENT_DRY_READING = 5;
+constexpr int SOIL_PERCENT_WET_READING = 81;
+constexpr int SOIL_PERCENT_WET_TARGET = 90;
 ```
 
-Open the serial monitor, record the dry-air value and wet-soil value, then
-replace these constants. Higher raw values usually mean drier soil on this
-sensor.
+Open the serial monitor, record the dry-air raw value and wet-soil raw value,
+then replace `SOIL_RAW_DRY` and `SOIL_RAW_WET`. Higher raw values usually mean
+drier soil on this sensor.
+
+If you only have the displayed percentages, keep the raw constants as-is and
+adjust the percentage calibration constants. The current calibration maps a
+dry-air display value of `5%` to `0%`, and a fully watered but non-pooling soil
+display value of `81%` to `90%`.
 
 ## MQTT Telemetry
 
