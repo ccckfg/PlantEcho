@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
 import type { PlantSummary } from "@dyn/shared";
 import { api, type PlantPhoto } from "@/lib/api";
@@ -77,45 +78,66 @@ export function MobileAlbumPage() {
 
   return (
     <div className="flex h-full flex-col px-margin-mobile py-md">
-      <header className="mb-md flex items-end justify-between gap-md">
+      <header className="mb-sm flex items-end justify-between gap-md">
         <div>
-          <h1 className="font-display text-headline-lg-mobile text-on-surface">相册</h1>
-          <p className="mt-xs font-body text-body-md text-on-surface-variant">把它每一次的小变化都收下来。</p>
+          <h1 className="font-display text-title-lg font-bold text-on-surface leading-tight">相册</h1>
+          <p className="mt-[2px] font-body text-body-sm text-on-surface-variant">把它每一次的小变化都收下来。</p>
         </div>
         <button
           type="button"
-          onClick={() => setShowUpload((v) => !v)}
+          onClick={() => setShowUpload(true)}
           className="group flex shrink-0 items-center gap-xs rounded-full bg-surface-container-lowest px-md py-sm font-label-md text-label-md text-primary ring-1 ring-secondary-fixed-dim transition-all duration-200 ease-standard hover:bg-secondary-container/40 active:scale-[0.98]"
         >
-          <Icon name={showUpload ? "close" : "upload"} className={showUpload ? "rotate-90" : ""} />
-          {showUpload ? "收起" : "上传"}
+          <Icon name="upload" className="transition-transform duration-300 group-hover:-translate-y-0.5" />
+          上传
         </button>
       </header>
 
-      {showUpload && plants.length > 0 ? (
-        <div className="mb-lg">
-          <AlbumUploadPanel
-            plants={plants}
-            onUploaded={({ photo, plantName }) => {
-              setPhotos((prev) => [
-                toAlbumPhoto(
-                  photo,
-                  plants.find((plant) => plant.id === photo.plantId) ?? {
-                    id: photo.plantId,
-                    name: plantName,
-                    species: "",
-                    location: "",
-                    avatarUrl: null,
-                    careProfile: plants[0].careProfile
-                  }
-                ),
-                ...prev
-              ]);
-              setShowUpload(false);
-            }}
-          />
-        </div>
-      ) : null}
+      {showUpload && plants.length > 0
+        ? createPortal(
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-md bg-inverse-surface/30 backdrop-blur-sm dialog-backdrop-in">
+              <div
+                className="absolute inset-0"
+                onClick={() => setShowUpload(false)}
+              />
+              <div className="dialog-pop-in relative w-full max-w-[420px] rounded-lg bg-surface-container-lowest ring-1 ring-surface-container-highest/60 shadow-modal p-md max-h-[90vh] overflow-y-auto">
+                <header className="flex items-center justify-between mb-md pb-xs border-b border-hairline">
+                  <h3 className="font-display text-title-md font-bold text-on-surface">上传到相册</h3>
+                  <button
+                    type="button"
+                    onClick={() => setShowUpload(false)}
+                    className="grid h-8 w-8 place-items-center rounded-full text-on-surface-variant transition-all duration-200 hover:bg-surface-container active:scale-90"
+                    aria-label="关闭"
+                  >
+                    <Icon name="close" className="text-[18px]" />
+                  </button>
+                </header>
+                <AlbumUploadPanel
+                  plants={plants}
+                  className="p-0 bg-transparent"
+                  onUploaded={({ photo, plantName }) => {
+                    setPhotos((prev) => [
+                      toAlbumPhoto(
+                        photo,
+                        plants.find((plant) => plant.id === photo.plantId) ?? {
+                          id: photo.plantId,
+                          name: plantName,
+                          species: "",
+                          location: "",
+                          avatarUrl: null,
+                          careProfile: plants[0].careProfile
+                        }
+                      ),
+                      ...prev
+                    ]);
+                    setShowUpload(false);
+                  }}
+                />
+              </div>
+            </div>,
+            document.body
+          )
+        : null}
 
       {plants.length > 0 ? (
         <div className="relative w-full">
@@ -148,7 +170,7 @@ export function MobileAlbumPage() {
           <div className="flex flex-col gap-xl">
             {grouped.map(([month, items]) => (
               <section key={month}>
-                <h2 className="mb-sm font-display text-headline-md text-on-surface">{month}</h2>
+                <h2 className="mb-sm font-display text-headline-sm text-on-surface">{month}</h2>
                 <div className="grid grid-cols-2 gap-sm">
                   {items.map((photo) => (
                     <PhotoCard key={photo.id} photo={photo} onDelete={deletePhoto} />

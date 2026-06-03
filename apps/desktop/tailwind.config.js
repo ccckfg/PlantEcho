@@ -92,10 +92,16 @@ export default {
         "headline-lg": ["32px", { lineHeight: "40px", fontWeight: "600" }],
         "headline-lg-mobile": ["28px", { lineHeight: "36px", fontWeight: "600" }],
         "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+        // 移动端标题档位：介于 headline-md 与 body 之间，避免长中文标题在窄屏折成多行
+        "headline-sm": ["19px", { lineHeight: "26px", fontWeight: "600" }],
         "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
         "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+        // body-sm / body-xs 此前被 17 个文件引用但从未定义（等于无效类）；补齐后移动端的紧凑正文才真正生效
+        "body-sm": ["14px", { lineHeight: "21px", fontWeight: "400" }],
+        "body-xs": ["13px", { lineHeight: "19px", fontWeight: "400" }],
         "label-md": ["14px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600" }],
-        "label-sm": ["12px", { lineHeight: "16px", fontWeight: "500" }]
+        "label-sm": ["12px", { lineHeight: "16px", fontWeight: "500" }],
+        "label-xs": ["11px", { lineHeight: "14px", fontWeight: "500" }]
       },
       boxShadow: {
         soft: "0 1px 2px rgba(45, 90, 39, 0.04), 0 8px 24px rgba(45, 90, 39, 0.07)",

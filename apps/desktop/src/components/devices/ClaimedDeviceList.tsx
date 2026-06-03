@@ -199,13 +199,13 @@ export function ClaimedDeviceList({
               </div>
 
               {/* 优雅的操作按钮流与行内轮换确认 */}
-              <div className="flex flex-wrap justify-end gap-xs shrink-0 self-end md:self-center">
+              <div className="flex items-center justify-end gap-xs shrink-0 w-full md:w-auto self-stretch md:self-center">
                 {/* 1. 停用 / 启用按钮 */}
                 <button
                   type="button"
                   onClick={() => changeStatus(device.id, disabled)}
                   disabled={Boolean(busyId)}
-                  className={`inline-flex items-center justify-center gap-xs rounded-full px-md py-xs text-label-md font-label-md transition-all duration-200 disabled:opacity-50 active:scale-95 ${
+                  className={`inline-flex items-center justify-center gap-xs rounded-full px-sm py-[5px] md:px-md md:py-xs text-[12px] md:text-label-md font-label-md transition-all duration-200 disabled:opacity-50 active:scale-95 ${
                     disabled 
                       ? "bg-primary-container text-on-primary-container hover:bg-primary/10" 
                       : "border border-hairline text-on-surface-variant hover:bg-surface-container"
@@ -220,7 +220,7 @@ export function ClaimedDeviceList({
                   type="button"
                   onClick={() => setConfirmRotateDevice(device)}
                   disabled={Boolean(rotatingId)}
-                  className="inline-flex items-center justify-center gap-xs rounded-full px-md py-xs text-label-md font-label-md border border-hairline text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all duration-200 disabled:opacity-50"
+                  className="inline-flex items-center justify-center gap-xs rounded-full px-sm py-[5px] md:px-md md:py-xs text-[12px] md:text-label-md font-label-md border border-hairline text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all duration-200 disabled:opacity-50"
                 >
                   <Icon name={rotatingId === device.id ? "progress_activity" : "key"} className={rotatingId === device.id ? "animate-spin text-[16px]" : "text-[16px]"} />
                   轮换密钥
@@ -231,7 +231,7 @@ export function ClaimedDeviceList({
                   type="button"
                   onClick={() => deleteOne(device.id)}
                   disabled={Boolean(busyId)}
-                  className="inline-flex items-center justify-center gap-xs rounded-full px-md py-xs text-label-md font-label-md border border-hairline text-error hover:bg-error-container/20 hover:border-error/20 active:scale-95 transition-all duration-200 disabled:opacity-50"
+                  className="inline-flex items-center justify-center gap-xs rounded-full px-sm py-[5px] md:px-md md:py-xs text-[12px] md:text-label-md font-label-md border border-hairline text-error hover:bg-error-container/20 hover:border-error/20 active:scale-95 transition-all duration-200 disabled:opacity-50"
                 >
                   <Icon name={busyId === device.id ? "progress_activity" : "delete"} className={busyId === device.id ? "animate-spin text-[16px]" : "text-[16px]"} />
                   删除

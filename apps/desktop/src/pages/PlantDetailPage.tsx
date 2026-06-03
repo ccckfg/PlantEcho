@@ -8,6 +8,7 @@ import { SensorStatusBadge } from "@/components/SensorStatusBadge";
 import { Card, Chip, Empty, Icon, ProgressBar } from "@/components/UI";
 import { PlantAvatarEditor } from "@/components/plants/PlantAvatarEditor";
 import { PlantCareProfileSection } from "@/components/plants/PlantCareProfileSection";
+import { PlantDeleteButton } from "@/components/plants/PlantDeleteButton";
 import { PlantNameEditor } from "@/components/plants/PlantNameEditor";
 import { deriveStatus, MOOD_PRESETS } from "@/lib/mood";
 import { formatTime, plantImage, relativeTime, useNow } from "@/lib/format";
@@ -116,6 +117,7 @@ export function PlantDetailPage() {
             >
               <Icon name="menu_book" className="transition-transform duration-300 ease-emphasized group-hover:scale-110" /> 查看成长日记
             </Link>
+            <PlantDeleteButton plant={plant} />
           </div>
         </Card>
       </header>

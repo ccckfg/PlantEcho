@@ -5,6 +5,7 @@ import { api } from "@/lib/api";
 import { deviceApi, type DeviceClaimResult } from "@/lib/deviceApi";
 import { CareProfileEditor } from "@/components/plants/CareProfileEditor";
 import { ExistingPlantSelect, NewPlantFields } from "./DeviceClaimFields";
+import { PendingDeviceIgnoreDialog } from "./PendingDeviceIgnoreDialog";
 
 type ClaimMode = "existingPlant" | "newPlant";
 
@@ -37,6 +38,7 @@ export function PendingDeviceClaimForm({
   const [suggestError, setSuggestError] = useState("");
   const [claiming, setClaiming] = useState(false);
   const [ignoring, setIgnoring] = useState(false);
+  const [ignoreDevice, setIgnoreDevice] = useState<PendingDevice | null>(null);
   const [error, setError] = useState("");
   const lastSuggestionKey = useRef("");
 
@@ -116,13 +118,14 @@ export function PendingDeviceClaimForm({
     }
   };
 
-  const handleIgnore = async () => {
-    if (!activeDeviceId || ignoring) return;
+  const handleIgnore = async (targetDeviceId: string) => {
+    if (!targetDeviceId || ignoring) return;
     setIgnoring(true);
     setError("");
     try {
-      await deviceApi.ignorePendingDevice(activeDeviceId);
-      setDeviceId(devices.find((device) => device.id !== activeDeviceId)?.id ?? "");
+      await deviceApi.ignorePendingDevice(targetDeviceId);
+      setDeviceId(devices.find((device) => device.id !== targetDeviceId)?.id ?? "");
+      setIgnoreDevice(null);
       onChanged();
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "忽略设备失败");
@@ -155,7 +158,9 @@ export function PendingDeviceClaimForm({
           </select>
           <button
             type="button"
-            onClick={handleIgnore}
+            onClick={() => {
+              if (activeDevice) setIgnoreDevice(activeDevice);
+            }}
             disabled={!activeDeviceId || ignoring}
             className="inline-flex items-center gap-xs rounded-full border border-outline-variant px-md py-sm text-label-md font-label-md text-on-surface-variant hover:bg-surface-container disabled:opacity-50"
           >
@@ -274,6 +279,14 @@ export function PendingDeviceClaimForm({
           {claiming ? "认领中" : "认领"}
         </button>
       </div>
+      {ignoreDevice ? (
+        <PendingDeviceIgnoreDialog
+          device={ignoreDevice}
+          busy={ignoring}
+          onClose={() => setIgnoreDevice(null)}
+          onConfirm={() => void handleIgnore(ignoreDevice.id)}
+        />
+      ) : null}
     </div>
   );
 }

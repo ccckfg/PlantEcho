@@ -23,7 +23,7 @@ export function PlantSwitcher({
   const activeIndex = Math.max(0, plants.findIndex((plant) => plant.id === activeId));
   const avatarSize = size === "wide" ? "h-7 w-7" : "h-6 w-6";
   const labelWidth = size === "wide" ? "max-w-[7rem]" : "max-w-[6rem]";
-  const itemPadding = size === "wide" ? "px-md py-xs text-label-md" : "px-sm py-xs text-label-sm";
+  const itemPadding = size === "wide" ? "px-md py-xs text-label-md" : "px-sm py-[4px] text-label-sm";
 
   const switchTo = (nextIndex: number) => {
     const clamped = Math.max(0, Math.min(plants.length - 1, nextIndex));
@@ -47,7 +47,7 @@ export function PlantSwitcher({
       aria-label={ariaLabel}
       tabIndex={0}
       onKeyDown={onKey}
-      className={`flex gap-xs overflow-x-auto scroll-area px-xs pt-xs pb-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 rounded-2xl ${className}`}
+      className={`flex gap-sm overflow-x-auto scroll-area px-xs pt-xs pb-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 rounded-2xl ${className}`}
     >
       {plants.map((plant, index) => {
         const isActive = plant.id === activeId;

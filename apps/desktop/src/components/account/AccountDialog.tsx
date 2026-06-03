@@ -19,6 +19,7 @@ export function AccountDialog({
   const [sessions, setSessions] = useState<AuthLoginSession[]>([]);
   const [loading, setLoading] = useState(false);
   const [busyId, setBusyId] = useState("");
+  const [exitingIds, setExitingIds] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
 
@@ -39,20 +40,49 @@ export function AccountDialog({
   }, [connection.token]);
 
   const revoke = async (session: AuthLoginSession) => {
-    if (busyId) return;
-    setBusyId(session.id);
+    if (busyId || exitingIds.includes(session.id)) return;
     setError("");
-    try {
-      await authApi.revokeSession(connection.baseUrl, connection.token, session.id);
-      if (session.current) {
-        onLogout();
-        return;
+
+    const isRevoked = Boolean(session.revokedAt);
+    if (isRevoked) {
+      // 已退出会话的物理删除，触发平滑的折叠淡出动画
+      setExitingIds((prev) => [...prev, session.id]);
+      
+      // 等待 CSS 动画执行完毕 (320ms)
+      await new Promise((resolve) => setTimeout(resolve, 320));
+      
+      // 客户端先进行物理移出，避免网络请求延迟造成的界面卡顿或瞬闪
+      setSessions((prev) => prev.filter((s) => s.id !== session.id));
+      setBusyId(session.id);
+      
+      try {
+        await authApi.revokeSession(connection.baseUrl, connection.token, session.id);
+        // 静默获取最新列表，确保同步一致
+        const res = await authApi.listSessions(connection.baseUrl, connection.token);
+        setSessions(res.sessions);
+      } catch (caught) {
+        setError(caught instanceof Error ? caught.message : "这个会话没有删除成功。");
+        // 失败时回滚，重新加载列表
+        await loadSessions();
+      } finally {
+        setBusyId("");
+        setExitingIds((prev) => prev.filter((id) => id !== session.id));
       }
-      await loadSessions();
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "这个会话没有退出成功。");
-    } finally {
-      setBusyId("");
+    } else {
+      // 未退出会话的普通注销操作
+      setBusyId(session.id);
+      try {
+        await authApi.revokeSession(connection.baseUrl, connection.token, session.id);
+        if (session.current) {
+          onLogout();
+          return;
+        }
+        await loadSessions();
+      } catch (caught) {
+        setError(caught instanceof Error ? caught.message : "这个会话没有退出成功。");
+      } finally {
+        setBusyId("");
+      }
     }
   };
 
@@ -165,6 +195,7 @@ export function AccountDialog({
                   key={session.id}
                   session={session}
                   busy={busyId === session.id}
+                  isExiting={exitingIds.includes(session.id)}
                   onRevoke={() => revoke(session)}
                 />
               ))}

@@ -30,22 +30,15 @@ export function PendingDeviceWidget() {
         onClick={() => setOpen(true)}
         className={`group inline-flex h-9 w-9 sm:h-auto sm:w-auto items-center justify-center sm:gap-xs rounded-full text-label-sm font-label-sm transition-all duration-200 ease-standard active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/40 sm:px-md sm:py-xs ${
           count > 0
-            ? "bg-primary-container text-on-primary-container hover:bg-secondary-container shadow-leaf"
+            ? "bg-primary-container text-on-primary-container hover:bg-secondary-container shadow-leaf animate-pulse"
             : "bg-surface-container text-on-surface-variant hover:bg-surface-container-high"
         }`}
       >
         <div className="relative shrink-0 flex items-center justify-center">
           <Icon
             name="sensors"
-            className={`text-[16px] transition-transform duration-300 ease-emphasized group-hover:scale-110 ${
-              count > 0 ? "animate-pulse" : ""
-            }`}
+            className="text-[16px] transition-transform duration-300 ease-emphasized group-hover:scale-110"
           />
-          {count > 0 ? (
-            <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-error text-[10px] font-bold text-white ring-1 ring-surface-container-lowest animate-bounce">
-              {count}
-            </span>
-          ) : null}
         </div>
         <span className="hidden sm:inline">
           {count > 0 ? `新设备 ${count}` : "设备"}
@@ -88,13 +81,13 @@ function DeviceClaimDialog({
   const deviceApiKey = claimResult?.deviceApiKey ?? "";
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-md sm:p-lg dialog-backdrop-in bg-inverse-surface/30 backdrop-blur-sm">
-      <section className="dialog-pop-in flex h-[min(760px,calc(100vh-2rem))] w-[min(920px,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-lg bg-surface-container-lowest ring-1 ring-surface-container-highest/60 shadow-modal">
-        <div className="shrink-0 border-b border-surface-container-highest/50 px-lg py-md sm:px-xl sm:py-lg">
+    <div className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-inverse-surface/30 p-0 backdrop-blur-sm dialog-backdrop-in sm:items-center sm:p-md">
+      <section className="dialog-pop-in flex max-h-[calc(100dvh-0.75rem)] w-full flex-col overflow-hidden rounded-t-lg bg-surface-container-lowest ring-1 ring-surface-container-highest/60 shadow-modal sm:max-h-[min(760px,calc(100vh-2rem))] sm:w-[min(920px,calc(100vw-1.5rem))] sm:rounded-md">
+        <header className="flex flex-col gap-sm border-b border-surface-container-highest/50 bg-gradient-to-b from-surface-container-low/40 to-transparent px-md py-sm sm:px-lg sm:py-md shrink-0">
           <div className="flex items-start justify-between gap-md">
             <div className="min-w-0">
-              <h2 className="font-display text-headline-lg text-on-surface">设备管理</h2>
-              <p className="mt-xs text-body-sm text-on-surface-variant">
+              <h2 className="font-display text-headline-lg-mobile text-on-surface sm:text-headline-lg">设备管理</h2>
+              <p className="mt-xs text-label-md font-normal text-on-surface-variant sm:text-body-sm">
                 {deviceApiKey ? "密钥已生成" : "认领新设备或管理已绑定设备"}
               </p>
             </div>
@@ -104,11 +97,11 @@ function DeviceClaimDialog({
               className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-on-surface-variant transition-all duration-200 hover:bg-surface-container hover:text-primary active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/40"
               aria-label="关闭"
             >
-              <Icon name="close" className="transition-transform duration-300 ease-emphasized hover:rotate-90" />
+              <Icon name="close" className="text-[18px] transition-transform duration-300 ease-emphasized hover:rotate-90" />
             </button>
           </div>
 
-          <div className="mt-md flex rounded-full bg-surface-container p-xs">
+          <div className="flex rounded-full bg-surface-container p-xs">
             {[
               { key: "pending", label: `待认领 ${devices.length}` },
               { key: "claimed", label: `已绑定 ${claimedDevices.length}` }
@@ -127,9 +120,9 @@ function DeviceClaimDialog({
               </button>
             ))}
           </div>
-        </div>
+        </header>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-lg py-md sm:px-xl sm:py-lg scroll-area">
+        <div className="scroll-area min-h-0 flex-1 overflow-y-auto px-md py-md pb-[calc(1rem+env(safe-area-inset-bottom))] sm:px-lg sm:pb-md">
           {error ? (
             <p className="mb-md rounded-md bg-error-container px-md py-sm text-body-sm text-on-error-container">
               {error}

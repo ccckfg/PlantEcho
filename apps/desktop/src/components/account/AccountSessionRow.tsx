@@ -5,18 +5,24 @@ import { formatSessionTime, parseUserAgent } from "./accountSessionUtils";
 export function AccountSessionRow({
   session,
   busy,
-  onRevoke
+  onRevoke,
+  isExiting = false
 }: {
   session: AuthLoginSession;
   busy: boolean;
   onRevoke: () => void;
+  isExiting?: boolean;
 }) {
   const revoked = Boolean(session.revokedAt);
   const { icon, label } = parseUserAgent(session.userAgent || "");
 
   return (
     <article
-      className="surface-card flex translate-x-0 scale-100 flex-col gap-md overflow-hidden rounded-md border border-hairline p-md opacity-100 shadow-leaf transition-all duration-300 ease-emphasized hover:border-primary-container/20 hover:shadow-soft sm:max-h-[300px] sm:flex-row sm:items-center sm:justify-between"
+      className={`surface-card flex flex-col overflow-hidden rounded-md border p-md shadow-leaf transition-all duration-320 ease-emphasized hover:border-primary-container/20 hover:shadow-soft sm:flex-row sm:items-center sm:justify-between ${
+        isExiting
+          ? "opacity-0 scale-95 max-h-0 py-0 my-0 border-transparent gap-0 pointer-events-none"
+          : "translate-x-0 scale-100 opacity-100 border-hairline gap-md max-h-[300px]"
+      }`}
     >
       <div className="flex min-w-0 items-start gap-sm sm:gap-md">
         <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-surface-container-high/60 text-secondary transition-all duration-300 sm:h-10 sm:w-10">

@@ -41,7 +41,7 @@ export function MobileTabBar() {
               {({ isActive }) => (
                 <>
                   <span
-                    className={`grid place-items-center rounded-full px-lg py-0.5 transition-all duration-300 ease-emphasized ${
+                    className={`grid h-9 w-9 place-items-center rounded-full transition-all duration-300 ease-emphasized ${
                       isActive ? "bg-secondary-container/60" : "bg-transparent group-active:bg-secondary-container/30"
                     }`}
                   >
