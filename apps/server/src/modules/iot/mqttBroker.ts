@@ -15,7 +15,7 @@ interface MqttLogger {
 
 interface ClientAuthState {
   deviceId: string;
-  mode: "pending" | "claimed";
+  mode: "pending" | "claimed" | "config";
 }
 
 const passwordText = (password?: Buffer): string | undefined =>
@@ -40,8 +40,14 @@ export const createMqttBroker = (logger: MqttLogger) => {
       return;
     }
     const authorized = isAuthorizedDevice(deviceId, passwordText(password));
-    if (authorized) clientAuth.set(client.id, { deviceId, mode: "claimed" });
     const passwordState = password?.length ? "present" : "missing";
+    if (!authorized && !password?.length) {
+      clientAuth.set(client.id, { deviceId, mode: "config" });
+      logger.info(`MQTT claimed client config-only: ${deviceId} (password=${passwordState})`);
+      callback(null, true);
+      return;
+    }
+    if (authorized) clientAuth.set(client.id, { deviceId, mode: "claimed" });
     logger.info(
       `MQTT claimed client ${authorized ? "connected" : "rejected"}: ${deviceId} (password=${passwordState})`
     );
@@ -99,25 +105,31 @@ export const createMqttBroker = (logger: MqttLogger) => {
   return {
     start: async () => {
       if (!env.MQTT_ENABLED) return;
+      await broker.listen();
       registerDeviceConfigPublisher((deviceId: string, payload: DeviceConfigPayload) => {
         const online = Array.from(clientAuth.values())
           .some((state) => state.deviceId === deviceId);
         if (!online) return false;
         const topic = deviceConfigTopic(deviceId);
-        broker.publish({
-          cmd: "publish",
-          topic,
-          payload: Buffer.from(JSON.stringify(payload)),
-          qos: 1,
-          dup: false,
-          retain: false
-        }, (error) => {
-          if (error) {
-            logger.warn(`MQTT config publish failed for ${deviceId}: ${error.message}`);
-          } else {
-            logger.info(`MQTT config published: ${topic}`);
-          }
-        });
+        try {
+          broker.publish({
+            cmd: "publish",
+            topic,
+            payload: Buffer.from(JSON.stringify(payload)),
+            qos: 0,
+            dup: false,
+            retain: false
+          }, (error) => {
+            if (error) {
+              logger.warn(`MQTT config publish failed for ${deviceId}: ${error.message}`);
+            } else {
+              logger.info(`MQTT config published: ${topic}`);
+            }
+          });
+        } catch (error) {
+          logger.warn(`MQTT config publish failed for ${deviceId}: ${(error as Error).message}`);
+          return false;
+        }
         return true;
       });
       await new Promise<void>((resolve, reject) => {
