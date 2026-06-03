@@ -59,14 +59,14 @@ export function TimelineItem({ plantId, plantName, memory, tone, index }: Timeli
       className="timeline-item relative flex gap-md stagger-in"
       style={{ animationDelay: `${Math.min(index, 6) * 80}ms` }}
     >
-      <div className="timeline-line relative flex-shrink-0 w-12 flex justify-center mt-sm">
+      <div className="timeline-line relative flex-shrink-0 w-9 md:w-12 flex justify-center mt-sm">
         <div
-          className={`w-10 h-10 rounded-full ${dotPalette} flex items-center justify-center z-10 border-4 border-background transition-transform duration-300 ease-emphasized hover:scale-110`}
+          className={`w-8 h-8 md:w-10 md:h-10 rounded-full ${dotPalette} flex items-center justify-center z-10 border-4 border-background transition-transform duration-300 ease-emphasized hover:scale-110`}
         >
-          <Icon name={icon} className="text-[20px]" />
+          <Icon name={icon} className="text-[16px] md:text-[20px]" />
         </div>
       </div>
-      <div className="group/item flex-1 surface-card surface-card-hover rounded-md p-lg relative">
+      <div className="group/item flex-1 surface-card surface-card-hover rounded-md p-md md:p-lg relative">
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-sm mb-xs">
             <span className="font-label-sm text-label-sm text-secondary tracking-widest uppercase">
@@ -85,10 +85,10 @@ export function TimelineItem({ plantId, plantName, memory, tone, index }: Timeli
               {open ? "收起" : "对它说两句"}
             </button>
           </div>
-          <h3 className="font-display text-headline-md text-on-surface mb-sm">
+          <h3 className="font-display text-headline-sm md:text-headline-md text-on-surface mb-xs md:mb-sm text-balance">
             {memoryAnchor}
           </h3>
-          <p className="font-body text-body-md text-on-surface-variant whitespace-pre-wrap leading-relaxed">
+          <p className="font-body text-body-sm md:text-body-md text-on-surface-variant whitespace-pre-wrap leading-relaxed">
             {memory.content || "—"}
           </p>
           {memory.importance ? (

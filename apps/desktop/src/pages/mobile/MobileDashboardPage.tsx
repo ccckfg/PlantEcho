@@ -7,7 +7,8 @@ import { useAsync } from "@/lib/useAsync";
 import { useSyncRefresh } from "@/hooks/useSyncRefresh";
 import { useToast } from "@/components/Toast";
 import { Card, Icon, Empty } from "@/components/UI";
-import { DashboardSkeleton, PlantCard } from "@/components/dashboard/DashboardWidgets";
+import { DashboardSkeleton } from "@/components/dashboard/DashboardWidgets";
+import { MobilePlantCard } from "@/components/dashboard/MobilePlantCard";
 import { PlantReflectionCard } from "@/components/plants/PlantReflectionCard";
 
 const GREETINGS = [
@@ -106,37 +107,37 @@ export function MobileDashboardPage() {
         : weather?.text ?? "实时天气";
 
   return (
-    <div className="flex flex-col gap-lg px-md py-md pb-xxl">
-      <header className="flex flex-col gap-md">
+    <div className="flex flex-col gap-md px-md py-sm pb-xl">
+      <header className="flex flex-col gap-sm">
         {/* 一体化温室控制卡片 (Greenhouse Hub) */}
-        <div className="flex flex-col gap-md rounded-md bg-gradient-to-br from-surface-container-lowest to-surface p-md border border-hairline shadow-leaf relative overflow-hidden">
+        <div className="flex flex-col gap-sm rounded-xl bg-gradient-to-br from-surface-container-lowest to-surface p-md border border-hairline shadow-leaf relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
           
           {/* 上半部：问候语、指示与微天气 */}
           <div className="flex items-center justify-between gap-md min-w-0">
-            <div className="flex flex-col gap-xs min-w-0">
-              <div className="inline-flex items-center gap-xs self-start rounded-full bg-secondary-container/40 px-md py-xs text-label-sm font-label-sm text-on-secondary-container ring-1 ring-secondary-fixed-dim/30">
-                <Icon name="eco" className="text-[12px] text-secondary" />
+            <div className="flex flex-col gap-[2px] min-w-0">
+              <div className="inline-flex items-center gap-xs self-start rounded-full bg-secondary-container/40 px-[10px] py-[3px] text-[11px] font-label-sm text-on-secondary-container ring-1 ring-secondary-fixed-dim/30">
+                <Icon name="eco" className="text-[11px] text-secondary" />
                 {greetingNow()}
               </div>
-              <p className="font-body text-body-md font-semibold text-on-surface leading-tight mt-xs">
+              <p className="font-body text-body-sm font-semibold text-on-surface leading-tight mt-[4px]">
                 {plantsState.data?.plants.length
                   ? `今天，有 ${plantsState.data.plants.length} 株植物在等您`
                   : "探索您的私人温室花园"}
               </p>
-              <span className="text-[12px] text-on-surface-variant font-mono">{todayLabel()}</span>
+              <span className="text-[11px] text-on-surface-variant font-mono">{todayLabel()}</span>
             </div>
 
             {/* 本地渲染的高颜值超微天气胶囊 */}
-            <div className="flex items-center gap-xs bg-surface-container-low/50 py-xs px-sm rounded-full border border-hairline shrink-0 select-none">
+            <div className="flex items-center gap-xs bg-surface-container-low/50 py-[4px] px-sm rounded-full border border-hairline shrink-0 select-none">
               <Icon
                 name={weatherIcon}
                 filled
-                className="text-[#F59E0B] text-[20px]"
+                className="text-[#F59E0B] text-[16px]"
               />
               <div className="flex flex-col leading-none">
-                <span className="text-body-sm font-bold tabular-nums text-on-surface">{temp}</span>
-                <span className="text-[10px] text-on-surface-variant font-label-sm">{weatherLabel}</span>
+                <span className="text-[12px] font-bold tabular-nums text-on-surface">{temp}</span>
+                <span className="text-[9px] text-on-surface-variant font-label-sm">{weatherLabel}</span>
               </div>
             </div>
           </div>
@@ -147,19 +148,19 @@ export function MobileDashboardPage() {
               type="button"
               onClick={recordWatering}
               disabled={!firstPlant || recordingWater}
-              className="group flex flex-1 items-center justify-center gap-xs rounded-md bg-surface-container-low/60 hover:bg-secondary-container/30 px-md py-sm font-label-md text-label-md text-primary border border-hairline transition-all duration-200 ease-standard active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+              className="group flex flex-1 items-center justify-center gap-xs rounded-full bg-surface-container-low/60 hover:bg-secondary-container/30 px-sm py-[7px] font-label-sm text-[12px] text-primary border border-hairline transition-all duration-200 ease-standard active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Icon
                 name={recordingWater ? "progress_activity" : "water_drop"}
-                className={`text-[16px] text-primary transition-transform duration-300 group-hover:scale-110 ${recordingWater ? "animate-spin" : ""}`}
+                className={`text-[14px] text-primary transition-transform duration-300 group-hover:scale-110 ${recordingWater ? "animate-spin" : ""}`}
               />
               {recordingWater ? "正在记录…" : "一键浇水"}
             </button>
             <Link
               to="/album?upload=1"
-              className="group flex flex-1 items-center justify-center gap-xs rounded-md bg-surface-container-low/60 hover:bg-secondary-container/30 px-md py-sm font-label-md text-label-md text-primary border border-hairline transition-all duration-200 ease-standard active:scale-[0.98]"
+              className="group flex flex-1 items-center justify-center gap-xs rounded-full bg-surface-container-low/60 hover:bg-secondary-container/30 px-sm py-[7px] font-label-sm text-[12px] text-primary border border-hairline transition-all duration-200 ease-standard active:scale-[0.98]"
             >
-              <Icon name="photo_camera" className="text-[16px] text-primary transition-transform duration-300 group-hover:scale-110" />
+              <Icon name="photo_camera" className="text-[14px] text-primary transition-transform duration-300 group-hover:scale-110" />
               为它拍一张
             </Link>
           </div>
@@ -171,7 +172,7 @@ export function MobileDashboardPage() {
 
       <section>
         <div className="mb-md flex items-center justify-between">
-          <h3 className="font-display text-headline-md text-primary">概览</h3>
+          <h3 className="font-display text-headline-sm text-primary">概览</h3>
           <Link
             to="/journal"
             className="group flex items-center gap-xs font-label-md text-label-md text-secondary transition-colors duration-200 hover:text-primary"
@@ -192,9 +193,9 @@ export function MobileDashboardPage() {
             />
           </Card>
         ) : plantsState.data && plantsState.data.plants.length > 0 ? (
-          <div className="grid grid-cols-1 gap-md sm:grid-cols-2">
+          <div className="flex flex-col gap-sm">
             {plantsState.data.plants.map((plant, idx) => (
-              <PlantCard key={plant.id} plant={plant} now={now} index={idx} />
+              <MobilePlantCard key={plant.id} plant={plant} now={now} index={idx} />
             ))}
           </div>
         ) : (

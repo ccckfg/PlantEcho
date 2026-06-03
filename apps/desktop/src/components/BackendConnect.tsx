@@ -90,7 +90,7 @@ export function BackendConnect({ onConnected, onCancel }: BackendConnectProps) {
               <span className="shrink-0">{mode === "register" ? "注册" : "登录"}</span>
               <InteractiveEcho className="min-w-0 shrink whitespace-nowrap max-sm:text-[28px]" />
             </h1>
-            <p className="text-body-md text-on-surface-variant mt-xs leading-relaxed max-sm:text-[15px] max-sm:leading-snug">
+            <p className="text-body-md text-on-surface-variant mt-xs leading-relaxed max-sm:text-body-sm max-sm:leading-snug">
               {onCancel
                 ? "可以换一个后端，或用另一个账号回来照看花园。"
                 : `${APP_BRAND.name} 需要先确认你是谁，才会打开植物的小屋。`}
@@ -107,7 +107,7 @@ export function BackendConnect({ onConnected, onCancel }: BackendConnectProps) {
               key={item.key}
               type="button"
               onClick={() => setMode(item.key as ConnectMode)}
-              className={`flex-1 rounded-full px-md py-sm text-label-md font-label-md transition-all duration-300 ease-emphasized ${
+              className={`flex-1 rounded-full px-md py-sm text-label-md font-label-md transition-all duration-300 ease-emphasized max-sm:py-xs ${
                 mode === item.key
                   ? "bg-primary text-on-primary shadow-leaf"
                   : "text-on-surface-variant hover:bg-surface-container-high"
@@ -181,7 +181,7 @@ export function BackendConnect({ onConnected, onCancel }: BackendConnectProps) {
           ) : null}
 
           <div className="flex flex-col sm:flex-row gap-sm sm:items-center sm:justify-between">
-            <p className="text-body-sm text-on-surface-variant inline-flex items-center gap-xs max-sm:text-[15px] max-sm:leading-snug">
+            <p className="text-body-sm text-on-surface-variant inline-flex items-center gap-xs max-sm:text-label-sm max-sm:leading-snug">
               <Icon name="lock" className="text-[14px] shrink-0" />
               登录凭证仅保存在本机，用来和后端确认你的身份。
             </p>
@@ -227,8 +227,8 @@ function Field({
 }) {
   return (
     <label className="flex flex-col gap-xs">
-      <span className="text-label-md font-label-md text-on-surface max-sm:text-[15px]">{label}</span>
-      <div className="flex items-center gap-sm rounded-md ring-1 ring-surface-container-highest bg-surface px-md py-sm transition-all duration-200 ease-standard focus-within:ring-2 focus-within:ring-primary/50 focus-within:bg-surface-container-lowest max-sm:rounded-[24px] max-sm:px-sm max-sm:py-[9px]">
+      <span className="text-label-md font-label-md text-on-surface max-sm:text-label-sm">{label}</span>
+      <div className="flex items-center gap-sm rounded-md ring-1 ring-surface-container-highest bg-surface px-md py-sm transition-all duration-200 ease-standard focus-within:ring-2 focus-within:ring-primary/50 focus-within:bg-surface-container-lowest max-sm:rounded-[20px] max-sm:px-md max-sm:py-[7px]">
         <Icon name={icon} className="text-on-surface-variant" />
         {children}
       </div>

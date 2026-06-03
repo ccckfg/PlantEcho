@@ -109,7 +109,7 @@ export function MobilePlantDetailPage() {
 
       <Card>
         <div className="mb-md flex items-center justify-between gap-md">
-          <h3 className="font-display text-headline-md text-primary">最新读数</h3>
+          <h3 className="font-display text-headline-sm text-primary">最新读数</h3>
           <SensorStatusBadge connection={sensorConnection} />
         </div>
         {latestReading && sensorConnection.state === "offline" ? (
@@ -166,7 +166,7 @@ export function MobilePlantDetailPage() {
       </Card>
 
       <Card>
-        <h3 className="mb-md font-display text-headline-md text-primary">读数历史</h3>
+        <h3 className="mb-md font-display text-headline-sm text-primary">读数历史</h3>
         {recent.data && recent.data.readings.length > 0 ? (
           <div className="relative">
             <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 z-10 h-4 rounded-t bg-gradient-to-b from-surface-container-lowest to-transparent" />
@@ -208,11 +208,11 @@ export function MobilePlantDetailPage() {
 
 function ReadingTile({ icon, label, value }: { icon: string; label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-xs rounded-md bg-surface-container-low/80 p-md ring-1 ring-surface-container-highest/40">
+    <div className="flex flex-col gap-xs rounded-md bg-surface-container-low/80 p-sm ring-1 ring-surface-container-highest/40">
       <div className="flex items-center gap-xs text-label-sm font-label-sm text-on-surface-variant">
-        <Icon name={icon} className="text-[18px] text-primary" /> {label}
+        <Icon name={icon} className="text-[16px] text-primary" /> {label}
       </div>
-      <span className="font-display text-headline-md text-primary tabular-nums">{value}</span>
+      <span className="font-display text-headline-sm text-primary tabular-nums">{value}</span>
     </div>
   );
 }

@@ -132,7 +132,7 @@ export function MobileChatScreen({ plantId, plants, onSwitch }: MobileChatScreen
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-gradient-to-b from-[#f4f8f3] via-[#f0f5ef] to-[#ebf1ea]">
-      <header className="relative z-20 shrink-0 bg-surface-container-lowest/95 px-margin-mobile py-sm backdrop-blur-md">
+      <header className="relative z-20 shrink-0 bg-surface-container-lowest/95 px-margin-mobile py-xs backdrop-blur-md">
         {plants.length > 1 ? (
           <PlantSwitcher
             plants={plants}
@@ -144,10 +144,10 @@ export function MobileChatScreen({ plantId, plants, onSwitch }: MobileChatScreen
         ) : null}
         <div className="flex items-center justify-between gap-sm">
           <div className="min-w-0">
-            <h2 className="truncate font-display text-headline-md text-on-surface leading-none">
+            <h2 className="truncate font-display text-title-md font-bold text-on-surface leading-none">
               与 {summary?.name ?? plantId} 对话
             </h2>
-            <SensorStatusBadge connection={sensorConnection} variant="inline" className="mt-1" />
+            <SensorStatusBadge connection={sensorConnection} variant="inline" className="mt-0.5" />
           </div>
           <div className="flex shrink-0 items-center">
             <button
@@ -218,20 +218,20 @@ export function MobileChatScreen({ plantId, plants, onSwitch }: MobileChatScreen
         ) : null}
       </div>
 
-      <div className="relative shrink-0 bg-surface-container-lowest px-md pb-sm pt-sm">
+      <div className="relative shrink-0 bg-surface-container-lowest px-md pb-sm pt-xs">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-0 -top-6 h-6 bg-gradient-to-t from-surface-container-lowest to-transparent"
         />
-        <div className="scroll-area mb-sm flex gap-xs overflow-x-auto px-xs">
+        <div className="scroll-area mb-xs flex gap-sm overflow-x-auto px-xs pb-xs">
           {QUICK_CHAT_ACTIONS.map((action) => (
             <button
               key={action.label}
               type="button"
               onClick={() => send(`记录一下：${action.label}`)}
-              className="flex shrink-0 items-center gap-xs whitespace-nowrap rounded-full px-sm py-xs text-label-sm font-label-sm text-secondary transition-all duration-200 ease-standard hover:bg-secondary-container/30 hover:text-primary active:scale-[0.97]"
+              className="flex shrink-0 items-center gap-xs whitespace-nowrap rounded-full bg-secondary-container/30 text-on-secondary-container ring-1 ring-secondary-fixed-dim/20 px-sm py-[4px] text-[12px] font-label-sm transition-all duration-200 ease-standard hover:bg-secondary-container/60 hover:text-primary active:scale-[0.97]"
             >
-              <Icon name={action.icon} className="text-[16px]" />
+              <Icon name={action.icon} className="text-[14px] text-primary" />
               {action.label}
             </button>
           ))}
@@ -241,12 +241,12 @@ export function MobileChatScreen({ plantId, plants, onSwitch }: MobileChatScreen
             e.preventDefault();
             send(input);
           }}
-          className="flex items-center gap-sm rounded-2xl bg-surface-container-low/60 px-md py-xs ring-1 ring-surface-container-highest/50 transition-all duration-200 ease-standard focus-within:bg-surface-container-lowest focus-within:ring-2 focus-within:ring-primary/40"
+          className="flex items-center gap-sm rounded-full bg-surface-container-low/60 px-md py-[3px] ring-1 ring-surface-container-highest/50 transition-all duration-200 ease-standard focus-within:bg-surface-container-lowest focus-within:ring-2 focus-within:ring-primary/40"
         >
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="min-w-0 flex-1 border-none bg-transparent py-sm font-body text-body-md text-on-surface outline-none placeholder:text-on-surface-variant/50 focus:ring-0"
+            className="min-w-0 flex-1 border-none bg-transparent py-xs font-body text-body-sm text-on-surface outline-none placeholder:text-on-surface-variant/50 focus:ring-0"
             placeholder={`给 ${summary?.name ?? "PlantEcho"} 发消息...`}
             disabled={sending}
           />
@@ -254,9 +254,9 @@ export function MobileChatScreen({ plantId, plants, onSwitch }: MobileChatScreen
             type="submit"
             disabled={sending || !input.trim()}
             aria-label="发送消息"
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary text-on-primary shadow-sm transition-all duration-200 ease-standard hover:bg-surface-tint active:scale-90 disabled:cursor-not-allowed disabled:opacity-30 disabled:shadow-none"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary text-on-primary shadow-sm transition-all duration-200 ease-standard hover:bg-surface-tint active:scale-90 disabled:cursor-not-allowed disabled:opacity-30 disabled:shadow-none"
           >
-            <Icon name={sending ? "progress_activity" : "arrow_upward"} className={`text-[20px] ${sending ? "animate-spin" : ""}`} />
+            <Icon name={sending ? "progress_activity" : "arrow_upward"} className={`text-[18px] ${sending ? "animate-spin" : ""}`} />
           </button>
         </form>
       </div>

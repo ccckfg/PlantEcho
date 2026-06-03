@@ -4,9 +4,8 @@ import type { PlantSummary } from "@dyn/shared";
 import { api } from "@/lib/api";
 import { useAsync } from "@/lib/useAsync";
 import { useSyncRefresh } from "@/hooks/useSyncRefresh";
-import { Card, Chip, Empty, Icon } from "@/components/UI";
+import { Card, Empty, Icon } from "@/components/UI";
 import { PlantSwitcher } from "@/components/plants/PlantSwitcher";
-import { StatCard } from "@/components/journal/JournalStats";
 import { TimelineItem } from "@/components/journal/TimelineItem";
 
 export function MobileJournalPage() {
@@ -98,17 +97,6 @@ function MobileJournalContent({
       ) : null}
       <div key={`journal-${plantId}`} className="plant-swap-in flex flex-col gap-lg">
         <header className="flex flex-col gap-sm">
-          <div className="flex flex-wrap items-center gap-sm">
-            <Chip tone="tertiary">{summary?.species ?? "未知品种"}</Chip>
-            {plant.data?.status?.focus ? (
-              <Chip
-                icon="water_drop"
-                tone={statusNeedsAttention(plant.data.status.focus) ? "error" : "muted"}
-              >
-                {plant.data.status.focus}
-              </Chip>
-            ) : null}
-          </div>
           <h1 className="font-display text-headline-lg-mobile text-on-surface leading-tight">
             {summary?.name ?? "未命名植物"} 的成长旅程
           </h1>
@@ -121,20 +109,28 @@ function MobileJournalContent({
           </Link>
         </header>
 
-        <section className="grid grid-cols-3 gap-sm">
-          <StatCard icon="straighten" label="累计记忆" value={`${story.length}`} suffix="条" delay={0} />
-          <StatCard
-            icon="energy_savings_leaf"
-            label="稳定认知"
-            value={`${understandings.data?.understandings.length ?? 0}`}
-            suffix="项"
-            delay={80}
-          />
-          <StatCard icon="calendar_month" label="相伴天数" value={`${totalDays}`} suffix="天" delay={160} />
+        <section className="flex items-center justify-around rounded-full bg-secondary-container/20 py-sm px-md border border-secondary-fixed-dim/20 text-on-surface select-none">
+          <div className="flex items-center gap-xs">
+            <Icon name="straighten" className="text-secondary text-[16px]" />
+            <span className="font-label-sm text-[12px] text-on-surface-variant">记忆</span>
+            <span className="font-display text-[13px] font-bold text-primary ml-xs">{story.length}条</span>
+          </div>
+          <div className="h-3 w-[1px] bg-outline-variant/40" />
+          <div className="flex items-center gap-xs">
+            <Icon name="energy_savings_leaf" className="text-secondary text-[16px]" />
+            <span className="font-label-sm text-[12px] text-on-surface-variant">认知</span>
+            <span className="font-display text-[13px] font-bold text-primary ml-xs">{understandings.data?.understandings.length ?? 0}项</span>
+          </div>
+          <div className="h-3 w-[1px] bg-outline-variant/40" />
+          <div className="flex items-center gap-xs">
+            <Icon name="calendar_month" className="text-secondary text-[16px]" />
+            <span className="font-label-sm text-[12px] text-on-surface-variant">相伴</span>
+            <span className="font-display text-[13px] font-bold text-primary ml-xs">{totalDays}天</span>
+          </div>
         </section>
 
         <section>
-          <h2 className="mb-md font-display text-headline-md text-on-surface">成长里程碑</h2>
+          <h2 className="mb-md font-display text-headline-sm text-on-surface">成长里程碑</h2>
           {memories.loading ? (
             <Card>
               <div className="h-32 animate-pulse" />
@@ -169,7 +165,7 @@ function MobileJournalContent({
 
         {understandings.data && understandings.data.understandings.length > 0 ? (
           <section>
-            <h2 className="mb-md font-display text-headline-md text-on-surface">长期认知</h2>
+            <h2 className="mb-md font-display text-headline-sm text-on-surface">长期认知</h2>
             <div className="flex flex-col gap-md">
               {understandings.data.understandings.map((u) => (
                 <Card key={u.id} className="!p-md">
@@ -194,6 +190,4 @@ function MobileJournalContent({
   );
 }
 
-function statusNeedsAttention(text: string): boolean {
-  return /偏干|缺水|偏湿|过强|过弱|不舒适|异常|low|high|out/i.test(text);
-}
+

@@ -127,18 +127,18 @@ interface EmptyProps {
 
 export function Empty({ icon = "eco", title, description, action }: EmptyProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-xl md:py-xxl text-on-surface-variant text-center gap-sm md:gap-md">
-      <div className="relative grid place-items-center w-16 h-16 md:w-20 md:h-20 rounded-full bg-secondary-container/50">
+    <div className="flex flex-col items-center justify-center py-lg md:py-xxl text-on-surface-variant text-center gap-sm md:gap-md">
+      <div className="relative grid place-items-center w-14 h-14 md:w-20 md:h-20 rounded-full bg-secondary-container/50">
         <span
           aria-hidden
           className="absolute inset-0 rounded-full bg-secondary-container/40 animate-ping opacity-60"
           style={{ animationDuration: "2.6s" }}
         />
-        <Icon name={icon} className="text-[32px] md:text-[40px] text-secondary relative icon-leaf-hover" />
+        <Icon name={icon} className="text-[28px] md:text-[40px] text-secondary relative icon-leaf-hover" />
       </div>
-      <p className="text-body-lg md:text-headline-md font-display text-on-surface">{title}</p>
+      <p className="text-body-md md:text-headline-md font-display text-on-surface text-balance">{title}</p>
       {description ? (
-        <p className="text-body-md max-w-sm leading-relaxed">{description}</p>
+        <p className="text-body-sm md:text-body-md max-w-sm leading-relaxed text-balance">{description}</p>
       ) : null}
       {action ? <div className="mt-xs">{action}</div> : null}
     </div>

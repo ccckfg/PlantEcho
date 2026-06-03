@@ -13,6 +13,7 @@ interface UploadedPhoto {
 interface AlbumUploadPanelProps {
   plants: PlantSummary[];
   onUploaded: (photo: UploadedPhoto) => void;
+  className?: string;
 }
 
 const readAsDataUrl = (file: File): Promise<string> =>
@@ -23,7 +24,11 @@ const readAsDataUrl = (file: File): Promise<string> =>
     reader.readAsDataURL(file);
   });
 
-export function AlbumUploadPanel({ plants, onUploaded }: AlbumUploadPanelProps) {
+export function AlbumUploadPanel({
+  plants,
+  onUploaded,
+  className = "surface-card rounded-lg p-lg"
+}: AlbumUploadPanelProps) {
   const isMobile = useIsMobile();
   const [plantId, setPlantId] = useState(plants[0]?.id ?? "");
   const [file, setFile] = useState<File | null>(null);
@@ -99,7 +104,7 @@ export function AlbumUploadPanel({ plants, onUploaded }: AlbumUploadPanelProps) 
   return (
     <form
       onSubmit={submit}
-      className="stagger-in grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-lg surface-card rounded-lg p-lg"
+      className={`stagger-in grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-lg ${className}`}
     >
       <label
         onDragEnter={handleDrag}
