@@ -67,12 +67,12 @@ export function AccountDialog({
   const isAdmin = connection.user.role === "admin";
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-inverse-surface/30 p-md backdrop-blur-sm dialog-backdrop-in">
-      <section className="dialog-pop-in w-[min(680px,calc(100vw-1.5rem))] overflow-hidden rounded-md bg-surface-container-lowest ring-1 ring-surface-container-highest/60 shadow-modal">
-        <header className="flex items-start justify-between gap-md border-b border-surface-container-highest/50 bg-gradient-to-b from-surface-container-low/40 to-transparent px-lg py-md">
+    <div className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-inverse-surface/30 p-0 backdrop-blur-sm dialog-backdrop-in sm:items-center sm:p-md">
+      <section className="dialog-pop-in flex max-h-[calc(100dvh-0.75rem)] w-full flex-col overflow-hidden rounded-t-lg bg-surface-container-lowest ring-1 ring-surface-container-highest/60 shadow-modal sm:max-h-none sm:w-[min(680px,calc(100vw-1.5rem))] sm:rounded-md">
+        <header className="flex items-start justify-between gap-md border-b border-surface-container-highest/50 bg-gradient-to-b from-surface-container-low/40 to-transparent px-md py-sm sm:px-lg sm:py-md">
           <div>
-            <h2 className="font-display text-headline-lg text-on-surface">账号中心</h2>
-            <p className="mt-xs text-body-sm text-on-surface-variant">
+            <h2 className="font-display text-headline-lg-mobile text-on-surface sm:text-headline-lg">账号中心</h2>
+            <p className="mt-xs text-label-md font-normal text-on-surface-variant sm:text-body-sm">
               连接和当前会话的安全管理
             </p>
           </div>
@@ -86,30 +86,32 @@ export function AccountDialog({
           </button>
         </header>
 
-        <div className="scroll-area flex max-h-[calc(100vh-10rem)] flex-col gap-lg overflow-y-auto px-lg py-md">
-          <div className="relative flex flex-col gap-md overflow-hidden rounded-md border border-hairline bg-gradient-to-br from-surface-container-lowest to-surface px-lg py-md shadow-leaf">
+        <div className="scroll-area flex max-h-[calc(100dvh-7rem)] flex-col gap-md overflow-y-auto px-md py-md pb-[calc(1rem+env(safe-area-inset-bottom))] sm:max-h-[calc(100vh-10rem)] sm:gap-lg sm:px-lg sm:pb-md">
+          <div className="relative flex shrink-0 flex-col gap-md overflow-hidden rounded-md border border-hairline bg-gradient-to-br from-surface-container-lowest to-surface px-md py-md shadow-leaf sm:px-lg">
             <div className="pointer-events-none absolute right-0 top-0 h-24 w-24 rounded-full bg-primary/5 blur-2xl" />
-            <div className="flex items-center gap-md">
-              <div className={`flex h-14 w-14 select-none items-center justify-center rounded-full border bg-gradient-to-tr font-display text-[22px] font-bold shadow-sm ${avatarGradientFor(displayName)}`}>
-                {avatarChar}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-sm">
-                  <p className="truncate text-title-md font-title-md text-on-surface">
-                    {displayName}
-                  </p>
-                  <Chip tone={isAdmin ? "primary" : "secondary"} icon={isAdmin ? "verified" : "person"}>
-                    {isAdmin ? "管理员" : "成员"}
-                  </Chip>
+            <div className="flex flex-col gap-md sm:flex-row sm:items-center">
+              <div className="flex min-w-0 items-center gap-sm sm:flex-1 sm:gap-md">
+                <div className={`flex h-11 w-11 shrink-0 select-none items-center justify-center rounded-full border bg-gradient-to-tr font-display text-[20px] font-bold shadow-sm sm:h-14 sm:w-14 sm:text-[22px] ${avatarGradientFor(displayName)}`}>
+                  {avatarChar}
                 </div>
-                <p className="mt-xs w-fit select-all rounded bg-surface-container-low/60 px-sm py-[2px] font-mono text-body-sm text-on-surface-variant">
-                  @{connection.user.username}
-                </p>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-xs sm:gap-sm">
+                    <p className="truncate text-title-sm font-title-md text-on-surface sm:text-title-md">
+                      {displayName}
+                    </p>
+                    <Chip tone={isAdmin ? "primary" : "secondary"} icon={isAdmin ? "verified" : "person"}>
+                      {isAdmin ? "管理员" : "成员"}
+                    </Chip>
+                  </div>
+                  <p className="mt-xs max-w-full select-all truncate rounded bg-surface-container-low/60 px-sm py-[2px] font-mono text-[12px] text-on-surface-variant sm:w-fit sm:text-body-sm">
+                    @{connection.user.username}
+                  </p>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={onLogout}
-                className="inline-flex items-center gap-xs rounded-full border border-error/15 bg-error-container/20 px-md py-xs text-label-md font-label-md text-on-error-container transition-all duration-200 hover:border-error/30 hover:bg-error-container/60 active:scale-95"
+                className="inline-flex w-full items-center justify-center gap-xs rounded-full border border-error/15 bg-error-container/20 px-md py-xs text-label-md font-label-md text-on-error-container transition-all duration-200 hover:border-error/30 hover:bg-error-container/60 active:scale-95 sm:w-auto sm:shrink-0"
               >
                 <Icon name="logout" className="text-[16px]" />
                 退出登录
