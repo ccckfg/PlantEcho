@@ -5,7 +5,7 @@ import { sendError } from "../../shared/http.js";
 import { suggestCareProfile } from "./careProfileService.js";
 import { getPlantReflection } from "./plantReflectionService.js";
 import { getPlantStatusTags } from "./plantStatusTagService.js";
-import { createPlant, getPlant, listPlants, updatePlant } from "./plantRepository.js";
+import { createPlant, deletePlant, getPlant, listPlants, restorePlant, updatePlant } from "./plantRepository.js";
 import { getPlantStatus } from "./statusRepository.js";
 import { getPlantReadingState, getPlantReadings } from "../readings/readingService.js";
 import { publishSyncEvent } from "../sync/syncBus.js";
@@ -96,6 +96,30 @@ export const registerPlantRoutes = async (app: FastifyInstance): Promise<void> =
     } catch (error) {
       return sendError(reply, error);
     }
+  });
+
+  app.delete("/api/v1/plants/:plantId", async (request, reply) => {
+    const { plantId } = request.params as { plantId: string };
+    const plant = deletePlant(plantId);
+    if (!plant) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
+    publishSyncEvent({
+      type: "plants.changed",
+      plantId: plant.id,
+      payload: { action: "deleted", plantId: plant.id }
+    });
+    return { plant };
+  });
+
+  app.post("/api/v1/plants/:plantId/restore", async (request, reply) => {
+    const { plantId } = request.params as { plantId: string };
+    const plant = restorePlant(plantId);
+    if (!plant) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
+    publishSyncEvent({
+      type: "plants.changed",
+      plantId: plant.id,
+      payload: { action: "restored", plantId: plant.id }
+    });
+    return { plant };
   });
 
   app.get("/api/v1/plants/:plantId/readings/latest", async (request, reply) => {

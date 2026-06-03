@@ -30,22 +30,15 @@ export function PendingDeviceWidget() {
         onClick={() => setOpen(true)}
         className={`group inline-flex h-9 w-9 sm:h-auto sm:w-auto items-center justify-center sm:gap-xs rounded-full text-label-sm font-label-sm transition-all duration-200 ease-standard active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/40 sm:px-md sm:py-xs ${
           count > 0
-            ? "bg-primary-container text-on-primary-container hover:bg-secondary-container shadow-leaf"
+            ? "bg-primary-container text-on-primary-container hover:bg-secondary-container shadow-leaf animate-pulse"
             : "bg-surface-container text-on-surface-variant hover:bg-surface-container-high"
         }`}
       >
         <div className="relative shrink-0 flex items-center justify-center">
           <Icon
             name="sensors"
-            className={`text-[16px] transition-transform duration-300 ease-emphasized group-hover:scale-110 ${
-              count > 0 ? "animate-pulse" : ""
-            }`}
+            className="text-[16px] transition-transform duration-300 ease-emphasized group-hover:scale-110"
           />
-          {count > 0 ? (
-            <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-error text-[10px] font-bold text-white ring-1 ring-surface-container-lowest animate-bounce">
-              {count}
-            </span>
-          ) : null}
         </div>
         <span className="hidden sm:inline">
           {count > 0 ? `新设备 ${count}` : "设备"}

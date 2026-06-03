@@ -4,6 +4,7 @@ import { proactiveEngineMigration } from "./003_proactive_engine.js";
 import { usersAndDeviceStatusMigration } from "./004_users_and_device_status.js";
 import { authSessionsMigration } from "./005_auth_sessions.js";
 import { authSessionRevokeMigration } from "./006_auth_session_revoke.js";
+import { plantSoftDeleteMigration } from "./007_plant_soft_delete.js";
 
 export interface DatabaseMigration {
   version: number;
@@ -17,7 +18,8 @@ export const migrations: DatabaseMigration[] = [
   proactiveEngineMigration,
   usersAndDeviceStatusMigration,
   authSessionsMigration,
-  authSessionRevokeMigration
+  authSessionRevokeMigration,
+  plantSoftDeleteMigration
 ].sort((a, b) => a.version - b.version);
 
 export const latestSchemaVersion = migrations.at(-1)?.version ?? 0;

@@ -12,6 +12,8 @@ type PlantRow = {
   avatar_url: string | null;
   location: string;
   care_profile_json: string;
+  status: string;
+  deleted_at: string | null;
 };
 
 export interface CreatePlantInput {
@@ -38,18 +40,25 @@ export const toPlantSummary = (row: PlantRow): PlantSummary => ({
   careProfile: careProfileSchema.parse(JSON.parse(row.care_profile_json))
 });
 
+const activePlantClause = "COALESCE(status, 'active') <> 'deleted'";
+
 export const listPlants = (): PlantSummary[] => {
-  const rows = getDb().prepare("SELECT * FROM plants ORDER BY created_at ASC").all() as PlantRow[];
+  const rows = getDb()
+    .prepare(`SELECT * FROM plants WHERE ${activePlantClause} ORDER BY created_at ASC`)
+    .all() as PlantRow[];
   return rows.map(toPlantSummary);
 };
 
-export const getPlant = (plantId: string): PlantSummary | null => {
-  const row = getDb().prepare("SELECT * FROM plants WHERE id = ?").get(plantId) as PlantRow | undefined;
+export const getPlant = (plantId: string, includeDeleted = false): PlantSummary | null => {
+  const sql = includeDeleted
+    ? "SELECT * FROM plants WHERE id = ?"
+    : `SELECT * FROM plants WHERE id = ? AND ${activePlantClause}`;
+  const row = getDb().prepare(sql).get(plantId) as PlantRow | undefined;
   return row ? toPlantSummary(row) : null;
 };
 
 export const getPlantPersonaId = (plantId: string): string => {
-  const row = getDb().prepare("SELECT persona_profile_id FROM plants WHERE id = ?").get(plantId) as
+  const row = getDb().prepare(`SELECT persona_profile_id FROM plants WHERE id = ? AND ${activePlantClause}`).get(plantId) as
     | { persona_profile_id: string }
     | undefined;
   return row?.persona_profile_id ?? "pothos";
@@ -94,5 +103,28 @@ export const updatePlant = (plantId: string, input: UpdatePlantInput): PlantSumm
   getDb()
     .prepare("UPDATE plants SET name = ?, care_profile_json = ?, avatar_url = ?, updated_at = ? WHERE id = ?")
     .run(nextName, JSON.stringify(nextProfile), nextAvatarUrl, nowIso(), plantId);
+  return getPlant(plantId);
+};
+
+export const deletePlant = (plantId: string): PlantSummary | null => {
+  const existing = getPlant(plantId);
+  if (!existing) return null;
+  const now = nowIso();
+  getDb()
+    .prepare(
+      `UPDATE plants
+       SET status = 'deleted', deleted_at = ?, updated_at = ?
+       WHERE id = ? AND ${activePlantClause}`
+    )
+    .run(now, now, plantId);
+  return getPlant(plantId, true);
+};
+
+export const restorePlant = (plantId: string): PlantSummary | null => {
+  const existing = getPlant(plantId, true);
+  if (!existing) return null;
+  getDb()
+    .prepare("UPDATE plants SET status = 'active', deleted_at = NULL, updated_at = ? WHERE id = ?")
+    .run(nowIso(), plantId);
   return getPlant(plantId);
 };

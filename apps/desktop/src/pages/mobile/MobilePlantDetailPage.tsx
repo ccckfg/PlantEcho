@@ -8,6 +8,7 @@ import { SensorStatusBadge } from "@/components/SensorStatusBadge";
 import { Card, Chip, Empty, Icon, ProgressBar } from "@/components/UI";
 import { PlantAvatarEditor } from "@/components/plants/PlantAvatarEditor";
 import { PlantCareProfileSection } from "@/components/plants/PlantCareProfileSection";
+import { PlantDeleteButton } from "@/components/plants/PlantDeleteButton";
 import { PlantNameEditor } from "@/components/plants/PlantNameEditor";
 import { deriveStatus, MOOD_PRESETS } from "@/lib/mood";
 import { formatTime, plantImage, relativeTime, useNow } from "@/lib/format";
@@ -105,6 +106,11 @@ export function MobilePlantDetailPage() {
             <Icon name="menu_book" /> 成长日记
           </Link>
         </div>
+        <PlantDeleteButton
+          plant={plant}
+          label="删除这棵植物"
+          className="group flex w-full items-center justify-center gap-sm rounded-full bg-surface-container-lowest px-lg py-sm font-label-md text-label-md text-error ring-1 ring-error/25 transition-all duration-200 ease-standard hover:bg-error-container/25 active:scale-[0.98]"
+        />
       </Card>
 
       <Card>

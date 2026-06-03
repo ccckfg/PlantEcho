@@ -13,7 +13,7 @@ export function SideNav() {
   return (
     <nav className="hidden md:flex flex-col h-screen w-64 shrink-0 bg-surface-container-low/70 backdrop-blur-sm border-r border-surface-container-highest/60 py-lg px-md z-10 sticky top-0">
       <PlantReflectionCard />
-      <ul className="flex flex-col gap-xs flex-1 min-h-0 overflow-y-auto">
+      <ul className="mt-md flex flex-col gap-xs flex-1 min-h-0 overflow-y-auto">
         {NAV_ITEMS.map((item) => (
           <li key={item.to}>
             <NavLink

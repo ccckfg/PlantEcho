@@ -201,6 +201,8 @@ npm run tauri:build
 2026-05-28：多植物相关路由跳转与 API path 已统一编码 `plantId`，并拆分 Dashboard/Chat/Journal 的复用组件；`npm run build:desktop` 与 `npm run build` 均通过，TS/TSX 文件已无超过 300 行的文件。
 2026-05-31：新增移动端（安卓手机）UI —— 运行时检测分流的移动外壳（`components/mobile/`）+ 5 个移动页面（`pages/mobile/`），复用全部逻辑层与基础组件，桌面渲染路径不变。`npm run build:desktop` 通过（tsc + vite，114 模块）。安卓 `tauri android init`/真机验证待本机执行，指南见 `docs/android-build.md`。
 2026-06-02：新增 GitHub Actions 客户端构建流水线（`.github/workflows/tauri-clients.yml`），自动构建 Windows、macOS arm64/x64 与 Android release 客户端；Android 构建强制使用 GitHub Secrets 注入 keystore 签名，拒绝 unsigned/debug APK。配置说明见 `docs/github-actions-clients.md`。
+2026-06-03：新增植物详情页删除植物功能，后端通过 `007_plant_soft_delete` 对植物做软删除并提供恢复接口；桌面端与移动端详情页均提供删除入口，先经二次确认提醒框，删除后返回温室并给 5 秒撤销 toast。`npm run build:desktop`、`npm run build --workspace @dyn/server` 与植物软删除目标测试通过。
+2026-06-03：待认领设备的“忽略”操作新增二次确认提醒框，确认后才从待认领列表移走设备；`npm run build:desktop` 通过。
 
 ESP32 真实验证（2026-05-25）：OLED/SHT40/GY-302/土壤 ADC 实测可用；HTTP 上传通过；2026-05-27 编译验证含 MQTT 1 秒级上报、断线重连、设备密钥持久化、SoftAP 配网、OTA；2026-05-28 编译验证通过 MQTT config topic 自动接收并保存认领密钥。
 
@@ -230,7 +232,7 @@ ESP32 真实验证（2026-05-25）：OLED/SHT40/GY-302/土壤 ADC 实测可用�
 
 ### 桌面客户端
 
-- 编辑档案表单、删除植物。
+- 编辑档案表单。
 - 头像裁剪/构图工具。
 - 读数趋势图（折线 / 区域）。
 - 提醒管理 UI。

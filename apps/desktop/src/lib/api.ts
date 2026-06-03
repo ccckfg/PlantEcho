@@ -209,6 +209,14 @@ export const api = {
       method: "PATCH",
       body: JSON.stringify(input)
     }),
+  deletePlant: (id: string) =>
+    request<{ plant: PlantSummary }>(plantPath(id), {
+      method: "DELETE"
+    }),
+  restorePlant: (id: string) =>
+    request<{ plant: PlantSummary }>(plantPath(id, "/restore"), {
+      method: "POST"
+    }),
   latestReading: (id: string) =>
     request<ReadingState>(plantPath(id, "/readings/latest")),
   listReadings: (id: string, limit = 60) =>
