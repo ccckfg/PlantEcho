@@ -30,6 +30,12 @@ void addNullableFloat(JsonDocument &doc, const char *key, float value) {
     doc[key] = value;
   }
 }
+
+void addOptionalString(JsonDocument &doc, const char *key, const String &value) {
+  if (value.length() > 0) {
+    doc[key] = value;
+  }
+}
 }  // namespace
 
 bool isUploadEnabled(const DeviceSettings &settings) {
@@ -105,6 +111,7 @@ bool uploadReading(const SensorReading &reading, const DeviceSettings &settings)
   addNullableFloat(doc, "lightLux", reading.lightLux);
   doc["rssi"] = WiFi.RSSI();
   doc["batteryMv"] = nullptr;
+  addOptionalString(doc, "userId", settings.serverUserId);
 
   String body;
   serializeJson(doc, body);

@@ -54,7 +54,8 @@ export const registerPendingDevice = (
   deviceId: string,
   payload: DeviceReadingPayload
 ): PendingDevice => {
-  const pending = upsertPendingDevice(deviceId, payload, payload.rssi ?? null);
+  const userId = payload.userId?.trim() || null;
+  const pending = upsertPendingDevice(deviceId, payload, payload.rssi ?? null, userId);
   publishSyncEvent({
     type: "devices.changed",
     payload: { action: "pending", deviceId }
@@ -62,17 +63,22 @@ export const registerPendingDevice = (
   return pending;
 };
 
-export const getPendingDevices = (): PendingDevice[] => listPendingDevices();
+export const getPendingDevices = (
+  userId: string | null = null
+): PendingDevice[] => listPendingDevices(userId);
 
 export const getClaimedDevices = (): DeviceRecord[] => listDevices();
 
-export const ignorePendingDevice = (deviceId: string): PendingDevice => {
-  const pending = getPendingDevice(deviceId);
+export const ignorePendingDevice = (
+  deviceId: string,
+  userId: string | null = null
+): PendingDevice => {
+  const pending = getPendingDevice(deviceId, userId);
   if (!pending || pending.claimStatus !== "pending") {
     throw new Error(`Pending device ${deviceId} not found`);
   }
   markPendingDevice(deviceId, "ignored");
-  const updated = getPendingDevice(deviceId);
+  const updated = getPendingDevice(deviceId, userId);
   if (!updated) throw new Error(`Pending device ${deviceId} not found`);
   publishSyncEvent({
     type: "devices.changed",
@@ -83,9 +89,10 @@ export const ignorePendingDevice = (deviceId: string): PendingDevice => {
 
 export const claimDevice = (
   deviceId: string,
-  input: ClaimDeviceInput
+  input: ClaimDeviceInput,
+  userId: string | null = null
 ): DeviceClaimResult => {
-  const pending = getPendingDevice(deviceId);
+  const pending = getPendingDevice(deviceId, userId);
   const existing = getDevice(deviceId);
   if (!pending && !existing) throw new Error(`Pending device ${deviceId} not found`);
 
@@ -95,11 +102,11 @@ export const claimDevice = (
 
   const apiKey = generateDeviceApiKey();
   const device = insertClaimedDevice(
-      deviceId,
-      plant.id,
-      input.deviceName?.trim() || `Device ${deviceId}`,
-      hashDeviceApiKey(apiKey)
-    );
+    deviceId,
+    plant.id,
+    input.deviceName?.trim() || `Device ${deviceId}`,
+    hashDeviceApiKey(apiKey)
+  );
   if (createdNewPlant) {
     publishSyncEvent({
       type: "plants.changed",

@@ -24,6 +24,7 @@ DeviceSettings loadSettings() {
   settings.mqttPort = prefs.getUShort("mqttPort", MQTT_PORT);
   settings.deviceId = valueOrDefault(prefs.getString("deviceId", ""), DEVICE_ID);
   settings.deviceApiKey = valueOrDefault(prefs.getString("apiKey", ""), DEVICE_API_KEY);
+  settings.serverUserId = valueOrDefault(prefs.getString("userId", ""), SERVER_USER_ID);
   settings.otaManifestUrl = valueOrDefault(prefs.getString("otaUrl", ""), OTA_MANIFEST_URL);
 
   prefs.end();
@@ -40,6 +41,7 @@ void saveSettings(const DeviceSettings &settings) {
   prefs.putUShort("mqttPort", settings.mqttPort);
   prefs.putString("deviceId", settings.deviceId);
   prefs.putString("apiKey", settings.deviceApiKey);
+  prefs.putString("userId", settings.serverUserId);
   prefs.putString("otaUrl", settings.otaManifestUrl);
   prefs.end();
 }

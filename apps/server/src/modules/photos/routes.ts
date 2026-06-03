@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { FastifyInstance } from "fastify";
+import { photoConfig } from "../../config/photos.js";
 import { sendError } from "../../shared/http.js";
 import { getPlant } from "../plants/plantRepository.js";
 import { publishSyncEvent } from "../sync/syncBus.js";
@@ -25,7 +26,7 @@ export const registerPhotoRoutes = async (app: FastifyInstance): Promise<void> =
 
   app.post(
     "/api/v1/plants/:plantId/photos",
-    { bodyLimit: 10 * 1024 * 1024 },
+    { bodyLimit: photoConfig.uploadBodyLimitBytes },
     async (request, reply) => {
       try {
         const { plantId } = request.params as { plantId: string };

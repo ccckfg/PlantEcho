@@ -12,7 +12,7 @@ const envCandidates = [
 ];
 
 for (const envPath of [...new Set(envCandidates)]) {
-  dotenv.config({ path: envPath, override: true });
+  dotenv.config({ path: envPath });
 }
 
 const emptyToUndefined = (value: unknown): unknown => (value === "" ? undefined : value);

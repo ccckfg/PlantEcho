@@ -2,10 +2,10 @@ import { randomUUID } from "node:crypto";
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { env } from "../../config/env.js";
+import { photoConfig } from "../../config/photos.js";
 import { getDb } from "../../db/connection.js";
 import { nowIso } from "../../shared/time.js";
 
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const MIME_EXT: Record<string, string> = {
   "image/jpeg": ".jpg",
   "image/png": ".png",
@@ -67,7 +67,9 @@ const decodeDataUrl = (dataUrl: string): { mimeType: string; bytes: Buffer } => 
 
   const bytes = Buffer.from(match[2], "base64");
   if (!bytes.length) throw new Error("Image is empty");
-  if (bytes.byteLength > MAX_IMAGE_BYTES) throw new Error("Image exceeds 5MB limit");
+  if (bytes.byteLength > photoConfig.maxStoredImageBytes) {
+    throw new Error(`Image exceeds ${photoConfig.maxStoredImageSizeLabel} storage limit`);
+  }
   return { mimeType, bytes };
 };
 

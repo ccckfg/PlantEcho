@@ -41,8 +41,9 @@ export const createMqttBroker = (logger: MqttLogger) => {
     }
     const authorized = isAuthorizedDevice(deviceId, passwordText(password));
     if (authorized) clientAuth.set(client.id, { deviceId, mode: "claimed" });
+    const passwordState = password?.length ? "present" : "missing";
     logger.info(
-      `MQTT claimed client ${authorized ? "connected" : "rejected"}: ${deviceId}`
+      `MQTT claimed client ${authorized ? "connected" : "rejected"}: ${deviceId} (password=${passwordState})`
     );
     callback(null, authorized);
   };

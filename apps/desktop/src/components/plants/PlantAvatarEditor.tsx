@@ -4,6 +4,7 @@ import type { PlantSummary } from "@dyn/shared";
 import { api, mediaUrl, type PlantPhoto } from "@/lib/api";
 import { Icon } from "@/components/UI";
 import { imageUploadConfig } from "@/config/uploads";
+import { prepareImageUpload, type PreparedImageUpload } from "@/lib/imageCompression";
 
 interface PlantAvatarEditorProps {
   plant: PlantSummary;
@@ -11,22 +12,17 @@ interface PlantAvatarEditorProps {
   onUpdated: () => void;
 }
 
-const readAsDataUrl = (file: File): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = () => reject(reader.error ?? new Error("无法读取图片"));
-    reader.readAsDataURL(file);
-  });
-
 export function PlantAvatarEditor({ plant, onClose, onUpdated }: PlantAvatarEditorProps) {
   const [photos, setPhotos] = useState<PlantPhoto[]>([]);
   const [preview, setPreview] = useState("");
-  const [file, setFile] = useState<File | null>(null);
+  const [upload, setUpload] = useState<PreparedImageUpload | null>(null);
+  const [capturedAt, setCapturedAt] = useState("");
   const [selectedUrl, setSelectedUrl] = useState(plant.avatarUrl ?? "");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [preparing, setPreparing] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -49,37 +45,44 @@ export function PlantAvatarEditor({ plant, onClose, onUpdated }: PlantAvatarEdit
   const selectFile = async (event: ChangeEvent<HTMLInputElement>) => {
     const nextFile = event.target.files?.[0] ?? null;
     setError("");
-    setFile(nextFile);
+    setNotice("");
+    setUpload(null);
     if (!nextFile) {
       setPreview("");
+      setCapturedAt("");
       return;
     }
-    if (!nextFile.type.startsWith("image/")) {
-      setError("请选择图片文件");
+    setPreparing(true);
+    try {
+      const prepared = await prepareImageUpload(nextFile);
+      setUpload(prepared);
+      setPreview(prepared.dataUrl);
+      setCapturedAt(new Date(nextFile.lastModified || Date.now()).toISOString());
+      setSelectedUrl("");
+      if (prepared.wasCompressed) {
+        setNotice(`已自动压缩到 ${imageUploadConfig.maxStoredSizeLabel} 内存储`);
+      }
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "图片处理失败");
       setPreview("");
-      return;
+      setCapturedAt("");
+    } finally {
+      setPreparing(false);
     }
-    if (nextFile.size > imageUploadConfig.maxBytes) {
-      setError(`图片不能超过 ${imageUploadConfig.maxSizeLabel}`);
-      setPreview("");
-      return;
-    }
-    setPreview(await readAsDataUrl(nextFile));
-    setSelectedUrl("");
   };
 
   const save = async () => {
-    if (saving) return;
+    if (saving || preparing) return;
     setSaving(true);
     setError("");
     try {
       let avatarUrl = selectedUrl || null;
-      if (file && preview) {
+      if (upload && preview) {
         const result = await api.uploadPhoto(plant.id, {
-          fileName: file.name,
-          dataUrl: preview,
+          fileName: upload.fileName,
+          dataUrl: upload.dataUrl,
           caption: "植物头像",
-          capturedAt: new Date(file.lastModified || Date.now()).toISOString()
+          capturedAt
         });
         avatarUrl = result.photo.contentUrl;
       }
@@ -139,9 +142,11 @@ export function PlantAvatarEditor({ plant, onClose, onUpdated }: PlantAvatarEdit
               <button
                 type="button"
                 onClick={() => {
-                  setFile(null);
+                  setUpload(null);
                   setPreview("");
                   setSelectedUrl("");
+                  setCapturedAt("");
+                  setNotice("");
                 }}
                 className="inline-flex items-center justify-center gap-xs rounded-full border border-outline-variant px-md py-sm text-label-md font-label-md text-primary hover:bg-primary-container"
               >
@@ -172,9 +177,11 @@ export function PlantAvatarEditor({ plant, onClose, onUpdated }: PlantAvatarEdit
                       type="button"
                       key={photo.id}
                       onClick={() => {
-                        setFile(null);
+                        setUpload(null);
                         setPreview("");
                         setSelectedUrl(photo.contentUrl);
+                        setCapturedAt("");
+                        setNotice("");
                       }}
                       className={`group relative aspect-square overflow-hidden rounded-md ring-2 transition-all ${
                         active ? "ring-primary" : "ring-transparent hover:ring-secondary-fixed-dim"
@@ -194,6 +201,11 @@ export function PlantAvatarEditor({ plant, onClose, onUpdated }: PlantAvatarEdit
           </div>
         </div>
 
+        {notice ? (
+          <p className="mx-lg mb-sm rounded-md bg-primary-container px-md py-sm text-body-sm text-on-primary-container sm:mx-xl">
+            {notice}
+          </p>
+        ) : null}
         {error ? (
           <p className="mx-lg mb-sm rounded-md bg-error-container px-md py-sm text-body-sm text-on-error-container sm:mx-xl">
             {error}
@@ -210,11 +222,11 @@ export function PlantAvatarEditor({ plant, onClose, onUpdated }: PlantAvatarEdit
           <button
             type="button"
             onClick={save}
-            disabled={saving}
+            disabled={saving || preparing}
             className="inline-flex items-center gap-sm rounded-full bg-primary px-lg py-sm text-label-md font-label-md text-on-primary disabled:opacity-50"
           >
-            <Icon name={saving ? "progress_activity" : "save"} className={saving ? "animate-spin" : ""} />
-            {saving ? "保存中" : "保存头像"}
+            <Icon name={saving || preparing ? "progress_activity" : "save"} className={saving || preparing ? "animate-spin" : ""} />
+            {preparing ? "压缩中" : saving ? "保存中" : "保存头像"}
           </button>
         </footer>
       </section>

@@ -16,6 +16,7 @@ type DeviceRow = {
 
 type PendingDeviceRow = {
   id: string;
+  user_id: string | null;
   first_seen_at: string;
   last_seen_at: string;
   latest_payload_json: string;
@@ -48,6 +49,7 @@ const toDevice = (row: DeviceRow): DeviceRecord => ({
 
 const toPendingDevice = (row: PendingDeviceRow): PendingDevice => ({
   id: row.id,
+  userId: row.user_id,
   firstSeenAt: row.first_seen_at,
   lastSeenAt: row.last_seen_at,
   latestPayload: parseJsonObject(row.latest_payload_json),
@@ -91,15 +93,17 @@ export const getDevicePlantId = (deviceId: string): string | null => {
 export const upsertPendingDevice = (
   deviceId: string,
   payload: Record<string, unknown>,
-  rssi: number | null
+  rssi: number | null,
+  userId: string | null
 ): PendingDevice => {
   const now = nowIso();
   getDb()
     .prepare(
       `INSERT INTO pending_devices
-       (id, first_seen_at, last_seen_at, latest_payload_json, rssi, claim_status)
-       VALUES (?, ?, ?, ?, ?, 'pending')
+       (id, user_id, first_seen_at, last_seen_at, latest_payload_json, rssi, claim_status)
+       VALUES (?, ?, ?, ?, ?, ?, 'pending')
        ON CONFLICT(id) DO UPDATE SET
+         user_id = COALESCE(excluded.user_id, pending_devices.user_id),
          last_seen_at = excluded.last_seen_at,
          latest_payload_json = excluded.latest_payload_json,
          rssi = excluded.rssi,
@@ -108,24 +112,34 @@ export const upsertPendingDevice = (
            ELSE 'pending'
          END`
     )
-    .run(deviceId, now, now, JSON.stringify(payload), rssi);
+    .run(deviceId, userId, now, now, JSON.stringify(payload), rssi);
   return getPendingDevice(deviceId)!;
 };
 
-export const getPendingDevice = (deviceId: string): PendingDevice | null => {
-  const row = getDb().prepare("SELECT * FROM pending_devices WHERE id = ?").get(deviceId) as
-    | PendingDeviceRow
-    | undefined;
+export const getPendingDevice = (
+  deviceId: string,
+  userId: string | null = null
+): PendingDevice | null => {
+  const query = userId
+    ? "SELECT * FROM pending_devices WHERE id = ? AND (user_id IS NULL OR user_id = ?)"
+    : "SELECT * FROM pending_devices WHERE id = ?";
+  const args = userId ? [deviceId, userId] : [deviceId];
+  const row = getDb().prepare(query).get(...args) as PendingDeviceRow | undefined;
   return row ? toPendingDevice(row) : null;
 };
 
-export const listPendingDevices = (): PendingDevice[] => {
-  const rows = getDb()
-    .prepare(
-      "SELECT * FROM pending_devices WHERE claim_status = 'pending' ORDER BY last_seen_at DESC"
-    )
-    .all() as PendingDeviceRow[];
-  return rows.map(toPendingDevice);
+export const listPendingDevices = (
+  userId: string | null = null
+): PendingDevice[] => {
+  const query = userId
+    ? `SELECT * FROM pending_devices
+       WHERE claim_status = 'pending' AND (user_id IS NULL OR user_id = ?)
+       ORDER BY last_seen_at DESC`
+    : "SELECT * FROM pending_devices WHERE claim_status = 'pending' ORDER BY last_seen_at DESC";
+  const rows = userId
+    ? getDb().prepare(query).all(userId)
+    : getDb().prepare(query).all();
+  return (rows as PendingDeviceRow[]).map(toPendingDevice);
 };
 
 export const insertClaimedDevice = (

@@ -46,6 +46,9 @@ String page(const DeviceSettings &settings) {
           htmlEscape(settings.serverBaseUrl) + "'>";
   body += "<label>Device ID</label><input name='deviceId' value='" +
           htmlEscape(settings.deviceId) + "' required>";
+  body += "<label>Server User ID</label><input name='userId' value='" +
+          htmlEscape(settings.serverUserId) +
+          "'><p style='color:#555'>Optional: helps the server show this unclaimed device to the right account.</p>";
   body += "<label>Device API Key</label><input name='apiKey' value='" +
           htmlEscape(settings.deviceApiKey) +
           "'><p style='color:#555'>Optional: after claiming, the server can send this key automatically over MQTT.</p>";
@@ -64,6 +67,7 @@ void bindRoutes(DeviceSettings &settings) {
     settings.mqttHost = server.arg("mqttHost");
     settings.mqttPort = static_cast<uint16_t>(server.arg("mqttPort").toInt());
     settings.deviceId = server.arg("deviceId");
+    settings.serverUserId = server.arg("userId");
     settings.deviceApiKey = server.arg("apiKey");
     settings.otaManifestUrl = server.arg("otaUrl");
     saveSettings(settings);

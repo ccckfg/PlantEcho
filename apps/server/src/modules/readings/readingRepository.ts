@@ -1,4 +1,4 @@
-import type { DeviceReadingPayload } from "@dyn/shared";
+import type { NormalizedDeviceReadingPayload } from "@dyn/shared";
 import { getDb } from "../../db/connection.js";
 import { nowIso } from "../../shared/time.js";
 import type { SensorReading } from "./types.js";
@@ -36,7 +36,7 @@ const toReading = (row: ReadingRow): SensorReading => ({
 export const insertReading = (
   deviceId: string,
   plantId: string,
-  payload: Required<DeviceReadingPayload>
+  payload: NormalizedDeviceReadingPayload
 ): SensorReading => {
   const db = getDb();
   const now = nowIso();

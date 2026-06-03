@@ -4,6 +4,7 @@ import { api, mediaUrl, type PlantPhoto } from "@/lib/api";
 import { Icon } from "@/components/UI";
 import { imageUploadConfig } from "@/config/uploads";
 import { useIsMobile } from "@/lib/usePlatform";
+import { prepareImageUpload, type PreparedImageUpload } from "@/lib/imageCompression";
 
 interface UploadedPhoto {
   photo: PlantPhoto;
@@ -16,14 +17,6 @@ interface AlbumUploadPanelProps {
   className?: string;
 }
 
-const readAsDataUrl = (file: File): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = () => reject(reader.error ?? new Error("无法读取图片"));
-    reader.readAsDataURL(file);
-  });
-
 export function AlbumUploadPanel({
   plants,
   onUploaded,
@@ -31,31 +24,41 @@ export function AlbumUploadPanel({
 }: AlbumUploadPanelProps) {
   const isMobile = useIsMobile();
   const [plantId, setPlantId] = useState(plants[0]?.id ?? "");
-  const [file, setFile] = useState<File | null>(null);
+  const [upload, setUpload] = useState<PreparedImageUpload | null>(null);
+  const [capturedAt, setCapturedAt] = useState("");
   const [preview, setPreview] = useState("");
   const [caption, setCaption] = useState("");
   const [busy, setBusy] = useState(false);
+  const [preparing, setPreparing] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [dragActive, setDragActive] = useState(false);
 
   const useSelectedFile = async (selected: File | null) => {
-    setFile(selected);
+    setUpload(null);
     setError("");
+    setNotice("");
     if (!selected) {
       setPreview("");
+      setCapturedAt("");
       return;
     }
-    if (!selected.type.startsWith("image/")) {
-      setError("请选择图片文件");
+    setPreparing(true);
+    try {
+      const prepared = await prepareImageUpload(selected);
+      setUpload(prepared);
+      setPreview(prepared.dataUrl);
+      setCapturedAt(new Date(selected.lastModified || Date.now()).toISOString());
+      if (prepared.wasCompressed) {
+        setNotice(`已自动压缩到 ${imageUploadConfig.maxStoredSizeLabel} 内存储`);
+      }
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "图片处理失败");
       setPreview("");
-      return;
+      setCapturedAt("");
+    } finally {
+      setPreparing(false);
     }
-    if (selected.size > imageUploadConfig.maxBytes) {
-      setError(`图片不能超过 ${imageUploadConfig.maxSizeLabel}`);
-      setPreview("");
-      return;
-    }
-    setPreview(await readAsDataUrl(selected));
   };
 
   const selectFile = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -65,7 +68,7 @@ export function AlbumUploadPanel({
   const handleDrag = (event: DragEvent<HTMLLabelElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    if (busy) return;
+    if (busy || preparing) return;
     setDragActive(event.type === "dragenter" || event.type === "dragover");
   };
 
@@ -73,27 +76,29 @@ export function AlbumUploadPanel({
     event.preventDefault();
     event.stopPropagation();
     setDragActive(false);
-    if (busy) return;
+    if (busy || preparing) return;
     await useSelectedFile(event.dataTransfer.files?.[0] ?? null);
   };
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!file || !preview || !plantId || busy) return;
+    if (!upload || !preview || !plantId || busy || preparing) return;
     setBusy(true);
     setError("");
     try {
       const result = await api.uploadPhoto(plantId, {
-        fileName: file.name,
-        dataUrl: preview,
+        fileName: upload.fileName,
+        dataUrl: upload.dataUrl,
         caption,
-        capturedAt: new Date(file.lastModified || Date.now()).toISOString()
+        capturedAt
       });
       const plant = plants.find((item) => item.id === plantId);
       onUploaded({ photo: result.photo, plantName: plant?.name ?? plantId });
-      setFile(null);
+      setUpload(null);
       setPreview("");
       setCaption("");
+      setCapturedAt("");
+      setNotice("");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "上传失败");
     } finally {
@@ -125,7 +130,7 @@ export function AlbumUploadPanel({
             <Icon name={dragActive ? "move_to_inbox" : "add_photo_alternate"} className="text-[32px] lg:text-[40px] text-secondary" />
             <span className="text-label-md font-label-md">{dragActive ? "松手导入" : isMobile ? "选择照片" : "选择或拖入照片"}</span>
             <span className="text-label-sm font-label-sm text-on-surface-variant/70">
-              支持 {imageUploadConfig.maxSizeLabel} 内图片
+              超过 {imageUploadConfig.maxStoredSizeLabel} 自动压缩
             </span>
           </span>
         )}
@@ -162,16 +167,17 @@ export function AlbumUploadPanel({
           </label>
         </div>
 
+        {notice ? <p className="dialog-pop-in text-primary text-label-sm font-label-sm">{notice}</p> : null}
         {error ? <p className="dialog-pop-in text-error text-label-sm font-label-sm">{error}</p> : null}
 
         <div className="flex justify-end">
           <button
             type="submit"
-            disabled={!file || !plantId || busy}
+            disabled={!upload || !plantId || busy || preparing}
             className="group inline-flex items-center gap-sm bg-primary text-on-primary rounded-full px-lg py-sm font-label-md text-label-md shadow-leaf transition-all duration-200 ease-standard hover:bg-surface-tint hover:shadow-soft active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
           >
-            <Icon name={busy ? "progress_activity" : "cloud_upload"} className={busy ? "animate-spin" : "transition-transform duration-300 ease-emphasized group-hover:-translate-y-0.5"} />
-            {busy ? "上传中" : "保存到相册"}
+            <Icon name={busy || preparing ? "progress_activity" : "cloud_upload"} className={busy || preparing ? "animate-spin" : "transition-transform duration-300 ease-emphasized group-hover:-translate-y-0.5"} />
+            {preparing ? "压缩中" : busy ? "上传中" : "保存到相册"}
           </button>
         </div>
       </div>

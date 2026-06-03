@@ -62,6 +62,10 @@
 #define DYN_DEVICE_API_KEY ""
 #endif
 
+#ifndef DYN_SERVER_USER_ID
+#define DYN_SERVER_USER_ID ""
+#endif
+
 constexpr int I2C_SDA_PIN = 21;
 constexpr int I2C_SCL_PIN = 22;
 constexpr int SOIL_ADC_PIN = 34;
@@ -119,3 +123,4 @@ constexpr const char *OTA_MANIFEST_URL = DYN_OTA_MANIFEST_URL;
 constexpr const char *FIRMWARE_VERSION = DYN_FIRMWARE_VERSION;
 constexpr const char *DEVICE_ID = DYN_DEVICE_ID;
 constexpr const char *DEVICE_API_KEY = DYN_DEVICE_API_KEY;
+constexpr const char *SERVER_USER_ID = DYN_SERVER_USER_ID;

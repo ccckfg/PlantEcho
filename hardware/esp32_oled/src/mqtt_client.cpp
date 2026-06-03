@@ -23,6 +23,12 @@ void addNullableFloat(JsonDocument &doc, const char *key, float value) {
   }
 }
 
+void addOptionalString(JsonDocument &doc, const char *key, const String &value) {
+  if (value.length() > 0) {
+    doc[key] = value;
+  }
+}
+
 String readingsTopic(const DeviceSettings &settings) {
   return "dyn/devices/" + settings.deviceId + "/readings";
 }
@@ -72,13 +78,24 @@ bool connectMqtt(DeviceSettings &settings) {
   activeSettings = &settings;
   mqtt.setServer(settings.mqttHost.c_str(), settings.mqttPort);
   const String clientId = "dyn-" + settings.deviceId;
+  Serial.print("MQTT connecting to ");
+  Serial.print(settings.mqttHost);
+  Serial.print(":");
+  Serial.print(settings.mqttPort);
+  Serial.print(" as ");
+  Serial.println(settings.deviceId);
   const bool ok = mqtt.connect(
     clientId.c_str(),
     settings.deviceId.c_str(),
     settings.deviceApiKey.length() > 0 ? settings.deviceApiKey.c_str() : nullptr
   );
   Serial.print("MQTT ");
-  Serial.println(ok ? "connected" : "connect failed");
+  if (ok) {
+    Serial.println("connected");
+  } else {
+    Serial.print("connect failed, state=");
+    Serial.println(mqtt.state());
+  }
   if (ok) {
     const String topic = configTopic(settings);
     const bool subscribed = mqtt.subscribe(topic.c_str(), 1);
@@ -119,8 +136,9 @@ bool publishReadingMqtt(const SensorReading &reading, DeviceSettings &settings) 
   addNullableFloat(doc, "lightLux", reading.lightLux);
   doc["rssi"] = WiFi.RSSI();
   doc["batteryMv"] = nullptr;
+  addOptionalString(doc, "userId", settings.serverUserId);
 
-  char payload[384];
+  char payload[512];
   const size_t length = serializeJson(doc, payload, sizeof(payload));
   const bool ok = mqtt.publish(readingsTopic(settings).c_str(), payload, length);
   lastPublishOk = ok;

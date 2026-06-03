@@ -57,8 +57,18 @@ test("unknown device becomes pending, then claimed device requires its generated
 
     const pending = registerPendingDevice(deviceId, payload);
     assert.equal(pending.id, deviceId);
+    assert.equal(pending.userId, null);
     assert.equal(pending.claimStatus, "pending");
     assert.equal(countReadings(deviceId), 0);
+
+    const scopedId = `test-device-${randomUUID()}`;
+    const scoped = registerPendingDevice(scopedId, { ...payload, userId: "user-a" });
+    assert.equal(scoped.userId, "user-a");
+    assert.equal(getPendingDevices("user-a").some((device) => device.id === scopedId), true);
+    assert.equal(getPendingDevices("user-b").some((device) => device.id === scopedId), false);
+    assert.throws(() => ignorePendingDevice(scopedId, "user-b"), /not found/);
+    const scopedIgnored = ignorePendingDevice(scopedId, "user-a");
+    assert.equal(scopedIgnored.claimStatus, "ignored");
 
     const ignoredId = `test-device-${randomUUID()}`;
     registerPendingDevice(ignoredId, payload);

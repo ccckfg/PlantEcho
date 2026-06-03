@@ -71,6 +71,7 @@ export interface DeviceRecord {
 
 export interface PendingDevice {
   id: string;
+  userId: string | null;
   firstSeenAt: string;
   lastSeenAt: string;
   latestPayload: Record<string, unknown>;

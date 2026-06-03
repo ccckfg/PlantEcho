@@ -10,6 +10,7 @@ struct DeviceSettings {
   uint16_t mqttPort = 1883;
   String deviceId;
   String deviceApiKey;
+  String serverUserId;
   String otaManifestUrl;
 };
 
