@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { mediaUrl } from "@/lib/api";
 import { plantImage } from "@/lib/format";
+import { savePhotoToLocalAlbum } from "@/lib/photoSave";
 import { Icon } from "@/components/UI";
 
 export interface AlbumPhoto {
@@ -22,6 +23,8 @@ export function PhotoCard({ photo, onDelete }: PhotoCardProps) {
   const [lightbox, setLightbox] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
 
   const deletePhoto = async () => {
@@ -41,6 +44,22 @@ export function PhotoCard({ photo, onDelete }: PhotoCardProps) {
       setConfirmDelete(false);
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const savePhoto = async () => {
+    if (saving) return;
+    setSaving(true);
+    setSaved(false);
+    setError("");
+    try {
+      await savePhotoToLocalAlbum(photo);
+      setSaved(true);
+      window.setTimeout(() => setSaved(false), 1800);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "保存失败");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -130,6 +149,10 @@ export function PhotoCard({ photo, onDelete }: PhotoCardProps) {
           onDelete={onDelete ? deletePhoto : undefined}
           confirmDelete={confirmDelete}
           deleting={deleting}
+          saving={saving}
+          saved={saved}
+          error={error}
+          onSave={savePhoto}
         />
       ) : null}
     </>
@@ -141,13 +164,21 @@ function PhotoLightbox({
   onClose,
   onDelete,
   confirmDelete,
-  deleting
+  deleting,
+  saving,
+  saved,
+  error,
+  onSave
 }: {
   photo: AlbumPhoto;
   onClose: () => void;
   onDelete?: () => void;
   confirmDelete: boolean;
   deleting: boolean;
+  saving: boolean;
+  saved: boolean;
+  error: string;
+  onSave: () => void;
 }) {
   return (
     <div
@@ -172,6 +203,23 @@ function PhotoLightbox({
           />
           {/* 操作按钮 — 浮在图片右上角，避免和图片边缘冲突 */}
           <div className="absolute top-md right-md flex gap-sm">
+            <button
+              type="button"
+              onClick={onSave}
+              disabled={saving}
+              className={`group inline-flex items-center gap-xs rounded-full px-md py-2 text-label-sm font-label-sm backdrop-blur-md ring-1 transition-all duration-200 hover:scale-[1.03] active:scale-95 disabled:cursor-wait ${
+                saved
+                  ? "bg-primary text-on-primary ring-primary/20"
+                  : "bg-white/15 text-white ring-white/25 hover:bg-white/30"
+              }`}
+              aria-label="保存照片到本地相册"
+            >
+              <Icon
+                name={saving ? "progress_activity" : "save"}
+                className={`text-[18px] ${saving ? "animate-spin" : ""}`}
+              />
+              <span>{saving ? "保存中" : saved ? "已保存" : "保存"}</span>
+            </button>
             {onDelete ? (
               <button
                 type="button"
@@ -201,6 +249,11 @@ function PhotoLightbox({
             </button>
           </div>
         </div>
+        {error ? (
+          <p className="shrink-0 rounded-md bg-error-container px-md py-sm text-body-sm text-on-error-container">
+            {error}
+          </p>
+        ) : null}
         {photo.caption ? (
           <p className="shrink-0 text-white/85 text-body-md text-center max-w-2xl mx-auto leading-relaxed">
             {photo.caption}

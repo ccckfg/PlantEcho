@@ -16,6 +16,12 @@
   #root {
     height: 100%;
   }
+  html,
+  body {
+    overscroll-behavior: none;
+    touch-action: pan-x pan-y;
+    -webkit-text-size-adjust: 100%;
+  }
   body {
     background-color: #f4f8f3;
     color: #1b211e;
