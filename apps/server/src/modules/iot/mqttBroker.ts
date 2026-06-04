@@ -1,7 +1,14 @@
 import net from "node:net";
 import { Aedes } from "aedes";
+import { deviceConfigDeliveryConfig } from "../../config/deviceConfigDelivery.js";
 import { env } from "../../config/env.js";
-import { isAuthorizedDevice, isKnownDevice } from "../devices/deviceService.js";
+import {
+  confirmDeviceCredentialsDelivered,
+  deliverPendingDeviceConfig,
+  hasPendingDeviceCredentials,
+  isAuthorizedDevice,
+  isKnownDevice
+} from "../devices/deviceService.js";
 import { registerDeviceConfigPublisher } from "./deviceConfigChannel.js";
 import { deviceConfigTopic, deviceIdFromConfigTopic, deviceIdFromReadingsTopic } from "./mqttTopics.js";
 import { ingestMqttReading } from "./mqttIngest.js";
@@ -16,6 +23,7 @@ interface MqttLogger {
 interface ClientAuthState {
   deviceId: string;
   mode: "pending" | "claimed" | "config";
+  configSubscribed: boolean;
 }
 
 const passwordText = (password?: Buffer): string | undefined =>
@@ -25,6 +33,25 @@ export const createMqttBroker = (logger: MqttLogger) => {
   const broker = new Aedes();
   const server = net.createServer(broker.handle);
   const clientAuth = new Map<string, ClientAuthState>();
+  let retryTimer: ReturnType<typeof setInterval> | null = null;
+
+  const hasConfigSubscriber = (deviceId: string): boolean =>
+    Array.from(clientAuth.values())
+      .some((state) => state.deviceId === deviceId && state.configSubscribed);
+
+  const attemptPendingConfigDelivery = (deviceId: string): boolean => {
+    if (!hasConfigSubscriber(deviceId)) return false;
+    return deliverPendingDeviceConfig(deviceId);
+  };
+
+  const retryPendingConfigsForSubscribers = (): void => {
+    const deviceIds = new Set(
+      Array.from(clientAuth.values())
+        .filter((state) => state.configSubscribed && hasPendingDeviceCredentials(state.deviceId))
+        .map((state) => state.deviceId)
+    );
+    for (const deviceId of deviceIds) attemptPendingConfigDelivery(deviceId);
+  };
 
   broker.authenticate = (client, username, password, callback) => {
     const deviceId = username?.toString();
@@ -34,24 +61,28 @@ export const createMqttBroker = (logger: MqttLogger) => {
       return;
     }
     if (!isKnownDevice(deviceId)) {
-      clientAuth.set(client.id, { deviceId, mode: "pending" });
+      clientAuth.set(client.id, { deviceId, mode: "pending", configSubscribed: false });
       logger.info(`MQTT pending client connected: ${deviceId}`);
       callback(null, true);
       return;
     }
     const authorized = isAuthorizedDevice(deviceId, passwordText(password));
     const passwordState = password?.length ? "present" : "missing";
-    if (!authorized && !password?.length) {
-      clientAuth.set(client.id, { deviceId, mode: "config" });
+    if (authorized) {
+      clientAuth.set(client.id, { deviceId, mode: "claimed", configSubscribed: false });
+      confirmDeviceCredentialsDelivered(deviceId);
+      logger.info(`MQTT claimed client connected: ${deviceId} (password=${passwordState})`);
+      callback(null, true);
+      return;
+    }
+    if (!password?.length || hasPendingDeviceCredentials(deviceId)) {
+      clientAuth.set(client.id, { deviceId, mode: "config", configSubscribed: false });
       logger.info(`MQTT claimed client config-only: ${deviceId} (password=${passwordState})`);
       callback(null, true);
       return;
     }
-    if (authorized) clientAuth.set(client.id, { deviceId, mode: "claimed" });
-    logger.info(
-      `MQTT claimed client ${authorized ? "connected" : "rejected"}: ${deviceId} (password=${passwordState})`
-    );
-    callback(null, authorized);
+    logger.info(`MQTT claimed client rejected: ${deviceId} (password=${passwordState})`);
+    callback(null, false);
   };
 
   broker.authorizePublish = (client, packet, callback) => {
@@ -74,7 +105,9 @@ export const createMqttBroker = (logger: MqttLogger) => {
     const topicDeviceId = deviceIdFromConfigTopic(subscription.topic);
     const auth = client ? clientAuth.get(client.id) : undefined;
     if (topicDeviceId && auth?.deviceId === topicDeviceId) {
+      auth.configSubscribed = true;
       callback(null, subscription);
+      setTimeout(() => attemptPendingConfigDelivery(topicDeviceId), 0);
       return;
     }
     logger.warn(
@@ -108,7 +141,7 @@ export const createMqttBroker = (logger: MqttLogger) => {
       await broker.listen();
       registerDeviceConfigPublisher((deviceId: string, payload: DeviceConfigPayload) => {
         const online = Array.from(clientAuth.values())
-          .some((state) => state.deviceId === deviceId);
+          .some((state) => state.deviceId === deviceId && state.configSubscribed);
         if (!online) return false;
         const topic = deviceConfigTopic(deviceId);
         try {
@@ -132,6 +165,11 @@ export const createMqttBroker = (logger: MqttLogger) => {
         }
         return true;
       });
+      retryTimer = setInterval(
+        retryPendingConfigsForSubscribers,
+        deviceConfigDeliveryConfig.retryIntervalMs
+      );
+      retryTimer.unref?.();
       await new Promise<void>((resolve, reject) => {
         server.once("error", reject);
         server.listen(env.MQTT_PORT, env.MQTT_HOST, () => {
@@ -143,6 +181,10 @@ export const createMqttBroker = (logger: MqttLogger) => {
     },
     stop: async () => {
       registerDeviceConfigPublisher(null);
+      if (retryTimer) {
+        clearInterval(retryTimer);
+        retryTimer = null;
+      }
       await new Promise<void>((resolve) => broker.close(() => resolve()));
       if (server.listening) {
         await new Promise<void>((resolve) => server.close(() => resolve()));

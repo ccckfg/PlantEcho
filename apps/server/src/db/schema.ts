@@ -29,6 +29,15 @@ CREATE TABLE IF NOT EXISTS pending_devices (
   claim_status TEXT NOT NULL DEFAULT 'pending'
 );
 
+CREATE TABLE IF NOT EXISTS device_config_deliveries (
+  device_id TEXT PRIMARY KEY REFERENCES devices(id) ON DELETE CASCADE,
+  payload_json TEXT NOT NULL,
+  attempts INTEGER NOT NULL DEFAULT 0,
+  last_attempted_at TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS sensor_readings (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   device_id TEXT NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
@@ -207,6 +216,8 @@ CREATE INDEX IF NOT EXISTS idx_readings_plant_time
   ON sensor_readings(plant_id, captured_at DESC);
 CREATE INDEX IF NOT EXISTS idx_pending_devices_status
   ON pending_devices(claim_status, last_seen_at DESC);
+CREATE INDEX IF NOT EXISTS idx_device_config_deliveries_updated
+  ON device_config_deliveries(updated_at);
 CREATE INDEX IF NOT EXISTS idx_messages_plant_turn
   ON messages(plant_id, turn DESC);
 CREATE INDEX IF NOT EXISTS idx_photos_plant_captured

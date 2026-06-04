@@ -24,6 +24,7 @@ const envSchema = z.object({
   MQTT_ENABLED: z.coerce.boolean().default(true),
   MQTT_HOST: z.string().default("0.0.0.0"),
   MQTT_PORT: z.coerce.number().int().positive().default(1883),
+  DEVICE_CONFIG_RETRY_INTERVAL_MS: z.coerce.number().int().positive().default(5_000),
   DEFAULT_PLANT_ID: z.string().default("plant-demo"),
   DEFAULT_DEVICE_ID: z.string().default("esp32-demo"),
   APP_ACCESS_KEY: z.string().optional().default(""),

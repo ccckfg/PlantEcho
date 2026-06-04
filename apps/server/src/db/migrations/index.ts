@@ -6,6 +6,7 @@ import { authSessionsMigration } from "./005_auth_sessions.js";
 import { authSessionRevokeMigration } from "./006_auth_session_revoke.js";
 import { plantSoftDeleteMigration } from "./007_plant_soft_delete.js";
 import { pendingDeviceUserIdMigration } from "./008_pending_device_user_id.js";
+import { deviceConfigDeliveryQueueMigration } from "./009_device_config_delivery_queue.js";
 
 export interface DatabaseMigration {
   version: number;
@@ -21,7 +22,8 @@ export const migrations: DatabaseMigration[] = [
   authSessionsMigration,
   authSessionRevokeMigration,
   plantSoftDeleteMigration,
-  pendingDeviceUserIdMigration
+  pendingDeviceUserIdMigration,
+  deviceConfigDeliveryQueueMigration
 ].sort((a, b) => a.version - b.version);
 
 export const latestSchemaVersion = migrations.at(-1)?.version ?? 0;

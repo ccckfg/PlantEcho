@@ -16,8 +16,11 @@ test("unknown device becomes pending, then claimed device requires its generated
     claimDevice,
     applyBulkDeviceAction,
     deleteDevice,
+    confirmDeviceCredentialsDelivered,
+    deliverPendingDeviceConfig,
     getClaimedDevices,
     getPendingDevices,
+    hasPendingDeviceCredentials,
     ignorePendingDevice,
     isAuthorizedDevice,
     registerPendingDevice,
@@ -50,7 +53,9 @@ test("unknown device becomes pending, then claimed device requires its generated
 
   try {
     const delivered: Array<{ deviceId: string; payload: DeviceConfigPayload }> = [];
+    const blockedDeliveries = new Set<string>();
     registerDeviceConfigPublisher((targetDeviceId, config) => {
+      if (blockedDeliveries.has(targetDeviceId)) return false;
       delivered.push({ deviceId: targetDeviceId, payload: config });
       return true;
     });
@@ -89,6 +94,25 @@ test("unknown device becomes pending, then claimed device requires its generated
     assert.equal(ignored.claimStatus, "ignored");
     assert.equal(getPendingDevices().some((device) => device.id === ignoredId), false);
 
+    const queuedId = `test-device-${randomUUID()}`;
+    registerPendingDevice(queuedId, payload);
+    blockedDeliveries.add(queuedId);
+    const queuedClaim = claimDevice(queuedId, {
+      mode: "existingPlant",
+      plantId: env.DEFAULT_PLANT_ID,
+      deviceName: "Queued ESP32"
+    });
+    assert.equal(queuedClaim.deliveredToDevice, false);
+    assert.equal(hasPendingDeviceCredentials(queuedId), true);
+    assert.equal(isAuthorizedDevice(queuedId, queuedClaim.deviceApiKey), true);
+    blockedDeliveries.delete(queuedId);
+    assert.equal(deliverPendingDeviceConfig(queuedId), true);
+    const queuedDelivery = delivered.find((item) => item.deviceId === queuedId);
+    assert.equal(queuedDelivery?.payload.apiKey, queuedClaim.deviceApiKey);
+    assert.equal(hasPendingDeviceCredentials(queuedId), true);
+    confirmDeviceCredentialsDelivered(queuedId);
+    assert.equal(hasPendingDeviceCredentials(queuedId), false);
+
     const claimed = claimDevice(deviceId, {
       mode: "existingPlant",
       plantId: env.DEFAULT_PLANT_ID,
@@ -100,8 +124,8 @@ test("unknown device becomes pending, then claimed device requires its generated
     assert.equal(claimed.device.hasApiKey, true);
     assert.match(claimed.deviceApiKey, /^dyn_dev_/);
     assert.equal(claimed.deliveredToDevice, true);
-    assert.equal(delivered[0]?.deviceId, deviceId);
-    assert.equal(delivered[0]?.payload.apiKey, claimed.deviceApiKey);
+    const mainDelivery = delivered.find((item) => item.deviceId === deviceId);
+    assert.equal(mainDelivery?.payload.apiKey, claimed.deviceApiKey);
     assert.equal(getClaimedDevices().some((device) => device.id === deviceId), true);
     assert.equal(isAuthorizedDevice(deviceId), false);
     assert.equal(isAuthorizedDevice(deviceId, "wrong"), false);

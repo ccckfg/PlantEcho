@@ -10,6 +10,13 @@ import { getPlant, createPlant } from "../plants/plantRepository.js";
 import { nowIso } from "../../shared/time.js";
 import { getUserById, getUserByUsername } from "../auth/authRepository.js";
 import { publishDeviceConfig } from "../iot/deviceConfigChannel.js";
+import {
+  clearDeviceConfigDelivery,
+  getDeviceConfigDelivery,
+  hasDeviceConfigDelivery,
+  markDeviceConfigDeliveryAttempt,
+  upsertDeviceConfigDelivery
+} from "../iot/deviceConfigDeliveryRepository.js";
 import { publishSyncEvent } from "../sync/syncBus.js";
 import {
   getDevice,
@@ -46,13 +53,41 @@ export const isAuthorizedDevice = (deviceId: string, apiKey?: string): boolean =
   return matchesDeviceApiKey(hash, apiKey);
 };
 
+const buildDeviceCredentialsPayload = (
+  deviceId: string,
+  apiKey: string
+) => ({
+  type: "device.credentials" as const,
+  deviceId,
+  apiKey,
+  issuedAt: nowIso()
+});
+
+const queueDeviceCredentials = (
+  deviceId: string,
+  payload: ReturnType<typeof buildDeviceCredentialsPayload>
+): boolean => {
+  upsertDeviceConfigDelivery(deviceId, payload);
+  return deliverPendingDeviceConfig(deviceId);
+};
+
 const sendDeviceCredentials = (deviceId: string, apiKey: string): boolean =>
-  publishDeviceConfig(deviceId, {
-    type: "device.credentials",
-    deviceId,
-    apiKey,
-    issuedAt: nowIso()
-  });
+  queueDeviceCredentials(deviceId, buildDeviceCredentialsPayload(deviceId, apiKey));
+
+export const deliverPendingDeviceConfig = (deviceId: string): boolean => {
+  const delivery = getDeviceConfigDelivery(deviceId);
+  if (!delivery) return false;
+  const attempted = publishDeviceConfig(deviceId, delivery.payload);
+  if (attempted) markDeviceConfigDeliveryAttempt(deviceId);
+  return attempted;
+};
+
+export const hasPendingDeviceCredentials = (deviceId: string): boolean =>
+  hasDeviceConfigDelivery(deviceId);
+
+export const confirmDeviceCredentialsDelivered = (deviceId: string): void => {
+  clearDeviceConfigDelivery(deviceId);
+};
 
 const userIdentifiers = (scope: UserScope = null): string[] => {
   if (!scope) return [];
@@ -171,6 +206,7 @@ export const deleteDevice = (deviceId: string): DeviceRecord => {
   if (!existing) throw new Error(`Device ${deviceId} not found`);
   const device = softDeleteDevice(deviceId);
   if (!device) throw new Error(`Device ${deviceId} not found`);
+  clearDeviceConfigDelivery(deviceId);
   publishSyncEvent({
     type: "devices.changed",
     plantId: device.plantId,
