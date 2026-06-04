@@ -63,7 +63,7 @@ function JournalContent({
   plants: PlantSummary[];
   onSwitch: (nextId: string) => void;
 }) {
-  const plantRefresh = useSyncRefresh({ plantId, resources: ["plants", "status"] });
+  const plantRefresh = useSyncRefresh({ plantId, resources: ["plants"] });
   const memoriesRefresh = useSyncRefresh({ plantId, resources: ["memories"] });
   const understandingsRefresh = useSyncRefresh({ plantId, resources: ["understandings"] });
   const plant = useAsync(() => api.getPlant(plantId), [plantId, plantRefresh]);
@@ -141,7 +141,7 @@ function JournalContent({
 
       <section className="max-w-3xl">
         <h2 className="font-display text-headline-lg text-on-surface mb-lg">成长里程碑</h2>
-        {memories.loading ? (
+        {memories.loading && !memories.data ? (
           <Card>
             <div className="animate-pulse h-40" />
           </Card>

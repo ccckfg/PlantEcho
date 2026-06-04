@@ -155,7 +155,7 @@ export function DashboardPage() {
           </Link>
         </div>
 
-        {plantsState.loading ? (
+        {plantsState.loading && !plantsState.data ? (
           <DashboardSkeleton />
         ) : plantsState.error ? (
           <Card>

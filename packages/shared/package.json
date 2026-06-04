@@ -1,6 +1,6 @@
 {
   "name": "@dyn/shared",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

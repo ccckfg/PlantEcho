@@ -86,8 +86,8 @@ constexpr int SOIL_PERCENT_WET_READING = 81;
 constexpr int SOIL_PERCENT_WET_TARGET = 90;
 
 constexpr unsigned long SAMPLE_INTERVAL_MS = 1000;
-constexpr unsigned long DISPLAY_INTERVAL_MS = 250;
-constexpr unsigned long MQTT_PUBLISH_INTERVAL_MS = 1000;
+constexpr unsigned long DISPLAY_INTERVAL_MS = 1000;
+constexpr unsigned long MQTT_PUBLISH_INTERVAL_MS = 4000;
 constexpr unsigned long HTTP_UPLOAD_INTERVAL_MS = 30000;
 constexpr unsigned long WIFI_CONNECT_TIMEOUT_MS = 12000;
 constexpr unsigned long WIFI_RECONNECT_INTERVAL_MS = 5000;

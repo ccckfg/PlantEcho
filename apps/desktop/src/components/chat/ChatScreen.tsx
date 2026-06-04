@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { PlantSummary } from "@dyn/shared";
-import { SENSOR_STATUS_REFRESH_MS } from "@/config/sensors";
+import {
+  SENSOR_READING_REFRESH_THROTTLE_MS,
+  SENSOR_STATUS_REFRESH_MS
+} from "@/config/sensors";
 import { QUICK_CHAT_ACTIONS } from "@/config/chat";
 import { api, mediaUrl, type ReadingState } from "@/lib/api";
 import { plantImage, useNow } from "@/lib/format";
@@ -27,7 +30,10 @@ interface ChatScreenProps {
 
 export function ChatScreen({ plantId, plants, onSwitch }: ChatScreenProps) {
   const summary = plants.find((p) => p.id === plantId) ?? plants[0];
-  const readingRefresh = useSyncRefresh({ plantId, resources: ["readings"] });
+  const readingRefresh = useSyncRefresh(
+    { plantId, resources: ["readings"] },
+    { throttleMs: SENSOR_READING_REFRESH_THROTTLE_MS }
+  );
   const messagesRefresh = useSyncRefresh({ plantId, resources: ["messages"] });
   const reading = useAsync<ReadingState>(() => api.latestReading(plantId), [plantId, readingRefresh]);
   const [messages, setMessages] = useState<ChatDisplayMessage[]>([]);

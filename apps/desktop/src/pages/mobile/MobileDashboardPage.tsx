@@ -182,7 +182,7 @@ export function MobileDashboardPage() {
           </Link>
         </div>
 
-        {plantsState.loading ? (
+        {plantsState.loading && !plantsState.data ? (
           <DashboardSkeleton />
         ) : plantsState.error ? (
           <Card>

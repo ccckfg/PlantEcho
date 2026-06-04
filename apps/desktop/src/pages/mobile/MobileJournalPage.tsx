@@ -62,7 +62,7 @@ function MobileJournalContent({
   plants: PlantSummary[];
   onSwitch: (nextId: string) => void;
 }) {
-  const plantRefresh = useSyncRefresh({ plantId, resources: ["plants", "status"] });
+  const plantRefresh = useSyncRefresh({ plantId, resources: ["plants"] });
   const memoriesRefresh = useSyncRefresh({ plantId, resources: ["memories"] });
   const understandingsRefresh = useSyncRefresh({ plantId, resources: ["understandings"] });
   const plant = useAsync(() => api.getPlant(plantId), [plantId, plantRefresh]);
@@ -131,7 +131,7 @@ function MobileJournalContent({
 
         <section>
           <h2 className="mb-md font-display text-headline-sm text-on-surface">成长里程碑</h2>
-          {memories.loading ? (
+          {memories.loading && !memories.data ? (
             <Card>
               <div className="h-32 animate-pulse" />
             </Card>

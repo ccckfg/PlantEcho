@@ -132,7 +132,7 @@ export function ClaimedDeviceList({
     );
   }
 
-  if (loading) {
+  if (loading && devices.length === 0) {
     return <p className="mt-lg text-body-sm text-on-surface-variant">设备列表加载中...</p>;
   }
 

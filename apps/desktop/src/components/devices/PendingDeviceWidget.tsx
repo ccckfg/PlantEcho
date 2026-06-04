@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import type { DeviceRecord, PendingDevice, PlantSummary } from "@dyn/shared";
 import { useSyncRefresh } from "@/hooks/useSyncRefresh";
 import { api } from "@/lib/api";
+import { DEVICE_LIST_REFRESH_THROTTLE_MS } from "@/config/sensors";
 import { deviceApi, type DeviceClaimResult } from "@/lib/deviceApi";
 import { useAsync } from "@/lib/useAsync";
 import { Icon } from "@/components/UI";
@@ -13,14 +14,24 @@ import { PendingDeviceClaimForm } from "./PendingDeviceClaimForm";
 type DeviceTab = "pending" | "claimed";
 
 export function PendingDeviceWidget() {
-  const refresh = useSyncRefresh({ resources: ["devices", "plants"] });
+  const refresh = useSyncRefresh(
+    { resources: ["devices", "plants"] },
+    { throttleMs: DEVICE_LIST_REFRESH_THROTTLE_MS }
+  );
   const [localRefresh, setLocalRefresh] = useState(0);
   const pending = useAsync(() => deviceApi.listPendingDevices(), [refresh, localRefresh]);
   const claimed = useAsync(() => deviceApi.listDevices(), [refresh, localRefresh]);
   const plants = useAsync(() => api.listPlants(), [refresh, localRefresh]);
   const [open, setOpen] = useState(false);
 
-  const count = pending.data?.devices.length ?? 0;
+  const pendingDevices = pending.data?.devices ?? [];
+  const claimedDevices = claimed.data?.devices ?? [];
+  const plantList = plants.data?.plants ?? [];
+  const initialLoading =
+    (pending.loading && !pending.data) ||
+    (claimed.loading && !claimed.data) ||
+    (plants.loading && !plants.data);
+  const count = pendingDevices.length;
   const triggerRefresh = () => setLocalRefresh((value) => value + 1);
 
   return (
@@ -46,10 +57,10 @@ export function PendingDeviceWidget() {
       </button>
       {open ? (
         <DeviceClaimDialog
-          devices={pending.data?.devices ?? []}
-          claimedDevices={claimed.data?.devices ?? []}
-          plants={plants.data?.plants ?? []}
-          loading={pending.loading || claimed.loading || plants.loading}
+          devices={pendingDevices}
+          claimedDevices={claimedDevices}
+          plants={plantList}
+          loading={initialLoading}
           error={pending.error || claimed.error || plants.error}
           onChanged={triggerRefresh}
           onClose={() => setOpen(false)}

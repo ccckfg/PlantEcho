@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import type { PlantSummary } from "@dyn/shared";
+import { SENSOR_STATUS_REFRESH_MS } from "@/config/sensors";
 import { useSyncRefresh } from "@/hooks/useSyncRefresh";
 import { api } from "@/lib/api";
 import { useAsync } from "@/lib/useAsync";
@@ -26,10 +27,13 @@ export function PlantReflectionCard() {
     () => choosePlantId(location.pathname, plants.data?.plants),
     [location.pathname, plants.data]
   );
-  const reflectionRefresh = useSyncRefresh({
-    plantId: plantId ?? undefined,
-    resources: ["readings", "status", "memories"]
-  });
+  const reflectionRefresh = useSyncRefresh(
+    {
+      plantId: plantId ?? undefined,
+      resources: ["readings", "status", "memories"]
+    },
+    { throttleMs: SENSOR_STATUS_REFRESH_MS }
+  );
   const reflection = useAsync(
     () =>
       plantId

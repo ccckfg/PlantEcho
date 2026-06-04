@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import type { PlantSummary } from "@dyn/shared";
+import { SENSOR_READING_REFRESH_THROTTLE_MS } from "@/config/sensors";
 import type { ReadingState, WeatherNowResult } from "@/lib/api";
 import { api, mediaUrl } from "@/lib/api";
 import { useSyncRefresh } from "@/hooks/useSyncRefresh";
@@ -63,10 +64,10 @@ export function DashboardSkeleton() {
 export function PlantCard({ plant, now, index }: { plant: PlantSummary; now: Date; index: number }) {
   const [reading, setReading] = useState<ReadingState | null>(null);
   const [hover, setHover] = useState(false);
-  const readingRefresh = useSyncRefresh({
-    plantId: plant.id,
-    resources: ["readings", "status"]
-  });
+  const readingRefresh = useSyncRefresh(
+    { plantId: plant.id, resources: ["readings"] },
+    { throttleMs: SENSOR_READING_REFRESH_THROTTLE_MS }
+  );
 
   useEffect(() => {
     let cancelled = false;

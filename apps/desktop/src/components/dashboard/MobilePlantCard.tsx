@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import type { PlantSummary } from "@dyn/shared";
+import { SENSOR_READING_REFRESH_THROTTLE_MS } from "@/config/sensors";
 import type { ReadingState } from "@/lib/api";
 import { api, mediaUrl } from "@/lib/api";
 import { useSyncRefresh } from "@/hooks/useSyncRefresh";
@@ -22,7 +23,10 @@ export function MobilePlantCard({
   index: number;
 }) {
   const [reading, setReading] = useState<ReadingState | null>(null);
-  const readingRefresh = useSyncRefresh({ plantId: plant.id, resources: ["readings", "status"] });
+  const readingRefresh = useSyncRefresh(
+    { plantId: plant.id, resources: ["readings"] },
+    { throttleMs: SENSOR_READING_REFRESH_THROTTLE_MS }
+  );
 
   useEffect(() => {
     let cancelled = false;

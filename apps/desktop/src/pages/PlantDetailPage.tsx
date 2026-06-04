@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { SENSOR_STATUS_REFRESH_MS } from "@/config/sensors";
+import {
+  SENSOR_READING_REFRESH_THROTTLE_MS,
+  SENSOR_STATUS_REFRESH_MS
+} from "@/config/sensors";
 import { api, mediaUrl } from "@/lib/api";
 import { useAsync } from "@/lib/useAsync";
 import { useSyncRefresh } from "@/hooks/useSyncRefresh";
@@ -18,8 +21,11 @@ export function PlantDetailPage() {
   const { plantId } = useParams<{ plantId: string }>();
   if (!plantId) return null;
 
-  const detailRefresh = useSyncRefresh({ plantId, resources: ["plants", "status"] });
-  const readingsRefresh = useSyncRefresh({ plantId, resources: ["readings"] });
+  const detailRefresh = useSyncRefresh({ plantId, resources: ["plants"] });
+  const readingsRefresh = useSyncRefresh(
+    { plantId, resources: ["readings"] },
+    { throttleMs: SENSOR_READING_REFRESH_THROTTLE_MS }
+  );
   const [localRefresh, setLocalRefresh] = useState(0);
   const [editingAvatar, setEditingAvatar] = useState(false);
   const detail = useAsync(() => api.getPlant(plantId), [plantId, detailRefresh, localRefresh]);
@@ -27,7 +33,7 @@ export function PlantDetailPage() {
   const recent = useAsync(() => api.listReadings(plantId, 12), [plantId, readingsRefresh]);
   const now = useNow(SENSOR_STATUS_REFRESH_MS);
 
-  if (detail.loading) {
+  if (detail.loading && !detail.data) {
     return (
       <div className="max-w-[1200px] mx-auto px-margin-desktop py-xxl">
         <div className="h-12 w-1/3 bg-surface-container animate-pulse rounded mb-lg" />

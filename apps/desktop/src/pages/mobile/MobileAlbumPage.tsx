@@ -160,7 +160,7 @@ export function MobileAlbumPage() {
       ) : null}
 
       <div className="scroll-area flex-1 overflow-y-auto pb-xl">
-        {plantsState.loading ? (
+        {plantsState.loading && !plantsState.data ? (
           <AlbumSkeleton />
         ) : error ? (
           <Empty icon="cloud_off" title="相册加载失败" description={error} />
