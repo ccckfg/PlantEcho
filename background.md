@@ -4,7 +4,7 @@
 
 PlantEcho 是一个基于 ESP32 与大语言模型的智能植物陪伴系统。它把植物的环境状态、养护规则、长期记忆与拟人化对话结合起来，让用户在养植物的过程中获得真正的陪伴感和反馈感。
 
-当前阶段：Node.js/TypeScript 后端 MVP 可运行；Tauri v2 桌面客户端已交付 Windows 端首版；ESP32 已具备 SoftAP 配网、MQTT 上报和 OTA 在线更新能力；后端已启用主动发言 Engine。后端完成度约 90%，桌面客户端约 87%（未上手机端）。
+当前阶段：Node.js/TypeScript 后端 MVP 可运行；Tauri v2 客户端已交付 Windows 端首版，安卓移动 UI 与系统相册保存桥接已就绪、待 APK/真机验证；ESP32 已具备 SoftAP 配网、MQTT 上报和 OTA 在线更新能力；后端已启用主动发言 Engine。后端完成度约 90%，客户端约 87%。
 
 ---
 
@@ -79,11 +79,12 @@ PlantEcho 的设计目标不是"高效的传感器看板"，而是"和植物一�
 核心模块：
 
 - **设备**：读数上传、待认领登记、列表/忽略、认领、密钥 hash 校验/轮换，认领/轮换后可通过 MQTT 下发设备密钥。
-- **植物**：档案、状态、读数、care profile 建议（LLM/模板）。
+- **植物**：档案、用户自定义背景与性格、状态、读数、care profile 建议（LLM/模板）。
 - **聊天**：流式 + 非流式植物聊天，含 LLM 不可用时的 fallback。
 - **OpenAI-compatible**：`/v1/chat/completions`、`/v1/models`，通过 `<植物名>...</植物名>` 路由植物。
 - **记忆**：AgentGal 式生命周期（drafts → consolidation → episode → understanding），FTS5/BM25 + sqlite-vec + hybrid + 可选 rerank。
-- **主动发言 Engine**：缺水/离线/降雨/到期提醒先生成事件事实，冷却占位后由 LLM 润色为植物口吻消息。
+- **主动发言 Engine**：提醒到期必达；传感器异常需形成稳定的新状态后才进入候选；普通候选由 LLM 判断是否值得开口，允许沉默。用户说明传感器未插入或读数失真后，系统停止依据这些读数判断状态、记录记忆或主动发言，直到用户明确恢复可信。
+- **后台调用控制**：读数上报不再逐条触发 LLM 记忆整理；普通对话按轮次合并整理，传感器规则记忆按异常状态与 72 小时窗口去重；天气默认不参与主动扫描，植物反思与状态标签改为本地规则生成。
 - **同步**：SQLite `sync_events` + SSE，多端实时刷新。
 - **天气**：代理和风天气/QWeather。
 - **用户与登录**：前端通过后端地址 + 账号密码登录；后端提供注册、登录、当前用户接口，使用 HMAC token 保护除设备读数/注册登录外的应用接口，并记录登录会话的 IP 与 User-Agent。管理员用户管理交给后端 CLI。`APP_ACCESS_KEY` 仅作为旧版兼容入口与 token secret 兜底。
@@ -97,7 +98,7 @@ PlantEcho 的设计目标不是"高效的传感器看板"，而是"和植物一�
 页面与路由：
 
 - `/` 温室 Dashboard：时段问候 + 天气卡 + 一键浇水（带 5 秒 undo toast）+ 植物卡片网格。
-- `/plant/:plantId` 植物详情：头图 + 头像编辑 + 状态条 + 最新读数 + 读数历史（顶部底部渐变淡出）+ care profile。
+- `/plant/:plantId` 植物详情：头图 + 头像编辑 + 自定义背景与性格 + 状态条 + 最新读数 + 读数历史（顶部底部渐变淡出）+ care profile。
 - `/chat`、`/chat/:plantId` 植响对话：左侧档案卡 + 右侧聊天，流式回复，快捷动作，hover 评论按钮。
 - `/journal`、`/journal/:plantId` 成长日记：Bento StatCard + 里程碑时间线，里程碑悬停可对植物留言。
 - `/album` 相册：双层时间分组 + 按植物筛选 + 拖入上传 + 固定尺寸 lightbox + 删除二次确认。
@@ -107,8 +108,8 @@ PlantEcho 的设计目标不是"高效的传感器看板"，而是"和植物一�
 - `AppShell`、`SideNav`、`Card`、`Chip`、`Icon`、`ProgressBar`、`Empty`、`Toast`（带 undo action 槽）。
 - `BackendConnect`：桌面端与移动端共用启动入口，输入后端地址 + 账号密码登录，或在首次使用时注册账号；登录后本机保存 token 与当前用户信息。
 - `UserMenu`：桌面端 Header 与移动端 AppBar 共用账号入口，展示当前账号、后端地址与当前用户登录会话；用户可撤销自己的会话。
-- `PlantStatusTagChips`：`GET /api/v1/plants/:id/status-tags` 拉取 1-2 个短标签；不可用时规则兜底。
-- `PlantReflectionFooter`：左下角植物口吻一句话，优先 `GET /api/v1/plants/:id/reflection`。
+- `PlantStatusTagChips`：按客户端现有状态规则生成 1-2 个短标签，不再为展示标签调用后端。
+- `PlantReflectionFooter`：只在记忆变化时刷新植物口吻的一句话，不再跟随每条传感器读数重拉。
 - 同步层：根部订阅 `GET /api/v1/sync/stream`，按 `resource + plantId` 重拉数据。
 
 移动端（Tauri 安卓手机端）：
@@ -118,17 +119,19 @@ PlantEcho 的设计目标不是"高效的传感器看板"，而是"和植物一�
 - 移动页面 `pages/mobile/`：Dashboard/PlantDetail/Chat/Journal/Album 竖屏重排，复用全部逻辑层（`lib/*`、`hooks/*`、`config/*`）与基础组件；聊天为全屏单栏 + 可折叠状态面板 + 吸底输入；相册为 2 列网格。
 - 逻辑层零 Tauri-window 依赖（纯 fetch/localStorage/SSE），安卓 webview 全兼容；桌面渲染路径不变（零回归）。
 - 安卓工程：`lib.rs` 已具 `mobile_entry_point`、`Cargo.toml` 已含 `cdylib`；`tauri android init` 与构建/真机验证由本机执行，步骤见 `docs/android-build.md`（含明文 HTTP `usesCleartextTraffic` 与局域网后端说明）。
+- 安卓相册保存通过自定义 Tauri Android plugin 调用 MediaStore，写入系统 `Pictures/PlantEcho`；保存成功后显示底部 toast。Android 9 及以下兼容旧存储权限。
 
 ---
 
 ## 代码结构
 
 - `apps/server`：核心后端。
-  - `src/db/migrations`：迁移清单（当前 `001_initial_schema` baseline）。
+  - `src/db/migrations`：递增迁移清单（当前最新 `011_plant_background_info`）。
   - `src/modules/iot`：MQTT broker + topic + 读数入库。
   - `src/modules/proactive`：主动发言 Engine。
 - `apps/desktop`：Tauri v2 桌面客户端（React + Rust）。
   - `src/components/Toast.tsx`：全局 toast 系统，支持 undo action。
+  - `src/components/plants/PlantBackgroundEditor.tsx`：桌面与移动端共用的植物背景/人设编辑器。
   - `src/lib/mood.ts`：传感器读数 → 心情/植物视角文案。
 - `packages/shared`：共享 schema 和类型定义。
 - `hardware/esp32_oled`：ESP32 真实硬件固件。
@@ -171,7 +174,7 @@ npm run build
 npm run test
 ```
 
-最近一次：服务端测试通过（25 个）。
+最近一次（2026-06-05）：服务端测试通过（35 个），完整 `npm run build` 通过。
 
 Smoke 脚本：
 
@@ -203,6 +206,7 @@ npm run tauri:build
 2026-06-02：新增 GitHub Actions 客户端构建流水线（`.github/workflows/tauri-clients.yml`），自动构建 Windows、macOS arm64/x64 与 Android release 客户端；Android 构建强制使用 GitHub Secrets 注入 keystore 签名，拒绝 unsigned/debug APK。配置说明见 `docs/github-actions-clients.md`。
 2026-06-03：新增植物详情页删除植物功能，后端通过 `007_plant_soft_delete` 对植物做软删除并提供恢复接口；桌面端与移动端详情页均提供删除入口，先经二次确认提醒框，删除后返回温室并给 5 秒撤销 toast。`npm run build:desktop`、`npm run build --workspace @dyn/server` 与植物软删除目标测试通过。
 2026-06-03：待认领设备的“忽略”操作新增二次确认提醒框，确认后才从待认领列表移走设备；`npm run build:desktop` 通过。
+2026-06-05：完成后台调用降频、主动发言“可沉默”决策、传感器可信度贯穿、简短抽象植物口吻、严格里程碑筛选、自定义植物背景/人设，以及 Android MediaStore 相册保存与成功 toast。`npm run build`、`npm run test`、桌面与 Android Rust `cargo check` 均通过；本环境缺少 Android SDK，APK/Kotlin 编译与真机保存仍待具备 SDK 的环境验证。
 
 ESP32 真实验证（2026-05-25）：OLED/SHT40/GY-302/土壤 ADC 实测可用；HTTP 上传通过；2026-05-27 编译验证含 MQTT 1 秒级上报、断线重连、设备密钥持久化、SoftAP 配网、OTA；2026-05-28 编译验证通过 MQTT config topic 自动接收并保存认领密钥。
 
@@ -232,15 +236,15 @@ ESP32 真实验证（2026-05-25）：OLED/SHT40/GY-302/土壤 ADC 实测可用�
 
 ### 桌面客户端
 
-- 编辑档案表单。
+- 物种与位置编辑表单。
 - 头像裁剪/构图工具。
 - 读数趋势图（折线 / 区域）。
 - 提醒管理 UI。
 - 深色模式。
 - 相册：编辑描述、收藏、设为封面。
-- 数据请求缓存：当前业务请求集中走后端，已有 SSE 同步；后续可给植物列表、照片、日记等加轻量缓存/去重，减少切页重复请求。
+- 数据请求缓存：高频读数刷新与 LLM 后台调用已降频；后续可给植物列表、照片、日记等加轻量缓存/去重，减少切页重复请求。
 - 多用户体系的权限边界细化（当前已支持注册、登录、CLI 用户管理与登录会话记录）。
-- 安卓端：`tauri android init` 与 APK/真机验证（需本机 Android SDK/NDK/JDK）尚未在本环境执行，仅 UI + 配置 + 文档就绪。
+- 安卓端：MediaStore 相册保存代码已就绪；APK/Kotlin 编译与真机保存验证（需本机 Android SDK/NDK/JDK）尚未在本环境执行。
 
 ---
 
