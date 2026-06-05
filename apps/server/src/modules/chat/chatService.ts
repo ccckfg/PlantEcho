@@ -13,6 +13,7 @@ import {
   citationsUsedByReply,
   repairUnsupportedMemoryClaim
 } from "./memoryCitation.js";
+import { limitPlantReply, replyCharLimit } from "./replyStyle.js";
 import type { MemoryCitation } from "@dyn/shared";
 
 export interface ChatResult {
@@ -64,7 +65,10 @@ export const chatWithPlant = async (
     console.warn(`[chat] fallback for ${plantId} turn ${turn}: ${llmError}`);
     reply = fallback;
   }
-  reply = repairUnsupportedMemoryClaim(reply, context.offeredCitations);
+  reply = limitPlantReply(
+    repairUnsupportedMemoryClaim(reply, context.offeredCitations),
+    content
+  );
   const memoryCitations = citationsUsedByReply(reply, context.offeredCitations);
   finishChatTurn(plantId, turn, content, reply);
   const reminder = scheduleReminderFromText(plantId, content, userMessageId);
@@ -88,6 +92,8 @@ export async function* streamChatWithPlant(
   yield { type: "meta", turn };
 
   let reply = "";
+  let emittedChars = 0;
+  const maxReplyChars = replyCharLimit(content);
   let usedLlm = false;
   let llmError: string | undefined;
   try {
@@ -98,21 +104,29 @@ export async function* streamChatWithPlant(
       { role: "system", content: plantSystemPrompt },
       { role: "user", content: context.userPrompt }
     ], options)) {
-      reply += delta;
+      const remaining = maxReplyChars - emittedChars;
+      const visibleDelta = remaining > 0
+        ? Array.from(delta).slice(0, remaining).join("")
+        : "";
+      reply += visibleDelta;
+      emittedChars += Array.from(visibleDelta).length;
       usedLlm = true;
-      yield { type: "delta", delta };
+      if (visibleDelta) yield { type: "delta", delta: visibleDelta };
     }
     if (!reply.trim()) throw new Error("LLM_STREAM_EMPTY");
   } catch (error) {
     llmError = sanitizeLlmError(error);
     console.warn(`[chat] stream fallback for ${plantId} turn ${turn}: ${llmError}`);
     if (!reply.trim()) {
-      reply = fallback;
-      yield { type: "delta", delta: fallback };
+      reply = limitPlantReply(fallback, content);
+      yield { type: "delta", delta: reply };
     }
   }
 
-  reply = repairUnsupportedMemoryClaim(reply, context.offeredCitations);
+  reply = limitPlantReply(
+    repairUnsupportedMemoryClaim(reply, context.offeredCitations),
+    content
+  );
   const memoryCitations = citationsUsedByReply(reply, context.offeredCitations);
   finishChatTurn(plantId, turn, content, reply);
   const reminder = scheduleReminderFromText(plantId, content, userMessageId);
@@ -176,21 +190,18 @@ const buildFallbackReply = (
 
   if (isBriefFollowUp) {
     if (issue) {
-      return `是真的，我是按刚才的传感器读数判断的：${issue.label}，${issue.detail}。如果你愿意，我们先观察下一两轮读数，别急着处理。`;
+      return `嗯。刚才的读数里有${issue.label}。先等等下一轮。`;
     }
-    return "是真的。按当前传感器读数看，整体在建议范围内；我不会把你没告诉我的事当成事实。";
+    return "嗯。至少这一刻，我没有乱猜。";
   }
 
-  const memory = wantsMemory && memoryTitle ? `我也会参考之前的「${memoryTitle}」。` : "";
-  if (issue) {
-    if (isSensorOffline && !wantsStatus && !wantsMemory) {
-      return `${memory}我听到了，先把这件事记下。等你想看环境状态时，我再单独说明当前读数。`;
-    }
-    const reading = wantsStatus ? `当前读数是：${facts}。` : "";
-    return `${reading}${memory}我现在比较在意${issue.label}，${issue.detail}。可以先看一下摆放位置和土壤状态，我们慢慢调。`;
+  const memory = wantsMemory && memoryTitle ? `我记得「${memoryTitle}」留下的那一点。` : "";
+  if (issue && wantsStatus) {
+    if (isSensorOffline) return "我现在听不清自己的身体。最后一次读数，先别当成此刻。";
+    return `现在有一点${issue.label}。不急，先看看它会不会自己缓下来。`;
   }
   if (wantsStatus) {
-    return `当前读数是：${facts}。现在整体还舒服。`;
+    return `现在挺安稳。你要数字的话，是：${facts}。`;
   }
-  return `${memory}我听到了。当前环境读数整体稳定；如果你想看具体状态，我可以再把水分、光照和温湿度告诉你。`;
+  return memory || "我听见了。先让它在叶子底下待一会儿。";
 };

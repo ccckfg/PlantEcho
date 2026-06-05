@@ -22,18 +22,34 @@ const memory = (input: Partial<EpisodeMemory>): EpisodeMemory => ({
   ...input
 });
 
-test("deriveMilestoneMark marks high importance memories", () => {
-  const mark = deriveMilestoneMark(memory({ importance: 4 }));
+test("deriveMilestoneMark marks exceptional memories", () => {
+  const mark = deriveMilestoneMark(memory({ importance: 5 }));
 
   assert.equal(mark.isMilestone, true);
-  assert.equal(mark.milestoneReason, "高重要度记忆");
+  assert.equal(mark.milestoneReason, "难得的重要时刻");
 });
 
-test("deriveMilestoneMark marks sensor status transitions", () => {
-  const mark = deriveMilestoneMark(memory({ sourceType: "sensor:soil_low", importance: 3 }));
+test("deriveMilestoneMark ignores routine sensor events", () => {
+  const mark = deriveMilestoneMark(memory({ sourceType: "sensor:soil_low", importance: 5 }));
+
+  assert.equal(mark.isMilestone, false);
+});
+
+test("deriveMilestoneMark requires a meaningful transition at importance four", () => {
+  const mark = deriveMilestoneMark(memory({
+    importance: 4,
+    title: "第一次长出新叶",
+    content: "我和主人一起看见了第一片新叶。"
+  }));
 
   assert.equal(mark.isMilestone, true);
-  assert.equal(mark.milestoneReason, "状态转折事件");
+  assert.equal(mark.milestoneReason, "真正发生了转折");
+});
+
+test("deriveMilestoneMark leaves ordinary importance four memories unmarked", () => {
+  const mark = deriveMilestoneMark(memory({ importance: 4, title: "今天浇了水" }));
+
+  assert.equal(mark.isMilestone, false);
 });
 
 test("deriveMilestoneMark leaves daily memories unmarked", () => {
