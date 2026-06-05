@@ -7,7 +7,14 @@ test("deletePlant hides a plant and restorePlant brings the same plant back", as
   const { migrate } = await import("../../db/migrate.js");
   const { closeDb, getDb } = await import("../../db/connection.js");
   const { latestSchemaVersion } = await import("../../db/migrations/index.js");
-  const { createPlant, deletePlant, getPlant, listPlants, restorePlant } = await import("./plantRepository.js");
+  const {
+    createPlant,
+    deletePlant,
+    getPlant,
+    listPlants,
+    restorePlant,
+    updatePlant
+  } = await import("./plantRepository.js");
 
   migrate();
   const schemaVersion = getDb()
@@ -15,8 +22,19 @@ test("deletePlant hides a plant and restorePlant brings the same plant back", as
     .get() as { version: number };
   assert.equal(schemaVersion.version, latestSchemaVersion);
 
-  const plant = createPlant({ name: "删除测试小绿", species: "绿萝", location: "窗边" });
+  const plant = createPlant({
+    name: "删除测试小绿",
+    species: "绿萝",
+    location: "窗边",
+    backgroundInfo: "话不多，住在窗边。"
+  });
   try {
+    assert.equal(plant.backgroundInfo, "话不多，住在窗边。");
+    assert.equal(
+      updatePlant(plant.id, { backgroundInfo: "喜欢把心事说得像风。" })?.backgroundInfo,
+      "喜欢把心事说得像风。"
+    );
+
     const deleted = deletePlant(plant.id);
 
     assert.equal(deleted?.id, plant.id);

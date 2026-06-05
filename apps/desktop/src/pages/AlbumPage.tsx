@@ -116,6 +116,7 @@ export function AlbumPage() {
                   name: plantName,
                   species: "",
                   location: "",
+                  backgroundInfo: "",
                   avatarUrl: null,
                   careProfile: plants[0].careProfile
                 }),

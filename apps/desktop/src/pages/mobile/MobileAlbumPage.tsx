@@ -124,6 +124,7 @@ export function MobileAlbumPage() {
                           name: plantName,
                           species: "",
                           location: "",
+                          backgroundInfo: "",
                           avatarUrl: null,
                           careProfile: plants[0].careProfile
                         }

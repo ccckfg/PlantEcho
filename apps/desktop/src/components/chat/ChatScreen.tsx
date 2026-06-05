@@ -89,7 +89,12 @@ export function ChatScreen({ plantId, plants, onSwitch }: ChatScreenProps) {
   });
 
   const sensorConnection = getSensorConnection(reading.data?.latest, now);
-  const status = deriveStatus(reading.data?.latest, summary?.careProfile, now);
+  const status = deriveStatus(
+    reading.data?.latest,
+    summary?.careProfile,
+    now,
+    reading.data?.sensorTrust.trusted ?? true
+  );
   const moodMeta = MOOD_PRESETS[status.mood];
   const avatarSrc = mediaUrl(summary?.avatarUrl ?? plantImage(plantId));
 

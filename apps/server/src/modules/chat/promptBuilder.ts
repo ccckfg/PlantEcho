@@ -12,7 +12,6 @@ import {
 } from "../memory/retrieval/retrievalService.js";
 import { buildRetrievalQueries } from "../memory/retrieval/queryBuilder.js";
 import { formatCitationPolicy, memoryCitationsForPrompt } from "./memoryCitation.js";
-import { getSensorTrust } from "../readings/sensorTrust.js";
 import type { MemoryCitation, PlantHealthSummary, PlantStatus } from "@dyn/shared";
 
 export interface ChatContext {
@@ -33,6 +32,7 @@ interface PromptStatus {
 
 interface PromptParts {
   plant: string;
+  backgroundInfo: string;
   careProfile: string;
   relevantUnderstandings: string;
   relevantMemories: string;
@@ -67,6 +67,7 @@ export const composePromptStatus = (
 export const composeUserPrompt = (parts: PromptParts): string =>
   [
     `<plant>\n${parts.plant}\n</plant>`,
+    `<plant_background>\n${parts.backgroundInfo}\n</plant_background>`,
     `<care_profile>\n${parts.careProfile}\n</care_profile>`,
     `<relevant_understandings>\n${parts.relevantUnderstandings}\n</relevant_understandings>`,
     `<relevant_memories>\n${parts.relevantMemories}\n</relevant_memories>`,
@@ -83,21 +84,13 @@ export const buildChatContext = async (plantId: string, userMessage: string): Pr
   const persona = plantPersonas[personaId] ?? plantPersonas.pothos;
   const status = getPlantStatus(plantId);
   const readingState = getPlantReadingState(plantId);
-  const sensorTrust = getSensorTrust(plantId);
+  const sensorTrust = readingState.sensorTrust;
   const trustedStatus = sensorTrust.trusted
     ? status
     : status
       ? { ...status, mood: "等待真实感知", focus: "不依据传感器判断", lastSummary: sensorTrust.reason }
       : null;
-  const trustedHealth = sensorTrust.trusted
-    ? readingState.health
-    : {
-        overall: "watch" as const,
-        mood: "等待真实感知",
-        issues: [],
-        facts: [],
-        advice: "等待主人确认传感器已经正确连接后再判断状态。"
-      };
+  const trustedHealth = readingState.health;
   const promptStatus = composePromptStatus(trustedStatus, trustedHealth);
   const historyMessages = windowedHistory(plantId);
   const queries = buildRetrievalQueries(userMessage, trustedStatus, trustedHealth, historyMessages);
@@ -112,6 +105,7 @@ export const buildChatContext = async (plantId: string, userMessage: string): Pr
 
   const userPrompt = composeUserPrompt({
     plant: `name: ${plant.name}\nspecies: ${plant.species}\nlocation: ${plant.location}\nvoice: ${persona.voice}`,
+    backgroundInfo: plant.backgroundInfo || "主人还没有为我写下额外的背景与性格。",
     careProfile: JSON.stringify(plant.careProfile, null, 2),
     relevantUnderstandings: formatUnderstandingsForPrompt(understandings),
     relevantMemories: [

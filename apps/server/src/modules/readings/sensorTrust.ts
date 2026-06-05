@@ -1,4 +1,5 @@
 import { recentMessages } from "../chat/messageRepository.js";
+import { getPlant } from "../plants/plantRepository.js";
 
 export interface SensorTrust {
   trusted: boolean;
@@ -31,6 +32,17 @@ export const getSensorTrust = (plantId: string): SensorTrust => {
         ? "主人最近确认传感器已经恢复可信"
         : `主人最近说明传感器读数不可信：${message.content.slice(0, 80)}`,
       sourceMessageId: message.id
+    };
+  }
+  const backgroundInfo = getPlant(plantId)?.backgroundInfo ?? "";
+  const backgroundTrust = trustFromText(backgroundInfo);
+  if (backgroundTrust !== null) {
+    return {
+      trusted: backgroundTrust,
+      reason: backgroundTrust
+        ? "植物背景说明传感器数据可信"
+        : `植物背景说明传感器读数不可信：${backgroundInfo.slice(0, 80)}`,
+      sourceMessageId: null
     };
   }
   return { trusted: true, reason: "没有发现读数不可信的说明", sourceMessageId: null };

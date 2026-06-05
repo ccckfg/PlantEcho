@@ -58,9 +58,20 @@ export const getPlantReadingState = (plantId: string) => {
   const plant = getPlant(plantId);
   if (!plant) throw new Error(`Plant ${plantId} not found`);
   const latest = getLatestReading(plantId);
+  const sensorTrust = getSensorTrust(plantId);
+  const health = sensorTrust.trusted
+    ? evaluateReading(plant.careProfile, latest)
+    : {
+        overall: "watch" as const,
+        mood: "等待真实感知",
+        issues: [],
+        facts: [],
+        advice: "等待主人确认传感器已经正确连接后再判断状态。"
+      };
   return {
     latest,
-    health: evaluateReading(plant.careProfile, latest)
+    health,
+    sensorTrust
   };
 };
 

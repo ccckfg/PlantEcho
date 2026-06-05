@@ -38,6 +38,7 @@ test("composePromptStatus surfaces sensor offline in status layer", () => {
 test("composeUserPrompt keeps stable blocks before dynamic sensor state", () => {
   const prompt = composeUserPrompt({
     plant: "plant",
+    backgroundInfo: "background",
     careProfile: "care",
     relevantUnderstandings: "understandings",
     relevantMemories: "memories",
@@ -48,6 +49,7 @@ test("composeUserPrompt keeps stable blocks before dynamic sensor state", () => 
   });
   const order = [
     "<plant>",
+    "<plant_background>",
     "<care_profile>",
     "<relevant_understandings>",
     "<relevant_memories>",

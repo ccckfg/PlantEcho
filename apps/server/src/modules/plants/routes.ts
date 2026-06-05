@@ -1,6 +1,11 @@
 import { z } from "zod";
 import type { FastifyInstance } from "fastify";
-import { careProfileSchema, plantNameSchema, suggestCareProfileSchema } from "@dyn/shared";
+import {
+  careProfileSchema,
+  plantBackgroundSchema,
+  plantNameSchema,
+  suggestCareProfileSchema
+} from "@dyn/shared";
 import { sendError } from "../../shared/http.js";
 import { suggestCareProfile } from "./careProfileService.js";
 import { getPlantReflection } from "./plantReflectionService.js";
@@ -14,6 +19,7 @@ const createPlantSchema = z.object({
   name: plantNameSchema,
   species: z.string().min(1),
   location: z.string().optional(),
+  backgroundInfo: plantBackgroundSchema.optional(),
   avatarUrl: z.string().url().nullable().optional(),
   personaProfileId: z.string().optional(),
   careProfile: careProfileSchema.optional()
@@ -21,9 +27,14 @@ const createPlantSchema = z.object({
 
 const updatePlantSchema = z.object({
   name: plantNameSchema.optional(),
+  backgroundInfo: plantBackgroundSchema.optional(),
   careProfile: careProfileSchema.optional(),
   avatarUrl: z.string().url().or(z.string().startsWith("/media/")).nullable().optional()
-}).refine((input) => input.name !== undefined || input.careProfile !== undefined || input.avatarUrl !== undefined, {
+}).refine((input) =>
+  input.name !== undefined ||
+  input.backgroundInfo !== undefined ||
+  input.careProfile !== undefined ||
+  input.avatarUrl !== undefined, {
   message: "At least one plant field must be provided"
 });
 

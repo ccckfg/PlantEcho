@@ -11,6 +11,7 @@ type PlantRow = {
   persona_profile_id: string;
   avatar_url: string | null;
   location: string;
+  background_info: string;
   care_profile_json: string;
   status: string;
   deleted_at: string | null;
@@ -20,6 +21,7 @@ export interface CreatePlantInput {
   name: string;
   species: string;
   location?: string;
+  backgroundInfo?: string;
   avatarUrl?: string | null;
   personaProfileId?: string;
   careProfile?: CareProfile;
@@ -27,6 +29,7 @@ export interface CreatePlantInput {
 
 export interface UpdatePlantInput {
   name?: string;
+  backgroundInfo?: string;
   careProfile?: CareProfile;
   avatarUrl?: string | null;
 }
@@ -36,6 +39,7 @@ export const toPlantSummary = (row: PlantRow): PlantSummary => ({
   name: row.name,
   species: row.species,
   location: row.location,
+  backgroundInfo: row.background_info,
   avatarUrl: row.avatar_url,
   careProfile: careProfileSchema.parse(JSON.parse(row.care_profile_json))
 });
@@ -71,9 +75,9 @@ export const createPlant = (input: CreatePlantInput): PlantSummary => {
   getDb()
     .prepare(
       `INSERT INTO plants
-       (id, name, species, persona_profile_id, avatar_url, location,
+       (id, name, species, persona_profile_id, avatar_url, location, background_info,
         care_profile_json, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .run(
       id,
@@ -82,6 +86,7 @@ export const createPlant = (input: CreatePlantInput): PlantSummary => {
       input.personaProfileId ?? "pothos",
       input.avatarUrl ?? null,
       input.location ?? "",
+      input.backgroundInfo ?? "",
       JSON.stringify(careProfile),
       now,
       now
@@ -100,9 +105,12 @@ export const updatePlant = (plantId: string, input: UpdatePlantInput): PlantSumm
   const nextName = input.name ?? existing.name;
   const nextProfile = input.careProfile ?? existing.careProfile;
   const nextAvatarUrl = input.avatarUrl !== undefined ? input.avatarUrl : existing.avatarUrl;
+  const nextBackgroundInfo = input.backgroundInfo ?? existing.backgroundInfo;
   getDb()
-    .prepare("UPDATE plants SET name = ?, care_profile_json = ?, avatar_url = ?, updated_at = ? WHERE id = ?")
-    .run(nextName, JSON.stringify(nextProfile), nextAvatarUrl, nowIso(), plantId);
+    .prepare(
+      "UPDATE plants SET name = ?, care_profile_json = ?, avatar_url = ?, background_info = ?, updated_at = ? WHERE id = ?"
+    )
+    .run(nextName, JSON.stringify(nextProfile), nextAvatarUrl, nextBackgroundInfo, nowIso(), plantId);
   return getPlant(plantId);
 };
 

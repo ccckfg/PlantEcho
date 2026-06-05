@@ -5,7 +5,7 @@ import { migrate } from "../../db/migrate.js";
 import { getDb } from "../../db/connection.js";
 import { createPlant } from "../plants/plantRepository.js";
 import { insertClaimedDevice } from "../devices/deviceRepository.js";
-import { recordDeviceReading } from "../readings/readingService.js";
+import { getPlantReadingState, recordDeviceReading } from "../readings/readingService.js";
 import { addMessage, nextTurn } from "../chat/messageRepository.js";
 import { getSensorTrust } from "../readings/sensorTrust.js";
 import { detectReminderPlan } from "./reminderDetector.js";
@@ -81,6 +81,8 @@ test("user statement that sensor data is unreal suppresses sensor speech", async
       "传感器没有插在土里，只是放在桌上，这些数据不真实。"
     );
     assert.equal(getSensorTrust(plant.id).trusted, false);
+    assert.equal(getPlantReadingState(plant.id).sensorTrust.trusted, false);
+    assert.deepEqual(getPlantReadingState(plant.id).health.issues, []);
 
     const payload = {
       capturedAt: new Date().toISOString(),
@@ -109,6 +111,23 @@ test("user statement that sensor data is unreal suppresses sensor speech", async
       "传感器已经插入土里，现在是真实数据。"
     );
     assert.equal(getSensorTrust(plant.id).trusted, true);
+  } finally {
+    cleanup(plant.id);
+  }
+});
+
+test("plant background can mark sensor data as untrusted", () => {
+  migrate();
+  const plant = createPlant({
+    name: "背景信任测试",
+    species: "绿萝",
+    backgroundInfo: "传感器目前放在桌上，没有插入土里，数据不真实。"
+  });
+  try {
+    const state = getPlantReadingState(plant.id);
+    assert.equal(state.sensorTrust.trusted, false);
+    assert.match(state.sensorTrust.reason, /植物背景/);
+    assert.equal(state.health.mood, "等待真实感知");
   } finally {
     cleanup(plant.id);
   }

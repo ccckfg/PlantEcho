@@ -63,6 +63,7 @@ export const composeProactiveMessage = async (
             "候选事件只是你注意到的一件事，不代表必须说话。",
             "先考虑：这是不是新的、有意义的变化；现在打断主人是否值得；最近是否已经说过相近的话。",
             "能沉默就沉默。不要因为缺水、天气或记忆出现就机械发言。",
+            "尊重主人写下的植物背景与性格，让它影响你是否开口和如何开口，但不要复述设定。",
             "如果开口，只说一句短而自然的话，允许抽象和留白；不要报数，不要解释规则，不要给客服式建议。",
             `消息不超过 ${dialogueConfig.proactiveReplyMaxChars} 个字。`,
             '只输出 JSON：{"speak":true或false,"message":"开口时的一句话，沉默时为空"}'
@@ -72,6 +73,7 @@ export const composeProactiveMessage = async (
           role: "user",
           content: [
             plant ? `植物：${plant.name}（${plant.species}）` : `植物ID：${event.plantId}`,
+            `植物背景与性格：${plant?.backgroundInfo || "暂无"}`,
             `事件类型：${event.type}`,
             `严重程度：${event.severity}`,
             `兜底原文：${event.content}`,

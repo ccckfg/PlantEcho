@@ -8,6 +8,7 @@ import { plantSoftDeleteMigration } from "./007_plant_soft_delete.js";
 import { pendingDeviceUserIdMigration } from "./008_pending_device_user_id.js";
 import { deviceConfigDeliveryQueueMigration } from "./009_device_config_delivery_queue.js";
 import { proactiveObservationStateMigration } from "./010_proactive_observation_state.js";
+import { plantBackgroundInfoMigration } from "./011_plant_background_info.js";
 
 export interface DatabaseMigration {
   version: number;
@@ -25,7 +26,8 @@ export const migrations: DatabaseMigration[] = [
   plantSoftDeleteMigration,
   pendingDeviceUserIdMigration,
   deviceConfigDeliveryQueueMigration,
-  proactiveObservationStateMigration
+  proactiveObservationStateMigration,
+  plantBackgroundInfoMigration
 ].sort((a, b) => a.version - b.version);
 
 export const latestSchemaVersion = migrations.at(-1)?.version ?? 0;

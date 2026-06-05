@@ -40,6 +40,8 @@ export type SuggestCareProfileInput = z.infer<typeof suggestCareProfileSchema>;
 
 export const PLANT_NAME_MAX_LENGTH = 40;
 export const plantNameSchema = z.string().trim().min(1).max(PLANT_NAME_MAX_LENGTH);
+export const PLANT_BACKGROUND_MAX_LENGTH = 1200;
+export const plantBackgroundSchema = z.string().trim().max(PLANT_BACKGROUND_MAX_LENGTH);
 
 export interface CareProfileSuggestion {
   careProfile: CareProfile;
@@ -53,6 +55,7 @@ export interface PlantSummary {
   name: string;
   species: string;
   location: string;
+  backgroundInfo: string;
   avatarUrl: string | null;
   careProfile: CareProfile;
 }
@@ -91,6 +94,7 @@ export const claimDeviceSchema = z.discriminatedUnion("mode", [
       name: plantNameSchema,
       species: z.string().min(1),
       location: z.string().optional(),
+      backgroundInfo: plantBackgroundSchema.optional(),
       avatarUrl: z.string().url().nullable().optional(),
       personaProfileId: z.string().optional(),
       careProfile: careProfileSchema.optional()

@@ -115,6 +115,11 @@ export interface ReadingRow {
 export interface ReadingState {
   latest: ReadingRow | null;
   health: PlantHealthSummary;
+  sensorTrust: {
+    trusted: boolean;
+    reason: string;
+    sourceMessageId: number | null;
+  };
 }
 
 export interface ChatTurn {
@@ -203,7 +208,12 @@ export const api = {
     request<{ tags: PlantStatusTags }>(`/api/v1/plants/${encodeURIComponent(id)}/status-tags`),
   updatePlant: (
     id: string,
-    input: { name?: string; careProfile?: CareProfile; avatarUrl?: string | null }
+    input: {
+      name?: string;
+      backgroundInfo?: string;
+      careProfile?: CareProfile;
+      avatarUrl?: string | null;
+    }
   ) =>
     request<{ plant: PlantSummary }>(`/api/v1/plants/${encodeURIComponent(id)}`, {
       method: "PATCH",
@@ -251,6 +261,7 @@ export const api = {
     name: string;
     species: string;
     location?: string;
+    backgroundInfo?: string;
     avatarUrl?: string | null;
     careProfile?: CareProfile;
   }) =>

@@ -10,6 +10,7 @@ import { useSyncRefresh } from "@/hooks/useSyncRefresh";
 import { SensorStatusBadge } from "@/components/SensorStatusBadge";
 import { Card, Chip, Empty, Icon, ProgressBar } from "@/components/UI";
 import { PlantAvatarEditor } from "@/components/plants/PlantAvatarEditor";
+import { PlantBackgroundEditor } from "@/components/plants/PlantBackgroundEditor";
 import { PlantCareProfileSection } from "@/components/plants/PlantCareProfileSection";
 import { PlantDeleteButton } from "@/components/plants/PlantDeleteButton";
 import { PlantNameEditor } from "@/components/plants/PlantNameEditor";
@@ -52,7 +53,12 @@ export function PlantDetailPage() {
   const plant = detail.data.plant;
   const latestReading = reading.data?.latest;
   const sensorConnection = getSensorConnection(latestReading, now);
-  const status = deriveStatus(latestReading, plant.careProfile, now);
+  const status = deriveStatus(
+    latestReading,
+    plant.careProfile,
+    now,
+    reading.data?.sensorTrust.trusted ?? true
+  );
   const moodMeta = MOOD_PRESETS[status.mood];
   const avatarSrc = mediaUrl(plant.avatarUrl ?? plantImage(plant.id));
 
@@ -128,6 +134,11 @@ export function PlantDetailPage() {
         </Card>
       </header>
 
+      <PlantBackgroundEditor
+        plant={plant}
+        onUpdated={() => setLocalRefresh((value) => value + 1)}
+      />
+
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-xl">
         <Card>
           <div className="flex items-center justify-between gap-md mb-md">
@@ -138,6 +149,12 @@ export function PlantDetailPage() {
             <div className="mb-md flex items-start gap-sm rounded-md bg-error-container px-md py-sm text-body-sm text-on-error-container">
               <Icon name="sensors_off" filled className="shrink-0" />
               <span>{sensorConnection.detail}。下方显示的是最后一次成功上报的数据。</span>
+            </div>
+          ) : null}
+          {reading.data?.sensorTrust.trusted === false ? (
+            <div className="mb-md flex items-start gap-sm rounded-md bg-secondary-container px-md py-sm text-body-sm text-on-secondary-container">
+              <Icon name="info" filled className="shrink-0" />
+              <span>{reading.data.sensorTrust.reason}。下方仅展示原始数据，不用于判断植物状态。</span>
             </div>
           ) : null}
           {latestReading ? (
