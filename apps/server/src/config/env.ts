@@ -16,12 +16,20 @@ for (const envPath of [...new Set(envCandidates)]) {
 }
 
 const emptyToUndefined = (value: unknown): unknown => (value === "" ? undefined : value);
+const envBoolean = (defaultValue: boolean) =>
+  z.preprocess((value) => {
+    if (typeof value !== "string") return value;
+    const normalized = value.trim().toLowerCase();
+    if (["true", "1", "yes", "on"].includes(normalized)) return true;
+    if (["false", "0", "no", "off"].includes(normalized)) return false;
+    return value;
+  }, z.boolean().default(defaultValue));
 
 const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(8787),
   HOST: z.string().default("0.0.0.0"),
   DYN_DATA_DIR: z.string().default("data"),
-  MQTT_ENABLED: z.coerce.boolean().default(true),
+  MQTT_ENABLED: envBoolean(true),
   MQTT_HOST: z.string().default("0.0.0.0"),
   MQTT_PORT: z.coerce.number().int().positive().default(1883),
   DEVICE_CONFIG_RETRY_INTERVAL_MS: z.coerce.number().int().positive().default(5_000),
@@ -30,7 +38,7 @@ const envSchema = z.object({
   APP_ACCESS_KEY: z.string().optional().default(""),
   AUTH_TOKEN_SECRET: z.string().optional().default(""),
   AUTH_TOKEN_TTL_HOURS: z.coerce.number().int().positive().default(168),
-  AUTH_REGISTRATION_ENABLED: z.coerce.boolean().default(true),
+  AUTH_REGISTRATION_ENABLED: envBoolean(true),
   LLM_API_URL: z.string().optional().default(""),
   LLM_API_KEY: z.string().optional().default(""),
   LLM_MODEL_ID: z.string().optional().default(""),
@@ -53,11 +61,14 @@ const envSchema = z.object({
   QWEATHER_API_HOST: z.string().optional().default(""),
   QWEATHER_DEFAULT_LOCATION: z.string().optional().default("101200113"),
   QWEATHER_CACHE_TTL_SECONDS: z.coerce.number().int().positive().default(600),
-  PROACTIVE_ENABLED: z.coerce.boolean().default(true),
-  PROACTIVE_LLM_ENABLED: z.coerce.boolean().default(true),
+  PROACTIVE_ENABLED: envBoolean(true),
+  PROACTIVE_LLM_ENABLED: envBoolean(true),
   PROACTIVE_SCAN_INTERVAL_MS: z.coerce.number().int().positive().default(300_000),
+  PROACTIVE_SENSOR_MIN_OBSERVATIONS: z.coerce.number().int().positive().default(3),
   PROACTIVE_SENSOR_COOLDOWN_MS: z.coerce.number().int().nonnegative().default(30 * 60_000),
   PROACTIVE_OFFLINE_SENSOR_COOLDOWN_MS: z.coerce.number().int().nonnegative().default(12 * 60 * 60_000),
+  PROACTIVE_WEATHER_ENABLED: envBoolean(false),
+  PROACTIVE_WEATHER_SCAN_INTERVAL_MS: z.coerce.number().int().positive().default(60 * 60_000),
   PROACTIVE_WEATHER_COOLDOWN_MS: z.coerce.number().int().nonnegative().default(6 * 60 * 60_000),
   PROACTIVE_REMINDER_MAX_DAYS: z.coerce.number().int().positive().default(30)
 });

@@ -2,6 +2,7 @@ import { proactiveConfig } from "../../config/proactive.js";
 import { listPlants } from "../plants/plantRepository.js";
 import { getWeatherNow } from "../weather/weatherService.js";
 import { buildSensorEvent } from "./sensorTriggers.js";
+import { observeSensorEvent } from "./sensorObservationService.js";
 import { buildRainEvent } from "./weatherTriggers.js";
 import { emitProactiveMessage } from "./proactiveMessage.js";
 import { listDueReminders, markReminderStatus } from "./reminderRepository.js";
@@ -27,14 +28,19 @@ export const createProactiveEngine = (logger: Logger): ProactiveEngine => {
   let timer: NodeJS.Timeout | null = null;
   let stopped = true;
   let running = false;
+  let lastWeatherScanAt = 0;
 
   const scanSensor = async (plantId: string): Promise<void> => {
     if (!proactiveConfig.enabled) return;
     const event = buildSensorEvent(plantId);
-    if (event) await emitProactiveMessage(event);
+    await observeSensorEvent(plantId, event);
   };
 
   const scanWeather = async (): Promise<void> => {
+    if (!proactiveConfig.weatherEnabled) return;
+    const now = Date.now();
+    if (now - lastWeatherScanAt < proactiveConfig.weatherScanIntervalMs) return;
+    lastWeatherScanAt = now;
     const weather = await getWeatherNow();
     if (!weather.configured || !weather.weather) return;
     for (const plant of listPlants()) {

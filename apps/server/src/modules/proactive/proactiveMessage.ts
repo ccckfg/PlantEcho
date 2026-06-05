@@ -1,6 +1,4 @@
 import { addMessage, nextTurn } from "../chat/messageRepository.js";
-import { scheduleDetectAndConsolidate } from "../memory/consolidation/consolidationJob.js";
-import { getPlant } from "../plants/plantRepository.js";
 import { updatePlantStatus } from "../plants/statusRepository.js";
 import { publishSyncEvent } from "../sync/syncBus.js";
 import {
@@ -19,6 +17,7 @@ export const emitProactiveMessage = async (
   }
   const eventLogId = logProactiveEvent(event, null);
   const content = await composeProactiveMessage(event);
+  if (!content) return null;
   const turn = nextTurn(event.plantId);
   const message = addMessage(event.plantId, turn, "assistant", content);
   attachProactiveEventMessage(eventLogId, message.id);
@@ -32,7 +31,5 @@ export const emitProactiveMessage = async (
     plantId: event.plantId,
     payload: { turn, messageId: message.id, proactive: true, eventType: event.type }
   });
-  const plant = getPlant(event.plantId);
-  if (plant) scheduleDetectAndConsolidate(event.plantId, plant.name, turn);
   return message.id;
 };

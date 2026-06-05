@@ -12,6 +12,7 @@ import {
 } from "../memory/retrieval/retrievalService.js";
 import { buildRetrievalQueries } from "../memory/retrieval/queryBuilder.js";
 import { formatCitationPolicy, memoryCitationsForPrompt } from "./memoryCitation.js";
+import { getSensorTrust } from "../readings/sensorTrust.js";
 import type { MemoryCitation, PlantHealthSummary, PlantStatus } from "@dyn/shared";
 
 export interface ChatContext {
@@ -82,9 +83,24 @@ export const buildChatContext = async (plantId: string, userMessage: string): Pr
   const persona = plantPersonas[personaId] ?? plantPersonas.pothos;
   const status = getPlantStatus(plantId);
   const readingState = getPlantReadingState(plantId);
-  const promptStatus = composePromptStatus(status, readingState.health);
+  const sensorTrust = getSensorTrust(plantId);
+  const trustedStatus = sensorTrust.trusted
+    ? status
+    : status
+      ? { ...status, mood: "等待真实感知", focus: "不依据传感器判断", lastSummary: sensorTrust.reason }
+      : null;
+  const trustedHealth = sensorTrust.trusted
+    ? readingState.health
+    : {
+        overall: "watch" as const,
+        mood: "等待真实感知",
+        issues: [],
+        facts: [],
+        advice: "等待主人确认传感器已经正确连接后再判断状态。"
+      };
+  const promptStatus = composePromptStatus(trustedStatus, trustedHealth);
   const historyMessages = windowedHistory(plantId);
-  const queries = buildRetrievalQueries(userMessage, status, readingState.health, historyMessages);
+  const queries = buildRetrievalQueries(userMessage, trustedStatus, trustedHealth, historyMessages);
   const memories = await retrieveMemories(plantId, queries.episode, queries.episodeBm25);
   const offeredCitations = memoryCitationsForPrompt(userMessage, memories);
   const understandings = await retrieveUnderstandings(
@@ -104,19 +120,25 @@ export const buildChatContext = async (plantId: string, userMessage: string): Pr
     ].join("\n\n"),
     recentHistory: history || "暂无近期对话",
     status: `mood: ${promptStatus.mood}\nrelationship: ${promptStatus.relationship}\nfocus: ${promptStatus.focus}\nlast_summary: ${promptStatus.lastSummary}`,
-    sensorState: [
-      readingState.health.facts.join("\n") || "暂无读数",
-      readingState.health.issues.map((item) => `- ${item.label}: ${item.detail}`).join("\n")
-    ]
-      .filter(Boolean)
-      .join("\n"),
+    sensorState: sensorTrust.trusted
+      ? [
+          readingState.health.facts.join("\n") || "暂无读数",
+          readingState.health.issues.map((item) => `- ${item.label}: ${item.detail}`).join("\n")
+        ]
+          .filter(Boolean)
+          .join("\n")
+      : [
+          "读数可信度：不可信",
+          sensorTrust.reason,
+          "主人已说明这些传感器数据不能代表植物当前状态。不得据此判断缺水、光照、温湿度或主动提醒。"
+        ].join("\n"),
     userMessage
   });
 
   return {
     userMessage,
     userPrompt,
-    facts: readingState.health.facts,
+    facts: sensorTrust.trusted ? readingState.health.facts : [],
     topMemoryText: memories[0]?.memory.title ?? "",
     retrievedMemories: memories,
     offeredCitations

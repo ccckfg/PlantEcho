@@ -20,8 +20,6 @@ import {
   resolveUnderstandingId
 } from "./consolidationInputs.js";
 
-export const LLM_CONSOLIDATION_INTERVAL = 1;
-
 const closedTurnFromLlm = (
   closures: EpisodeClosureOutput | null,
   plantName: string,
@@ -50,7 +48,7 @@ const fallbackSensorBlock = (draftText: string): EpisodeMemoryBlock => {
     location: "",
     participants: "植物、传感器",
     keywords: [title, "传感器"],
-    importance: 4,
+    importance: 2,
     title,
     content: draftText
   };
@@ -68,8 +66,8 @@ const createEpisode = async (
   const rawDialogue = renderHistory(messages, plantName);
   const payload = buildEpisodePayload(plantName, drafts, rawDialogue);
   const llmReady = isLlmConfigured();
-  const generated = llmReady ? await generateEpisodeMemory(payload) : null;
   const allForced = drafts.every((draft) => draft.metadata.forceClose === true);
+  const generated = llmReady && !allForced ? await generateEpisodeMemory(payload) : null;
   const block = generated ?? (allForced ? fallbackSensorBlock(drafts.map((draft) => draft.text).join("\n")) : null);
   if (!block?.content?.trim()) {
     if (llmReady && !allForced) throw new Error("Episode memory generation returned empty content");
@@ -99,7 +97,9 @@ const createEpisode = async (
     plantId,
     payload: { memoryId: episode.id }
   });
-  const understandingChanged = await patchEpisodeUnderstanding(plantId, episode.id);
+  const understandingChanged = generated
+    ? await patchEpisodeUnderstanding(plantId, episode.id)
+    : false;
   if (understandingChanged) {
     publishSyncEvent({
       type: "understandings.changed",
@@ -164,9 +164,11 @@ export const runConsolidationPipeline = async (
   if (!drafts.length) return;
   const earliest = Math.min(...drafts.map((draft) => draft.turn));
   const history = renderHistory(messagesInTurnRange(plantId, earliest), plantName);
-  const closures = history && isLlmConfigured() ? await detectClosures(history) : null;
-  const llmTurn = closedTurnFromLlm(closures, plantName, currentTurn);
   const forcedTurn = forcedClosedTurn(plantId);
+  const closures = forcedTurn === null && history && isLlmConfigured()
+    ? await detectClosures(history)
+    : null;
+  const llmTurn = closedTurnFromLlm(closures, plantName, currentTurn);
   const untilTurn = Math.max(llmTurn ?? -1, forcedTurn ?? -1);
   if (untilTurn < 0) return;
   await createEpisode(plantId, plantName, untilTurn);

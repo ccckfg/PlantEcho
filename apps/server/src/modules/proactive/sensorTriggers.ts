@@ -1,6 +1,7 @@
 import { proactiveConfig } from "../../config/proactive.js";
 import { getPlant } from "../plants/plantRepository.js";
 import { getPlantReadingState } from "../readings/readingService.js";
+import { getSensorTrust } from "../readings/sensorTrust.js";
 import type { PlantHealthIssue } from "../readings/types.js";
 import type { ProactiveEventInput, ProactiveEventType } from "./types.js";
 
@@ -27,6 +28,7 @@ export const buildSensorEvent = (plantId: string): ProactiveEventInput | null =>
   if (!proactiveConfig.enabled) return null;
   const plant = getPlant(plantId);
   if (!plant) return null;
+  if (!getSensorTrust(plantId).trusted) return null;
   const state = getPlantReadingState(plantId);
   const issue = chooseIssue(state.health.issues);
   if (!issue) return null;

@@ -9,6 +9,8 @@ import { updatePlantStatus } from "../plants/statusRepository.js";
 import { rememberUserMessage } from "../memory/consolidation/ruleConsolidator.js";
 import { scheduleDetectAndConsolidate } from "../memory/consolidation/consolidationJob.js";
 import { addReminderConfirmation, scheduleReminderFromText } from "../proactive/reminderService.js";
+import { memoryConfig } from "../../config/memory.js";
+import { getSensorTrust } from "../readings/sensorTrust.js";
 import {
   citationsUsedByReply,
   repairUnsupportedMemoryClaim
@@ -163,7 +165,9 @@ const finishChatTurn = (plantId: string, turn: number, content: string, reply: s
     payload: { turn, messageId: assistant.id }
   });
   const plant = getPlant(plantId);
-  if (plant) scheduleDetectAndConsolidate(plantId, plant.name, turn);
+  if (plant && turn % memoryConfig.conversationConsolidationIntervalTurns === 0) {
+    scheduleDetectAndConsolidate(plantId, plant.name, turn);
+  }
 };
 
 const briefFollowUpPattern = /^(真的?吗|真的吗|真的|[?？]{1,3}|嗯\??|啊\??|然后呢|为什么)$/i;
@@ -181,12 +185,20 @@ const buildFallbackReply = (
   memoryTitle: string
 ): string => {
   const state = getPlantReadingState(plantId);
+  const sensorTrust = getSensorTrust(plantId);
   const issue = state.health.issues[0];
   const facts = state.health.facts.length ? state.health.facts.join("，") : "暂无传感器数据";
   const wantsStatus = statusIntentPattern.test(userMessage);
   const wantsMemory = memoryIntentPattern.test(userMessage);
   const isBriefFollowUp = briefFollowUpPattern.test(userMessage.trim());
   const isSensorOffline = issue?.code === "sensor_offline";
+
+  if (!sensorTrust.trusted) {
+    if (wantsStatus) return "你说过这些读数现在不可信。那我先不拿它们说身体的事。";
+    return wantsMemory && memoryTitle
+      ? `我记得「${memoryTitle}」留下的那一点。`
+      : "我听见了。先让它在叶子底下待一会儿。";
+  }
 
   if (isBriefFollowUp) {
     if (issue) {

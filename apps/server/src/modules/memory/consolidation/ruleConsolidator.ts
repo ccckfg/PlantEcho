@@ -13,15 +13,16 @@ export const rememberSensorIssues = (
   turn: number,
   reading: SensorReading,
   summary: PlantHealthSummary
-): void => {
+): boolean => {
   const openDrafts = getOpenDrafts(plantId, 50);
+  let remembered = false;
   for (const issue of summary.issues.filter((item) => item.severity !== "info")) {
     const sourceType = `sensor:${issue.code}`;
     const duplicated = openDrafts.some((draft) => draft.metadata.sourceType === sourceType);
     const recentlyRemembered = hasRecentMemory(
       plantId,
       sourceType,
-      startOfRecentWindow(memoryConfig.duplicateEventWindowHours)
+      startOfRecentWindow(memoryConfig.sensorDuplicateEventWindowHours)
     );
     if (duplicated || recentlyRemembered) {
       continue;
@@ -35,7 +36,9 @@ export const rememberSensorIssues = (
       facts: summary.facts,
       importanceHint: issue.severity === "critical" ? 5 : 4
     });
+    remembered = true;
   }
+  return remembered;
 };
 
 export const rememberUserMessage = (plantId: string, turn: number, content: string): void => {

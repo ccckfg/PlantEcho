@@ -1,8 +1,4 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { SENSOR_STATUS_REFRESH_MS } from "@/config/sensors";
-import { useSyncRefresh } from "@/hooks/useSyncRefresh";
-import { api } from "@/lib/api";
-import { useAsync } from "@/lib/useAsync";
 import "./PlantStatusTagChips.css";
 
 interface PlantStatusTagChipsProps {
@@ -72,16 +68,11 @@ function SmoothStatusChip({ tag, index }: { tag: string; index: number }) {
   );
 }
 
-export function PlantStatusTagChips({ plantId, primaryLabel }: PlantStatusTagChipsProps) {
-  const refresh = useSyncRefresh(
-    { plantId, resources: ["readings", "status", "memories"] },
-    { throttleMs: SENSOR_STATUS_REFRESH_MS }
-  );
-  const state = useAsync(() => api.getPlantStatusTags(plantId), [plantId, refresh]);
+export function PlantStatusTagChips({ primaryLabel }: PlantStatusTagChipsProps) {
   const tags = useMemo(() => {
     const fallback = fallbackTags(primaryLabel);
-    return uniqueTags([...(state.data?.tags.tags ?? []), ...fallback], primaryLabel);
-  }, [primaryLabel, state.data]);
+    return uniqueTags(fallback, primaryLabel);
+  }, [primaryLabel]);
 
   return (
     <>

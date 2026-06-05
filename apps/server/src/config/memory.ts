@@ -14,7 +14,8 @@ export const memoryConfig = {
   vectorRelevanceWeight: 0.75,
   bm25RelevanceWeight: 0.25,
   hybridSearchEnabled: true,
-  duplicateEventWindowHours: 6,
+  sensorDuplicateEventWindowHours: 72,
+  conversationConsolidationIntervalTurns: 4,
   queryTextLimit: 1800,
   bm25TextLimit: 700,
   understandingTextLimit: 1200

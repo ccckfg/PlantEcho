@@ -1,5 +1,4 @@
 import type { PlantSummary } from "@dyn/shared";
-import { completeChat, isLlmConfigured } from "../llm/client.js";
 import { listEpisodeMemories } from "../memory/repositories/memoryRepository.js";
 import { getPlantReadingState } from "../readings/readingService.js";
 import { getPlant } from "./plantRepository.js";
@@ -10,15 +9,6 @@ export interface PlantReflection {
   usedLlm: boolean;
   basis: string[];
 }
-
-const cleanReflection = (text: string): string => {
-  const firstLine = text
-    .replace(/^["“「『]+|["”」』]+$/g, "")
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .find(Boolean) ?? "";
-  return firstLine.replace(/^[-*]\s*/, "").slice(0, 60);
-};
 
 const fallbackReflection = (plant: PlantSummary, basis: string[]): string => {
   const joined = basis.join("，");
@@ -44,33 +34,6 @@ export const getPlantReflection = async (plantId: string): Promise<PlantReflecti
     readingState.health.issues.map((issue) => issue.label).join("，"),
     ...memories.map((memory) => `记忆：${memory.title}`)
   ].filter(Boolean);
-
-  if (isLlmConfigured()) {
-    try {
-      const text = await completeChat(
-        [
-          {
-            role: "system",
-            content:
-              "你为一株植物写一句简短、有哲理、有陪伴感的话。只能输出一句中文，不超过24个汉字，不要解释，不要引号，不要使用感叹号。"
-          },
-          {
-            role: "user",
-            content: [
-              `植物：${plant.name}（${plant.species}）`,
-              `最近状态：${basis.join("；") || "暂无状态"}`,
-              "请基于这些真实状态写一句短句。"
-            ].join("\n")
-          }
-        ],
-        { temperature: 0.55 }
-      );
-      const cleaned = text ? cleanReflection(text) : "";
-      if (cleaned) return { text: cleaned, usedLlm: true, basis };
-    } catch {
-      // Local fallback keeps the UI useful when the upstream LLM is unavailable.
-    }
-  }
 
   return { text: fallbackReflection(plant, basis), usedLlm: false, basis };
 };

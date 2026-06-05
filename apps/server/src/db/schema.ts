@@ -212,6 +212,15 @@ CREATE TABLE IF NOT EXISTS proactive_reminders (
   updated_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS proactive_observation_state (
+  plant_id TEXT PRIMARY KEY REFERENCES plants(id) ON DELETE CASCADE,
+  event_key TEXT NOT NULL,
+  observations INTEGER NOT NULL DEFAULT 1,
+  first_observed_at TEXT NOT NULL,
+  last_observed_at TEXT NOT NULL,
+  considered_at TEXT
+);
+
 CREATE INDEX IF NOT EXISTS idx_readings_plant_time
   ON sensor_readings(plant_id, captured_at DESC);
 CREATE INDEX IF NOT EXISTS idx_pending_devices_status
