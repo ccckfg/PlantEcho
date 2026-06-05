@@ -3,6 +3,7 @@ import { mediaUrl } from "@/lib/api";
 import { plantImage } from "@/lib/format";
 import { savePhotoToLocalAlbum } from "@/lib/photoSave";
 import { Icon } from "@/components/UI";
+import { useToast } from "@/components/Toast";
 
 export interface AlbumPhoto {
   id: string;
@@ -20,6 +21,7 @@ interface PhotoCardProps {
 }
 
 export function PhotoCard({ photo, onDelete }: PhotoCardProps) {
+  const toast = useToast();
   const [lightbox, setLightbox] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -53,8 +55,14 @@ export function PhotoCard({ photo, onDelete }: PhotoCardProps) {
     setSaved(false);
     setError("");
     try {
-      await savePhotoToLocalAlbum(photo);
+      const detail = await savePhotoToLocalAlbum(photo);
       setSaved(true);
+      toast.show({
+        title: "这一刻已存进本地相册",
+        description: detail,
+        tone: "success",
+        durationMs: 3200
+      });
       window.setTimeout(() => setSaved(false), 1800);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "保存失败");

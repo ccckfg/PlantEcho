@@ -1,0 +1,8 @@
+"$schema" = "schemas/schema.json"
+
+[default]
+description = "Allows PlantEcho to save images to the Android gallery."
+permissions = [
+  "allow-request-permissions",
+  "allow-save-image",
+]

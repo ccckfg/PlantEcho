@@ -52,6 +52,13 @@ const shareOnAndroid = async (blob: Blob, fileName: string): Promise<boolean> =>
   return true;
 };
 
+const isAndroid = (): boolean => /android/i.test(navigator.userAgent);
+
+interface GallerySaveResult {
+  uri: string;
+  displayName: string;
+}
+
 const buildPhotoFileName = (photo: AlbumPhoto, mimeType: string): string => {
   const extension = MIME_EXTENSION[mimeType] ?? "jpg";
   const date = Number.isNaN(Date.parse(photo.capturedAt))
@@ -68,21 +75,30 @@ export const savePhotoToLocalAlbum = async (photo: AlbumPhoto): Promise<string> 
   const mimeType = blob.type || "image/jpeg";
   const fileName = buildPhotoFileName(photo, mimeType);
 
+  if (window.__TAURI_INTERNALS__) {
+    const dataUrl = await blobToDataUrl(blob);
+    const dataBase64 = dataUrl.includes(",") ? dataUrl.split(",")[1] ?? "" : dataUrl;
+    const { invoke } = await import("@tauri-apps/api/core");
+    if (isAndroid()) {
+      await invoke("plugin:gallery|request_permissions");
+      const saved = await invoke<GallerySaveResult>("plugin:gallery|save_image", {
+        fileName,
+        mimeType,
+        dataBase64
+      });
+      return `${saved.displayName} 已写入 Pictures/PlantEcho`;
+    }
+    return await invoke<string>("save_photo_to_gallery", {
+      fileName,
+      mimeType,
+      dataBase64
+    });
+  }
+
   if (await shareOnAndroid(blob, fileName)) {
     return "已打开安卓系统保存菜单";
   }
 
-  if (!window.__TAURI_INTERNALS__) {
-    downloadInBrowser(blob, fileName);
-    return "已下载到浏览器默认下载目录";
-  }
-
-  const dataUrl = await blobToDataUrl(blob);
-  const dataBase64 = dataUrl.includes(",") ? dataUrl.split(",")[1] ?? "" : dataUrl;
-  const { invoke } = await import("@tauri-apps/api/core");
-  return await invoke<string>("save_photo_to_gallery", {
-    fileName,
-    mimeType,
-    dataBase64
-  });
+  downloadInBrowser(blob, fileName);
+  return "已下载到浏览器默认下载目录";
 };

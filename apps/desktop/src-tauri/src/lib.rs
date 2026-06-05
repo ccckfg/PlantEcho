@@ -1,6 +1,10 @@
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    let builder = tauri::Builder::default();
+    #[cfg(target_os = "android")]
+    let builder = builder.plugin(tauri_plugin_gallery::init());
+
+    builder
         .setup(|_app| Ok(()))
         .invoke_handler(tauri::generate_handler![save_photo_to_gallery])
         .run(tauri::generate_context!())
@@ -76,12 +80,18 @@ fn unique_path(path: std::path::PathBuf) -> std::path::PathBuf {
     if !path.exists() {
         return path;
     }
-    let parent = path.parent().map(std::path::Path::to_path_buf).unwrap_or_default();
+    let parent = path
+        .parent()
+        .map(std::path::Path::to_path_buf)
+        .unwrap_or_default();
     let stem = path
         .file_stem()
         .and_then(|value| value.to_str())
         .unwrap_or("photo");
-    let extension = path.extension().and_then(|value| value.to_str()).unwrap_or("jpg");
+    let extension = path
+        .extension()
+        .and_then(|value| value.to_str())
+        .unwrap_or("jpg");
     for index in 1..1000 {
         let candidate = parent.join(format!("{stem}-{index}.{extension}"));
         if !candidate.exists() {
@@ -96,7 +106,13 @@ fn scan_media_file(path: &std::path::Path) {
     {
         let uri = format!("file://{}", path.to_string_lossy());
         let _ = std::process::Command::new("am")
-            .args(["broadcast", "-a", "android.intent.action.MEDIA_SCANNER_SCAN_FILE", "-d", &uri])
+            .args([
+                "broadcast",
+                "-a",
+                "android.intent.action.MEDIA_SCANNER_SCAN_FILE",
+                "-d",
+                &uri,
+            ])
             .status();
     }
 

@@ -1,0 +1,8 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "identifier": "android-gallery",
+  "description": "Allows the main Android webview to save photos to the system gallery.",
+  "windows": ["main"],
+  "platforms": ["android"],
+  "permissions": ["gallery:default"]
+}
