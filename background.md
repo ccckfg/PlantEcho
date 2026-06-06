@@ -79,12 +79,12 @@ PlantEcho 的设计目标不是"高效的传感器看板"，而是"和植物一�
 核心模块：
 
 - **设备**：读数上传、待认领登记、列表/忽略、认领、密钥 hash 校验/轮换，认领/轮换后可通过 MQTT 下发设备密钥。
-- **植物**：档案、用户自定义背景与性格、状态、读数、care profile 建议（LLM/模板）。
-- **聊天**：流式 + 非流式植物聊天，含 LLM 不可用时的 fallback。
+- **植物**：档案、用户自定义背景与性格、Physical / Inner / Relationship / Intention 四层状态、读数、care profile 建议（LLM/模板）。
+- **聊天**：流式 + 非流式植物聊天，复用同一次回复中的隐藏 `inner_patch` 更新 Inner，含 LLM 不可用时的 fallback。
 - **OpenAI-compatible**：`/v1/chat/completions`、`/v1/models`，通过 `<植物名>...</植物名>` 路由植物。
-- **记忆**：AgentGal 式生命周期（drafts → consolidation → episode → understanding），FTS5/BM25 + sqlite-vec + hybrid + 可选 rerank。
-- **主动发言 Engine**：提醒到期必达；传感器异常需形成稳定的新状态后才进入候选；普通候选由 LLM 判断是否值得开口，允许沉默。用户说明传感器未插入或读数失真后，系统停止依据这些读数判断状态、记录记忆或主动发言，直到用户明确恢复可信。
-- **后台调用控制**：读数上报不再逐条触发 LLM 记忆整理；普通对话按轮次合并整理，传感器规则记忆按异常状态与 72 小时窗口去重；天气默认不参与主动扫描，植物反思与状态标签改为本地规则生成。
+- **记忆**：AgentGal 式生命周期（Draft → 每轮主题闭合检查 → Episode → Understanding），会话超时保存最后主题；传感器不会进入记忆。FTS5/BM25 + sqlite-vec + hybrid + 可选 rerank。
+- **主动发言 Engine**：提醒到期必达；普通念头先成为 Intention，再由 LLM 决定说、保留、完成或放弃。传感器异常不会触发主动发言。
+- **后台调用控制**：读数上报只入库和同步，不调用 LLM；闭合检测任务按植物去重，并记录各阶段 Token 与估算成本；天气默认不参与主动扫描，植物反思与状态标签由本地规则生成。
 - **同步**：SQLite `sync_events` + SSE，多端实时刷新。
 - **天气**：代理和风天气/QWeather。
 - **用户与登录**：前端通过后端地址 + 账号密码登录；后端提供注册、登录、当前用户接口，使用 HMAC token 保护除设备读数/注册登录外的应用接口，并记录登录会话的 IP 与 User-Agent。管理员用户管理交给后端 CLI。`APP_ACCESS_KEY` 仅作为旧版兼容入口与 token secret 兜底。
@@ -126,7 +126,7 @@ PlantEcho 的设计目标不是"高效的传感器看板"，而是"和植物一�
 ## 代码结构
 
 - `apps/server`：核心后端。
-  - `src/db/migrations`：递增迁移清单（当前最新 `011_plant_background_info`）。
+  - `src/db/migrations`：递增迁移清单（当前最新 `013_llm_usage_logs`）。
   - `src/modules/iot`：MQTT broker + topic + 读数入库。
   - `src/modules/proactive`：主动发言 Engine。
 - `apps/desktop`：Tauri v2 桌面客户端（React + Rust）。
@@ -207,6 +207,7 @@ npm run tauri:build
 2026-06-03：新增植物详情页删除植物功能，后端通过 `007_plant_soft_delete` 对植物做软删除并提供恢复接口；桌面端与移动端详情页均提供删除入口，先经二次确认提醒框，删除后返回温室并给 5 秒撤销 toast。`npm run build:desktop`、`npm run build --workspace @dyn/server` 与植物软删除目标测试通过。
 2026-06-03：待认领设备的“忽略”操作新增二次确认提醒框，确认后才从待认领列表移走设备；`npm run build:desktop` 通过。
 2026-06-05：完成后台调用降频、主动发言“可沉默”决策、传感器可信度贯穿、简短抽象植物口吻、严格里程碑筛选、自定义植物背景/人设，以及 Android MediaStore 相册保存与成功 toast。`npm run build`、`npm run test`、桌面与 Android Rust `cargo check` 均通过；本环境缺少 Android SDK，APK/Kotlin 编译与真机保存仍待具备 SDK 的环境验证。
+2026-06-06：状态重构为 Physical / Inner / Relationship / Intention；传感器只描述当下，不再生成记忆或主动消息；聊天复用隐藏 Inner Patch；Consolidation 每轮检查主题闭合并支持会话超时；主动发言改为 Intention 决策；新增 LLM Token 与估算成本日志。
 
 ESP32 真实验证（2026-05-25）：OLED/SHT40/GY-302/土壤 ADC 实测可用；HTTP 上传通过；2026-05-27 编译验证含 MQTT 1 秒级上报、断线重连、设备密钥持久化、SoftAP 配网、OTA；2026-05-28 编译验证通过 MQTT config topic 自动接收并保存认领密钥。
 
