@@ -18,3 +18,11 @@ const secondaryPhases = new Set<string>([
 
 export const llmTierForPhase = (phase?: string): LlmTier =>
   phase && secondaryPhases.has(phase) ? "secondary" : "primary";
+
+export const resolvedLlmTierForPhase = (
+  phase: string | undefined,
+  secondaryModelId: string
+): LlmTier =>
+  llmTierForPhase(phase) === "secondary" && secondaryModelId.trim()
+    ? "secondary"
+    : "primary";

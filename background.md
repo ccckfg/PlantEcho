@@ -81,7 +81,7 @@ PlantEcho 的设计目标不是"高效的传感器看板"，而是"和植物一�
 - **设备**：读数上传、待认领登记、列表/忽略、认领、密钥 hash 校验/轮换，认领/轮换后可通过 MQTT 下发设备密钥。
 - **植物**：档案、用户自定义背景与性格、Physical / Inner / Relationship / Intention 四层状态、读数、care profile 建议（LLM/模板）。
 - **聊天**：流式 + 非流式植物聊天，复用同一次回复中的隐藏 `inner_patch` 更新 Inner。对话必须同时配置 LLM 与 embedding API，不再提供本地 fallback。
-- **模型路由**：主模型负责对话、主动发言与长期理解；副模型负责主题闭合、Episode 摘要和 care profile。副模型缺失时不会回退调用主模型。
+- **模型路由**：主模型负责对话、主动发言与长期理解；副模型优先负责主题闭合、Episode 摘要和 care profile。副模型未配置时，这些任务使用主模型。
 - **OpenAI-compatible**：`/v1/chat/completions`、`/v1/models`，通过 `<植物名>...</植物名>` 路由植物。
 - **记忆**：AgentGal 式生命周期（Draft → 主题闭合检查 → Episode → Understanding），每累计 3 个新 turn 检查一次，会话超时保存最后主题；传感器不会进入记忆。FTS5/BM25 + sqlite-vec + hybrid + 可选 rerank。
 - **主动发言 Engine**：提醒到期必达；普通念头先成为 Intention，再由 LLM 决定说、保留、完成或放弃。传感器异常不会触发主动发言；决策失败按 30 分钟至 12 小时指数退避。
@@ -175,7 +175,7 @@ npm run build
 npm run test
 ```
 
-最近一次（2026-06-06）：服务端测试通过（53 个），完整 `npm run build` 通过。
+最近一次（2026-06-06）：服务端测试通过（54 个），完整 `npm run build` 通过。
 
 Smoke 脚本：
 

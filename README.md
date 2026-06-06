@@ -305,7 +305,7 @@ curl http://<IP>:8787/v1/chat/completions \
 |---|---|
 | `APP_ACCESS_KEY` | 可选；设置后保护除设备读数外的所有接口 |
 | `LLM_API_URL` / `LLM_API_KEY` / `LLM_MODEL_ID` | 对话必填；主模型用于聊天、主动发言与长期理解 |
-| `SECONDARY_LLM_*` | 副模型用于主题闭合、Episode 摘要与 care profile；URL/Key 留空时复用主模型供应商 |
+| `SECONDARY_LLM_*` | 可选；副模型用于主题闭合、Episode 摘要与 care profile；未配置时使用主模型 |
 | `EMBEDDING_*` | 对话必填；OpenAI 兼容 embedding 服务 |
 | `RERANK_*` | 可选 rerank 服务（如 `Qwen/Qwen3-Reranker-8B`） |
 | `WeatherKey` / `WeatherUrl` | 和风天气 / QWeather 配置 |

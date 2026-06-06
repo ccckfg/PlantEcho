@@ -132,7 +132,8 @@ LLM_API_KEY=
 LLM_MODEL_ID=
 LLM_TEMPERATURE=0.7
 
-# 简单结构化任务使用；URL/Key 留空时复用主模型供应商
+# 可选：简单结构化任务使用；未配置时使用主模型
+# URL/Key 留空时复用主模型供应商
 SECONDARY_LLM_API_URL=
 SECONDARY_LLM_API_KEY=
 SECONDARY_LLM_MODEL_ID=

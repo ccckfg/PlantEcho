@@ -1,5 +1,5 @@
 import { env } from "../../config/env.js";
-import { llmTierForPhase, type LlmTier } from "../../config/llmRouting.js";
+import { resolvedLlmTierForPhase, type LlmTier } from "../../config/llmRouting.js";
 import { recordLlmUsage } from "./usageRepository.js";
 
 export interface LlmMessage {
@@ -22,7 +22,7 @@ type LlmTarget = {
 };
 
 const targetFor = (options?: LlmChatOptions): LlmTarget => {
-  const tier = llmTierForPhase(options?.phase);
+  const tier = resolvedLlmTierForPhase(options?.phase, env.SECONDARY_LLM_MODEL_ID);
   if (tier === "secondary") {
     return {
       tier,

@@ -29,7 +29,7 @@ LLM_MODEL_ID=strong-chat-model
 LLM_TEMPERATURE=0.7
 ```
 
-副模型必须显式配置模型 ID。URL 与 Key 留空时复用主模型供应商，但不会复用主模型 ID：
+若要启用副模型，需要显式配置模型 ID。URL 与 Key 留空时复用主模型供应商：
 
 ```env
 SECONDARY_LLM_API_URL=
@@ -38,8 +38,8 @@ SECONDARY_LLM_MODEL_ID=cheap-structured-model
 SECONDARY_LLM_TEMPERATURE=0.2
 ```
 
-副模型未配置时，分配给副模型的任务不会偷偷改用主模型。植物对话仍只要求主模型
-与 embedding API 已配置。
+副模型未配置时，分配给副模型的任务自动使用主模型，并按主模型价格记录用量。
+植物对话仍只要求主模型与 embedding API 已配置。
 
 ## 其他模型 API
 
