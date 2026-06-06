@@ -10,7 +10,6 @@ CREATE TABLE IF NOT EXISTS plants (
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
-
 CREATE TABLE IF NOT EXISTS devices (
   id TEXT PRIMARY KEY,
   plant_id TEXT NOT NULL REFERENCES plants(id) ON DELETE CASCADE,
@@ -19,7 +18,6 @@ CREATE TABLE IF NOT EXISTS devices (
   last_seen_at TEXT,
   created_at TEXT NOT NULL
 );
-
 CREATE TABLE IF NOT EXISTS pending_devices (
   id TEXT PRIMARY KEY,
   first_seen_at TEXT NOT NULL,
@@ -28,7 +26,6 @@ CREATE TABLE IF NOT EXISTS pending_devices (
   rssi INTEGER,
   claim_status TEXT NOT NULL DEFAULT 'pending'
 );
-
 CREATE TABLE IF NOT EXISTS device_config_deliveries (
   device_id TEXT PRIMARY KEY REFERENCES devices(id) ON DELETE CASCADE,
   payload_json TEXT NOT NULL,
@@ -37,7 +34,6 @@ CREATE TABLE IF NOT EXISTS device_config_deliveries (
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
-
 CREATE TABLE IF NOT EXISTS sensor_readings (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   device_id TEXT NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
@@ -52,7 +48,6 @@ CREATE TABLE IF NOT EXISTS sensor_readings (
   battery_mv INTEGER,
   created_at TEXT NOT NULL
 );
-
 CREATE TABLE IF NOT EXISTS plant_status (
   plant_id TEXT PRIMARY KEY REFERENCES plants(id) ON DELETE CASCADE,
   mood TEXT NOT NULL,
@@ -61,7 +56,6 @@ CREATE TABLE IF NOT EXISTS plant_status (
   last_summary TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
-
 CREATE TABLE IF NOT EXISTS messages (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   plant_id TEXT NOT NULL REFERENCES plants(id) ON DELETE CASCADE,
@@ -221,6 +215,52 @@ CREATE TABLE IF NOT EXISTS proactive_observation_state (
   considered_at TEXT
 );
 
+CREATE TABLE IF NOT EXISTS plant_inner_state (
+  plant_id TEXT PRIMARY KEY REFERENCES plants(id) ON DELETE CASCADE,
+  mood TEXT NOT NULL DEFAULT '平静',
+  concern TEXT NOT NULL DEFAULT '',
+  thought TEXT NOT NULL DEFAULT '',
+  source_turn INTEGER,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS plant_relationship_state (
+  plant_id TEXT PRIMARY KEY REFERENCES plants(id) ON DELETE CASCADE,
+  stage TEXT NOT NULL DEFAULT '初识',
+  summary TEXT NOT NULL DEFAULT '刚刚认识主人',
+  evidence_memory_ids_json TEXT NOT NULL DEFAULT '[]',
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS plant_intentions (
+  id TEXT PRIMARY KEY,
+  plant_id TEXT NOT NULL REFERENCES plants(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL,
+  content TEXT NOT NULL,
+  source_type TEXT NOT NULL,
+  source_id TEXT,
+  priority INTEGER NOT NULL DEFAULT 1,
+  status TEXT NOT NULL DEFAULT 'pending',
+  not_before TEXT,
+  expires_at TEXT,
+  last_considered_at TEXT,
+  considered_count INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS llm_usage_logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  phase TEXT NOT NULL,
+  model_id TEXT NOT NULL,
+  prompt_tokens INTEGER NOT NULL,
+  completion_tokens INTEGER NOT NULL,
+  total_tokens INTEGER NOT NULL,
+  token_source TEXT NOT NULL,
+  estimated_cost REAL,
+  created_at TEXT NOT NULL
+);
+
 CREATE INDEX IF NOT EXISTS idx_readings_plant_time
   ON sensor_readings(plant_id, captured_at DESC);
 CREATE INDEX IF NOT EXISTS idx_pending_devices_status
@@ -252,4 +292,8 @@ CREATE INDEX IF NOT EXISTS idx_proactive_event_key
   ON proactive_event_log(plant_id, event_key, fired_at DESC);
 CREATE INDEX IF NOT EXISTS idx_proactive_reminders_due
   ON proactive_reminders(status, remind_at);
+CREATE INDEX IF NOT EXISTS idx_intentions_pending
+  ON plant_intentions(plant_id, status, priority DESC, created_at ASC);
+CREATE INDEX IF NOT EXISTS idx_llm_usage_created
+  ON llm_usage_logs(created_at DESC);
 `;
