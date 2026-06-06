@@ -11,9 +11,9 @@ import { suggestCareProfile } from "./careProfileService.js";
 import { getPlantReflection } from "./plantReflectionService.js";
 import { getPlantStatusTags } from "./plantStatusTagService.js";
 import { createPlant, deletePlant, getPlant, listPlants, restorePlant, updatePlant } from "./plantRepository.js";
-import { getPlantStatus } from "./statusRepository.js";
 import { getPlantReadingState, getPlantReadings } from "../readings/readingService.js";
 import { publishSyncEvent } from "../sync/syncBus.js";
+import { getLayeredPlantState } from "../state/stateService.js";
 
 const createPlantSchema = z.object({
   name: plantNameSchema,
@@ -69,7 +69,7 @@ export const registerPlantRoutes = async (app: FastifyInstance): Promise<void> =
     const { plantId } = request.params as { plantId: string };
     const plant = getPlant(plantId);
     if (!plant) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
-    return { plant, status: getPlantStatus(plantId) };
+    return { plant, state: getLayeredPlantState(plantId) };
   });
 
   app.get("/api/v1/plants/:plantId/reflection", async (request, reply) => {

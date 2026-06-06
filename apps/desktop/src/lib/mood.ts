@@ -61,8 +61,7 @@ const clamp01 = (value: number) => Math.max(0, Math.min(100, value));
 export function deriveStatus(
   reading: ReadingRow | null | undefined,
   care?: CareProfile,
-  now: Date | number = Date.now(),
-  sensorTrusted = true
+  now: Date | number = Date.now()
 ): DerivedStatus {
   const fallback: DerivedStatus = {
     mood: "neutral",
@@ -74,18 +73,6 @@ export function deriveStatus(
     highlightTone: "muted"
   };
   if (!reading) return fallback;
-  if (!sensorTrusted) {
-    return {
-      mood: "neutral",
-      caption: "这些读数暂时不代表我",
-      hydration: 0,
-      light: 0,
-      humidity: 0,
-      highlightIcon: "sensors_off",
-      highlightTone: "muted"
-    };
-  }
-
   const connection = getSensorConnection(reading, now);
   if (connection.state === "offline") {
     return {

@@ -6,15 +6,10 @@ import { getDb } from "../../db/connection.js";
 import { createPlant } from "../plants/plantRepository.js";
 import { insertClaimedDevice } from "../devices/deviceRepository.js";
 import { getPlantReadingState, recordDeviceReading } from "../readings/readingService.js";
-import { addMessage, nextTurn } from "../chat/messageRepository.js";
-import { getSensorTrust } from "../readings/sensorTrust.js";
 import { detectReminderPlan } from "./reminderDetector.js";
 import { createReminder, getReminder } from "./reminderRepository.js";
 import { runReminderJob } from "./reminderJob.js";
 import type { BackgroundJob } from "../jobs/jobTypes.js";
-
-const flushAsyncTasks = (): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, 0));
 
 const cleanup = (plantId: string): void => {
   const db = getDb();
@@ -22,7 +17,7 @@ const cleanup = (plantId: string): void => {
   db.prepare("DELETE FROM plants WHERE id = ?").run(plantId);
 };
 
-test("stable low soil transition emits only one proactive assistant message", async () => {
+test("sensor readings remain physical state and do not emit proactive messages or drafts", () => {
   migrate();
   const plant = createPlant({ name: "测试小绿", species: "绿萝" });
   const deviceId = `test-proactive-${randomUUID()}`;
@@ -42,92 +37,19 @@ test("stable low soil transition emits only one proactive assistant message", as
     recordDeviceReading(deviceId, { ...payload, capturedAt: new Date().toISOString(), soilRaw: 3300 });
     recordDeviceReading(deviceId, { ...payload, capturedAt: new Date().toISOString(), soilRaw: 3400 });
     recordDeviceReading(deviceId, { ...payload, capturedAt: new Date().toISOString(), soilRaw: 3500 });
-    await flushAsyncTasks();
-
-    const events = getDb()
-      .prepare("SELECT COUNT(*) AS count FROM proactive_event_log WHERE plant_id = ? AND event_type = ?")
-      .get(plant.id, "sensor.soil_low") as { count: number };
-    const messages = getDb()
-      .prepare("SELECT COUNT(*) AS count FROM messages WHERE plant_id = ? AND role = 'assistant'")
-      .get(plant.id) as { count: number };
-    assert.equal(events.count, 1);
-    assert.equal(messages.count, 1);
-
-    recordDeviceReading(deviceId, {
-      ...payload,
-      capturedAt: new Date().toISOString(),
-      soilPercent: 50
-    });
-    await flushAsyncTasks();
-    const observation = getDb()
-      .prepare("SELECT event_key FROM proactive_observation_state WHERE plant_id = ?")
-      .get(plant.id);
-    assert.equal(observation, undefined);
-  } finally {
-    cleanup(plant.id);
-  }
-});
-
-test("user statement that sensor data is unreal suppresses sensor speech", async () => {
-  migrate();
-  const plant = createPlant({ name: "桌上传感器", species: "绿萝" });
-  const deviceId = `test-untrusted-${randomUUID()}`;
-  insertClaimedDevice(deviceId, plant.id, "Test ESP32", "hash");
-  try {
-    addMessage(
-      plant.id,
-      nextTurn(plant.id),
-      "user",
-      "传感器没有插在土里，只是放在桌上，这些数据不真实。"
-    );
-    assert.equal(getSensorTrust(plant.id).trusted, false);
-    assert.equal(getPlantReadingState(plant.id).sensorTrust.trusted, false);
-    assert.deepEqual(getPlantReadingState(plant.id).health.issues, []);
-
-    const payload = {
-      capturedAt: new Date().toISOString(),
-      soilRaw: 3500,
-      soilPercent: 3,
-      airTempC: 24,
-      airHumidityPercent: 55,
-      lightLux: 800,
-      rssi: -50,
-      batteryMv: null
-    };
-    for (let index = 0; index < 5; index += 1) {
-      recordDeviceReading(deviceId, { ...payload, capturedAt: new Date().toISOString() });
-    }
-    await flushAsyncTasks();
-
     const events = getDb()
       .prepare("SELECT COUNT(*) AS count FROM proactive_event_log WHERE plant_id = ?")
       .get(plant.id) as { count: number };
+    const messages = getDb()
+      .prepare("SELECT COUNT(*) AS count FROM messages WHERE plant_id = ? AND role = 'assistant'")
+      .get(plant.id) as { count: number };
+    const drafts = getDb()
+      .prepare("SELECT COUNT(*) AS count FROM memory_drafts WHERE plant_id = ?")
+      .get(plant.id) as { count: number };
     assert.equal(events.count, 0);
-
-    addMessage(
-      plant.id,
-      nextTurn(plant.id),
-      "user",
-      "传感器已经插入土里，现在是真实数据。"
-    );
-    assert.equal(getSensorTrust(plant.id).trusted, true);
-  } finally {
-    cleanup(plant.id);
-  }
-});
-
-test("plant background can mark sensor data as untrusted", () => {
-  migrate();
-  const plant = createPlant({
-    name: "背景信任测试",
-    species: "绿萝",
-    backgroundInfo: "传感器目前放在桌上，没有插入土里，数据不真实。"
-  });
-  try {
-    const state = getPlantReadingState(plant.id);
-    assert.equal(state.sensorTrust.trusted, false);
-    assert.match(state.sensorTrust.reason, /植物背景/);
-    assert.equal(state.health.mood, "等待真实感知");
+    assert.equal(messages.count, 0);
+    assert.equal(drafts.count, 0);
+    assert.equal(getPlantReadingState(plant.id).health.issues[0]?.code, "soil_low");
   } finally {
     cleanup(plant.id);
   }

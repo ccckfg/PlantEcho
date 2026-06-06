@@ -105,15 +105,6 @@ export const claimDeviceSchema = z.discriminatedUnion("mode", [
 
 export type ClaimDeviceInput = z.infer<typeof claimDeviceSchema>;
 
-export interface PlantStatus {
-  plantId: string;
-  mood: string;
-  relationship: string;
-  focus: string;
-  lastSummary: string;
-  updatedAt: string;
-}
-
 export interface PlantHealthIssue {
   code: string;
   severity: "info" | "warning" | "critical";

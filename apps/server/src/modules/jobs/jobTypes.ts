@@ -1,5 +1,6 @@
 export const jobTypes = {
   memoryConsolidation: "memory.consolidation",
+  memorySessionClosure: "memory.session-closure",
   proactiveReminder: "proactive.reminder"
 } as const;
 

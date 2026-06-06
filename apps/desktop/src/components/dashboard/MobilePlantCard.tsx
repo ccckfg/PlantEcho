@@ -43,12 +43,7 @@ export function MobilePlantCard({
     };
   }, [plant.id, readingRefresh]);
 
-  const status = deriveStatus(
-    reading?.latest,
-    plant.careProfile,
-    now,
-    reading?.sensorTrust.trusted ?? true
-  );
+  const status = deriveStatus(reading?.latest, plant.careProfile, now);
   const moodMeta = MOOD_PRESETS[status.mood];
   const needsWater = status.highlightTone === "error";
   const avatarSrc = mediaUrl(plant.avatarUrl ?? plantImage(plant.id));

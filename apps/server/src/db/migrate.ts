@@ -94,14 +94,16 @@ const seedDemoData = (): void => {
       now
     );
   }
-  const status = db.prepare("SELECT plant_id FROM plant_status WHERE plant_id = ?").get(env.DEFAULT_PLANT_ID);
-  if (!status) {
-    db.prepare(
-      `INSERT INTO plant_status
-       (plant_id, mood, relationship, focus, last_summary, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?)`
-    ).run(env.DEFAULT_PLANT_ID, "平静", "刚开始熟悉主人", "等待第一批真实传感器数据", "", now);
-  }
+  db.prepare(
+    `INSERT OR IGNORE INTO plant_inner_state
+     (plant_id, mood, concern, thought, source_turn, updated_at)
+     VALUES (?, '平静', '', '', NULL, ?)`
+  ).run(env.DEFAULT_PLANT_ID, now);
+  db.prepare(
+    `INSERT OR IGNORE INTO plant_relationship_state
+     (plant_id, stage, summary, evidence_memory_ids_json, updated_at)
+     VALUES (?, '初识', '刚开始熟悉主人', '[]', ?)`
+  ).run(env.DEFAULT_PLANT_ID, now);
   const device = db.prepare("SELECT id FROM devices WHERE id = ?").get(env.DEFAULT_DEVICE_ID);
   if (!device) {
     db.prepare(

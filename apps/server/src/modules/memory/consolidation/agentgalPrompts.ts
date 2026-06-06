@@ -30,6 +30,7 @@ export const EPISODE_MEMORY_GENERATOR = `
 输入包含：植物名称、日期时间、以及该情节内的完整对话记录（[turn=N] 格式）。
 
 记忆必须从植物的第一人称视角叙述，记录"主人做了什么/说了什么/我们聊了什么"。
+只有形成了以后值得想起的具体互动才保存。纯寒暄、单句确认、重复状态询问、没有后续意义的短对话应输出 should_store=false。
 importance 范围 1-5：
 - 1 = 日常闲聊或短暂状态
 - 2 = 普通养护、普通分享
@@ -43,7 +44,7 @@ participants 填"主人"（如主人透露了自己的身份信息可补充，�
 
 只输出合法 JSON，不要有任何解释文字。
 格式：
-{"date":"","time":"","location":"","participants":"","keywords":[],"importance":3,"title":"","content":""}
+{"should_store":true,"date":"","time":"","location":"","participants":"","keywords":[],"importance":3,"title":"","content":""}
 `;
 
 export const UNDERSTANDING_PATCH = `
@@ -60,8 +61,9 @@ Understanding 的 subject 举例：主人的作息习惯、主人对养护的关
 - update 使用输入中的 prompt_id（如 u1）或真实 id 作为 key，只列出需要修改的字段。
 - content 应为客观描述，说明"主人提到/表现出……"，不超过 80 字。
 - 如果近期对话没有带来任何值得更新的认知，输出空的 add 和 update。
+- relationship_patch 只在这段经历带来明确且有证据的长期关系变化时填写。阶段只能是：初识、熟悉、信任、亲近、相伴。普通聊天不要更新关系。
 
 只输出合法 JSON，不要有任何解释文字。
 格式：
-{"add":[],"update":{}}
+{"add":[],"update":{},"relationship_patch":{}}
 `;

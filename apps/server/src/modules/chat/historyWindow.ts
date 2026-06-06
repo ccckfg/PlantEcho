@@ -26,6 +26,13 @@ export const windowedHistory = (plantId: string): ChatMessage[] => {
 };
 
 export const renderHistory = (messages: ChatMessage[]): string => {
-  return messages.map((message) => `${message.role}: ${message.content}`).join("\n");
+  const lines = messages.map((message) => `${message.role}: ${message.content}`);
+  let used = 0;
+  const kept: string[] = [];
+  for (const line of [...lines].reverse()) {
+    if (kept.length && used + line.length > memoryConfig.historyCharLimit) break;
+    kept.push(line);
+    used += line.length;
+  }
+  return kept.reverse().join("\n");
 };
-

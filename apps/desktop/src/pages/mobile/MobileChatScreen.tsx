@@ -88,12 +88,7 @@ export function MobileChatScreen({ plantId, plants, onSwitch }: MobileChatScreen
   });
 
   const sensorConnection = getSensorConnection(reading.data?.latest, now);
-  const status = deriveStatus(
-    reading.data?.latest,
-    summary?.careProfile,
-    now,
-    reading.data?.sensorTrust.trusted ?? true
-  );
+  const status = deriveStatus(reading.data?.latest, summary?.careProfile, now);
   const avatarSrc = mediaUrl(summary?.avatarUrl ?? plantImage(plantId));
 
   async function send(content: string) {

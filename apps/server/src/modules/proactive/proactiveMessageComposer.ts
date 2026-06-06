@@ -37,9 +37,6 @@ const renderFacts = (event: ProactiveEventInput): string => {
 const localDecision = (event: ProactiveEventInput): string | null => {
   if (event.type === "reminder.due") return event.content;
   if (event.type === "weather.rain") return null;
-  if (event.type === "sensor.offline") return "这会儿，我听不清自己的身体。";
-  if (event.type === "sensor.soil_low") return "根边有点空。先告诉你一声。";
-  if (event.type === "sensor.soil_high") return "土里有点闷。先让它缓一缓。";
   return event.severity === "critical" ? "身体里有一点不对劲。" : null;
 };
 
@@ -82,7 +79,7 @@ export const composeProactiveMessage = async (
           ].join("\n")
         }
       ],
-      { temperature: 0.45 }
+      { temperature: 0.45, phase: "proactive.event" }
     );
     if (!decision?.speak) return null;
     return cleanGeneratedMessage(decision.message ?? "") || localDecision(event);

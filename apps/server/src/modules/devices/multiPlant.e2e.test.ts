@@ -13,14 +13,13 @@ const sampleReading = (soilPercent: number) => ({
   batteryMv: null
 });
 
-test("multi-plant device readings stay isolated across claim, status and sync events", async () => {
+test("multi-plant device readings stay isolated across claim, physical state and sync events", async () => {
   process.env.DYN_DATA_DIR = `.codex_tmp/multi-plant-${randomUUID()}`;
   process.env.PROACTIVE_ENABLED = "false";
 
   const { migrate } = await import("../../db/migrate.js");
   const { closeDb } = await import("../../db/connection.js");
   const { createPlant, getPlant } = await import("../plants/plantRepository.js");
-  const { getPlantStatus } = await import("../plants/statusRepository.js");
   const { getPlantReadingState, getPlantReadings, recordDeviceReading } = await import("../readings/readingService.js");
   const { listSyncEventsSince } = await import("../sync/syncRepository.js");
   const { claimDevice, isAuthorizedDevice, registerPendingDevice } = await import("./deviceService.js");
@@ -57,8 +56,8 @@ test("multi-plant device readings stay isolated across claim, status and sync ev
     assert.equal(getPlantReadingState(newClaim.device.plantId).latest?.deviceId, newDeviceId);
     assert.equal(getPlantReadings(existingPlant.id).length, 1);
     assert.equal(getPlantReadings(newClaim.device.plantId).length, 1);
-    assert.match(getPlantStatus(existingPlant.id)?.focus ?? "", /土壤偏干/);
-    assert.match(getPlantStatus(newClaim.device.plantId)?.focus ?? "", /土壤偏湿/);
+    assert.match(getPlantReadingState(existingPlant.id).health.issues[0]?.label ?? "", /土壤偏干/);
+    assert.match(getPlantReadingState(newClaim.device.plantId).health.issues[0]?.label ?? "", /土壤偏湿/);
     assert.equal(getPlant(newClaim.device.plantId)?.name, "小薄荷");
 
     const events = listSyncEventsSince(0, 50);

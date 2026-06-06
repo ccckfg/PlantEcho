@@ -1,7 +1,8 @@
 export const memoryConfig = {
-  historyHigh: 20,
-  historyLow: 8,
-  rawScanTurns: 30,
+  historyHigh: 32,
+  historyLow: 16,
+  historyCharLimit: 10_000,
+  rawScanTurns: 64,
   episodeSearchLimit: 3,
   understandingSearchLimit: 3,
   vectorCandidateLimit: 15,
@@ -14,8 +15,8 @@ export const memoryConfig = {
   vectorRelevanceWeight: 0.75,
   bm25RelevanceWeight: 0.25,
   hybridSearchEnabled: true,
-  sensorDuplicateEventWindowHours: 72,
-  conversationConsolidationIntervalTurns: 4,
+  closureDetectionTurnLimit: 32,
+  sessionClosureDelayMs: 30 * 60_000,
   queryTextLimit: 1800,
   bm25TextLimit: 700,
   understandingTextLimit: 1200

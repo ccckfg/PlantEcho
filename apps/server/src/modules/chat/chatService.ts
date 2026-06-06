@@ -5,18 +5,24 @@ import { buildChatContext } from "./promptBuilder.js";
 import { getPlant } from "../plants/plantRepository.js";
 import { getPlantReadingState } from "../readings/readingService.js";
 import { publishSyncEvent } from "../sync/syncBus.js";
-import { updatePlantStatus } from "../plants/statusRepository.js";
 import { rememberUserMessage } from "../memory/consolidation/ruleConsolidator.js";
-import { scheduleDetectAndConsolidate } from "../memory/consolidation/consolidationJob.js";
+import {
+  scheduleDetectAndConsolidate,
+  scheduleSessionClosure
+} from "../memory/consolidation/consolidationJob.js";
 import { addReminderConfirmation, scheduleReminderFromText } from "../proactive/reminderService.js";
-import { memoryConfig } from "../../config/memory.js";
-import { getSensorTrust } from "../readings/sensorTrust.js";
 import {
   citationsUsedByReply,
   repairUnsupportedMemoryClaim
 } from "./memoryCitation.js";
 import { limitPlantReply, replyCharLimit } from "./replyStyle.js";
 import type { MemoryCitation } from "@dyn/shared";
+import { parseChatResponse, VisibleReplyFilter } from "./responseProtocol.js";
+import { applyInnerPatch, type InnerPatch } from "../state/stateService.js";
+import {
+  createIntentionFromInner,
+  createIntentionFromUserMessage
+} from "../intentions/intentionService.js";
 
 export interface ChatResult {
   turn: number;
@@ -48,6 +54,7 @@ export const chatWithPlant = async (
 ): Promise<ChatResult> => {
   const { turn, userMessageId, context, fallback } = await prepareChatTurn(plantId, content);
   let reply = fallback;
+  let innerPatch: InnerPatch = {};
   let usedLlm = false;
   let llmError: string | undefined;
   try {
@@ -57,9 +64,11 @@ export const chatWithPlant = async (
     const llmReply = await completeChat([
       { role: "system", content: plantSystemPrompt },
       { role: "user", content: context.userPrompt }
-    ], options);
+    ], { ...options, phase: "chat.reply" });
     if (llmReply) {
-      reply = llmReply;
+      const parsed = parseChatResponse(llmReply);
+      reply = parsed.reply;
+      innerPatch = parsed.innerPatch;
       usedLlm = true;
     }
   } catch (error) {
@@ -72,7 +81,7 @@ export const chatWithPlant = async (
     content
   );
   const memoryCitations = citationsUsedByReply(reply, context.offeredCitations);
-  finishChatTurn(plantId, turn, content, reply);
+  finishChatTurn(plantId, turn, reply, innerPatch);
   const reminder = scheduleReminderFromText(plantId, content, userMessageId);
   if (reminder) addReminderConfirmation(plantId, reminder);
   return {
@@ -94,8 +103,11 @@ export async function* streamChatWithPlant(
   yield { type: "meta", turn };
 
   let reply = "";
-  let emittedChars = 0;
+  let rawReply = "";
+  let innerPatch: InnerPatch = {};
+  const visibleFilter = new VisibleReplyFilter();
   const maxReplyChars = replyCharLimit(content);
+  let emittedChars = 0;
   let usedLlm = false;
   let llmError: string | undefined;
   try {
@@ -105,15 +117,26 @@ export async function* streamChatWithPlant(
     for await (const delta of streamChat([
       { role: "system", content: plantSystemPrompt },
       { role: "user", content: context.userPrompt }
-    ], options)) {
-      const remaining = maxReplyChars - emittedChars;
-      const visibleDelta = remaining > 0
-        ? Array.from(delta).slice(0, remaining).join("")
-        : "";
-      reply += visibleDelta;
-      emittedChars += Array.from(visibleDelta).length;
+    ], { ...options, phase: "chat.reply" })) {
+      rawReply += delta;
       usedLlm = true;
-      if (visibleDelta) yield { type: "delta", delta: visibleDelta };
+      const visible = visibleFilter.feed(delta);
+      const remaining = maxReplyChars - emittedChars;
+      const clipped = remaining > 0 ? Array.from(visible).slice(0, remaining).join("") : "";
+      if (clipped) {
+        reply += clipped;
+        emittedChars += Array.from(clipped).length;
+        yield { type: "delta", delta: clipped };
+      }
+    }
+    const parsed = parseChatResponse(rawReply);
+    innerPatch = parsed.innerPatch;
+    const tail = visibleFilter.finish();
+    const remaining = maxReplyChars - emittedChars;
+    const clippedTail = remaining > 0 ? Array.from(tail).slice(0, remaining).join("") : "";
+    if (clippedTail) {
+      reply += clippedTail;
+      yield { type: "delta", delta: clippedTail };
     }
     if (!reply.trim()) throw new Error("LLM_STREAM_EMPTY");
   } catch (error) {
@@ -130,7 +153,7 @@ export async function* streamChatWithPlant(
     content
   );
   const memoryCitations = citationsUsedByReply(reply, context.offeredCitations);
-  finishChatTurn(plantId, turn, content, reply);
+  finishChatTurn(plantId, turn, reply, innerPatch);
   const reminder = scheduleReminderFromText(plantId, content, userMessageId);
   if (reminder) addReminderConfirmation(plantId, reminder);
   yield {
@@ -147,6 +170,7 @@ const prepareChatTurn = async (plantId: string, content: string) => {
   const turn = nextTurn(plantId);
   const userMessage = addMessage(plantId, turn, "user", content);
   rememberUserMessage(plantId, turn, content);
+  createIntentionFromUserMessage(plantId, turn, content);
   const context = await buildChatContext(plantId, content);
   return {
     turn,
@@ -156,17 +180,24 @@ const prepareChatTurn = async (plantId: string, content: string) => {
   };
 };
 
-const finishChatTurn = (plantId: string, turn: number, content: string, reply: string): void => {
+const finishChatTurn = (
+  plantId: string,
+  turn: number,
+  reply: string,
+  innerPatch: InnerPatch
+): void => {
   const assistant = addMessage(plantId, turn, "assistant", reply);
-  updatePlantStatus(plantId, { focus: content.slice(0, 80) });
+  applyInnerPatch(plantId, turn, innerPatch);
+  createIntentionFromInner(plantId, turn, innerPatch);
   publishSyncEvent({
     type: "messages.changed",
     plantId,
     payload: { turn, messageId: assistant.id }
   });
   const plant = getPlant(plantId);
-  if (plant && turn % memoryConfig.conversationConsolidationIntervalTurns === 0) {
+  if (plant) {
     scheduleDetectAndConsolidate(plantId, plant.name, turn);
+    scheduleSessionClosure(plantId, plant.name, turn);
   }
 };
 
@@ -185,20 +216,12 @@ const buildFallbackReply = (
   memoryTitle: string
 ): string => {
   const state = getPlantReadingState(plantId);
-  const sensorTrust = getSensorTrust(plantId);
   const issue = state.health.issues[0];
   const facts = state.health.facts.length ? state.health.facts.join("，") : "暂无传感器数据";
   const wantsStatus = statusIntentPattern.test(userMessage);
   const wantsMemory = memoryIntentPattern.test(userMessage);
   const isBriefFollowUp = briefFollowUpPattern.test(userMessage.trim());
   const isSensorOffline = issue?.code === "sensor_offline";
-
-  if (!sensorTrust.trusted) {
-    if (wantsStatus) return "你说过这些读数现在不可信。那我先不拿它们说身体的事。";
-    return wantsMemory && memoryTitle
-      ? `我记得「${memoryTitle}」留下的那一点。`
-      : "我听见了。先让它在叶子底下待一会儿。";
-  }
 
   if (isBriefFollowUp) {
     if (issue) {

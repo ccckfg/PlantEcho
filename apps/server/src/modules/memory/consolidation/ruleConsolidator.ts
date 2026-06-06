@@ -1,45 +1,5 @@
-import { memoryConfig } from "../../../config/memory.js";
 import { compact } from "../../../shared/text.js";
-import { startOfRecentWindow } from "../../../shared/time.js";
-import type { PlantHealthSummary, SensorReading } from "../../readings/types.js";
-import {
-  addMemoryDraft,
-  getOpenDrafts,
-  hasRecentMemory
-} from "../repositories/memoryRepository.js";
-
-export const rememberSensorIssues = (
-  plantId: string,
-  turn: number,
-  reading: SensorReading,
-  summary: PlantHealthSummary
-): boolean => {
-  const openDrafts = getOpenDrafts(plantId, 50);
-  let remembered = false;
-  for (const issue of summary.issues.filter((item) => item.severity !== "info")) {
-    const sourceType = `sensor:${issue.code}`;
-    const duplicated = openDrafts.some((draft) => draft.metadata.sourceType === sourceType);
-    const recentlyRemembered = hasRecentMemory(
-      plantId,
-      sourceType,
-      startOfRecentWindow(memoryConfig.sensorDuplicateEventWindowHours)
-    );
-    if (duplicated || recentlyRemembered) {
-      continue;
-    }
-    const text = `${issue.label}：${issue.detail}。当时读数为 ${summary.facts.join("，")}。`;
-    addMemoryDraft(plantId, turn, text, {
-      sourceType,
-      readingId: reading.id,
-      capturedAt: reading.capturedAt,
-      forceClose: true,
-      facts: summary.facts,
-      importanceHint: issue.severity === "critical" ? 5 : 4
-    });
-    remembered = true;
-  }
-  return remembered;
-};
+import { addMemoryDraft } from "../repositories/memoryRepository.js";
 
 export const rememberUserMessage = (plantId: string, turn: number, content: string): void => {
   const cleaned = compact(content);

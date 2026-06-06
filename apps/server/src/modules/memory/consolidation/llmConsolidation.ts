@@ -1,3 +1,4 @@
+import { memoryConfig } from "../../../config/memory.js";
 import { isoDatePart, isoTimePart, nowIso } from "../../../shared/time.js";
 import { messagesInTurnRange } from "../../chat/messageRepository.js";
 import { isLlmConfigured } from "../../llm/client.js";
@@ -6,12 +7,11 @@ import {
   addEpisodeMemory,
   getEpisodeMemory,
   getDraftsUntilTurn,
-  getOpenDrafts,
   listUnderstandings,
   markDraftsConsumed,
   upsertUnderstanding
 } from "../repositories/memoryRepository.js";
-import type { EpisodeClosureOutput, EpisodeMemoryBlock } from "./agentgalFlow.js";
+import type { EpisodeClosureOutput } from "./agentgalFlow.js";
 import { detectClosures, generateEpisodeMemory, patchUnderstandings } from "./agentgalFlow.js";
 import {
   buildEpisodePayload,
@@ -19,6 +19,11 @@ import {
   renderHistory,
   resolveUnderstandingId
 } from "./consolidationInputs.js";
+import {
+  createIntentionFromEpisode,
+  createIntentionFromUnderstanding
+} from "../../intentions/intentionService.js";
+import { applyRelationshipPatch } from "../../state/stateService.js";
 
 const closedTurnFromLlm = (
   closures: EpisodeClosureOutput | null,
@@ -33,27 +38,6 @@ const closedTurnFromLlm = (
   return turns.length ? Math.max(...turns) : null;
 };
 
-const forcedClosedTurn = (plantId: string): number | null => {
-  const forced = getOpenDrafts(plantId, 100).filter((draft) => draft.metadata.forceClose === true);
-  if (!forced.length) return null;
-  return Math.max(...forced.map((draft) => draft.turn));
-};
-
-const fallbackSensorBlock = (draftText: string): EpisodeMemoryBlock => {
-  const now = nowIso();
-  const title = draftText.split("：")[0] || "传感器异常";
-  return {
-    date: isoDatePart(now),
-    time: isoTimePart(now),
-    location: "",
-    participants: "植物、传感器",
-    keywords: [title, "传感器"],
-    importance: 2,
-    title,
-    content: draftText
-  };
-};
-
 const createEpisode = async (
   plantId: string,
   plantName: string,
@@ -66,11 +50,14 @@ const createEpisode = async (
   const rawDialogue = renderHistory(messages, plantName);
   const payload = buildEpisodePayload(plantName, drafts, rawDialogue);
   const llmReady = isLlmConfigured();
-  const allForced = drafts.every((draft) => draft.metadata.forceClose === true);
-  const generated = llmReady && !allForced ? await generateEpisodeMemory(payload) : null;
-  const block = generated ?? (allForced ? fallbackSensorBlock(drafts.map((draft) => draft.text).join("\n")) : null);
+  const generated = llmReady ? await generateEpisodeMemory(payload) : null;
+  const block = generated;
+  if (block?.should_store === false) {
+    markDraftsConsumed(drafts.map((draft) => draft.id));
+    return false;
+  }
   if (!block?.content?.trim()) {
-    if (llmReady && !allForced) throw new Error("Episode memory generation returned empty content");
+    if (llmReady) throw new Error("Episode memory generation returned empty content");
     return false;
   }
 
@@ -84,22 +71,21 @@ const createEpisode = async (
     content: block.content,
     keywords: block.keywords ?? [],
     importance: Math.max(1, Math.min(5, Number(block.importance) || 3)),
-    sourceType: generated ? "llm:episode" : "rule:closed_sensor_episode",
+    sourceType: "llm:episode",
     rawDialogue,
     rawPayload: {
       draftIds: drafts.map((draft) => draft.id),
       draftTurns: drafts.map((draft) => draft.turn)
     }
   });
+  createIntentionFromEpisode(episode);
   markDraftsConsumed(drafts.map((draft) => draft.id));
   publishSyncEvent({
     type: "memories.changed",
     plantId,
     payload: { memoryId: episode.id }
   });
-  const understandingChanged = generated
-    ? await patchEpisodeUnderstanding(plantId, episode.id)
-    : false;
+  const understandingChanged = await patchEpisodeUnderstanding(plantId, episode.id);
   if (understandingChanged) {
     publishSyncEvent({
       type: "understandings.changed",
@@ -152,24 +138,34 @@ const patchEpisodeUnderstanding = async (plantId: string, episodeId: string): Pr
     });
     changed = true;
   }
+  if (patch.relationship_patch && (changed || episode.importance >= 4)) {
+    applyRelationshipPatch(plantId, episode.id, patch.relationship_patch);
+    createIntentionFromUnderstanding(
+      plantId,
+      episode.id,
+      patch.relationship_patch.summary ?? ""
+    );
+    changed = true;
+  }
   return changed;
 };
 
 export const runConsolidationPipeline = async (
   plantId: string,
   plantName: string,
-  currentTurn: number
+  currentTurn: number,
+  closeCurrentTopic = false
 ): Promise<void> => {
-  const drafts = getOpenDrafts(plantId, 100);
+  const drafts = getDraftsUntilTurn(plantId, currentTurn);
   if (!drafts.length) return;
   const earliest = Math.min(...drafts.map((draft) => draft.turn));
-  const history = renderHistory(messagesInTurnRange(plantId, earliest), plantName);
-  const forcedTurn = forcedClosedTurn(plantId);
-  const closures = forcedTurn === null && history && isLlmConfigured()
+  const startTurn = Math.max(earliest, currentTurn - memoryConfig.closureDetectionTurnLimit + 1);
+  const history = renderHistory(messagesInTurnRange(plantId, startTurn, currentTurn), plantName);
+  const closures = !closeCurrentTopic && history && isLlmConfigured()
     ? await detectClosures(history)
     : null;
   const llmTurn = closedTurnFromLlm(closures, plantName, currentTurn);
-  const untilTurn = Math.max(llmTurn ?? -1, forcedTurn ?? -1);
+  const untilTurn = closeCurrentTopic ? currentTurn : llmTurn ?? -1;
   if (untilTurn < 0) return;
   await createEpisode(plantId, plantName, untilTurn);
 };

@@ -1,4 +1,5 @@
 import { env } from "../../config/env.js";
+import { recordLlmUsage } from "./usageRepository.js";
 
 export interface LlmMessage {
   role: "system" | "user" | "assistant";
@@ -8,6 +9,7 @@ export interface LlmMessage {
 export interface LlmChatOptions {
   modelId?: string;
   temperature?: number;
+  phase?: string;
 }
 
 const chatUrl = (): string => {
@@ -25,10 +27,29 @@ export const isLlmConfigured = (options?: LlmChatOptions): boolean => {
 
 type OpenAIChatCompletionsResponse = {
   choices?: Array<{ message?: { content?: string } }>;
+  usage?: { prompt_tokens?: number; completion_tokens?: number };
 };
 
 type OpenAIStreamChunk = {
   choices?: Array<{ delta?: { content?: string }; message?: { content?: string } }>;
+  usage?: { prompt_tokens?: number; completion_tokens?: number };
+};
+
+const estimatedTokens = (text: string): number => Math.max(1, Math.ceil(Array.from(text).length / 3));
+const promptText = (messages: LlmMessage[]): string => messages.map((item) => item.content).join("\n");
+const logUsage = (
+  messages: LlmMessage[],
+  completion: string,
+  options: LlmChatOptions | undefined,
+  usage?: OpenAIChatCompletionsResponse["usage"]
+): void => {
+  recordLlmUsage({
+    phase: options?.phase ?? "unspecified",
+    modelId: effectiveModelId(options),
+    promptTokens: usage?.prompt_tokens ?? estimatedTokens(promptText(messages)),
+    completionTokens: usage?.completion_tokens ?? estimatedTokens(completion),
+    tokenSource: usage?.prompt_tokens !== undefined ? "provider" : "estimated"
+  });
 };
 
 export const completeChat = async (
@@ -52,7 +73,9 @@ export const completeChat = async (
     throw new Error(`LLM request failed: ${response.status} ${await response.text()}`);
   }
   const json = (await response.json()) as OpenAIChatCompletionsResponse;
-  return json.choices?.[0]?.message?.content?.trim() ?? null;
+  const content = json.choices?.[0]?.message?.content?.trim() ?? null;
+  logUsage(messages, content ?? "", options, json.usage);
+  return content;
 };
 
 const parseStreamFrame = (frame: string): string[] => {
@@ -88,24 +111,32 @@ export async function* streamChat(
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
+  let completion = "";
+  let usage: OpenAIStreamChunk["usage"];
 
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
 
-    let boundary = buffer.indexOf("\n\n");
-    while (boundary >= 0) {
-      const frame = buffer.slice(0, boundary);
-      buffer = buffer.slice(boundary + 2);
-      for (const data of parseStreamFrame(frame)) {
-        if (data === "[DONE]") return;
-        const chunk = JSON.parse(data) as OpenAIStreamChunk;
-        const delta = chunk.choices?.[0]?.delta?.content ?? chunk.choices?.[0]?.message?.content ?? "";
-        if (delta) yield delta;
+      let boundary = buffer.indexOf("\n\n");
+      while (boundary >= 0) {
+        const frame = buffer.slice(0, boundary);
+        buffer = buffer.slice(boundary + 2);
+        for (const data of parseStreamFrame(frame)) {
+          if (data === "[DONE]") return;
+          const chunk = JSON.parse(data) as OpenAIStreamChunk;
+          usage = chunk.usage ?? usage;
+          const delta = chunk.choices?.[0]?.delta?.content ?? chunk.choices?.[0]?.message?.content ?? "";
+          completion += delta;
+          if (delta) yield delta;
+        }
+        boundary = buffer.indexOf("\n\n");
       }
-      boundary = buffer.indexOf("\n\n");
     }
+  } finally {
+    logUsage(messages, completion, options, usage);
   }
 }
 

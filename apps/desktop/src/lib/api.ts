@@ -4,7 +4,7 @@ import type {
   EpisodeMemory,
   MemoryCitation,
   PlantHealthSummary,
-  PlantStatus,
+  LayeredPlantState,
   PlantSummary,
   SuggestCareProfileInput,
   Understanding
@@ -115,11 +115,6 @@ export interface ReadingRow {
 export interface ReadingState {
   latest: ReadingRow | null;
   health: PlantHealthSummary;
-  sensorTrust: {
-    trusted: boolean;
-    reason: string;
-    sourceMessageId: number | null;
-  };
 }
 
 export interface ChatTurn {
@@ -154,7 +149,7 @@ export interface PlantPhoto {
 
 export interface PlantWithStatus {
   plant: PlantSummary;
-  status: PlantStatus | null;
+  state: LayeredPlantState;
 }
 
 export interface WeatherNow {

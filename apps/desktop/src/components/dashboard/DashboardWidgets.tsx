@@ -84,12 +84,7 @@ export function PlantCard({ plant, now, index }: { plant: PlantSummary; now: Dat
     };
   }, [plant.id, readingRefresh]);
 
-  const status = deriveStatus(
-    reading?.latest,
-    plant.careProfile,
-    now,
-    reading?.sensorTrust.trusted ?? true
-  );
+  const status = deriveStatus(reading?.latest, plant.careProfile, now);
   const moodMeta = MOOD_PRESETS[status.mood];
   const tone = status.highlightTone;
   const avatarSrc = mediaUrl(plant.avatarUrl ?? plantImage(plant.id));

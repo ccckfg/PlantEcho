@@ -12,6 +12,7 @@ import {
   startConsolidationRun
 } from "./consolidationState.js";
 import { runConsolidationPipeline } from "./llmConsolidation.js";
+import { memoryConfig } from "../../../config/memory.js";
 
 type ConsolidationPayload = {
   plantId: string;
@@ -20,6 +21,7 @@ type ConsolidationPayload = {
 };
 
 const dedupeKey = (plantId: string): string => `memory.consolidation:${plantId}`;
+const sessionDedupeKey = (plantId: string): string => `memory.session-closure:${plantId}`;
 
 const asPayload = (payload: Record<string, unknown>): ConsolidationPayload => {
   const plantId = typeof payload.plantId === "string" ? payload.plantId : "";
@@ -64,6 +66,28 @@ export const scheduleDetectAndConsolidate = (
   });
 };
 
+export const scheduleSessionClosure = (
+  plantId: string,
+  plantName: string,
+  currentTurn: number
+): void => {
+  const key = sessionDedupeKey(plantId);
+  const payload = { plantId, plantName, currentTurn };
+  const runAfter = new Date(Date.now() + memoryConfig.sessionClosureDelayMs).toISOString();
+  const existing = findActiveJobByDedupeKey(key);
+  if (existing) {
+    updateJobPayload(existing.id, mergeConsolidationPayload(existing.payload, payload), runAfter);
+    return;
+  }
+  enqueueJob({
+    type: jobTypes.memorySessionClosure,
+    payload,
+    dedupeKey: key,
+    runAfter,
+    maxAttempts: jobConfig.consolidationMaxAttempts
+  });
+};
+
 export const runConsolidationJob = async (job: BackgroundJob): Promise<void> => {
   const payload = asPayload(job.payload);
   let currentTurn = Math.max(payload.currentTurn, getConsolidationState(payload.plantId).pendingTurn ?? 0);
@@ -81,4 +105,9 @@ export const runConsolidationJob = async (job: BackgroundJob): Promise<void> => 
     if (pending === null) break;
     currentTurn = pending;
   }
+};
+
+export const runSessionClosureJob = async (job: BackgroundJob): Promise<void> => {
+  const payload = asPayload(job.payload);
+  await runConsolidationPipeline(payload.plantId, payload.plantName, payload.currentTurn, true);
 };

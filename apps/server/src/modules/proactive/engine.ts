@@ -1,11 +1,10 @@
 import { proactiveConfig } from "../../config/proactive.js";
 import { listPlants } from "../plants/plantRepository.js";
 import { getWeatherNow } from "../weather/weatherService.js";
-import { buildSensorEvent } from "./sensorTriggers.js";
-import { observeSensorEvent } from "./sensorObservationService.js";
 import { buildRainEvent } from "./weatherTriggers.js";
 import { emitProactiveMessage } from "./proactiveMessage.js";
 import { listDueReminders, markReminderStatus } from "./reminderRepository.js";
+import { considerOneIntention } from "./intentionProactiveService.js";
 
 type Logger = {
   info: (message: string) => void;
@@ -31,9 +30,7 @@ export const createProactiveEngine = (logger: Logger): ProactiveEngine => {
   let lastWeatherScanAt = 0;
 
   const scanSensor = async (plantId: string): Promise<void> => {
-    if (!proactiveConfig.enabled) return;
-    const event = buildSensorEvent(plantId);
-    await observeSensorEvent(plantId, event);
+    await considerOneIntention(plantId);
   };
 
   const scanWeather = async (): Promise<void> => {
@@ -74,7 +71,7 @@ export const createProactiveEngine = (logger: Logger): ProactiveEngine => {
     if (stopped || running || !proactiveConfig.enabled) return;
     running = true;
     try {
-      for (const plant of listPlants()) await scanSensor(plant.id);
+      for (const plant of listPlants()) await considerOneIntention(plant.id);
       await scanReminders();
       await scanWeather();
     } catch (error) {

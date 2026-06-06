@@ -93,9 +93,14 @@ export const createPlant = (input: CreatePlantInput): PlantSummary => {
     );
   getDb()
     .prepare(
-      "INSERT INTO plant_status (plant_id, mood, relationship, focus, last_summary, updated_at) VALUES (?, ?, ?, ?, ?, ?)"
+      "INSERT INTO plant_inner_state (plant_id, mood, concern, thought, source_turn, updated_at) VALUES (?, ?, '', '', NULL, ?)"
     )
-    .run(id, "平静", "刚刚认识主人", "适应新的环境记录", "", now);
+    .run(id, "平静", now);
+  getDb()
+    .prepare(
+      "INSERT INTO plant_relationship_state (plant_id, stage, summary, evidence_memory_ids_json, updated_at) VALUES (?, '初识', ?, '[]', ?)"
+    )
+    .run(id, "刚刚认识主人", now);
   return getPlant(id)!;
 };
 

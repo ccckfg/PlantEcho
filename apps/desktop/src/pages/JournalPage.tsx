@@ -104,12 +104,12 @@ function JournalContent({
       <header className="mb-xxl flex flex-col gap-md">
         <div className="flex items-center gap-sm flex-wrap">
           <Chip tone="tertiary">{summary?.species ?? "未知品种"}</Chip>
-          {plant.data?.status?.focus ? (
+          {plant.data?.state.inner.concern ? (
             <Chip
               icon="water_drop"
-              tone={statusNeedsAttention(plant.data.status.focus) ? "error" : "muted"}
+              tone={statusNeedsAttention(plant.data.state.inner.concern) ? "error" : "muted"}
             >
-              {plant.data.status.focus}
+              {plant.data.state.inner.concern}
             </Chip>
           ) : null}
         </div>

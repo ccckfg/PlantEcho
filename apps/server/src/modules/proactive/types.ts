@@ -1,10 +1,6 @@
 export type ProactiveSeverity = "info" | "warning" | "critical";
 
 export type ProactiveEventType =
-  | "sensor.soil_low"
-  | "sensor.soil_high"
-  | "sensor.offline"
-  | "sensor.environment"
   | "weather.rain"
   | "reminder.due";
 
