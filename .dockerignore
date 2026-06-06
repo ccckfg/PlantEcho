@@ -5,6 +5,7 @@ dist
 .turbo
 .DS_Store
 *.log
+*.mp4
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
