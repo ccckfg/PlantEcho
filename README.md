@@ -220,6 +220,7 @@ ESP32 启动后会自动连 Wi-Fi → 连 MQTT → 开始上报传感器数据�
 LLM_API_URL=https://api.openai.com/v1
 LLM_API_KEY=sk-你的密钥
 LLM_MODEL_ID=gpt-4o
+SECONDARY_LLM_MODEL_ID=便宜的结构化任务模型
 APP_ACCESS_KEY=设置一个高强度随机字符串
 
 # 可选：和风天气（用于降雨提醒等场景）
@@ -303,13 +304,16 @@ curl http://<IP>:8787/v1/chat/completions \
 | 变量 | 说明 |
 |---|---|
 | `APP_ACCESS_KEY` | 可选；设置后保护除设备读数外的所有接口 |
-| `LLM_API_URL` / `LLM_API_KEY` / `LLM_MODEL_ID` | 对话必填；OpenAI 兼容 LLM，用于聊天与记忆生成 |
+| `LLM_API_URL` / `LLM_API_KEY` / `LLM_MODEL_ID` | 对话必填；主模型用于聊天、主动发言与长期理解 |
+| `SECONDARY_LLM_*` | 副模型用于主题闭合、Episode 摘要与 care profile；URL/Key 留空时复用主模型供应商 |
 | `EMBEDDING_*` | 对话必填；OpenAI 兼容 embedding 服务 |
 | `RERANK_*` | 可选 rerank 服务（如 `Qwen/Qwen3-Reranker-8B`） |
 | `WeatherKey` / `WeatherUrl` | 和风天气 / QWeather 配置 |
 | `PROACTIVE_ENABLED` | 主动发言引擎开关 |
 
 > 植物对话不再提供规则或模板 fallback。LLM 或 embedding 缺少任一配置时，对话接口返回 `503 CHAT_DEPENDENCIES_NOT_CONFIGURED`；rerank 仍为可选增强。
+
+主副模型的完整职责表见 [`docs/llm-routing.md`](docs/llm-routing.md)。
 
 ---
 

@@ -1,5 +1,6 @@
 import { proactiveConfig } from "../../config/proactive.js";
 import { dialogueConfig } from "../../config/dialogue.js";
+import { llmPhases } from "../../config/llmRouting.js";
 import { recentMessages } from "../chat/messageRepository.js";
 import { completeJson, isLlmConfigured } from "../llm/client.js";
 import { getPlant } from "../plants/plantRepository.js";
@@ -27,7 +28,9 @@ const cleanGeneratedMessage = (text: string | null): string => {
 };
 
 const canUseLlm = (): boolean =>
-  proactiveConfig.llmEnabled && !isTestRuntime() && isLlmConfigured();
+  proactiveConfig.llmEnabled &&
+  !isTestRuntime() &&
+  isLlmConfigured({ phase: llmPhases.proactiveEvent });
 
 const renderFacts = (event: ProactiveEventInput): string => {
   const facts = event.facts?.length ? event.facts : [event.content];
@@ -79,7 +82,7 @@ export const composeProactiveMessage = async (
           ].join("\n")
         }
       ],
-      { temperature: 0.45, phase: "proactive.event" }
+      { temperature: 0.45, phase: llmPhases.proactiveEvent }
     );
     if (!decision?.speak) return null;
     return cleanGeneratedMessage(decision.message ?? "") || localDecision(event);

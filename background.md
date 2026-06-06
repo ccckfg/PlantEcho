@@ -81,6 +81,7 @@ PlantEcho 的设计目标不是"高效的传感器看板"，而是"和植物一�
 - **设备**：读数上传、待认领登记、列表/忽略、认领、密钥 hash 校验/轮换，认领/轮换后可通过 MQTT 下发设备密钥。
 - **植物**：档案、用户自定义背景与性格、Physical / Inner / Relationship / Intention 四层状态、读数、care profile 建议（LLM/模板）。
 - **聊天**：流式 + 非流式植物聊天，复用同一次回复中的隐藏 `inner_patch` 更新 Inner。对话必须同时配置 LLM 与 embedding API，不再提供本地 fallback。
+- **模型路由**：主模型负责对话、主动发言与长期理解；副模型负责主题闭合、Episode 摘要和 care profile。副模型缺失时不会回退调用主模型。
 - **OpenAI-compatible**：`/v1/chat/completions`、`/v1/models`，通过 `<植物名>...</植物名>` 路由植物。
 - **记忆**：AgentGal 式生命周期（Draft → 主题闭合检查 → Episode → Understanding），每累计 3 个新 turn 检查一次，会话超时保存最后主题；传感器不会进入记忆。FTS5/BM25 + sqlite-vec + hybrid + 可选 rerank。
 - **主动发言 Engine**：提醒到期必达；普通念头先成为 Intention，再由 LLM 决定说、保留、完成或放弃。传感器异常不会触发主动发言；决策失败按 30 分钟至 12 小时指数退避。
@@ -174,7 +175,7 @@ npm run build
 npm run test
 ```
 
-最近一次（2026-06-06）：服务端测试通过（51 个），完整 `npm run build` 通过。
+最近一次（2026-06-06）：服务端测试通过（53 个），完整 `npm run build` 通过。
 
 Smoke 脚本：
 
@@ -208,6 +209,7 @@ npm run tauri:build
 2026-06-03：待认领设备的“忽略”操作新增二次确认提醒框，确认后才从待认领列表移走设备；`npm run build:desktop` 通过。
 2026-06-05：完成后台调用降频、主动发言“可沉默”决策、传感器可信度贯穿、简短抽象植物口吻、严格里程碑筛选、自定义植物背景/人设，以及 Android MediaStore 相册保存与成功 toast。`npm run build`、`npm run test`、桌面与 Android Rust `cargo check` 均通过；本环境缺少 Android SDK，APK/Kotlin 编译与真机保存仍待具备 SDK 的环境验证。
 2026-06-06：状态重构为 Physical / Inner / Relationship / Intention；传感器只描述当下，不再生成记忆或主动消息；聊天复用隐藏 Inner Patch；Consolidation 每累计 3 个新 turn 检查主题闭合并支持会话超时；主动发言改为 Intention 决策，失败时指数退避；聊天取消本地 fallback，并强制依赖 LLM 与 embedding API；新增 LLM Token 与估算成本日志。
+2026-06-06：新增按 phase 的主副模型路由；主模型负责说话和长期理解，副模型负责简单结构化任务，并分别记录估算成本。
 
 ESP32 真实验证（2026-05-25）：OLED/SHT40/GY-302/土壤 ADC 实测可用；HTTP 上传通过；2026-05-27 编译验证含 MQTT 1 秒级上报、断线重连、设备密钥持久化、SoftAP 配网、OTA；2026-05-28 编译验证通过 MQTT config topic 自动接收并保存认领密钥。
 

@@ -1,4 +1,5 @@
 import { memoryConfig } from "../../../config/memory.js";
+import { llmPhases } from "../../../config/llmRouting.js";
 import { isoDatePart, isoTimePart, nowIso } from "../../../shared/time.js";
 import { messagesInTurnRange } from "../../chat/messageRepository.js";
 import { isLlmConfigured } from "../../llm/client.js";
@@ -53,7 +54,7 @@ const createEpisode = async (
   const messages = messagesInTurnRange(plantId, firstTurn, untilTurn);
   const rawDialogue = renderHistory(messages, plantName);
   const payload = buildEpisodePayload(plantName, drafts, rawDialogue);
-  const llmReady = isLlmConfigured();
+  const llmReady = isLlmConfigured({ phase: llmPhases.memoryEpisode });
   const generated = llmReady ? await generateEpisodeMemory(payload) : null;
   const block = generated;
   if (block?.should_store === false) {
@@ -192,7 +193,9 @@ export const runConsolidationPipeline = async (
   const earliest = Math.min(...drafts.map((draft) => draft.turn));
   const startTurn = Math.max(earliest, currentTurn - memoryConfig.closureDetectionTurnLimit + 1);
   const history = renderHistory(messagesInTurnRange(plantId, startTurn, currentTurn), plantName);
-  const closures = !closeCurrentTopic && history && isLlmConfigured()
+  const closures = !closeCurrentTopic &&
+    history &&
+    isLlmConfigured({ phase: llmPhases.memoryClosure })
     ? await detectClosures(history)
     : null;
   const closedTurns = closeCurrentTopic

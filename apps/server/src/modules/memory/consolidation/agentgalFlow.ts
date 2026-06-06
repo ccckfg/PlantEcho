@@ -1,4 +1,5 @@
 import { completeJson } from "../../llm/client.js";
+import { llmPhases } from "../../../config/llmRouting.js";
 import { EPISODE_CLOSURE_DETECTOR, EPISODE_MEMORY_GENERATOR, UNDERSTANDING_PATCH } from "./agentgalPrompts.js";
 import { promptDataBlock } from "../../chat/promptData.js";
 import {
@@ -20,7 +21,7 @@ export const detectClosures = async (recentHistory: string): Promise<EpisodeClos
   const output = await completeJson<unknown>([
     { role: "system", content: EPISODE_CLOSURE_DETECTOR },
     { role: "user", content: promptDataBlock("closure_input", recentHistory) }
-  ], { phase: "memory.closure" });
+  ], { phase: llmPhases.memoryClosure });
   return output === null ? null : episodeClosureOutputSchema.parse(output);
 };
 
@@ -28,7 +29,7 @@ export const generateEpisodeMemory = async (payload: string): Promise<EpisodeMem
   const output = await completeJson<unknown>([
     { role: "system", content: EPISODE_MEMORY_GENERATOR },
     { role: "user", content: promptDataBlock("episode_input", payload) }
-  ], { phase: "memory.episode" });
+  ], { phase: llmPhases.memoryEpisode });
   return output === null ? null : episodeMemoryBlockSchema.parse(output);
 };
 
@@ -36,6 +37,6 @@ export const patchUnderstandings = async (payload: string): Promise<Understandin
   const output = await completeJson<unknown>([
     { role: "system", content: UNDERSTANDING_PATCH },
     { role: "user", content: promptDataBlock("understanding_input", payload) }
-  ], { phase: "memory.understanding" });
+  ], { phase: llmPhases.memoryUnderstanding });
   return output === null ? null : understandingPatchOutputSchema.parse(output);
 };

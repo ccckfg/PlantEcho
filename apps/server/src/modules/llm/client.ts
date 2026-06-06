@@ -1,4 +1,5 @@
 import { env } from "../../config/env.js";
+import { llmTierForPhase, type LlmTier } from "../../config/llmRouting.js";
 import { recordLlmUsage } from "./usageRepository.js";
 
 export interface LlmMessage {
@@ -12,17 +13,43 @@ export interface LlmChatOptions {
   phase?: string;
 }
 
-const chatUrl = (): string => {
-  const base = env.LLM_API_URL.replace(/\/$/, "");
+type LlmTarget = {
+  tier: LlmTier;
+  apiUrl: string;
+  apiKey: string;
+  modelId: string;
+  temperature: number;
+};
+
+const targetFor = (options?: LlmChatOptions): LlmTarget => {
+  const tier = llmTierForPhase(options?.phase);
+  if (tier === "secondary") {
+    return {
+      tier,
+      apiUrl: env.SECONDARY_LLM_API_URL || env.LLM_API_URL,
+      apiKey: env.SECONDARY_LLM_API_KEY || env.LLM_API_KEY,
+      modelId: env.SECONDARY_LLM_MODEL_ID,
+      temperature: env.SECONDARY_LLM_TEMPERATURE
+    };
+  }
+  return {
+    tier,
+    apiUrl: env.LLM_API_URL,
+    apiKey: env.LLM_API_KEY,
+    modelId: options?.modelId?.trim() || env.LLM_MODEL_ID,
+    temperature: env.LLM_TEMPERATURE
+  };
+};
+
+const chatUrl = (target: LlmTarget): string => {
+  const base = target.apiUrl.replace(/\/$/, "");
   if (!base) return "";
   return base.endsWith("/chat/completions") ? base : `${base}/chat/completions`;
 };
 
-const effectiveModelId = (options?: LlmChatOptions): string =>
-  options?.modelId?.trim() || env.LLM_MODEL_ID;
-
 export const isLlmConfigured = (options?: LlmChatOptions): boolean => {
-  return Boolean(chatUrl() && env.LLM_API_KEY && effectiveModelId(options));
+  const target = targetFor(options);
+  return Boolean(chatUrl(target) && target.apiKey && target.modelId);
 };
 
 type OpenAIChatCompletionsResponse = {
@@ -43,9 +70,11 @@ const logUsage = (
   options: LlmChatOptions | undefined,
   usage?: OpenAIChatCompletionsResponse["usage"]
 ): void => {
+  const target = targetFor(options);
   recordLlmUsage({
     phase: options?.phase ?? "unspecified",
-    modelId: effectiveModelId(options),
+    tier: target.tier,
+    modelId: target.modelId,
     promptTokens: usage?.prompt_tokens ?? estimatedTokens(promptText(messages)),
     completionTokens: usage?.completion_tokens ?? estimatedTokens(completion),
     tokenSource: usage?.prompt_tokens !== undefined ? "provider" : "estimated"
@@ -56,16 +85,17 @@ export const completeChat = async (
   messages: LlmMessage[],
   options?: LlmChatOptions
 ): Promise<string | null> => {
+  const target = targetFor(options);
   if (!isLlmConfigured(options)) return null;
-  const response = await fetch(chatUrl(), {
+  const response = await fetch(chatUrl(target), {
     method: "POST",
     headers: {
       "content-type": "application/json",
-      authorization: `Bearer ${env.LLM_API_KEY}`
+      authorization: `Bearer ${target.apiKey}`
     },
     body: JSON.stringify({
-      model: effectiveModelId(options),
-      temperature: options?.temperature ?? env.LLM_TEMPERATURE,
+      model: target.modelId,
+      temperature: options?.temperature ?? target.temperature,
       messages
     })
   });
@@ -89,16 +119,17 @@ export async function* streamChat(
   messages: LlmMessage[],
   options?: LlmChatOptions
 ): AsyncGenerator<string> {
+  const target = targetFor(options);
   if (!isLlmConfigured(options)) return;
-  const response = await fetch(chatUrl(), {
+  const response = await fetch(chatUrl(target), {
     method: "POST",
     headers: {
       "content-type": "application/json",
-      authorization: `Bearer ${env.LLM_API_KEY}`
+      authorization: `Bearer ${target.apiKey}`
     },
     body: JSON.stringify({
-      model: effectiveModelId(options),
-      temperature: options?.temperature ?? env.LLM_TEMPERATURE,
+      model: target.modelId,
+      temperature: options?.temperature ?? target.temperature,
       stream: true,
       messages
     })

@@ -5,6 +5,7 @@ import {
   type SuggestCareProfileInput
 } from "@dyn/shared";
 import { defaultCareProfile } from "../../config/careProfiles.js";
+import { llmPhases } from "../../config/llmRouting.js";
 import { completeJson, isLlmConfigured } from "../llm/client.js";
 
 interface LlmCareProfileResponse {
@@ -98,7 +99,7 @@ const buildPrompt = (input: SuggestCareProfileInput): string => [
 export const suggestCareProfile = async (
   input: SuggestCareProfileInput
 ): Promise<CareProfileSuggestion> => {
-  if (isLlmConfigured()) {
+  if (isLlmConfigured({ phase: llmPhases.plantCareProfile })) {
     try {
       const generated = await completeJson<LlmCareProfileResponse>(
         [
@@ -108,7 +109,7 @@ export const suggestCareProfile = async (
           },
           { role: "user", content: buildPrompt(input) }
         ],
-        { temperature: 0.2 }
+        { temperature: 0.2, phase: llmPhases.plantCareProfile }
       );
       if (generated?.careProfile) {
         return {

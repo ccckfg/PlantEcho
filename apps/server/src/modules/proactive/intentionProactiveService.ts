@@ -1,4 +1,5 @@
 import { dialogueConfig } from "../../config/dialogue.js";
+import { llmPhases } from "../../config/llmRouting.js";
 import { proactiveConfig } from "../../config/proactive.js";
 import {
   addMessage,
@@ -42,7 +43,7 @@ export const considerOneIntention = async (plantId: string): Promise<void> => {
   if (!proactiveConfig.enabled) return;
   const intention = chooseIntentionForConsideration(plantId);
   if (!intention) return;
-  if (!proactiveConfig.llmEnabled || !isLlmConfigured()) return;
+  if (!proactiveConfig.llmEnabled || !isLlmConfigured({ phase: llmPhases.proactiveIntention })) return;
   const plant = getPlant(plantId);
   const now = new Date();
   const lastUserMessage = latestMessageByRole(plantId, "user");
@@ -83,7 +84,7 @@ export const considerOneIntention = async (plantId: string): Promise<void> => {
         recentHistory: history
       })
     }
-  ], { temperature: 0.4, phase: "proactive.intention" }).catch(() => null));
+  ], { temperature: 0.4, phase: llmPhases.proactiveIntention }).catch(() => null));
 
   if (!decision) {
     deferIntentionAfterFailure(

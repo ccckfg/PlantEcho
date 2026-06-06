@@ -24,6 +24,7 @@ import {
   createIntentionFromUserMessage
 } from "../intentions/intentionService.js";
 import { assertChatDependencies } from "./chatRequirements.js";
+import { llmPhases } from "../../config/llmRouting.js";
 
 export interface ChatResult {
   turn: number;
@@ -56,7 +57,7 @@ export const chatWithPlant = async (
   const llmReply = await completeChat([
     { role: "system", content: plantSystemPrompt },
     { role: "user", content: context.userPrompt }
-  ], { ...options, phase: "chat.reply" });
+  ], { ...options, phase: llmPhases.chatReply });
   if (!llmReply) throw new Error("LLM returned an empty chat response");
   const parsed = parseChatResponse(llmReply);
   let reply = parsed.reply;
@@ -97,7 +98,7 @@ export async function* streamChatWithPlant(
   for await (const delta of streamChat([
     { role: "system", content: plantSystemPrompt },
     { role: "user", content: context.userPrompt }
-  ], { ...options, phase: "chat.reply" })) {
+  ], { ...options, phase: llmPhases.chatReply })) {
     rawReply += delta;
     const visible = memoryClaimFilter.feed(visibleFilter.feed(delta));
     const remaining = maxReplyChars - emittedChars;
