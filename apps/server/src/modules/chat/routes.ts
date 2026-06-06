@@ -3,6 +3,7 @@ import type { FastifyInstance } from "fastify";
 import { sendError } from "../../shared/http.js";
 import { chatWithPlant, streamChatWithPlant, type ChatStreamEvent } from "./chatService.js";
 import { recentMessages } from "./messageRepository.js";
+import { assertChatDependencies } from "./chatRequirements.js";
 
 const chatSchema = z.object({
   content: z.string().min(1)
@@ -23,6 +24,7 @@ export const registerChatRoutes = async (app: FastifyInstance): Promise<void> =>
     try {
       const { plantId } = request.params as { plantId: string };
       const { content } = chatSchema.parse(request.body);
+      assertChatDependencies();
       reply.hijack();
       const origin = request.headers.origin ?? "*";
       reply.raw.writeHead(200, {

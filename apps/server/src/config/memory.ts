@@ -16,8 +16,13 @@ export const memoryConfig = {
   bm25RelevanceWeight: 0.25,
   hybridSearchEnabled: true,
   closureDetectionTurnLimit: 32,
+  closureDetectionMinNewTurns: 3,
   sessionClosureDelayMs: 30 * 60_000,
   queryTextLimit: 1800,
   bm25TextLimit: 700,
-  understandingTextLimit: 1200
+  understandingTextLimit: 1200,
+  episodeTitleMaxChars: 80,
+  episodeContentMaxChars: 120,
+  understandingFieldMaxChars: 80,
+  memoryKeywordMaxChars: 24
 } as const;

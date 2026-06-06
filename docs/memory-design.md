@@ -9,18 +9,17 @@
 | 稳定个性 | `plants.persona_profile_id` + `config/careProfiles.ts` |
 | 当前状态 | `plant_status`：心情、关系、当前关注点、最近摘要 |
 | 近期对话 | `messages`：按 plant 和 turn 存储 |
-| 情节记忆 | `plant_memories`：重要传感器事件或主人主动告知的事 |
+| 情节记忆 | `plant_memories`：从对话中形成的、有意义的情节 |
 | 稳定理解 | `plant_understandings`：从事件中形成的长期判断 |
 
 ## 记忆写入
 
-普通传感器读数只进入 `sensor_readings`，不会全部进入长期记忆。
+传感器读数只进入 `sensor_readings` 与 Physical 状态，不进入长期记忆。
 
-以下事件会生成长期记忆：
+长期记忆只从对话中生成，重点保留：
 
-- 土壤湿度低于/高于养护阈值。
-- 光照、温度等出现需要注意的异常。
 - 主人主动告诉植物自己的状态、情绪或重要日常。
+- 关系、承诺、偏好或生活阶段发生的有意义变化。
 
 写入流程是：
 
@@ -32,22 +31,22 @@
 
 这条链路已经按 AgentGal 对齐：
 
-- 每次用户消息或重要传感器事件先写入 `memory_drafts`。
-- 回合结束后调度 `scheduleDetectAndConsolidate`，只负责写入/合并后台任务，不阻塞聊天响应。
+- 每次用户消息先写入 `memory_drafts`。
+- 每累计 3 个新 turn 调度一次 `scheduleDetectAndConsolidate`；会话超时则闭合当前主题。调度只负责写入/合并后台任务，不阻塞聊天响应。
 - `background_jobs` 持久化 consolidation 任务，支持 dedupe、失败重试和 stale running job 恢复。
 - 如果已有整理任务正在运行，新 turn 会写入 `memory_consolidation_state.pending_turn`，等当前任务结束后补跑。
 - 整理成功后才标记 draft 为 consumed；失败时 draft 保留，下次重试。
 - `raw_dialogue` 会落入 `plant_memories`，作为可追溯来源，但不进入向量索引文本。
 - `UnderstandingPatch` 会把新 episode id 注入 linked memories，并在内容变化时追加 history。
 
-植物系统有一个领域扩展：传感器异常是天然闭合事件，会以 `forceClose` draft 进入同一条 pipeline。若未配置 LLM，系统只对这种闭合传感器事件使用本地 fallback 生成 episode；普通对话 draft 仍等待 LLM closure/generator。
+Closure、Episode 与 Understanding 的模型输出都会经过运行时 schema 校验。输出非法时任务失败并由后台 job 重试，不使用本地生成 fallback。
 
 ## 严格对齐后的记忆召回
 
 聊天时构造查询：
 
 ```text
-episode semantic = 传感器场景 + 最近可见对话 + 当前关注点 + 主人新消息
+episode semantic = 最近可见对话 + 当前关注点 + 主人新消息
 episode BM25     = 当前关注点 + 最近可见对话 + 主人新消息
 understanding semantic = 关系摘要 + 当前关注点 + 最近可见对话 + 主人新消息
 understanding BM25     = 关系摘要 + 当前关注点 + 主人新消息
@@ -73,7 +72,7 @@ final = relevance * 0.50 + recency * 0.20 + importance * 0.30
 
 其中 relevance 来自 hybrid fusion 或 rerank，recency 使用指数衰减，importance 来自记忆重要度。
 
-如果未配置 `EMBEDDING_MODEL_ID`，系统仍可通过 FTS5/BM25 候选工作；配置 embedding 后会自动建立 `sqlite-vec` 向量索引。
+检索模块本身仍支持 FTS5/BM25 候选，但植物对话入口要求 embedding API 已配置；配置后会自动建立 `sqlite-vec` 向量索引。
 
 Embedding provider 可通过 `EMBEDDING_PROVIDER` 切换：
 

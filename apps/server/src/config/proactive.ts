@@ -8,6 +8,9 @@ export const proactiveConfig = {
   weatherScanIntervalMs: env.PROACTIVE_WEATHER_SCAN_INTERVAL_MS,
   weatherCooldownMs: env.PROACTIVE_WEATHER_COOLDOWN_MS,
   reminderMaxDays: env.PROACTIVE_REMINDER_MAX_DAYS,
+  userPresenceWindowMs: 30 * 60_000,
   intentionConsiderationCooldownMs: 24 * 60 * 60_000,
-  intentionMaxConsiderations: 3
+  intentionMaxConsiderations: 3,
+  intentionFailureRetryBaseMs: 30 * 60_000,
+  intentionFailureRetryMaxMs: 12 * 60 * 60_000
 };

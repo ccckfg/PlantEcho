@@ -1,6 +1,6 @@
 export const stateConfig = {
-  moodMaxChars: 80,
-  innerTextMaxChars: 160,
+  moodMaxChars: 24,
+  innerTextMaxChars: 100,
   relationshipSummaryMaxChars: 240,
   relationshipEvidenceLimit: 20
 } as const;

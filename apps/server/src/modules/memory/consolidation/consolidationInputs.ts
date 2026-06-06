@@ -30,7 +30,7 @@ export const buildEpisodePayload = (
     renderDraftEntries(drafts),
     "",
     "原始对话：",
-    rawDialogue || "（无对应原始对话，可能是传感器事件）"
+    rawDialogue || "（无对应原始对话）"
   ].join("\n");
 };
 
@@ -79,4 +79,3 @@ export const resolveUnderstandingId = (
   const prefix = understandings.filter((u) => u.id.startsWith(cleaned));
   return prefix.length === 1 ? prefix[0]!.id : null;
 };
-

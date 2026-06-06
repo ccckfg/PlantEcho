@@ -1,5 +1,4 @@
 import { memoryConfig } from "../../../config/memory.js";
-import type { PlantHealthSummary } from "../../readings/types.js";
 import type { ChatMessage } from "../../chat/messageRepository.js";
 
 export interface RetrievalQueries {
@@ -21,17 +20,12 @@ const recentDialogue = (messages: ChatMessage[], count = 4): string => {
 export const buildRetrievalQueries = (
   userInput: string,
   state: { focus: string; relationship: string },
-  health: PlantHealthSummary,
   history: ChatMessage[]
 ): RetrievalQueries => {
   const dialogue = recentDialogue(history);
-  const sensorScene = [
-    health.facts.join(" "),
-    health.issues.map((issue) => `${issue.label} ${issue.detail}`).join(" ")
-  ].filter(Boolean).join("\n");
   const focus = state.focus;
   const relationship = state.relationship;
-  const episode = [sensorScene, dialogue, focus, userInput].filter(Boolean).join("\n");
+  const episode = [dialogue, focus, userInput].filter(Boolean).join("\n");
   const episodeBm25 = [focus, dialogue, userInput].filter(Boolean).join("\n");
   const understanding = [relationship, focus, dialogue, userInput].filter(Boolean).join("\n");
   const understandingBm25 = [relationship, focus, userInput].filter(Boolean).join("\n");

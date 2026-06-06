@@ -6,6 +6,7 @@ import type {
 } from "@dyn/shared";
 import { getDb } from "../../db/connection.js";
 import { nowIso } from "../../shared/time.js";
+import { intentionRetryDelayMs } from "./intentionBackoff.js";
 
 type IntentionRow = {
   id: string;
@@ -20,6 +21,8 @@ type IntentionRow = {
   expires_at: string | null;
   last_considered_at: string | null;
   considered_count: number;
+  attempt_count: number;
+  last_attempt_at: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -99,8 +102,30 @@ export const noteIntentionConsidered = (id: string): PlantIntention | null => {
   const now = nowIso();
   getDb().prepare(
     `UPDATE plant_intentions
-     SET last_considered_at = ?, considered_count = considered_count + 1, updated_at = ?
+     SET last_considered_at = ?, considered_count = considered_count + 1,
+         attempt_count = 0, last_attempt_at = NULL, updated_at = ?
      WHERE id = ?`
   ).run(now, now, id);
+  return getIntention(id);
+};
+
+export const deferIntentionAfterFailure = (
+  id: string,
+  baseDelayMs: number,
+  maxDelayMs: number
+): PlantIntention | null => {
+  const row = getDb().prepare(
+    "SELECT attempt_count FROM plant_intentions WHERE id = ?"
+  ).get(id) as { attempt_count: number } | undefined;
+  if (!row) return null;
+  const attemptCount = row.attempt_count + 1;
+  const delayMs = intentionRetryDelayMs(attemptCount, baseDelayMs, maxDelayMs);
+  const now = nowIso();
+  const retryAt = new Date(Date.now() + delayMs).toISOString();
+  getDb().prepare(
+    `UPDATE plant_intentions
+     SET attempt_count = ?, last_attempt_at = ?, not_before = ?, updated_at = ?
+     WHERE id = ?`
+  ).run(attemptCount, now, retryAt, now, id);
   return getIntention(id);
 };

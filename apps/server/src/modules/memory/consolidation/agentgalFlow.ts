@@ -1,51 +1,41 @@
 import { completeJson } from "../../llm/client.js";
 import { EPISODE_CLOSURE_DETECTOR, EPISODE_MEMORY_GENERATOR, UNDERSTANDING_PATCH } from "./agentgalPrompts.js";
-import type { RelationshipPatch } from "../../state/stateService.js";
+import { promptDataBlock } from "../../chat/promptData.js";
+import {
+  episodeClosureOutputSchema,
+  episodeMemoryBlockSchema,
+  understandingPatchOutputSchema,
+  type EpisodeClosureOutput,
+  type EpisodeMemoryBlock,
+  type UnderstandingPatchOutput
+} from "./outputSchemas.js";
 
-export type EpisodeClosureBoundary = {
-  end_turn: number;
-  old_theme: string;
-  new_theme: string;
-  reason: string;
-};
-
-export type EpisodeClosureOutput = Record<string, EpisodeClosureBoundary[]>;
-
-export type EpisodeMemoryBlock = {
-  should_store?: boolean;
-  date: string;
-  time: string;
-  location: string;
-  participants: string;
-  keywords: string[];
-  importance: number;
-  title: string;
-  content: string;
-};
-
-export type UnderstandingPatchOutput = {
-  add: Array<{ subject: string; keywords: string[]; content: string }>;
-  update: Record<string, { subject?: string; keywords?: string[]; content?: string }>;
-  relationship_patch?: RelationshipPatch;
-};
+export type {
+  EpisodeClosureOutput,
+  EpisodeMemoryBlock,
+  UnderstandingPatchOutput
+} from "./outputSchemas.js";
 
 export const detectClosures = async (recentHistory: string): Promise<EpisodeClosureOutput | null> => {
-  return await completeJson<EpisodeClosureOutput>([
+  const output = await completeJson<unknown>([
     { role: "system", content: EPISODE_CLOSURE_DETECTOR },
-    { role: "user", content: recentHistory }
+    { role: "user", content: promptDataBlock("closure_input", recentHistory) }
   ], { phase: "memory.closure" });
+  return output === null ? null : episodeClosureOutputSchema.parse(output);
 };
 
 export const generateEpisodeMemory = async (payload: string): Promise<EpisodeMemoryBlock | null> => {
-  return await completeJson<EpisodeMemoryBlock>([
+  const output = await completeJson<unknown>([
     { role: "system", content: EPISODE_MEMORY_GENERATOR },
-    { role: "user", content: payload }
+    { role: "user", content: promptDataBlock("episode_input", payload) }
   ], { phase: "memory.episode" });
+  return output === null ? null : episodeMemoryBlockSchema.parse(output);
 };
 
 export const patchUnderstandings = async (payload: string): Promise<UnderstandingPatchOutput | null> => {
-  return await completeJson<UnderstandingPatchOutput>([
+  const output = await completeJson<unknown>([
     { role: "system", content: UNDERSTANDING_PATCH },
-    { role: "user", content: payload }
+    { role: "user", content: promptDataBlock("understanding_input", payload) }
   ], { phase: "memory.understanding" });
+  return output === null ? null : understandingPatchOutputSchema.parse(output);
 };

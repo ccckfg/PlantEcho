@@ -31,7 +31,7 @@ PlantEcho 的设计目标不是"高效的传感器看板"，而是"和植物一�
 ### 3. 操作信任：把控制权还给用户
 
 - **快捷动作渲染为系统操作 chip**，而不是伪装成用户消息。例如点"已浇水"应显示居中的「📝 你为小绿记录了一次浇水」气泡，不应让用户在聊天里看到自己说"已浇水"。
-- **离线兜底要诚实**：使用本地兜底回复时显式标注"PlantEcho 此刻无法联网，回复来自本地预设"，符合"诚实优先"。
+- **模型不可用时明确失败**：植物对话不伪装成模型回复；缺少 LLM / embedding 配置或上游调用失败时，接口直接返回错误。
 - **未实现的按钮不放出来**。比报错更伤信任的，是让用户点一个不响应的按钮。
 - **撤销 > 确认对话框**：destructive 操作首选 toast undo 模式，仅在真的需要思考成本时才用对话框。
 
@@ -80,11 +80,11 @@ PlantEcho 的设计目标不是"高效的传感器看板"，而是"和植物一�
 
 - **设备**：读数上传、待认领登记、列表/忽略、认领、密钥 hash 校验/轮换，认领/轮换后可通过 MQTT 下发设备密钥。
 - **植物**：档案、用户自定义背景与性格、Physical / Inner / Relationship / Intention 四层状态、读数、care profile 建议（LLM/模板）。
-- **聊天**：流式 + 非流式植物聊天，复用同一次回复中的隐藏 `inner_patch` 更新 Inner，含 LLM 不可用时的 fallback。
+- **聊天**：流式 + 非流式植物聊天，复用同一次回复中的隐藏 `inner_patch` 更新 Inner。对话必须同时配置 LLM 与 embedding API，不再提供本地 fallback。
 - **OpenAI-compatible**：`/v1/chat/completions`、`/v1/models`，通过 `<植物名>...</植物名>` 路由植物。
-- **记忆**：AgentGal 式生命周期（Draft → 每轮主题闭合检查 → Episode → Understanding），会话超时保存最后主题；传感器不会进入记忆。FTS5/BM25 + sqlite-vec + hybrid + 可选 rerank。
-- **主动发言 Engine**：提醒到期必达；普通念头先成为 Intention，再由 LLM 决定说、保留、完成或放弃。传感器异常不会触发主动发言。
-- **后台调用控制**：读数上报只入库和同步，不调用 LLM；闭合检测任务按植物去重，并记录各阶段 Token 与估算成本；天气默认不参与主动扫描，植物反思与状态标签由本地规则生成。
+- **记忆**：AgentGal 式生命周期（Draft → 主题闭合检查 → Episode → Understanding），每累计 3 个新 turn 检查一次，会话超时保存最后主题；传感器不会进入记忆。FTS5/BM25 + sqlite-vec + hybrid + 可选 rerank。
+- **主动发言 Engine**：提醒到期必达；普通念头先成为 Intention，再由 LLM 决定说、保留、完成或放弃。传感器异常不会触发主动发言；决策失败按 30 分钟至 12 小时指数退避。
+- **后台调用控制**：读数上报只入库和同步，不调用 LLM；闭合检测按新 turn 阈值降频，任务按植物去重，并记录各阶段 Token 与估算成本；天气默认不参与主动扫描，植物反思与状态标签由本地规则生成。
 - **同步**：SQLite `sync_events` + SSE，多端实时刷新。
 - **天气**：代理和风天气/QWeather。
 - **用户与登录**：前端通过后端地址 + 账号密码登录；后端提供注册、登录、当前用户接口，使用 HMAC token 保护除设备读数/注册登录外的应用接口，并记录登录会话的 IP 与 User-Agent。管理员用户管理交给后端 CLI。`APP_ACCESS_KEY` 仅作为旧版兼容入口与 token secret 兜底。
@@ -126,7 +126,7 @@ PlantEcho 的设计目标不是"高效的传感器看板"，而是"和植物一�
 ## 代码结构
 
 - `apps/server`：核心后端。
-  - `src/db/migrations`：递增迁移清单（当前最新 `013_llm_usage_logs`）。
+  - `src/db/migrations`：递增迁移清单（当前最新 `014_intention_attempt_backoff`）。
   - `src/modules/iot`：MQTT broker + topic + 读数入库。
   - `src/modules/proactive`：主动发言 Engine。
 - `apps/desktop`：Tauri v2 桌面客户端（React + Rust）。
@@ -174,7 +174,7 @@ npm run build
 npm run test
 ```
 
-最近一次（2026-06-05）：服务端测试通过（35 个），完整 `npm run build` 通过。
+最近一次（2026-06-06）：服务端测试通过（51 个），完整 `npm run build` 通过。
 
 Smoke 脚本：
 
@@ -207,7 +207,7 @@ npm run tauri:build
 2026-06-03：新增植物详情页删除植物功能，后端通过 `007_plant_soft_delete` 对植物做软删除并提供恢复接口；桌面端与移动端详情页均提供删除入口，先经二次确认提醒框，删除后返回温室并给 5 秒撤销 toast。`npm run build:desktop`、`npm run build --workspace @dyn/server` 与植物软删除目标测试通过。
 2026-06-03：待认领设备的“忽略”操作新增二次确认提醒框，确认后才从待认领列表移走设备；`npm run build:desktop` 通过。
 2026-06-05：完成后台调用降频、主动发言“可沉默”决策、传感器可信度贯穿、简短抽象植物口吻、严格里程碑筛选、自定义植物背景/人设，以及 Android MediaStore 相册保存与成功 toast。`npm run build`、`npm run test`、桌面与 Android Rust `cargo check` 均通过；本环境缺少 Android SDK，APK/Kotlin 编译与真机保存仍待具备 SDK 的环境验证。
-2026-06-06：状态重构为 Physical / Inner / Relationship / Intention；传感器只描述当下，不再生成记忆或主动消息；聊天复用隐藏 Inner Patch；Consolidation 每轮检查主题闭合并支持会话超时；主动发言改为 Intention 决策；新增 LLM Token 与估算成本日志。
+2026-06-06：状态重构为 Physical / Inner / Relationship / Intention；传感器只描述当下，不再生成记忆或主动消息；聊天复用隐藏 Inner Patch；Consolidation 每累计 3 个新 turn 检查主题闭合并支持会话超时；主动发言改为 Intention 决策，失败时指数退避；聊天取消本地 fallback，并强制依赖 LLM 与 embedding API；新增 LLM Token 与估算成本日志。
 
 ESP32 真实验证（2026-05-25）：OLED/SHT40/GY-302/土壤 ADC 实测可用；HTTP 上传通过；2026-05-27 编译验证含 MQTT 1 秒级上报、断线重连、设备密钥持久化、SoftAP 配网、OTA；2026-05-28 编译验证通过 MQTT config topic 自动接收并保存认领密钥。
 
@@ -227,7 +227,7 @@ ESP32 真实验证（2026-05-25）：OLED/SHT40/GY-302/土壤 ADC 实测可用�
 
 - 闭合 / 生成 prompt 用更长尾的真实语料压测。
 - rerank 选用 `Qwen/Qwen3-Reranker-8B`，已真实跑通。
-- 无 LLM 时只能闭合传感器异常事件，普通对话型记忆不会完整生成 episode。
+- 对话必须配置 LLM 与 embedding API；缺少任一依赖时返回 `503 CHAT_DEPENDENCIES_NOT_CONFIGURED`。
 
 ### 硬件
 

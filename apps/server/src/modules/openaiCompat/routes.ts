@@ -12,6 +12,7 @@ import {
 } from "./format.js";
 import { resolvePlantRoute, stripPlantNameTags } from "./plantRoute.js";
 import { openAiChatRequestSchema } from "./schema.js";
+import { assertChatDependencies } from "../chat/chatRequirements.js";
 
 export const registerOpenAiCompatRoutes = async (app: FastifyInstance): Promise<void> => {
   app.get("/v1/models", async () => ({
@@ -89,6 +90,7 @@ const writeStreamingCompletion = async (input: {
   includeUsage: boolean;
 }) => {
   const { reply, id, created, model, plantId, prompt, temperature, origin, includeUsage } = input;
+  assertChatDependencies({ modelId: model, temperature });
   reply.hijack();
   reply.raw.writeHead(200, {
     "content-type": "text/event-stream; charset=utf-8",

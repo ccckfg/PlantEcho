@@ -132,6 +132,7 @@ LLM_API_KEY=
 LLM_MODEL_ID=
 LLM_TEMPERATURE=0.7
 
+# 植物对话必填
 EMBEDDING_PROVIDER=openai-compatible
 EMBEDDING_API_URL=
 EMBEDDING_API_KEY=
@@ -222,6 +223,7 @@ config topic: dyn/devices/<deviceId>/config
 - 建议设置 `AUTH_TOKEN_SECRET`；桌面端和移动端连接后端时使用账号密码登录，首次部署后注册第一个管理员账号。
 - 管理用户请在服务器上使用后端 CLI，例如 `npm run user --workspace @dyn/server -- list-users`；登录会话可用 `list-sessions` 查看 IP 与 User-Agent。普通用户可在前端账号弹窗中查看并撤销自己的登录会话。
 - `docker-compose.yml` 为了便于本地校验，将 `dyn.env` 标记为可选；服务器真实部署时仍必须创建 `/opt/dyn/dyn.env`。
+- 植物对话必须配置 LLM 与 embedding API；缺少任一配置时，对话接口返回 `503 CHAT_DEPENDENCIES_NOT_CONFIGURED`。rerank 仍可选。
 - SQLite 数据在 `/opt/dyn/data/dyn.sqlite`，升级前先备份 `/opt/dyn/data`。
 - 容器默认会 seed 一个 demo 植物和 demo 设备；真实设备建议走 pending → claim 流程。
 - 当前仍是单实例 SQLite 部署，不要同时启动多个后端容器写同一个数据目录。

@@ -1,5 +1,6 @@
 import type { FastifyReply } from "fastify";
 import { ZodError } from "zod";
+import { ServiceError } from "../../shared/serviceError.js";
 
 export class OpenAiCompatError extends Error {
   constructor(
@@ -38,6 +39,11 @@ export const sendOpenAiError = (reply: FastifyReply, error: unknown): FastifyRep
     return reply
       .status(400)
       .send(openAiErrorBody("Invalid request body", "invalid_request_error", null, "validation_error"));
+  }
+  if (error instanceof ServiceError) {
+    return reply
+      .status(error.statusCode)
+      .send(openAiErrorBody(error.message, "server_error", null, error.code));
   }
 
   const message = error instanceof Error ? error.message : "Internal server error";

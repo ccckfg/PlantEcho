@@ -6,8 +6,17 @@ const distinctTurns = (messages: ChatMessage[]): number[] => {
   return [...new Set(messages.map((message) => message.turn))].sort((a, b) => a - b);
 };
 
-export const windowedHistory = (plantId: string): ChatMessage[] => {
-  const raw = recentMessages(plantId, memoryConfig.rawScanTurns * 4);
+export const historyBeforeTurn = (
+  messages: ChatMessage[],
+  currentTurn?: number
+): ChatMessage[] =>
+  messages.filter((message) => currentTurn === undefined || message.turn < currentTurn);
+
+export const windowedHistory = (plantId: string, currentTurn?: number): ChatMessage[] => {
+  const raw = historyBeforeTurn(
+    recentMessages(plantId, memoryConfig.rawScanTurns * 4),
+    currentTurn
+  );
   if (!raw.length) return [];
   let startTurn = getHistoryWindowStart(plantId);
   let kept = raw.filter((message) => message.turn >= startTurn);

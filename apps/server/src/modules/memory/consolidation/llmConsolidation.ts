@@ -23,19 +23,23 @@ import {
   createIntentionFromEpisode,
   createIntentionFromUnderstanding
 } from "../../intentions/intentionService.js";
-import { applyRelationshipPatch } from "../../state/stateService.js";
+import {
+  applyRelationshipPatch,
+  hasMeaningfulRelationshipPatch
+} from "../../state/stateService.js";
+import { sanitizeStateText } from "../../state/statePolicy.js";
 
-const closedTurnFromLlm = (
+export const closedTurnsFromLlm = (
   closures: EpisodeClosureOutput | null,
   plantName: string,
   currentTurn: number
-): number | null => {
-  if (!closures) return null;
+): number[] => {
+  if (!closures) return [];
   const boundaries = closures[plantName] ?? closures[Object.keys(closures)[0] ?? ""] ?? [];
-  const turns = boundaries
+  return [...new Set(boundaries
     .map((boundary) => boundary.end_turn)
-    .filter((turn) => turn < currentTurn);
-  return turns.length ? Math.max(...turns) : null;
+    .filter((turn) => Number.isInteger(turn) && turn >= 0 && turn < currentTurn))]
+    .sort((a, b) => a - b);
 };
 
 const createEpisode = async (
@@ -56,8 +60,18 @@ const createEpisode = async (
     markDraftsConsumed(drafts.map((draft) => draft.id));
     return false;
   }
-  if (!block?.content?.trim()) {
+  if (!block) {
     if (llmReady) throw new Error("Episode memory generation returned empty content");
+    return false;
+  }
+  const content = sanitizeStateText(block.content, memoryConfig.episodeContentMaxChars);
+  const title = sanitizeStateText(block.title, memoryConfig.episodeTitleMaxChars);
+  if (block?.content?.trim() && !content) {
+    markDraftsConsumed(drafts.map((draft) => draft.id));
+    return false;
+  }
+  if (!content) {
+    if (llmReady) throw new Error("Episode memory generation returned invalid content");
     return false;
   }
 
@@ -67,9 +81,11 @@ const createEpisode = async (
     time: block.time || isoTimePart(nowIso()),
     location: block.location ?? "",
     participants: block.participants || "主人",
-    title: block.title || "一段新的记忆",
-    content: block.content,
-    keywords: block.keywords ?? [],
+    title: title || "一段新的记忆",
+    content,
+    keywords: (block.keywords ?? [])
+      .map((item) => sanitizeStateText(item, memoryConfig.memoryKeywordMaxChars))
+      .filter((item): item is string => Boolean(item)),
     importance: Math.max(1, Math.min(5, Number(block.importance) || 3)),
     sourceType: "llm:episode",
     rawDialogue,
@@ -106,14 +122,18 @@ const patchEpisodeUnderstanding = async (plantId: string, episodeId: string): Pr
 
   let changed = false;
   for (const item of patch.add ?? []) {
-    if (!item.content?.trim()) continue;
+    const subject = sanitizeStateText(item.subject, memoryConfig.understandingFieldMaxChars);
+    const content = sanitizeStateText(item.content, memoryConfig.understandingFieldMaxChars);
+    if (!subject || !content) continue;
     upsertUnderstanding({
       plantId,
-      subject: item.subject,
-      content: item.content,
-      keywords: item.keywords ?? [],
+      subject,
+      content,
+      keywords: (item.keywords ?? [])
+        .map((keyword) => sanitizeStateText(keyword, memoryConfig.memoryKeywordMaxChars))
+        .filter((keyword): keyword is string => Boolean(keyword)),
       linkedMemories: [episode.id],
-      history: [{ memoryId: episode.id, date: episode.date, title: episode.title, content: item.content }]
+      history: [{ memoryId: episode.id, date: episode.date, title: episode.title, content }]
     });
     changed = true;
   }
@@ -122,15 +142,24 @@ const patchEpisodeUnderstanding = async (plantId: string, episodeId: string): Pr
     if (!id) continue;
     const existing = understandings.find((u) => u.id === id);
     if (!existing) continue;
-    const content = fields.content ?? existing.content;
-    if (!content.trim()) continue;
+    const content = sanitizeStateText(
+      fields.content ?? existing.content,
+      memoryConfig.understandingFieldMaxChars
+    );
+    const subject = sanitizeStateText(
+      fields.subject ?? existing.subject,
+      memoryConfig.understandingFieldMaxChars
+    );
+    if (!content || !subject) continue;
     const contentChanged = content !== existing.content;
     upsertUnderstanding({
       id,
       plantId,
-      subject: fields.subject ?? existing.subject,
+      subject,
       content,
-      keywords: fields.keywords ?? existing.keywords,
+      keywords: (fields.keywords ?? existing.keywords)
+        .map((keyword) => sanitizeStateText(keyword, memoryConfig.memoryKeywordMaxChars))
+        .filter((keyword): keyword is string => Boolean(keyword)),
       linkedMemories: [...new Set([...existing.linkedMemories, episode.id])],
       history: contentChanged
         ? [...existing.history, { memoryId: episode.id, date: episode.date, title: episode.title, content }]
@@ -138,14 +167,16 @@ const patchEpisodeUnderstanding = async (plantId: string, episodeId: string): Pr
     });
     changed = true;
   }
-  if (patch.relationship_patch && (changed || episode.importance >= 4)) {
-    applyRelationshipPatch(plantId, episode.id, patch.relationship_patch);
-    createIntentionFromUnderstanding(
-      plantId,
-      episode.id,
-      patch.relationship_patch.summary ?? ""
-    );
-    changed = true;
+  if (hasMeaningfulRelationshipPatch(patch.relationship_patch) && (changed || episode.importance >= 4)) {
+    const relationship = applyRelationshipPatch(plantId, episode.id, patch.relationship_patch!);
+    if (relationship.changed) {
+      createIntentionFromUnderstanding(
+        plantId,
+        episode.id,
+        relationship.state.summary
+      );
+      changed = true;
+    }
   }
   return changed;
 };
@@ -164,8 +195,10 @@ export const runConsolidationPipeline = async (
   const closures = !closeCurrentTopic && history && isLlmConfigured()
     ? await detectClosures(history)
     : null;
-  const llmTurn = closedTurnFromLlm(closures, plantName, currentTurn);
-  const untilTurn = closeCurrentTopic ? currentTurn : llmTurn ?? -1;
-  if (untilTurn < 0) return;
-  await createEpisode(plantId, plantName, untilTurn);
+  const closedTurns = closeCurrentTopic
+    ? [currentTurn]
+    : closedTurnsFromLlm(closures, plantName, currentTurn);
+  for (const untilTurn of closedTurns) {
+    await createEpisode(plantId, plantName, untilTurn);
+  }
 };

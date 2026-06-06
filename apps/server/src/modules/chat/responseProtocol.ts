@@ -1,4 +1,6 @@
 import type { InnerPatch } from "../state/stateService.js";
+import { stateConfig } from "../../config/state.js";
+import { sanitizeInnerPatch } from "../state/statePolicy.js";
 
 const openMarker = "<inner_patch>";
 const closeMarker = "</inner_patch>";
@@ -11,11 +13,11 @@ export interface ParsedChatResponse {
 const parsePatch = (text: string): InnerPatch => {
   try {
     const value = JSON.parse(text) as Record<string, unknown>;
-    return {
+    return sanitizeInnerPatch({
       ...(typeof value.mood === "string" ? { mood: value.mood } : {}),
       ...(typeof value.concern === "string" ? { concern: value.concern } : {}),
       ...(typeof value.thought === "string" ? { thought: value.thought } : {})
-    };
+    }, { mood: stateConfig.moodMaxChars, text: stateConfig.innerTextMaxChars });
   } catch {
     return {};
   }

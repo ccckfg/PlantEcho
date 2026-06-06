@@ -45,11 +45,18 @@ export const mergeConsolidationPayload = (
   };
 };
 
+export const shouldScheduleClosureDetection = (
+  currentTurn: number,
+  lastCompletedTurn: number
+): boolean => currentTurn - lastCompletedTurn >= memoryConfig.closureDetectionMinNewTurns;
+
 export const scheduleDetectAndConsolidate = (
   plantId: string,
   plantName: string,
   currentTurn: number
 ): void => {
+  const state = getConsolidationState(plantId);
+  if (!shouldScheduleClosureDetection(currentTurn, state.lastCompletedTurn)) return;
   const key = dedupeKey(plantId);
   const next = { plantId, plantName, currentTurn };
   const existing = findActiveJobByDedupeKey(key);

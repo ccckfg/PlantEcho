@@ -89,7 +89,6 @@ export const buildChatCompletion = (
     used_llm: input.result.usedLlm,
     used_memory_ids: input.result.usedMemoryIds,
     memory_citations: input.result.memoryCitations,
-    llm_error: input.result.llmError,
     plant_route: input.plantRoute
   }
 });

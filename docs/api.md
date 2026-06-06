@@ -190,8 +190,8 @@ npm run smoke:device-claim
 ```
 
 `smoke:memory-chat` 会发送带唯一标记的三轮普通对话，并等待后台
-`memory.consolidation` 生成包含该标记的长期记忆。它要求真实 LLM 可用；如果聊天走
-fallback，会直接报出原因，避免把未完成的记忆链路误判为通过。
+`memory.consolidation` 生成包含该标记的长期记忆。它要求真实 LLM 与 embedding
+可用；缺少配置或上游调用失败时会直接报错，避免把未完成的记忆链路误判为通过。
 运行该脚本会把烟测对话发送到服务端已配置的 LLM Provider。
 
 `smoke:rerank` 会使用当前 rerank 配置调用 `Qwen/Qwen3-Reranker-8B`。
@@ -245,7 +245,8 @@ Payload:
 }
 ```
 
-如果未配置 `LLM_API_URL`、`LLM_API_KEY`、`LLM_MODEL_ID`，服务端会使用规则引擎 fallback 回复。
+植物对话要求同时配置 LLM 与 embedding API。缺少任一依赖时，服务端返回
+`503 CHAT_DEPENDENCIES_NOT_CONFIGURED`，不会使用规则引擎 fallback 回复。
 
 流式接口返回 Server-Sent Events：
 

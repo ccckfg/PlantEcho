@@ -63,6 +63,16 @@ export const recentMessages = (plantId: string, limit = 16): ChatMessage[] => {
   return rows.map(toMessage).reverse();
 };
 
+export const latestMessageByRole = (
+  plantId: string,
+  role: ChatMessage["role"]
+): ChatMessage | null => {
+  const row = getDb()
+    .prepare("SELECT * FROM messages WHERE plant_id = ? AND role = ? ORDER BY id DESC LIMIT 1")
+    .get(plantId, role) as MessageRow | undefined;
+  return row ? toMessage(row) : null;
+};
+
 export const messagesInTurnRange = (
   plantId: string,
   turnGe: number,

@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { mergeConsolidationPayload } from "./consolidationJob.js";
+import {
+  mergeConsolidationPayload,
+  shouldScheduleClosureDetection
+} from "./consolidationJob.js";
 
 test("mergeConsolidationPayload keeps the newest turn", () => {
   const merged = mergeConsolidationPayload(
@@ -22,4 +25,11 @@ test("mergeConsolidationPayload does not move currentTurn backwards", () => {
   );
 
   assert.equal(merged.currentTurn, 12);
+});
+
+test("closure detection waits for enough new turns", () => {
+  assert.equal(shouldScheduleClosureDetection(2, 0), false);
+  assert.equal(shouldScheduleClosureDetection(3, 0), true);
+  assert.equal(shouldScheduleClosureDetection(8, 6), false);
+  assert.equal(shouldScheduleClosureDetection(9, 6), true);
 });
