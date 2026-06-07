@@ -12,6 +12,7 @@ import { buildRetrievalQueries } from "../memory/retrieval/queryBuilder.js";
 import { memoriesAllowedForPrompt, memoryCitationsForPrompt } from "./memoryCitation.js";
 import type { MemoryCitation } from "@dyn/shared";
 import { promptDataBlock } from "./promptData.js";
+import { latestUserMessageBeforeTurn } from "./messageRepository.js";
 
 export interface ChatContext {
   userMessage: string;
@@ -22,6 +23,7 @@ export interface ChatContext {
 
 interface PromptParts {
   plant: unknown;
+  temporalContext: unknown;
   backgroundInfo: unknown;
   careProfile: unknown;
   physicalState: unknown;
@@ -35,9 +37,98 @@ interface PromptParts {
   userMessage: string;
 }
 
+const getTimeOfDay = (hour: number): string => {
+  if (hour >= 5 && hour < 9) return "清晨";
+  if (hour >= 9 && hour < 12) return "上午";
+  if (hour >= 12 && hour < 14) return "中午";
+  if (hour >= 14 && hour < 18) return "下午";
+  if (hour >= 18 && hour < 22) return "晚上";
+  return "深夜";
+};
+
+const getTimeElapsedDescription = (now: Date, pastStr: string | undefined): string => {
+  if (!pastStr) return "第一次和主人聊天";
+  const past = new Date(pastStr);
+  const diffMs = now.getTime() - past.getTime();
+  if (isNaN(diffMs) || diffMs < 0) return "刚聊完不久";
+  if (diffMs < 5 * 60 * 1000) return "刚聊完不久";
+  if (diffMs < 60 * 60 * 1000) {
+    const mins = Math.floor(diffMs / 60000);
+    return `${mins}分钟前聊过`;
+  }
+  if (diffMs < 24 * 60 * 60 * 1000) {
+    const hours = Math.floor(diffMs / 3600000);
+    return `${hours}小时前聊过`;
+  }
+  const days = Math.floor(diffMs / 86400000);
+  return `${days}天没有聊天了`;
+};
+
+const getSensoryFeelings = (
+  reading: any,
+  careProfile: any,
+  connection: string
+) => {
+  if (connection === "offline" || !reading) {
+    return {
+      freshness: "offline",
+      moisture: "unknown",
+      light: "unknown",
+      temperature: "unknown"
+    };
+  }
+
+  const getStatus = (val: number | null | undefined, min: number, max: number) => {
+    if (typeof val !== "number") return "unknown";
+    if (val < min) return "below_range";
+    if (val > max) return "above_range";
+    return "within_range";
+  };
+
+  return {
+    freshness: "fresh",
+    moisture: getStatus(reading.soilPercent, careProfile.soil.min, careProfile.soil.max),
+    light: getStatus(reading.lightLux, careProfile.light.minLux, careProfile.light.maxLux),
+    temperature: getStatus(reading.airTempC, careProfile.temperature.minC, careProfile.temperature.maxC)
+  };
+};
+
+const getLocalTimeInTimezone = (
+  date: Date,
+  timezone: string
+): { hour: number; timeStr: string } | null => {
+  try {
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+      hour: "numeric",
+      hour12: false
+    });
+    const parts = formatter.formatToParts(date);
+    const partMap = Object.fromEntries(parts.map((p) => [p.type, p.value]));
+    const hour = parseInt(partMap.hour, 10);
+
+    const timeStr = new Intl.DateTimeFormat("zh-CN", {
+      timeZone: timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false
+    }).format(date);
+
+    if (isNaN(hour)) return null;
+    return { hour, timeStr };
+  } catch {
+    return null;
+  }
+};
+
 export const composeUserPrompt = (parts: PromptParts): string =>
   [
     promptDataBlock("plant", parts.plant),
+    promptDataBlock("temporal_context", parts.temporalContext),
     promptDataBlock("plant_background", parts.backgroundInfo),
     promptDataBlock("care_profile", parts.careProfile),
     promptDataBlock("physical_state", parts.physicalState),
@@ -54,7 +145,8 @@ export const composeUserPrompt = (parts: PromptParts): string =>
 export const buildChatContext = async (
   plantId: string,
   userMessage: string,
-  currentTurn?: number
+  currentTurn?: number,
+  timezone?: string
 ): Promise<ChatContext> => {
   const plant = getPlant(plantId);
   if (!plant) throw new Error(`Plant ${plantId} not found`);
@@ -74,12 +166,33 @@ export const buildChatContext = async (
   );
   const history = renderHistory(historyMessages);
 
+  // Calculate elapsed time from the last user message before the current turn
+  const lastUserMsg = currentTurn !== undefined ? latestUserMessageBeforeTurn(plantId, currentTurn) : null;
+  const now = new Date();
+
+  let temporalContext: Record<string, string> = {
+    timeSinceUserSpoke: getTimeElapsedDescription(now, lastUserMsg?.createdAt)
+  };
+
+  if (timezone) {
+    const local = getLocalTimeInTimezone(now, timezone);
+    if (local) {
+      temporalContext = {
+        ...temporalContext,
+        currentTime: local.timeStr,
+        timeOfDay: getTimeOfDay(local.hour)
+      };
+    }
+  }
+
   const userPrompt = composeUserPrompt({
     plant: { name: plant.name, species: plant.species, location: plant.location },
+    temporalContext,
     backgroundInfo: plant.backgroundInfo || "主人还没有为我写下额外的背景与性格。",
     careProfile: plant.careProfile,
     physicalState: {
       connection: state.physical.connection,
+      sensoryFeelings: getSensoryFeelings(state.physical.reading, plant.careProfile, state.physical.connection),
       lastReadingAt: state.physical.lastReadingAt,
       rawReading: state.physical.reading,
       careProfile: state.physical.careProfile,
