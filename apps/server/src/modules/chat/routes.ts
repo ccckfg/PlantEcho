@@ -6,15 +6,16 @@ import { recentMessages } from "./messageRepository.js";
 import { assertChatDependencies } from "./chatRequirements.js";
 
 const chatSchema = z.object({
-  content: z.string().min(1)
+  content: z.string().min(1),
+  timezone: z.string().trim().max(100).optional()
 });
 
 export const registerChatRoutes = async (app: FastifyInstance): Promise<void> => {
   app.post("/api/v1/plants/:plantId/chat", async (request, reply) => {
     try {
       const { plantId } = request.params as { plantId: string };
-      const { content } = chatSchema.parse(request.body);
-      return await chatWithPlant(plantId, content);
+      const { content, timezone } = chatSchema.parse(request.body);
+      return await chatWithPlant(plantId, content, { timezone });
     } catch (error) {
       return sendError(reply, error);
     }
@@ -23,7 +24,7 @@ export const registerChatRoutes = async (app: FastifyInstance): Promise<void> =>
   app.post("/api/v1/plants/:plantId/chat/stream", async (request, reply) => {
     try {
       const { plantId } = request.params as { plantId: string };
-      const { content } = chatSchema.parse(request.body);
+      const { content, timezone } = chatSchema.parse(request.body);
       assertChatDependencies();
       reply.hijack();
       const origin = request.headers.origin ?? "*";
@@ -42,7 +43,7 @@ export const registerChatRoutes = async (app: FastifyInstance): Promise<void> =>
       };
 
       try {
-        for await (const event of streamChatWithPlant(plantId, content)) {
+        for await (const event of streamChatWithPlant(plantId, content, { timezone })) {
           const { type, ...data } = event;
           write(type, data);
         }

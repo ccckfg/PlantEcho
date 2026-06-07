@@ -55,13 +55,12 @@ export function PhotoCard({ photo, onDelete }: PhotoCardProps) {
     setSaved(false);
     setError("");
     try {
-      const detail = await savePhotoToLocalAlbum(photo);
+      await savePhotoToLocalAlbum(photo);
       setSaved(true);
       toast.show({
-        title: "这一刻已存进本地相册",
-        description: detail,
+        title: "已保存到本地相册",
         tone: "success",
-        durationMs: 3200
+        durationMs: 2200
       });
       window.setTimeout(() => setSaved(false), 1800);
     } catch (caught) {

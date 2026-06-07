@@ -1,5 +1,6 @@
 import { apiUrl, buildApiHeaders } from "./api";
 import type { MemoryCitation } from "@dyn/shared";
+import { getClientTimezone } from "./timezone";
 
 export interface ChatStreamDone {
   turn: number;
@@ -57,7 +58,7 @@ export async function streamPlantChat(
     {
       method: "POST",
       headers: buildApiHeaders({ "content-type": "application/json" }),
-      body: JSON.stringify({ content })
+      body: JSON.stringify({ content, timezone: getClientTimezone() })
     }
   );
   if (!res.ok) throw new Error(`HTTP ${res.status}: ${await res.text()}`);

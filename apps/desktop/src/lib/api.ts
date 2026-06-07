@@ -17,6 +17,7 @@ import {
   type BackendConnectionInput
 } from "./connection";
 import { loginWithPassword } from "./authApi";
+import { getClientTimezone } from "./timezone";
 
 let activeConnection = loadConnection();
 
@@ -231,7 +232,7 @@ export const api = {
   chat: (id: string, content: string) =>
     request<ChatTurn>(plantPath(id, "/chat"), {
       method: "POST",
-      body: JSON.stringify({ content })
+      body: JSON.stringify({ content, timezone: getClientTimezone() })
     }),
   listMemories: (id: string) =>
     request<{ memories: MemoryRow[] }>(plantPath(id, "/memories")),

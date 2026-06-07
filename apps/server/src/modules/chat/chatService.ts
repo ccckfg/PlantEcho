@@ -34,7 +34,9 @@ export interface ChatResult {
   memoryCitations: MemoryCitation[];
 }
 
-export interface ChatWithPlantOptions extends LlmChatOptions {}
+export interface ChatWithPlantOptions extends LlmChatOptions {
+  timezone?: string;
+}
 
 export type ChatStreamEvent =
   | { type: "meta"; turn: number }
@@ -53,7 +55,7 @@ export const chatWithPlant = async (
   options?: ChatWithPlantOptions
 ): Promise<ChatResult> => {
   assertChatDependencies(options);
-  const { turn, userMessageId, context } = await prepareChatTurn(plantId, content);
+  const { turn, userMessageId, context } = await prepareChatTurn(plantId, content, options);
   const llmReply = await completeChat([
     { role: "system", content: plantSystemPrompt },
     { role: "user", content: context.userPrompt }
@@ -85,7 +87,7 @@ export async function* streamChatWithPlant(
   options?: ChatWithPlantOptions
 ): AsyncGenerator<ChatStreamEvent> {
   assertChatDependencies(options);
-  const { turn, userMessageId, context } = await prepareChatTurn(plantId, content);
+  const { turn, userMessageId, context } = await prepareChatTurn(plantId, content, options);
   yield { type: "meta", turn };
 
   let reply = "";
@@ -137,12 +139,12 @@ export async function* streamChatWithPlant(
   };
 }
 
-const prepareChatTurn = async (plantId: string, content: string) => {
+const prepareChatTurn = async (plantId: string, content: string, options?: ChatWithPlantOptions) => {
   const turn = nextTurn(plantId);
   const userMessage = addMessage(plantId, turn, "user", content);
   rememberUserMessage(plantId, turn, content);
   createIntentionFromUserMessage(plantId, turn, content);
-  const context = await buildChatContext(plantId, content, turn);
+  const context = await buildChatContext(plantId, content, turn, options?.timezone);
   return {
     turn,
     userMessageId: userMessage.id,

@@ -61,13 +61,6 @@ export const getPlant = (plantId: string, includeDeleted = false): PlantSummary 
   return row ? toPlantSummary(row) : null;
 };
 
-export const getPlantPersonaId = (plantId: string): string => {
-  const row = getDb().prepare(`SELECT persona_profile_id FROM plants WHERE id = ? AND ${activePlantClause}`).get(plantId) as
-    | { persona_profile_id: string }
-    | undefined;
-  return row?.persona_profile_id ?? "pothos";
-};
-
 export const createPlant = (input: CreatePlantInput): PlantSummary => {
   const now = nowIso();
   const id = randomUUID();

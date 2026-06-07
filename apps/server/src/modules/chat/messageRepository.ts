@@ -85,3 +85,13 @@ export const messagesInTurnRange = (
   const rows = getDb().prepare(sql).all(...params) as MessageRow[];
   return rows.map(toMessage);
 };
+
+export const latestUserMessageBeforeTurn = (
+  plantId: string,
+  currentTurn: number
+): ChatMessage | null => {
+  const row = getDb()
+    .prepare("SELECT * FROM messages WHERE plant_id = ? AND role = 'user' AND turn < ? ORDER BY id DESC LIMIT 1")
+    .get(plantId, currentTurn) as MessageRow | undefined;
+  return row ? toMessage(row) : null;
+};
