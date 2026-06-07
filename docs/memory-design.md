@@ -6,7 +6,7 @@
 
 | 层次 | 植物系统实现 |
 | --- | --- |
-| 稳定个性 | `plants.persona_profile_id` + `config/careProfiles.ts` |
+| 稳定个性 | `plants.background_info` + Inner / Relationship 状态 |
 | 当前状态 | `plant_status`：心情、关系、当前关注点、最近摘要 |
 | 近期对话 | `messages`：按 plant 和 turn 存储 |
 | 情节记忆 | `plant_memories`：从对话中形成的、有意义的情节 |

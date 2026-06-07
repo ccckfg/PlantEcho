@@ -58,6 +58,26 @@ test("composeUserPrompt escapes closing tags from dynamic data", () => {
   assert.match(prompt, /\\u003c\/plant_background\\u003e/);
 });
 
+test("composeUserPrompt keeps plant identity free of legacy voice presets", () => {
+  const prompt = composeUserPrompt({
+    plant: { name: "小禾", species: "茉莉", location: "窗边" },
+    backgroundInfo: "安静但有自己的想法。",
+    careProfile: {},
+    physicalState: {},
+    innerState: {},
+    relationshipState: {},
+    intentionState: [],
+    memoryPolicy: {},
+    relevantUnderstandings: "",
+    relevantMemories: "",
+    recentHistory: "",
+    userMessage: "你好"
+  });
+
+  assert.match(prompt, /"name": "小禾"/);
+  assert.doesNotMatch(prompt, /"voice":/);
+});
+
 test("historyBeforeTurn excludes the current user message", () => {
   const messages = [
     { id: 1, plantId: "p1", turn: 1, role: "user", content: "旧消息", visibleTo: [], createdAt: "" },

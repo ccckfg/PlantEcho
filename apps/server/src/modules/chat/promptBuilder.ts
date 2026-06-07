@@ -1,5 +1,4 @@
-import { plantPersonas } from "../../config/careProfiles.js";
-import { getPlant, getPlantPersonaId } from "../plants/plantRepository.js";
+import { getPlant } from "../plants/plantRepository.js";
 import { getLayeredPlantState } from "../state/stateService.js";
 import { renderHistory, windowedHistory } from "./historyWindow.js";
 import {
@@ -59,8 +58,6 @@ export const buildChatContext = async (
 ): Promise<ChatContext> => {
   const plant = getPlant(plantId);
   if (!plant) throw new Error(`Plant ${plantId} not found`);
-  const personaId = getPlantPersonaId(plantId) as keyof typeof plantPersonas;
-  const persona = plantPersonas[personaId] ?? plantPersonas.pothos;
   const state = getLayeredPlantState(plantId);
   const historyMessages = windowedHistory(plantId, currentTurn);
   const queries = buildRetrievalQueries(userMessage, {
@@ -78,7 +75,7 @@ export const buildChatContext = async (
   const history = renderHistory(historyMessages);
 
   const userPrompt = composeUserPrompt({
-    plant: { name: plant.name, species: plant.species, location: plant.location, voice: persona.voice },
+    plant: { name: plant.name, species: plant.species, location: plant.location },
     backgroundInfo: plant.backgroundInfo || "主人还没有为我写下额外的背景与性格。",
     careProfile: plant.careProfile,
     physicalState: {

@@ -80,6 +80,7 @@ PlantEcho 的设计目标不是"高效的传感器看板"，而是"和植物一�
 
 - **设备**：读数上传、待认领登记、列表/忽略、认领、密钥 hash 校验/轮换，认领/轮换后可通过 MQTT 下发设备密钥。
 - **植物**：档案、用户自定义背景与性格、Physical / Inner / Relationship / Intention 四层状态、读数、care profile 建议（LLM/模板）。
+- **植物个性来源**：聊天 Prompt 不再注入服务端硬编码的 `plantPersonas/voice`；每株植物的稳定个性由用户自定义 `background_info` 表达，并结合 Inner / Relationship 状态自然演变。
 - **聊天**：流式 + 非流式植物聊天，复用同一次回复中的隐藏 `inner_patch` 更新 Inner。对话必须同时配置 LLM 与 embedding API，不再提供本地 fallback。
 - **模型路由**：主模型负责对话、主动发言与长期理解；副模型优先负责主题闭合、Episode 摘要和 care profile。副模型未配置时，这些任务使用主模型。
 - **OpenAI-compatible**：`/v1/chat/completions`、`/v1/models`，通过 `<植物名>...</植物名>` 路由植物。
@@ -221,6 +222,7 @@ ESP32 真实验证（2026-05-25）：OLED/SHT40/GY-302/土壤 ADC 实测可用�
 ### 后端
 
 - 历史无密钥设备强制迁移。
+- 清理旧人格模板兼容字段：当前已移除聊天链路中的 `plantPersonas`、`voice` 与 `getPlantPersonaId()`；为兼容已有数据库和旧客户端，暂时保留 `plants.persona_profile_id` 与创建接口的 `personaProfileId`，后续通过版本化数据库迁移彻底删除。
 - 后台任务/同步事件的多实例分布式化（外部 pub/sub）。
 - 天气城市切换 UI。
 - 生产级日志策略、版本化发布流程、Docker Hub 推送凭证收口。
