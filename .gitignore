@@ -8,6 +8,7 @@ dist/
 *.sqlite-shm
 *.sqlite-wal
 .env
+dyn.env
 .pio/
 hardware/**/.pio/
 hardware/esp32_oled/src/local_config.h
@@ -34,7 +35,6 @@ docs-temp/
 
 # TypeScript incremental build cache
 *.tsbuildinfo
-
 
 
 

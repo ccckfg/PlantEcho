@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { BrandMark } from "@/components/BrandMark";
+import { InteractiveEcho } from "@/components/InteractiveEcho";
 import { Icon } from "@/components/UI";
 import { PendingDeviceWidget } from "@/components/devices/PendingDeviceWidget";
 import { UserMenu } from "@/components/UserMenu";
+import { APP_BRAND } from "@/config/branding";
 import type { BackendConnection } from "@/lib/connection";
 import { MobileTabBar } from "./MobileTabBar";
 
@@ -20,7 +22,7 @@ const routeSection = (pathname: string): string => {
 };
 
 const TITLES: Record<string, string> = {
-  "/": "我的花园",
+  "/": APP_BRAND.name,
   "/plant": "植物详情",
   "/chat": "植响对话",
   "/journal": "成长日记",
@@ -70,7 +72,7 @@ export function MobileShell({ children, connection, onDisconnect, onLogout }: Mo
         >
           <BrandMark size="sm" className="h-7 w-7 shrink-0" />
           <h1 className="min-w-0 flex-1 truncate font-display text-headline-md text-primary leading-tight">
-            {title}
+            {section === "/" ? <InteractiveEcho /> : title}
           </h1>
           <PendingDeviceWidget />
           {connection && onLogout ? <UserMenu connection={connection} onLogout={onLogout} /> : null}

@@ -5,6 +5,7 @@ import {
 } from "@dyn/shared";
 import { useToast } from "@/components/Toast";
 import { Card, Icon } from "@/components/UI";
+import { PLANT_BACKGROUND_COVER_TEXT } from "@/config/plantBackground";
 import { api } from "@/lib/api";
 
 interface PlantBackgroundEditorProps {
@@ -112,8 +113,8 @@ export function PlantBackgroundEditor({ plant, onUpdated }: PlantBackgroundEdito
             </div>
           </>
         ) : plant.backgroundInfo ? (
-          <p className="whitespace-pre-wrap text-body-md leading-relaxed text-on-surface">
-            {plant.backgroundInfo}
+          <p className="font-display text-body-lg leading-relaxed text-on-surface-variant">
+            “{PLANT_BACKGROUND_COVER_TEXT}”
           </p>
         ) : (
           <p className="text-body-md text-on-surface-variant">

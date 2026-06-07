@@ -6,6 +6,7 @@ import { useNow } from "@/lib/format";
 import { useAsync } from "@/lib/useAsync";
 import { useSyncRefresh } from "@/hooks/useSyncRefresh";
 import { useToast } from "@/components/Toast";
+import { InteractiveEcho } from "@/components/InteractiveEcho";
 import { Card, Icon, Empty } from "@/components/UI";
 import { DashboardSkeleton, PlantCard, WeatherPill } from "@/components/dashboard/DashboardWidgets";
 
@@ -107,7 +108,7 @@ export function DashboardPage() {
               {greeting}，{todayLabel}
             </div>
             <h2 className="font-display text-headline-xl text-primary leading-[1.05]">
-              我的花园
+              <InteractiveEcho />
             </h2>
             <p className="font-body text-body-lg text-on-surface-variant leading-relaxed">
               {plantsState.data?.plants.length
