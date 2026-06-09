@@ -209,9 +209,25 @@
 }
 
 .dl-icon {
-  font-size: 38px;
-  line-height: 1;
-  margin-bottom: 8px;
+  width: 38px;
+  height: 38px;
+  margin-bottom: 12px;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.35s var(--ease), color 0.35s var(--ease);
+}
+
+.dl-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+.download-card:hover .dl-icon {
+  transform: scale(1.1) rotate(3deg);
+  color: var(--primary-container);
 }
 
 .download-card h3 {
