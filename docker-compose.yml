@@ -1,6 +1,7 @@
 services:
   dyn-server:
-    image: ${DYN_IMAGE:-ccckfg/dyn:1.0.2}
+    image: ccckfg/dyn:latest
+    pull_policy: always
     container_name: dyn-server
     restart: unless-stopped
     init: true
