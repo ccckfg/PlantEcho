@@ -17,6 +17,7 @@ import { completeJson, isLlmConfigured } from "../llm/client.js";
 import { getPlant } from "../plants/plantRepository.js";
 import { publishSyncEvent } from "../sync/syncBus.js";
 import { promptDataBlock } from "../chat/promptData.js";
+import { rememberProactiveMessage } from "./proactiveMemory.js";
 import {
   getSafeInnerState,
   getSafeRelationshipState
@@ -111,6 +112,7 @@ export const considerOneIntention = async (plantId: string): Promise<void> => {
   if (!content) return;
   const turn = nextTurn(plantId);
   const message = addMessage(plantId, turn, "assistant", content);
+  rememberProactiveMessage(plantId, turn, content, "proactive:intention");
   updateIntentionStatus(intention.id, "completed");
   publishSyncEvent({
     type: "messages.changed",

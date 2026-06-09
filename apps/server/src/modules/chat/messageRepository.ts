@@ -63,6 +63,13 @@ export const recentMessages = (plantId: string, limit = 16): ChatMessage[] => {
   return rows.map(toMessage).reverse();
 };
 
+export const recentVisibleMessages = (plantId: string, limit = 16): ChatMessage[] => {
+  const rows = getDb()
+    .prepare("SELECT * FROM messages WHERE plant_id = ? AND visible_to_json <> '[]' ORDER BY turn DESC, id DESC LIMIT ?")
+    .all(plantId, limit) as MessageRow[];
+  return rows.map(toMessage).reverse();
+};
+
 export const latestMessageByRole = (
   plantId: string,
   role: ChatMessage["role"]

@@ -87,6 +87,11 @@ test("chat reminder language becomes a due reminder message", async () => {
       .prepare("SELECT content FROM messages WHERE plant_id = ? ORDER BY id DESC LIMIT 1")
       .get(plant.id) as { content: string };
     assert.match(row.content, /提醒你：浇水/);
+    const draft = getDb()
+      .prepare("SELECT text, metadata_json FROM memory_drafts WHERE plant_id = ? ORDER BY id DESC LIMIT 1")
+      .get(plant.id) as { text: string; metadata_json: string };
+    assert.match(draft.text, /提醒你：浇水/);
+    assert.equal(JSON.parse(draft.metadata_json).sourceType, "proactive:reminder.due");
   } finally {
     cleanup(plant.id);
   }

@@ -7,13 +7,18 @@ test("users can register, login and be managed by an admin", async () => {
   const { migrate } = await import("../../db/migrate.js");
   const { closeDb } = await import("../../db/connection.js");
   const { listAuthSessions } = await import("./authRepository.js");
+  const { getApiKeyAuthByHash } = await import("./authApiKeyRepository.js");
+  const { authTokenHash } = await import("./token.js");
   const {
     createManagedUser,
+    generateOwnApiKey,
+    getOwnApiKey,
     listManagedUsers,
     loginUser,
     registerUser,
     listOwnSessions,
     revokeOwnSession,
+    rotateOwnApiKey,
     updateManagedUser
   } = await import("./authService.js");
 
@@ -42,6 +47,21 @@ test("users can register, login and be managed by an admin", async () => {
     assert.equal(ownSessions.some((session) => session.current), true);
     const revoked = revokeOwnSession(adminSession.user, ownSessions[0]!.id);
     assert.ok(revoked.revokedAt);
+
+    const generatedKey = generateOwnApiKey(adminSession.user);
+    assert.match(generatedKey.key, /^dyn_api_/);
+    assert.equal(getOwnApiKey(adminSession.user)?.preview, generatedKey.apiKey.preview);
+    assert.equal(
+      getApiKeyAuthByHash(authTokenHash(generatedKey.key))?.user.id,
+      adminSession.user.id
+    );
+    const rotatedKey = rotateOwnApiKey(adminSession.user);
+    assert.notEqual(rotatedKey.key, generatedKey.key);
+    assert.equal(getApiKeyAuthByHash(authTokenHash(generatedKey.key)), null);
+    assert.equal(
+      getApiKeyAuthByHash(authTokenHash(rotatedKey.key))?.user.id,
+      adminSession.user.id
+    );
 
     const created = createManagedUser(adminSession.user, {
       username: "member_one",

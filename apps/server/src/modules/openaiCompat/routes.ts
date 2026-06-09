@@ -6,11 +6,9 @@ import {
   buildStreamChunk,
   buildUsageChunk,
   createCompletionId,
-  lastUserText,
-  listCompatModels,
-  resolveModelId
+  lastUserText
 } from "./format.js";
-import { resolvePlantRoute, stripPlantNameTags } from "./plantRoute.js";
+import { listCompatModels, resolvePlantRoute } from "./plantRoute.js";
 import { openAiChatRequestSchema } from "./schema.js";
 import { assertChatDependencies } from "../chat/chatRequirements.js";
 
@@ -38,7 +36,7 @@ export const registerOpenAiCompatRoutes = async (app: FastifyInstance): Promise<
       if (!rawPrompt) {
         throw new OpenAiCompatError("No user message text found", 400, "invalid_request_error", "messages");
       }
-      const prompt = stripPlantNameTags(rawPrompt) || rawPrompt;
+      const prompt = rawPrompt;
       if (body.n && body.n !== 1) {
         throw new OpenAiCompatError("Only n=1 is supported", 400, "invalid_request_error", "n", "unsupported_parameter");
       }
@@ -54,8 +52,14 @@ export const registerOpenAiCompatRoutes = async (app: FastifyInstance): Promise<
 
       const id = createCompletionId();
       const created = Math.floor(Date.now() / 1000);
-      const model = resolveModelId(body.model);
-      const plantRoute = resolvePlantRoute(body.messages);
+      if (!body.model) {
+        throw new OpenAiCompatError("Model is required. Use one of /v1/models.", 400, "invalid_request_error", "model", "model_required");
+      }
+      const plantRoute = resolvePlantRoute(body.model);
+      if (!plantRoute) {
+        throw new OpenAiCompatError(`Model '${body.model}' does not exist`, 404, "invalid_request_error", "model", "model_not_found");
+      }
+      const model = body.model.trim();
       if (body.stream) {
         return await writeStreamingCompletion({
           reply,
@@ -70,7 +74,11 @@ export const registerOpenAiCompatRoutes = async (app: FastifyInstance): Promise<
         });
       }
 
-      const result = await chatWithPlant(plantRoute.plantId, prompt, { modelId: model, temperature: body.temperature });
+      const result = await chatWithPlant(plantRoute.plantId, prompt, {
+        temperature: body.temperature,
+        visibleTo: [],
+        publishMessagesChanged: false
+      });
       return reply.send(buildChatCompletion({ id, created, model, prompt, result, plantRoute }));
     } catch (error) {
       return sendOpenAiError(reply, error);
@@ -90,7 +98,7 @@ const writeStreamingCompletion = async (input: {
   includeUsage: boolean;
 }) => {
   const { reply, id, created, model, plantId, prompt, temperature, origin, includeUsage } = input;
-  assertChatDependencies({ modelId: model, temperature });
+  assertChatDependencies({ temperature });
   reply.hijack();
   reply.raw.writeHead(200, {
     "content-type": "text/event-stream; charset=utf-8",
@@ -108,7 +116,11 @@ const writeStreamingCompletion = async (input: {
   let completion = "";
   try {
     writeData(buildStreamChunk({ id, created, model, delta: { role: "assistant", content: "" } }));
-    for await (const event of streamChatWithPlant(plantId, prompt, { modelId: model, temperature })) {
+    for await (const event of streamChatWithPlant(plantId, prompt, {
+      temperature,
+      visibleTo: [],
+      publishMessagesChanged: false
+    })) {
       if (event.type === "delta") {
         completion += event.delta;
         writeData(buildStreamChunk({ id, created, model, delta: { content: event.delta } }));

@@ -13,6 +13,7 @@ import { PlantAvatarEditor } from "@/components/plants/PlantAvatarEditor";
 import { PlantBackgroundEditor } from "@/components/plants/PlantBackgroundEditor";
 import { PlantCareProfileSection } from "@/components/plants/PlantCareProfileSection";
 import { PlantDeleteButton } from "@/components/plants/PlantDeleteButton";
+import { PlantModelName } from "@/components/plants/PlantModelName";
 import { PlantNameEditor } from "@/components/plants/PlantNameEditor";
 import { deriveStatus, MOOD_PRESETS } from "@/lib/mood";
 import { formatTime, plantImage, relativeTime, useNow } from "@/lib/format";
@@ -67,8 +68,8 @@ export function MobilePlantDetailPage() {
         返回温室
       </Link>
 
-      <div className="group relative overflow-hidden rounded-md surface-card bg-surface-container-lowest">
-        <img src={avatarSrc} alt={plant.name} className="h-44 w-full object-cover" />
+      <div className="group relative h-44 overflow-hidden rounded-md surface-card bg-surface-container-lowest">
+        <img src={avatarSrc} alt={plant.name} className="block h-full w-full object-cover" />
         <button
           type="button"
           onClick={() => setEditingAvatar(true)}
@@ -99,6 +100,7 @@ export function MobilePlantDetailPage() {
           <ProgressBar label="光照" icon="light_mode" value={status.light} />
           <ProgressBar label="湿度" icon="air" value={status.humidity} />
         </div>
+        <PlantModelName plantId={plant.id} compact />
         <div className="flex flex-wrap gap-sm pt-xs">
           <Link
             to={`/chat/${plant.id}`}

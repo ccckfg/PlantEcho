@@ -168,7 +168,7 @@ GET  /v1/models
 GET  /v1/models/:model
 ```
 
-通过在消息中包裹 `<植物名>...</植物名>` 标签，请求会被路由到对应植物，植物会以自己的记忆、状态和性格回应。这意味着你可以用任何支持 OpenAI API 的客户端（如 ChatBox、Open WebUI、Cherry Studio）直接与植物对话。
+`GET /v1/models` 会把每株植物暴露成一个模型名，例如 `plant:plant-demo`。第三方客户端选择这个模型后，消息会进入对应植物的意识与记忆；兼容接口里的聊天不会出现在 App 聊天页。
 
 ---
 
@@ -221,7 +221,7 @@ LLM_API_URL=https://api.openai.com/v1
 LLM_API_KEY=sk-你的密钥
 LLM_MODEL_ID=gpt-4o
 SECONDARY_LLM_MODEL_ID=便宜的结构化任务模型
-APP_ACCESS_KEY=设置一个高强度随机字符串
+APP_ACCESS_KEY=可选的全局兼容密钥（推荐改用账号中心生成的 API 调用密钥）
 
 # 可选：和风天气（用于降雨提醒等场景）
 WeatherKey=你的和风天气key
@@ -259,7 +259,7 @@ docker run -d --name dyn-server --restart unless-stopped \
 
 **最省心的方式：直接下载官方客户端**
 
-去 [GitHub Releases](https://github.com/ccckfg/PlantEcho/releases) 找到最新版本，Windows、macOS、安卓都有预编译包，装完填上后端地址和 `APP_ACCESS_KEY`，几秒钟就能摸到你的植物。
+去 [GitHub Releases](https://github.com/ccckfg/PlantEcho/releases) 找到最新版本，Windows、macOS、安卓都有预编译包，装完填上后端地址并用账号密码登录，几秒钟就能摸到你的植物。
 
 | 平台 | 包名 |
 |---|---|
@@ -277,19 +277,19 @@ docker run -d --name dyn-server --restart unless-stopped \
 
 | 场景 | 怎么接 |
 |---|---|
-| **ChatBox / Cherry Studio / Open WebUI** | 添加自定义 API 提供商，地址 `http://<IP>:8787/v1`，API Key 填 `APP_ACCESS_KEY` |
-| **手机快捷指令** | 调 OpenAI SDK，base_url 指到后端，消息体用 `<植物名>...</植物名>` 包裹 |
+| **ChatBox / Cherry Studio / Open WebUI** | 添加自定义 API 提供商，地址 `http://<IP>:8787/v1`，API Key 填账号中心生成的 API 调用密钥，模型选 `plant:<plantId>` |
+| **手机快捷指令** | 调 OpenAI SDK，base_url 指到后端，`model` 填 `plant:<plantId>` |
 | **微信公众号 / 飞书 Bot / Telegram** | 搭一个轻量 webhook 中转，背后还是同一套 `/v1/chat/completions` |
 | **Raycast / Alfred / 终端** | 只要是能配自定义 endpoint 的 AI 插件，都能接 |
 
 ```bash
 # 用 curl 试试 —— 把植物当模型调用
 curl http://<IP>:8787/v1/chat/completions \
-  -H "Authorization: Bearer <APP_ACCESS_KEY>" \
+  -H "Authorization: Bearer <账号中心生成的 API 调用密钥>" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "plant-demo",
-    "messages": [{"role": "user", "content": "<小绿>今天感觉怎么样？</小绿>"}]
+    "model": "plant:plant-demo",
+    "messages": [{"role": "user", "content": "今天感觉怎么样？"}]
   }'
 ```
 
@@ -303,7 +303,7 @@ curl http://<IP>:8787/v1/chat/completions \
 
 | 变量 | 说明 |
 |---|---|
-| `APP_ACCESS_KEY` | 可选；设置后保护除设备读数外的所有接口 |
+| `APP_ACCESS_KEY` | 可选的全局兼容密钥；第三方客户端推荐使用账号中心生成的 API 调用密钥 |
 | `LLM_API_URL` / `LLM_API_KEY` / `LLM_MODEL_ID` | 对话必填；主模型用于聊天、主动发言与长期理解 |
 | `SECONDARY_LLM_*` | 可选；副模型用于主题闭合、Episode 摘要与 care profile；未配置时使用主模型 |
 | `EMBEDDING_*` | 对话必填；OpenAI 兼容 embedding 服务 |

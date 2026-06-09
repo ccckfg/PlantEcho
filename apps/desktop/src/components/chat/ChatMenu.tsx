@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "@/components/UI";
+import { plantModelName } from "@/components/plants/PlantModelName";
 
 interface ChatMenuProps {
   open: boolean;
@@ -11,6 +12,7 @@ interface ChatMenuProps {
 
 export function ChatMenu({ open, plantId, onClose, onRefresh }: ChatMenuProps) {
   const ref = useRef<HTMLDivElement | null>(null);
+  const modelName = plantModelName(plantId);
 
   useEffect(() => {
     if (!open) return;
@@ -34,12 +36,23 @@ export function ChatMenu({ open, plantId, onClose, onRefresh }: ChatMenuProps) {
   const itemClass =
     "group flex w-full items-center gap-sm rounded-md px-3 py-sm text-left font-label-md text-label-md text-on-surface transition-colors duration-200 ease-standard hover:bg-secondary-container/40 hover:text-primary focus-visible:outline-none focus-visible:bg-secondary-container/50";
 
+  const copyModelName = async () => {
+    await navigator.clipboard.writeText(modelName);
+    onClose();
+  };
+
   return (
     <div
       ref={ref}
       role="menu"
-      className="absolute right-lg top-[72px] z-30 w-[136px] rounded-lg border border-surface-container-highest/60 bg-surface-container-lowest/95 backdrop-blur-md p-xs shadow-modal dialog-pop-in origin-top-right"
+      className="absolute right-lg top-[72px] z-30 w-[184px] rounded-lg border border-surface-container-highest/60 bg-surface-container-lowest/95 backdrop-blur-md p-xs shadow-modal dialog-pop-in origin-top-right"
     >
+      <div className="px-3 py-sm">
+        <p className="text-[11px] leading-none text-on-surface-variant">模型名</p>
+        <p className="mt-xs truncate font-mono text-[12px] text-on-surface" title={modelName}>
+          {modelName}
+        </p>
+      </div>
       <Link to={`/plant/${encodeURIComponent(plantId)}`} onClick={onClose} className={itemClass} role="menuitem">
         <Icon name="psychiatry" className="text-[18px] text-secondary transition-transform duration-300 ease-emphasized group-hover:scale-110" />
         查看详情
@@ -53,6 +66,15 @@ export function ChatMenu({ open, plantId, onClose, onRefresh }: ChatMenuProps) {
         上传照片
       </Link>
       <div className="my-xs h-px bg-surface-container-highest/50" />
+      <button
+        type="button"
+        onClick={copyModelName}
+        className={itemClass}
+        role="menuitem"
+      >
+        <Icon name="content_copy" className="text-[18px] text-secondary transition-transform duration-300 ease-emphasized group-hover:scale-110" />
+        复制模型名
+      </button>
       <button
         type="button"
         onClick={() => {

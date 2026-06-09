@@ -19,15 +19,18 @@ export const scheduleReminderFromText = (
 
 export const addReminderConfirmation = (
   plantId: string,
-  reminder: ProactiveReminder
+  reminder: ProactiveReminder,
+  options: { visibleTo?: string[]; publishMessagesChanged?: boolean } = {}
 ): void => {
   const due = new Date(reminder.remindAt);
   const text = `我记下了，会在 ${due.toLocaleString("zh-CN", { hour12: false })} 提醒你：${reminder.text}`;
   const turn = nextTurn(plantId);
-  const message = addMessage(plantId, turn, "assistant", text);
-  publishSyncEvent({
-    type: "messages.changed",
-    plantId,
-    payload: { turn, messageId: message.id, proactive: true, reminderId: reminder.id }
-  });
+  const message = addMessage(plantId, turn, "assistant", text, options.visibleTo ?? [plantId]);
+  if (options.publishMessagesChanged !== false) {
+    publishSyncEvent({
+      type: "messages.changed",
+      plantId,
+      payload: { turn, messageId: message.id, proactive: true, reminderId: reminder.id }
+    });
+  }
 };

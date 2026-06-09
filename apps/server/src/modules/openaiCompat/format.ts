@@ -1,24 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { env } from "../../config/env.js";
 import type { ChatResult } from "../chat/chatService.js";
 import type { OpenAiChatMessage } from "./schema.js";
-
-const fallbackModelId = "dyn-plant-pal";
-
-export const resolveModelId = (requested?: string): string =>
-  requested?.trim() && requested.trim() !== fallbackModelId
-    ? requested.trim()
-    : env.LLM_MODEL_ID || requested?.trim() || fallbackModelId;
-
-export const listCompatModels = () => {
-  const ids = [...new Set([env.LLM_MODEL_ID || fallbackModelId].filter(Boolean))];
-  return ids.map((id) => ({
-    id,
-    object: "model",
-    created: 0,
-    owned_by: "dyn"
-  }));
-};
 
 export const createCompletionId = (): string =>
   `chatcmpl-${randomUUID().replace(/-/g, "")}`;
@@ -60,7 +42,7 @@ export const buildChatCompletion = (
     plantRoute?: {
       plantId: string;
       plantName: string;
-      requestedName: string | null;
+      requestedModel: string | null;
       matched: boolean;
       source: string;
     };

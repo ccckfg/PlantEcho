@@ -4,6 +4,7 @@ import type { FastifyInstance, FastifyRequest } from "fastify";
 import { env } from "../../config/env.js";
 import { requireActiveUser } from "./authService.js";
 import { getAuthSessionByTokenHash, touchAuthSession } from "./authRepository.js";
+import { getApiKeyAuthByHash, touchUserApiKey } from "./authApiKeyRepository.js";
 import { authTokenHash, verifyAuthToken } from "./token.js";
 
 declare module "fastify" {
@@ -82,6 +83,16 @@ export const registerAppAuth = async (app: FastifyInstance) => {
     }
 
     const providedKey = extractAccessKey(request);
+    if (isOpenAiCompatPath(path) && providedKey) {
+      const apiKeyHash = authTokenHash(providedKey);
+      const apiKeyAuth = getApiKeyAuthByHash(apiKeyHash);
+      if (apiKeyAuth) {
+        request.currentUser = apiKeyAuth.user;
+        touchUserApiKey(apiKeyHash);
+        return;
+      }
+    }
+
     if (allowsLegacyAccessKey(path) && expectedKey && providedKey && matchesSecret(providedKey, expectedKey)) {
       return;
     }

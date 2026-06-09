@@ -208,19 +208,21 @@ POST /v1/chat/completions
 
 `POST /v1/chat/completions` 支持标准 `messages`、`model`、`stream`、
 `stream_options.include_usage` 以及常见采样参数的宽松解析。这里的 `model`
-表示上游 LLM 模型；植物路由从 system/developer/user 消息里的
-`<植物名>小绿</植物名>` 解析，匹配失败或未提供时回落到 `DEFAULT_PLANT_ID`。
+表示植物模型名，格式为 `plant:<plantId>`；`GET /v1/models` 会列出当前可用植物。
+上游真实 LLM 模型由服务端环境变量配置，客户端传入的 `model` 不会转发给上游。
 非流式响应返回 `chat.completion`，流式响应返回 `text/event-stream` 的
 `chat.completion.chunk` 与最终 `data: [DONE]`。当前不支持 tool calling、
 `n > 1` 或完整 OpenAI 平台级资源。
+
+第三方客户端的 API Key 可在 App 的「账号中心」生成或轮换。兼容接口产生的
+聊天不会显示在 App 聊天页，但会进入同一株植物的短期上下文与长期记忆。
 
 示例：
 
 ```json
 {
-  "model": "gemini-3-flash-preview",
+  "model": "plant:plant-demo",
   "messages": [
-    { "role": "system", "content": "<植物名>小绿</植物名>" },
     { "role": "user", "content": "你现在怎么样？" }
   ],
   "stream": true

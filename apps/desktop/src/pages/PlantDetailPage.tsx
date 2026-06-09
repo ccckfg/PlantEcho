@@ -13,6 +13,7 @@ import { PlantAvatarEditor } from "@/components/plants/PlantAvatarEditor";
 import { PlantBackgroundEditor } from "@/components/plants/PlantBackgroundEditor";
 import { PlantCareProfileSection } from "@/components/plants/PlantCareProfileSection";
 import { PlantDeleteButton } from "@/components/plants/PlantDeleteButton";
+import { PlantModelName } from "@/components/plants/PlantModelName";
 import { PlantNameEditor } from "@/components/plants/PlantNameEditor";
 import { deriveStatus, MOOD_PRESETS } from "@/lib/mood";
 import { formatTime, plantImage, relativeTime, useNow } from "@/lib/format";
@@ -73,11 +74,11 @@ export function PlantDetailPage() {
       </div>
 
       <header className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-xl">
-        <div className="group relative rounded-md overflow-hidden surface-card bg-surface-container-lowest">
+        <div className="group relative h-72 self-start overflow-hidden rounded-md surface-card bg-surface-container-lowest">
           <img
             src={avatarSrc}
             alt={plant.name}
-            className="w-full h-72 object-cover transition-transform duration-700 ease-emphasized hover:scale-[1.04]"
+            className="block h-full w-full object-cover transition-transform duration-700 ease-emphasized hover:scale-[1.04]"
           />
           <button
             type="button"
@@ -111,6 +112,7 @@ export function PlantDetailPage() {
             <ProgressBar label="光照" icon="light_mode" value={status.light} />
             <ProgressBar label="湿度" icon="air" value={status.humidity} />
           </div>
+          <PlantModelName plantId={plant.id} />
           <div className="flex flex-wrap gap-sm pt-sm">
             <Link
               to={`/chat/${plant.id}`}

@@ -6,10 +6,13 @@ import type { FastifyInstance } from "fastify";
 import { sendError } from "../../shared/http.js";
 import {
   getAuthStatus,
+  generateOwnApiKey,
+  getOwnApiKey,
   listOwnSessions,
   loginUser,
   registerUser,
-  revokeOwnSession
+  revokeOwnSession,
+  rotateOwnApiKey
 } from "./authService.js";
 
 const sessionMeta = (request: { headers: Record<string, unknown>; ip: string }) => ({
@@ -47,6 +50,26 @@ export const registerAuthRoutes = async (app: FastifyInstance): Promise<void> =>
   app.get("/api/v1/auth/sessions", async (request) => ({
     sessions: listOwnSessions(request.currentUser!, request.currentSessionId)
   }));
+
+  app.get("/api/v1/auth/api-key", async (request) => ({
+    apiKey: getOwnApiKey(request.currentUser!)
+  }));
+
+  app.post("/api/v1/auth/api-key", async (request, reply) => {
+    try {
+      return reply.status(201).send(generateOwnApiKey(request.currentUser!));
+    } catch (error) {
+      return sendError(reply, error);
+    }
+  });
+
+  app.post("/api/v1/auth/api-key/rotate", async (request, reply) => {
+    try {
+      return reply.send(rotateOwnApiKey(request.currentUser!));
+    } catch (error) {
+      return sendError(reply, error);
+    }
+  });
 
   app.delete("/api/v1/auth/sessions/:sessionId", async (request, reply) => {
     try {

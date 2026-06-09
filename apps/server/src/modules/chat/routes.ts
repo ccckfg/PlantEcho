@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { FastifyInstance } from "fastify";
 import { sendError } from "../../shared/http.js";
 import { chatWithPlant, streamChatWithPlant, type ChatStreamEvent } from "./chatService.js";
-import { recentMessages } from "./messageRepository.js";
+import { recentVisibleMessages } from "./messageRepository.js";
 import { assertChatDependencies } from "./chatRequirements.js";
 
 const chatSchema = z.object({
@@ -60,6 +60,6 @@ export const registerChatRoutes = async (app: FastifyInstance): Promise<void> =>
 
   app.get("/api/v1/plants/:plantId/messages", async (request) => {
     const { plantId } = request.params as { plantId: string };
-    return { messages: recentMessages(plantId, 80) };
+    return { messages: recentVisibleMessages(plantId, 80) };
   });
 };

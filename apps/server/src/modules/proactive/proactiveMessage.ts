@@ -6,6 +6,7 @@ import {
   logProactiveEvent
 } from "./eventLogRepository.js";
 import { composeProactiveMessage } from "./proactiveMessageComposer.js";
+import { rememberProactiveMessage } from "./proactiveMemory.js";
 import type { ProactiveEventInput } from "./types.js";
 
 export const emitProactiveMessage = async (
@@ -19,6 +20,7 @@ export const emitProactiveMessage = async (
   if (!content) return null;
   const turn = nextTurn(event.plantId);
   const message = addMessage(event.plantId, turn, "assistant", content);
+  rememberProactiveMessage(event.plantId, turn, content, `proactive:${event.type}`);
   attachProactiveEventMessage(eventLogId, message.id);
   publishSyncEvent({
     type: "messages.changed",

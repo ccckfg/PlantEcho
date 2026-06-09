@@ -1,66 +1,47 @@
-import { env } from "../../config/env.js";
 import { getPlant, listPlants } from "../plants/plantRepository.js";
-import { contentToText } from "./format.js";
-import type { OpenAiChatMessage } from "./schema.js";
 
 export interface PlantRoute {
   plantId: string;
   plantName: string;
-  requestedName: string | null;
+  requestedModel: string | null;
   matched: boolean;
-  source: "tag" | "default";
+  source: "model";
 }
 
-const tagPattern = /<\s*(?:植物名|plant_name)\s*>\s*([^<]{1,100})\s*<\s*\/\s*(?:植物名|plant_name)\s*>/iu;
-const allTagsPattern = /<\s*(?:植物名|plant_name)\s*>\s*[^<]{1,100}\s*<\s*\/\s*(?:植物名|plant_name)\s*>/giu;
+const plantModelPrefix = "plant:";
 
-const normalizeName = (value: string): string =>
-  value.trim().replace(/\s+/g, " ").toLocaleLowerCase();
+export const plantModelId = (plantId: string): string =>
+  `${plantModelPrefix}${plantId}`;
 
-export const extractPlantNameTag = (text: string): string | null => {
-  const match = tagPattern.exec(text);
-  return match?.[1]?.trim() || null;
+export const plantIdFromModel = (model: string): string | null => {
+  const trimmed = model.trim();
+  if (!trimmed.startsWith(plantModelPrefix)) return null;
+  const plantId = trimmed.slice(plantModelPrefix.length).trim();
+  return plantId || null;
 };
 
-export const stripPlantNameTags = (text: string): string =>
-  text.replace(allTagsPattern, " ").replace(/[ \t]{2,}/g, " ").trim();
-
-export const requestedPlantNameFromMessages = (
-  messages: OpenAiChatMessage[]
-): string | null => {
-  for (const message of messages) {
-    const tag = extractPlantNameTag(contentToText(message.content));
-    if (tag) return tag;
-  }
-  return null;
-};
-
-export const resolvePlantRoute = (messages: OpenAiChatMessage[]): PlantRoute => {
-  const requestedName = requestedPlantNameFromMessages(messages);
-  const plants = listPlants();
-  const fallback = getPlant(env.DEFAULT_PLANT_ID) ?? plants[0] ?? null;
-
-  if (requestedName) {
-    const normalized = normalizeName(requestedName);
-    const matched = plants.find(
-      (plant) => normalizeName(plant.name) === normalized || normalizeName(plant.id) === normalized
-    );
-    if (matched) {
-      return {
-        plantId: matched.id,
-        plantName: matched.name,
-        requestedName,
-        matched: true,
-        source: "tag"
-      };
+export const listCompatModels = () =>
+  listPlants().map((plant) => ({
+    id: plantModelId(plant.id),
+    object: "model",
+    created: 0,
+    owned_by: "dyn",
+    dyn: {
+      plant_id: plant.id,
+      plant_name: plant.name,
+      species: plant.species
     }
-  }
+  }));
 
+export const resolvePlantRoute = (model: string): PlantRoute | null => {
+  const plantId = plantIdFromModel(model);
+  const plant = plantId ? getPlant(plantId) : null;
+  if (!plant) return null;
   return {
-    plantId: fallback?.id ?? env.DEFAULT_PLANT_ID,
-    plantName: fallback?.name ?? env.DEFAULT_PLANT_ID,
-    requestedName,
-    matched: false,
-    source: "default"
+    plantId: plant.id,
+    plantName: plant.name,
+    requestedModel: model,
+    matched: true,
+    source: "model"
   };
 };

@@ -1,4 +1,6 @@
 import type {
+  AuthApiKeyCreated,
+  AuthApiKeyInfo,
   AuthLoginInput,
   AuthLoginSession,
   AuthRegisterInput,
@@ -65,6 +67,20 @@ export const authApi = {
     ),
   listSessions: (baseUrl: string, token: string) =>
     authRequest<{ sessions: AuthLoginSession[] }>(baseUrl, "/api/v1/auth/sessions", {
+      headers: { authorization: `Bearer ${token}` }
+    }),
+  getApiKey: (baseUrl: string, token: string) =>
+    authRequest<{ apiKey: AuthApiKeyInfo | null }>(baseUrl, "/api/v1/auth/api-key", {
+      headers: { authorization: `Bearer ${token}` }
+    }),
+  generateApiKey: (baseUrl: string, token: string) =>
+    authRequest<AuthApiKeyCreated>(baseUrl, "/api/v1/auth/api-key", {
+      method: "POST",
+      headers: { authorization: `Bearer ${token}` }
+    }),
+  rotateApiKey: (baseUrl: string, token: string) =>
+    authRequest<AuthApiKeyCreated>(baseUrl, "/api/v1/auth/api-key/rotate", {
+      method: "POST",
       headers: { authorization: `Bearer ${token}` }
     }),
   revokeSession: (baseUrl: string, token: string, sessionId: string) =>

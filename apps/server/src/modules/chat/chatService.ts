@@ -36,6 +36,8 @@ export interface ChatResult {
 
 export interface ChatWithPlantOptions extends LlmChatOptions {
   timezone?: string;
+  visibleTo?: string[];
+  publishMessagesChanged?: boolean;
 }
 
 export type ChatStreamEvent =
@@ -69,9 +71,14 @@ export const chatWithPlant = async (
     content
   );
   const memoryCitations = citationsUsedByReply(reply, context.offeredCitations);
-  finishChatTurn(plantId, turn, reply, parsed.innerPatch);
+  finishChatTurn(plantId, turn, reply, parsed.innerPatch, options);
   const reminder = scheduleReminderFromText(plantId, content, userMessageId);
-  if (reminder) addReminderConfirmation(plantId, reminder);
+  if (reminder) {
+    addReminderConfirmation(plantId, reminder, {
+      visibleTo: options?.visibleTo,
+      publishMessagesChanged: options?.publishMessagesChanged
+    });
+  }
   return {
     turn,
     reply,
@@ -127,9 +134,14 @@ export async function* streamChatWithPlant(
     content
   );
   const memoryCitations = citationsUsedByReply(reply, context.offeredCitations);
-  finishChatTurn(plantId, turn, reply, innerPatch);
+  finishChatTurn(plantId, turn, reply, innerPatch, options);
   const reminder = scheduleReminderFromText(plantId, content, userMessageId);
-  if (reminder) addReminderConfirmation(plantId, reminder);
+  if (reminder) {
+    addReminderConfirmation(plantId, reminder, {
+      visibleTo: options?.visibleTo,
+      publishMessagesChanged: options?.publishMessagesChanged
+    });
+  }
   yield {
     type: "done",
     turn,
@@ -141,7 +153,7 @@ export async function* streamChatWithPlant(
 
 const prepareChatTurn = async (plantId: string, content: string, options?: ChatWithPlantOptions) => {
   const turn = nextTurn(plantId);
-  const userMessage = addMessage(plantId, turn, "user", content);
+  const userMessage = addMessage(plantId, turn, "user", content, options?.visibleTo ?? [plantId]);
   rememberUserMessage(plantId, turn, content);
   createIntentionFromUserMessage(plantId, turn, content);
   const context = await buildChatContext(plantId, content, turn, options?.timezone);
@@ -156,18 +168,22 @@ const finishChatTurn = (
   plantId: string,
   turn: number,
   reply: string,
-  innerPatch: InnerPatch
+  innerPatch: InnerPatch,
+  options?: ChatWithPlantOptions
 ): void => {
-  const assistant = addMessage(plantId, turn, "assistant", reply);
+  const visibleTo = options?.visibleTo ?? [plantId];
+  const assistant = addMessage(plantId, turn, "assistant", reply, visibleTo);
   const innerResult = applyInnerPatch(plantId, turn, innerPatch);
   if (innerResult.changed) {
     createIntentionFromInner(plantId, turn, innerResult.appliedPatch);
   }
-  publishSyncEvent({
-    type: "messages.changed",
-    plantId,
-    payload: { turn, messageId: assistant.id }
-  });
+  if (options?.publishMessagesChanged !== false) {
+    publishSyncEvent({
+      type: "messages.changed",
+      plantId,
+      payload: { turn, messageId: assistant.id }
+    });
+  }
   const plant = getPlant(plantId);
   if (plant) {
     scheduleDetectAndConsolidate(plantId, plant.name, turn);

@@ -1,6 +1,8 @@
-import { randomUUID } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import type {
   AppUser,
+  AuthApiKeyCreated,
+  AuthApiKeyInfo,
   AuthLoginInput,
   AuthRegisterInput,
   AuthSession,
@@ -23,6 +25,7 @@ import {
   deleteUserAuthSession,
   updateUser
 } from "./authRepository.js";
+import { getUserApiKeyInfo, upsertUserApiKey } from "./authApiKeyRepository.js";
 import { hashPassword, verifyPassword } from "./password.js";
 import { authTokenHash, issueAuthToken } from "./token.js";
 
@@ -43,6 +46,15 @@ const assertCanChangeAdmin = (target: AppUser, patch: UpdateUserInput): void => 
     throw new Error("至少需要保留一个可用的管理员账号。");
   }
 };
+
+const createPlainApiKey = (): string =>
+  `dyn_api_${randomBytes(32).toString("base64url")}`;
+
+const apiKeyParts = (key: string) => ({
+  keyHash: authTokenHash(key),
+  keyPrefix: key.slice(0, 12),
+  keyLast4: key.slice(-4)
+});
 
 export const getAuthStatus = () => ({
   hasUsers: countUsers() > 0,
@@ -123,6 +135,32 @@ export const revokeOwnSession = (
     if (!revoked) throw new Error(`Failed to revoke session ${sessionId}`);
     return revoked;
   }
+};
+
+export const getOwnApiKey = (actor: AppUser): AuthApiKeyInfo | null =>
+  getUserApiKeyInfo(actor.id);
+
+export const generateOwnApiKey = (actor: AppUser): AuthApiKeyCreated => {
+  if (getUserApiKeyInfo(actor.id)) {
+    throw new Error("API 调用密钥已经存在，请使用轮换密钥。");
+  }
+  const key = createPlainApiKey();
+  const apiKey = upsertUserApiKey({
+    id: randomUUID(),
+    userId: actor.id,
+    ...apiKeyParts(key)
+  });
+  return { apiKey, key };
+};
+
+export const rotateOwnApiKey = (actor: AppUser): AuthApiKeyCreated => {
+  const key = createPlainApiKey();
+  const apiKey = upsertUserApiKey({
+    id: randomUUID(),
+    userId: actor.id,
+    ...apiKeyParts(key)
+  });
+  return { apiKey, key };
 };
 
 export const listManagedUsers = (actor: AppUser): AppUser[] => {

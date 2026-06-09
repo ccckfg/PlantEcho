@@ -1,6 +1,6 @@
 services:
   dyn-server:
-    image: ${DYN_IMAGE:-ccckfg/dyn:1.0.0}
+    image: ${DYN_IMAGE:-ccckfg/dyn:1.0.2}
     container_name: dyn-server
     restart: unless-stopped
     init: true

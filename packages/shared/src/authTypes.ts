@@ -62,3 +62,19 @@ export interface AuthLoginSession {
   revokedAt: string | null;
   current?: boolean;
 }
+
+export interface AuthApiKeyInfo {
+  id: string;
+  userId: string;
+  prefix: string;
+  last4: string;
+  preview: string;
+  createdAt: string;
+  rotatedAt: string | null;
+  lastUsedAt: string | null;
+}
+
+export interface AuthApiKeyCreated {
+  apiKey: AuthApiKeyInfo;
+  key: string;
+}

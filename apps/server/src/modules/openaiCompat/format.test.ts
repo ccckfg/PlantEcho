@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { buildChatCompletion, buildStreamChunk, lastUserText } from "./format.js";
-import { extractPlantNameTag, stripPlantNameTags } from "./plantRoute.js";
+import { plantIdFromModel, plantModelId } from "./plantRoute.js";
 
 test("lastUserText extracts text from modern content parts", () => {
   const text = lastUserText([
@@ -53,9 +53,8 @@ test("buildStreamChunk returns chat.completion.chunk shape", () => {
   assert.equal(chunk.choices[0]?.finish_reason, null);
 });
 
-test("plant name tag helpers parse and remove route hints", () => {
-  const text = "请和 <植物名>小绿</植物名> 聊聊今天状态";
-
-  assert.equal(extractPlantNameTag(text), "小绿");
-  assert.equal(stripPlantNameTags(text), "请和 聊聊今天状态");
+test("plant model helpers use model as plant route", () => {
+  assert.equal(plantModelId("plant-demo"), "plant:plant-demo");
+  assert.equal(plantIdFromModel("plant:plant-demo"), "plant-demo");
+  assert.equal(plantIdFromModel("gpt-4o"), null);
 });

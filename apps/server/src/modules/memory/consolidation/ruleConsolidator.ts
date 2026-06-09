@@ -8,3 +8,14 @@ export const rememberUserMessage = (plantId: string, turn: number, content: stri
     sourceType: "interaction:user_message"
   });
 };
+
+export const rememberAssistantMessage = (
+  plantId: string,
+  turn: number,
+  content: string,
+  sourceType = "interaction:assistant_message"
+): void => {
+  const cleaned = compact(content);
+  if (!cleaned) return;
+  addMemoryDraft(plantId, turn, `植物说：${cleaned}`, { sourceType });
+};

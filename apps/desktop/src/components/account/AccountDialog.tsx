@@ -4,6 +4,7 @@ import type { AuthLoginSession } from "@dyn/shared";
 import { Chip, Icon } from "@/components/UI";
 import { authApi } from "@/lib/authApi";
 import type { BackendConnection } from "@/lib/connection";
+import { AccountApiKeyPanel } from "./AccountApiKeyPanel";
 import { AccountSessionRow } from "./AccountSessionRow";
 import { avatarGradientFor } from "./accountSessionUtils";
 
@@ -21,7 +22,7 @@ export function AccountDialog({
   const [busyId, setBusyId] = useState("");
   const [exitingIds, setExitingIds] = useState<string[]>([]);
   const [error, setError] = useState("");
-  const [copied, setCopied] = useState(false);
+  const [baseUrlCopied, setBaseUrlCopied] = useState(false);
 
   const loadSessions = async () => {
     setLoading(true);
@@ -88,8 +89,8 @@ export function AccountDialog({
 
   const copyBaseUrl = async () => {
     await navigator.clipboard.writeText(connection.baseUrl);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 2000);
+    setBaseUrlCopied(true);
+    window.setTimeout(() => setBaseUrlCopied(false), 2000);
   };
 
   const displayName = connection.user.displayName || connection.user.username || "User";
@@ -165,11 +166,13 @@ export function AccountDialog({
                   title="复制地址"
                   className="flex items-center justify-center rounded-full p-xs text-on-surface-variant transition-all duration-200 hover:bg-surface-container hover:text-primary"
                 >
-                  <Icon name={copied ? "check" : "content_copy"} className={`text-[15px] ${copied ? "scale-110 text-primary" : ""}`} />
-                  {copied ? <span className="ml-xs text-[12px] font-label-sm text-primary">已复制</span> : null}
+                  <Icon name={baseUrlCopied ? "check" : "content_copy"} className={`text-[15px] ${baseUrlCopied ? "scale-110 text-primary" : ""}`} />
+                  {baseUrlCopied ? <span className="ml-xs text-[12px] font-label-sm text-primary">已复制</span> : null}
                 </button>
               </div>
             </div>
+
+            <AccountApiKeyPanel connection={connection} onError={setError} />
           </div>
 
           <section className="flex flex-col gap-sm">
