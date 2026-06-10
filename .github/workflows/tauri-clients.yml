@@ -26,7 +26,6 @@ concurrency:
 env:
   NODE_VERSION: "24"
   CARGO_TERM_COLOR: always
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   desktop:
@@ -242,10 +241,15 @@ jobs:
           ls -lh dist/release-assets
 
       - name: Publish release assets
-        uses: softprops/action-gh-release@v2
-        with:
-          name: PlantEcho ${{ github.ref_name }}
-          tag_name: ${{ github.ref_name }}
-          generate_release_notes: true
-          files: dist/release-assets/*
-          fail_on_unmatched_files: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" dist/release-assets/* --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" dist/release-assets/* \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "PlantEcho $GITHUB_REF_NAME" \
+              --generate-notes
+          fi
