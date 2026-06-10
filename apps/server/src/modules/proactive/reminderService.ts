@@ -1,18 +1,16 @@
 import { addMessage, nextTurn } from "../chat/messageRepository.js";
 import { publishSyncEvent } from "../sync/syncBus.js";
-import { detectReminderPlan } from "./reminderDetector.js";
 import { createReminder } from "./reminderRepository.js";
 import { scheduleReminderJob } from "./reminderJob.js";
 import type { ProactiveReminder } from "./types.js";
 
-export const scheduleReminderFromText = (
+export const scheduleReminder = (
   plantId: string,
   text: string,
+  remindAt: Date,
   sourceMessageId: number | null
-): ProactiveReminder | null => {
-  const plan = detectReminderPlan(text);
-  if (!plan) return null;
-  const reminder = createReminder(plantId, plan.text, plan.remindAt, sourceMessageId);
+): ProactiveReminder => {
+  const reminder = createReminder(plantId, text, remindAt, sourceMessageId);
   scheduleReminderJob(reminder.id, reminder.remindAt);
   return reminder;
 };

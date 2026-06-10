@@ -1,5 +1,6 @@
 export const llmPhases = {
   chatReply: "chat.reply",
+  chatReminderTool: "chat.reminder-tool",
   proactiveIntention: "proactive.intention",
   proactiveEvent: "proactive.event",
   memoryClosure: "memory.closure",

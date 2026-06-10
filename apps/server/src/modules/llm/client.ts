@@ -13,6 +13,24 @@ export interface LlmChatOptions {
   phase?: string;
 }
 
+export interface LlmTool {
+  type: "function";
+  function: {
+    name: string;
+    description?: string;
+    parameters: Record<string, unknown>;
+  };
+}
+
+export interface LlmToolCall {
+  id?: string;
+  type: "function";
+  function: {
+    name: string;
+    arguments: string;
+  };
+}
+
 type LlmTarget = {
   tier: LlmTier;
   apiUrl: string;
@@ -53,7 +71,13 @@ export const isLlmConfigured = (options?: LlmChatOptions): boolean => {
 };
 
 type OpenAIChatCompletionsResponse = {
-  choices?: Array<{ message?: { content?: string } }>;
+  choices?: Array<{
+    message?: {
+      content?: string;
+      tool_calls?: LlmToolCall[];
+      function_call?: { name?: string; arguments?: string };
+    };
+  }>;
   usage?: { prompt_tokens?: number; completion_tokens?: number };
 };
 
@@ -106,6 +130,54 @@ export const completeChat = async (
   const content = json.choices?.[0]?.message?.content?.trim() ?? null;
   logUsage(messages, content ?? "", options, json.usage);
   return content;
+};
+
+export const completeToolCall = async (
+  messages: LlmMessage[],
+  tools: LlmTool[],
+  options?: LlmChatOptions
+): Promise<LlmToolCall | null> => {
+  const target = targetFor(options);
+  if (!isLlmConfigured(options)) return null;
+  const response = await fetch(chatUrl(target), {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${target.apiKey}`
+    },
+    body: JSON.stringify({
+      model: target.modelId,
+      temperature: options?.temperature ?? target.temperature,
+      messages,
+      tools,
+      tool_choice: "auto"
+    })
+  });
+  if (!response.ok) {
+    throw new Error(`LLM tool request failed: ${response.status} ${await response.text()}`);
+  }
+  const json = (await response.json()) as OpenAIChatCompletionsResponse;
+  const message = json.choices?.[0]?.message;
+  const call = message?.tool_calls?.find((item) => item.type === "function") ?? null;
+  const legacy = message?.function_call;
+  const result = call ?? (
+    legacy?.name
+      ? {
+          type: "function" as const,
+          function: {
+            name: legacy.name,
+            arguments: legacy.arguments ?? "{}"
+          }
+        }
+      : null
+  );
+  logUsage(
+    messages,
+    result ? `${result.function.name} ${result.function.arguments}` : message?.content ?? "",
+    options,
+    json.usage
+  );
+  return result;
 };
 
 const parseStreamFrame = (frame: string): string[] => {

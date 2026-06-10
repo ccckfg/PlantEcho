@@ -9,7 +9,8 @@ import {
   scheduleDetectAndConsolidate,
   scheduleSessionClosure
 } from "../memory/consolidation/consolidationJob.js";
-import { addReminderConfirmation, scheduleReminderFromText } from "../proactive/reminderService.js";
+import { addReminderConfirmation } from "../proactive/reminderService.js";
+import { scheduleReminderFromUserMessage } from "../proactive/reminderTool.js";
 import {
   citationsUsedByReply,
   repairUnsupportedMemoryClaim,
@@ -72,7 +73,12 @@ export const chatWithPlant = async (
   );
   const memoryCitations = citationsUsedByReply(reply, context.offeredCitations);
   finishChatTurn(plantId, turn, reply, parsed.innerPatch, options);
-  const reminder = scheduleReminderFromText(plantId, content, userMessageId);
+  const reminder = await scheduleReminderFromUserMessage(
+    plantId,
+    content,
+    userMessageId,
+    options?.timezone
+  );
   if (reminder) {
     addReminderConfirmation(plantId, reminder, {
       visibleTo: options?.visibleTo,
@@ -128,7 +134,12 @@ export async function* streamChatWithPlant(
   );
   const memoryCitations = citationsUsedByReply(reply, context.offeredCitations);
   finishChatTurn(plantId, turn, reply, innerPatch, options);
-  const reminder = scheduleReminderFromText(plantId, content, userMessageId);
+  const reminder = await scheduleReminderFromUserMessage(
+    plantId,
+    content,
+    userMessageId,
+    options?.timezone
+  );
   if (reminder) {
     addReminderConfirmation(plantId, reminder, {
       visibleTo: options?.visibleTo,

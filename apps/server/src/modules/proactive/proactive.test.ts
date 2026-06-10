@@ -9,6 +9,7 @@ import { getPlantReadingState, recordDeviceReading } from "../readings/readingSe
 import { detectReminderPlan } from "./reminderDetector.js";
 import { createReminder, getReminder } from "./reminderRepository.js";
 import { runReminderJob } from "./reminderJob.js";
+import { scheduleReminderFromUserMessage } from "./reminderTool.js";
 import type { BackgroundJob } from "../jobs/jobTypes.js";
 
 const cleanup = (plantId: string): void => {
@@ -93,6 +94,60 @@ test("chat reminder language becomes a due reminder message", async () => {
     assert.match(draft.text, /提醒你：浇水/);
     assert.equal(JSON.parse(draft.metadata_json).sourceType, "proactive:reminder.due");
   } finally {
+    cleanup(plant.id);
+  }
+});
+
+test("reminder tool call creates reminders without rule fallback", async () => {
+  migrate();
+  const originalFetch = globalThis.fetch;
+  const plant = createPlant({ name: "工具提醒", species: "绿萝" });
+  const due = new Date(Date.now() + 5 * 60_000).toISOString();
+  try {
+    globalThis.fetch = (async () =>
+      new Response(JSON.stringify({
+        choices: [
+          {
+            message: {
+              tool_calls: [
+                {
+                  type: "function",
+                  function: {
+                    name: "create_reminder",
+                    arguments: JSON.stringify({ text: "浇水", remind_at: due })
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        usage: { prompt_tokens: 1, completion_tokens: 1 }
+      }), { status: 200 })) as typeof fetch;
+
+    const reminder = await scheduleReminderFromUserMessage(
+      plant.id,
+      "5min后提醒我浇水",
+      null,
+      "Asia/Shanghai"
+    );
+    assert.ok(reminder);
+    assert.equal(reminder.text, "浇水");
+
+    globalThis.fetch = (async () =>
+      new Response(JSON.stringify({
+        choices: [{ message: { content: "不需要提醒" } }],
+        usage: { prompt_tokens: 1, completion_tokens: 1 }
+      }), { status: 200 })) as typeof fetch;
+
+    const noFallback = await scheduleReminderFromUserMessage(
+      plant.id,
+      "5分钟后提醒我浇水",
+      null,
+      "Asia/Shanghai"
+    );
+    assert.equal(noFallback, null);
+  } finally {
+    globalThis.fetch = originalFetch;
     cleanup(plant.id);
   }
 });
