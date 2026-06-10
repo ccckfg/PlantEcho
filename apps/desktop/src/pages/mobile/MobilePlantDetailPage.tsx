@@ -191,7 +191,7 @@ export function MobilePlantDetailPage() {
               {recent.data.readings.map((row) => (
                 <li
                   key={row.id}
-                  className="flex items-center justify-between rounded-md bg-surface-container-low/80 px-md py-sm text-on-surface ring-1 ring-surface-container-highest/30"
+                  className="flex flex-col items-start gap-xs rounded-md bg-surface-container-low/80 px-md py-sm text-on-surface ring-1 ring-surface-container-highest/30"
                 >
                   <span className="font-label-md text-label-md">
                     {formatTime(row.capturedAt) || row.capturedAt}

@@ -9,12 +9,9 @@ export const replyCharLimit = (userMessage: string): number =>
     : dialogueConfig.defaultReplyMaxChars;
 
 export const limitPlantReply = (text: string, userMessage: string): string => {
-  const cleaned = text
+  void userMessage;
+  return text
     .trim()
     .replace(/^["“「『]+|["”」』]+$/g, "")
     .replace(/\n{3,}/g, "\n\n");
-  const chars = Array.from(cleaned);
-  const limit = replyCharLimit(userMessage);
-  if (chars.length <= limit) return cleaned;
-  return chars.slice(0, limit).join("").trimEnd();
 };

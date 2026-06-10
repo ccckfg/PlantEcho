@@ -1,5 +1,5 @@
 export const dialogueConfig = {
-  defaultReplyMaxChars: 72,
-  detailedReplyMaxChars: 240,
+  defaultReplyMaxChars: 160,
+  detailedReplyMaxChars: 360,
   proactiveReplyMaxChars: 48
 };

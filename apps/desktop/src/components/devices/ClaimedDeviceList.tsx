@@ -9,11 +9,15 @@ import { RotateConfirmDialog } from "./RotateConfirmDialog";
 
 const formatTime = (value: string | null): string => {
   if (!value) return "尚未上报";
-  return new Date(value).toLocaleString("zh-CN", {
-    month: "2-digit",
-    day: "2-digit",
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "时间异常";
+  return date.toLocaleString("zh-CN", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
     hour: "2-digit",
-    minute: "2-digit"
+    minute: "2-digit",
+    hour12: false
   });
 };
 

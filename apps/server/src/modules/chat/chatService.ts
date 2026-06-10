@@ -15,7 +15,7 @@ import {
   repairUnsupportedMemoryClaim,
   UnsupportedMemoryClaimFilter
 } from "./memoryCitation.js";
-import { limitPlantReply, replyCharLimit } from "./replyStyle.js";
+import { limitPlantReply } from "./replyStyle.js";
 import type { MemoryCitation } from "@dyn/shared";
 import { parseChatResponse, VisibleReplyFilter } from "./responseProtocol.js";
 import { applyInnerPatch, type InnerPatch } from "../state/stateService.js";
@@ -102,30 +102,23 @@ export async function* streamChatWithPlant(
   let innerPatch: InnerPatch = {};
   const visibleFilter = new VisibleReplyFilter();
   const memoryClaimFilter = new UnsupportedMemoryClaimFilter(context.offeredCitations);
-  const maxReplyChars = replyCharLimit(content);
-  let emittedChars = 0;
   for await (const delta of streamChat([
     { role: "system", content: plantSystemPrompt },
     { role: "user", content: context.userPrompt }
   ], { ...options, phase: llmPhases.chatReply })) {
     rawReply += delta;
     const visible = memoryClaimFilter.feed(visibleFilter.feed(delta));
-    const remaining = maxReplyChars - emittedChars;
-    const clipped = remaining > 0 ? Array.from(visible).slice(0, remaining).join("") : "";
-    if (clipped) {
-      reply += clipped;
-      emittedChars += Array.from(clipped).length;
-      yield { type: "delta", delta: clipped };
+    if (visible) {
+      reply += visible;
+      yield { type: "delta", delta: visible };
     }
   }
   const parsed = parseChatResponse(rawReply);
   innerPatch = parsed.innerPatch;
   const tail = memoryClaimFilter.feed(visibleFilter.finish()) + memoryClaimFilter.finish();
-  const remaining = maxReplyChars - emittedChars;
-  const clippedTail = remaining > 0 ? Array.from(tail).slice(0, remaining).join("") : "";
-  if (clippedTail) {
-    reply += clippedTail;
-    yield { type: "delta", delta: clippedTail };
+  if (tail) {
+    reply += tail;
+    yield { type: "delta", delta: tail };
   }
   if (!reply.trim()) throw new Error("LLM returned an empty visible stream reply");
 

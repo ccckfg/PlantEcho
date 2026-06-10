@@ -206,7 +206,7 @@ export function PlantDetailPage() {
                 {recent.data.readings.map((row) => (
                   <li
                     key={row.id}
-                    className="flex justify-between items-center py-sm px-md rounded-md bg-surface-container-low/80 text-on-surface ring-1 ring-surface-container-highest/30 transition-all duration-200 ease-standard hover:bg-secondary-container/30 hover:ring-secondary-fixed-dim/50"
+                    className="flex flex-col items-start gap-xs py-sm px-md rounded-md bg-surface-container-low/80 text-on-surface ring-1 ring-surface-container-highest/30 transition-all duration-200 ease-standard hover:bg-secondary-container/30 hover:ring-secondary-fixed-dim/50 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <span className="font-label-md text-label-md">
                       {formatTime(row.capturedAt) || row.capturedAt}
