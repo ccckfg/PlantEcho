@@ -183,9 +183,18 @@ export interface PlantReflection {
 }
 
 export interface PlantStatusTags {
-  tags: string[];
-  usedLlm: boolean;
-  basis: string[];
+  primary: {
+    key: "online" | "offline";
+    label: "在线" | "离线";
+    source: "rule";
+  };
+  secondary: {
+    tags: string[];
+    source: "llm" | "none";
+    sourceTurn: number | null;
+    updatedAt: string | null;
+    expiresAt: string | null;
+  };
 }
 
 export const api = {

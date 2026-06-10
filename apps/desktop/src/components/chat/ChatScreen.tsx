@@ -20,7 +20,7 @@ import { ChatMenu } from "@/components/chat/ChatMenu";
 import { MessageLoadingSkeleton } from "@/components/chat/MessageLoadingSkeleton";
 import { PlantSwitcher } from "@/components/plants/PlantSwitcher";
 import { PlantStatusTagChips } from "@/components/plants/PlantStatusTagChips";
-import { deriveStatus, MOOD_PRESETS } from "@/lib/mood";
+import { deriveStatus } from "@/lib/mood";
 
 interface ChatScreenProps {
   plantId: string;
@@ -30,12 +30,12 @@ interface ChatScreenProps {
 
 export function ChatScreen({ plantId, plants, onSwitch }: ChatScreenProps) {
   const summary = plants.find((p) => p.id === plantId) ?? plants[0];
-  const readingRefresh = useSyncRefresh(
-    { plantId, resources: ["readings"] },
-    { throttleMs: SENSOR_READING_REFRESH_THROTTLE_MS }
-  );
+  const readingRefresh = useSyncRefresh({ plantId, resources: ["readings"] }, {
+    throttleMs: SENSOR_READING_REFRESH_THROTTLE_MS
+  });
   const messagesRefresh = useSyncRefresh({ plantId, resources: ["messages"] });
   const reading = useAsync<ReadingState>(() => api.latestReading(plantId), [plantId, readingRefresh]);
+  const statusTags = useAsync(() => api.getPlantStatusTags(plantId), [plantId, readingRefresh, messagesRefresh]);
   const [messages, setMessages] = useState<ChatDisplayMessage[]>([]);
   const [messagesLoading, setMessagesLoading] = useState(true);
   const [input, setInput] = useState("");
@@ -90,7 +90,9 @@ export function ChatScreen({ plantId, plants, onSwitch }: ChatScreenProps) {
 
   const sensorConnection = getSensorConnection(reading.data?.latest, now);
   const status = deriveStatus(reading.data?.latest, summary?.careProfile, now);
-  const moodMeta = MOOD_PRESETS[status.mood];
+  const connectionOnline = sensorConnection.state === "online";
+  const connectionLabel = connectionOnline ? "在线" : "离线";
+  const secondaryTags = statusTags.data?.tags.secondary.tags ?? [];
   const avatarSrc = mediaUrl(summary?.avatarUrl ?? plantImage(plantId));
 
   async function send(content: string) {
@@ -118,21 +120,17 @@ export function ChatScreen({ plantId, plants, onSwitch }: ChatScreenProps) {
       await streamPlantChat(plantId, content, {
         onDelta: (delta) => {
           if (!mountedRef.current) return;
-          setMessages((prev) =>
-            prev.map((msg) =>
-              msg.id === assistantId ? { ...msg, content: msg.content + delta } : msg
-            )
-          );
+          setMessages((prev) => prev.map((msg) =>
+            msg.id === assistantId ? { ...msg, content: msg.content + delta } : msg
+          ));
         },
         onDone: (done) => {
           if (!mountedRef.current) return;
-          setMessages((prev) =>
-            prev.map((msg) =>
-              msg.id === assistantId
-                ? { ...msg, usedLlm: done.usedLlm, memoryCitations: done.memoryCitations, llmError: done.llmError }
-                : msg
-            )
-          );
+          setMessages((prev) => prev.map((msg) =>
+            msg.id === assistantId
+              ? { ...msg, usedLlm: done.usedLlm, memoryCitations: done.memoryCitations, llmError: done.llmError }
+              : msg
+          ));
         }
       });
     } catch (err) {
@@ -172,12 +170,12 @@ export function ChatScreen({ plantId, plants, onSwitch }: ChatScreenProps) {
           </div>
           <div className="flex gap-xs flex-wrap">
             <Chip
-              icon={moodMeta.icon}
-              tone={status.mood === "thirsty" ? "error" : status.mood === "sunny" ? "tertiary" : "secondary"}
+              icon={connectionOnline ? "sensors" : "sensors_off"}
+              tone={connectionOnline ? "primary" : "muted"}
             >
-              {moodMeta.label}
+              {connectionLabel}
             </Chip>
-            <PlantStatusTagChips plantId={plantId} primaryLabel={moodMeta.label} />
+            <PlantStatusTagChips tags={secondaryTags} />
           </div>
           <div className="h-px bg-gradient-to-r from-transparent via-surface-container-highest/70 to-transparent w-full my-xs" />
           <div className="flex flex-col gap-md">

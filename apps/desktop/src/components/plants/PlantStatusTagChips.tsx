@@ -2,30 +2,14 @@ import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import "./PlantStatusTagChips.css";
 
 interface PlantStatusTagChipsProps {
-  plantId: string;
-  primaryLabel: string;
+  tags: string[];
 }
 
-const fallbackTags = (primaryLabel: string): string[] => {
-  if (primaryLabel === "离线") return ["待感知", "安静等"];
-  if (primaryLabel === "口渴") return ["想喝水", "根在等"];
-  if (primaryLabel === "日光浴中") return ["向光中", "晒太阳"];
-  if (primaryLabel === "开心") return ["状态好", "舒展中"];
-  return ["稳定", "慢生长"];
-};
-
-const isDuplicateMood = (tag: string, primaryLabel: string): boolean => {
-  if (tag === primaryLabel) return true;
-  if (primaryLabel === "离线") return /离线|断开|信号|传感器/.test(tag);
-  if (primaryLabel === "口渴") return /口渴|缺水|喝水/.test(tag);
-  return false;
-};
-
-const uniqueTags = (tags: string[], primaryLabel: string): string[] => {
+const uniqueTags = (tags: string[]): string[] => {
   const seen = new Set<string>();
   return tags
     .map((tag) => tag.trim())
-    .filter((tag) => tag && !isDuplicateMood(tag, primaryLabel) && !seen.has(tag) && seen.add(tag))
+    .filter((tag) => tag && !seen.has(tag) && seen.add(tag))
     .slice(0, 2);
 };
 
@@ -68,16 +52,13 @@ function SmoothStatusChip({ tag, index }: { tag: string; index: number }) {
   );
 }
 
-export function PlantStatusTagChips({ primaryLabel }: PlantStatusTagChipsProps) {
-  const tags = useMemo(() => {
-    const fallback = fallbackTags(primaryLabel);
-    return uniqueTags(fallback, primaryLabel);
-  }, [primaryLabel]);
+export function PlantStatusTagChips({ tags }: PlantStatusTagChipsProps) {
+  const visibleTags = useMemo(() => uniqueTags(tags), [tags]);
 
   return (
     <>
-      {tags.map((tag, index) => (
-        <SmoothStatusChip key={index} tag={tag} index={index} />
+      {visibleTags.map((tag, index) => (
+        <SmoothStatusChip key={tag} tag={tag} index={index} />
       ))}
     </>
   );

@@ -1,39 +1,101 @@
-import { listEpisodeMemories } from "../memory/repositories/memoryRepository.js";
-import { getPlantReadingState } from "../readings/readingService.js";
+import { statusTagConfig } from "../../config/statusTags.js";
+import { llmPhases } from "../../config/llmRouting.js";
+import { completeJson } from "../llm/client.js";
 import { getLayeredPlantState } from "../state/stateService.js";
 import { getPlant } from "./plantRepository.js";
+import {
+  getStoredPlantStatusTags,
+  upsertPlantStatusTags,
+  type StoredPlantStatusTags
+} from "./plantStatusTagRepository.js";
+import { buildStatusTagPrompt, statusTagSystemPrompt } from "./plantStatusTagPrompt.js";
+import { sanitizeStatusTags } from "./plantStatusTagPolicy.js";
 
 export interface PlantStatusTags {
-  tags: string[];
-  usedLlm: boolean;
-  basis: string[];
+  primary: {
+    key: "online" | "offline";
+    label: "在线" | "离线";
+    source: "rule";
+  };
+  secondary: {
+    tags: string[];
+    source: "llm" | "none";
+    sourceTurn: number | null;
+    updatedAt: string | null;
+    expiresAt: string | null;
+  };
 }
 
-const fallbackTags = (basis: string[]): string[] => {
-  const joined = basis.join("，");
-  if (/离线|暂无/.test(joined)) return ["待感知"];
-  if (/偏干|缺水|口渴/.test(joined)) return ["想喝水"];
-  if (/偏湿|过湿/.test(joined)) return ["慢呼吸"];
-  if (/光照偏弱|弱光/.test(joined)) return ["向光中"];
-  if (/光照过强|强光/.test(joined)) return ["避烈日"];
-  return ["状态好"];
+type StatusTagOutput = {
+  tags?: unknown[];
+};
+
+const expiresAt = (stored: StoredPlantStatusTags): string =>
+  new Date(Date.parse(stored.updatedAt) + statusTagConfig.secondaryTtlMs).toISOString();
+
+const isFresh = (stored: StoredPlantStatusTags): boolean => {
+  const updatedAt = Date.parse(stored.updatedAt);
+  return !Number.isNaN(updatedAt) && Date.now() - updatedAt < statusTagConfig.secondaryTtlMs;
+};
+
+const primaryFromConnection = (connection: "online" | "offline"): PlantStatusTags["primary"] => ({
+  key: connection,
+  label: connection === "online" ? "在线" : "离线",
+  source: "rule"
+});
+
+const secondaryFromStored = (stored: StoredPlantStatusTags): PlantStatusTags["secondary"] => ({
+  tags: sanitizeStatusTags(stored.tags),
+  source: stored.tags.length ? "llm" : "none",
+  sourceTurn: stored.sourceTurn,
+  updatedAt: stored.updatedAt,
+  expiresAt: expiresAt(stored)
+});
+
+const emptySecondary = (): PlantStatusTags["secondary"] => ({
+  tags: [],
+  source: "none",
+  sourceTurn: null,
+  updatedAt: null,
+  expiresAt: null
+});
+
+const generateSecondaryTags = async (
+  plantId: string,
+  primaryLabel: string,
+  sourceTurn: number | null
+): Promise<StoredPlantStatusTags | null> => {
+  const plant = getPlant(plantId);
+  if (!plant) throw new Error(`Plant ${plantId} not found`);
+  const state = getLayeredPlantState(plantId);
+  const output = await completeJson<StatusTagOutput>([
+    { role: "system", content: statusTagSystemPrompt },
+    { role: "user", content: buildStatusTagPrompt(plant, state, primaryLabel) }
+  ], { phase: llmPhases.statusTags, temperature: 0.4 }).catch(() => null);
+  if (!output) return null;
+  const tags = sanitizeStatusTags(output.tags ?? [], primaryLabel);
+  return upsertPlantStatusTags(plantId, tags, sourceTurn);
+};
+
+export const savePlantStatusTagsFromChat = (
+  plantId: string,
+  sourceTurn: number,
+  tags: string[]
+): StoredPlantStatusTags => {
+  const state = getLayeredPlantState(plantId);
+  const primary = primaryFromConnection(state.physical.connection);
+  return upsertPlantStatusTags(plantId, sanitizeStatusTags(tags, primary.label), sourceTurn);
 };
 
 export const getPlantStatusTags = async (plantId: string): Promise<PlantStatusTags> => {
   const plant = getPlant(plantId);
   if (!plant) throw new Error(`Plant ${plantId} not found`);
-
-  const readingState = getPlantReadingState(plantId);
   const state = getLayeredPlantState(plantId);
-  const memories = listEpisodeMemories(plantId, 3);
-  const basis = [
-    `植物：${plant.name}（${plant.species}）`,
-    state.inner.mood ? `心情：${state.inner.mood}` : "",
-    state.inner.concern ? `关注：${state.inner.concern}` : "",
-    readingState.health.facts.join("，"),
-    readingState.health.issues.map((issue) => issue.label).join("，"),
-    ...memories.map((memory) => `记忆：${memory.title}`)
-  ].filter(Boolean);
-
-  return { tags: fallbackTags(basis), usedLlm: false, basis };
+  const primary = primaryFromConnection(state.physical.connection);
+  const stored = getStoredPlantStatusTags(plantId);
+  if (stored && isFresh(stored)) {
+    return { primary, secondary: secondaryFromStored(stored) };
+  }
+  const regenerated = await generateSecondaryTags(plantId, primary.label, null);
+  return { primary, secondary: regenerated ? secondaryFromStored(regenerated) : emptySecondary() };
 };

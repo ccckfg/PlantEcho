@@ -20,6 +20,7 @@ import { limitPlantReply } from "./replyStyle.js";
 import type { MemoryCitation } from "@dyn/shared";
 import { parseChatResponse, VisibleReplyFilter } from "./responseProtocol.js";
 import { applyInnerPatch, type InnerPatch } from "../state/stateService.js";
+import { savePlantStatusTagsFromChat } from "../plants/plantStatusTagService.js";
 import {
   createIntentionFromInner,
   createIntentionFromUserMessage
@@ -72,7 +73,7 @@ export const chatWithPlant = async (
     content
   );
   const memoryCitations = citationsUsedByReply(reply, context.offeredCitations);
-  finishChatTurn(plantId, turn, reply, parsed.innerPatch, options);
+  finishChatTurn(plantId, turn, reply, parsed.innerPatch, parsed.statusTags, options);
   const reminder = await scheduleReminderFromUserMessage(
     plantId,
     content,
@@ -106,6 +107,7 @@ export async function* streamChatWithPlant(
   let reply = "";
   let rawReply = "";
   let innerPatch: InnerPatch = {};
+  let statusTags: string[] | undefined;
   const visibleFilter = new VisibleReplyFilter();
   const memoryClaimFilter = new UnsupportedMemoryClaimFilter(context.offeredCitations);
   for await (const delta of streamChat([
@@ -121,6 +123,7 @@ export async function* streamChatWithPlant(
   }
   const parsed = parseChatResponse(rawReply);
   innerPatch = parsed.innerPatch;
+  statusTags = parsed.statusTags;
   const tail = memoryClaimFilter.feed(visibleFilter.finish()) + memoryClaimFilter.finish();
   if (tail) {
     reply += tail;
@@ -133,7 +136,7 @@ export async function* streamChatWithPlant(
     content
   );
   const memoryCitations = citationsUsedByReply(reply, context.offeredCitations);
-  finishChatTurn(plantId, turn, reply, innerPatch, options);
+  finishChatTurn(plantId, turn, reply, innerPatch, statusTags, options);
   const reminder = await scheduleReminderFromUserMessage(
     plantId,
     content,
@@ -173,6 +176,7 @@ const finishChatTurn = (
   turn: number,
   reply: string,
   innerPatch: InnerPatch,
+  statusTags: string[] | undefined,
   options?: ChatWithPlantOptions
 ): void => {
   const visibleTo = options?.visibleTo ?? [plantId];
@@ -180,6 +184,9 @@ const finishChatTurn = (
   const innerResult = applyInnerPatch(plantId, turn, innerPatch);
   if (innerResult.changed) {
     createIntentionFromInner(plantId, turn, innerResult.appliedPatch);
+  }
+  if (statusTags !== undefined) {
+    savePlantStatusTagsFromChat(plantId, turn, statusTags);
   }
   if (options?.publishMessagesChanged !== false) {
     publishSyncEvent({

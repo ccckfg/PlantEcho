@@ -25,6 +25,27 @@ test("VisibleReplyFilter streams visible text without leaking a split marker", (
   assert.equal(visible, "风吹过。");
 });
 
+test("parseChatResponse extracts stable status tags", () => {
+  const parsed = parseChatResponse(
+    '我在。<inner_patch>{}</inner_patch><status_tags>{"tags":["慢生长"," 适应中 ","过长标签会被过滤"]}</status_tags>'
+  );
+
+  assert.equal(parsed.reply, "我在。");
+  assert.deepEqual(parsed.innerPatch, {});
+  assert.deepEqual(parsed.statusTags, ["慢生长", "适应中"]);
+});
+
+test("VisibleReplyFilter hides status tags even when they arrive first", () => {
+  const filter = new VisibleReplyFilter();
+  const visible = [
+    filter.feed("我在。<status_"),
+    filter.feed('tags>{"tags":["慢生长"]}</status_tags>'),
+    filter.finish()
+  ].join("");
+
+  assert.equal(visible, "我在。");
+});
+
 test("parseChatResponse tolerates a missing or invalid patch", () => {
   assert.deepEqual(parseChatResponse("只是一句话。"), {
     reply: "只是一句话。",

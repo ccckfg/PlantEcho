@@ -13,6 +13,7 @@ import { layeredPlantStateMigration } from "./012_layered_plant_state.js";
 import { llmUsageLogsMigration } from "./013_llm_usage_logs.js";
 import { intentionAttemptBackoffMigration } from "./014_intention_attempt_backoff.js";
 import { userApiKeysMigration } from "./015_user_api_keys.js";
+import { plantStatusTagsMigration } from "./016_plant_status_tags.js";
 
 export interface DatabaseMigration {
   version: number;
@@ -35,7 +36,8 @@ export const migrations: DatabaseMigration[] = [
   layeredPlantStateMigration,
   llmUsageLogsMigration,
   intentionAttemptBackoffMigration,
-  userApiKeysMigration
+  userApiKeysMigration,
+  plantStatusTagsMigration
 ].sort((a, b) => a.version - b.version);
 
 export const latestSchemaVersion = migrations.at(-1)?.version ?? 0;

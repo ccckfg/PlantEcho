@@ -65,7 +65,6 @@ CREATE TABLE IF NOT EXISTS messages (
   visible_to_json TEXT NOT NULL,
   created_at TEXT NOT NULL
 );
-
 CREATE TABLE IF NOT EXISTS plant_photos (
   id TEXT PRIMARY KEY,
   plant_id TEXT NOT NULL REFERENCES plants(id) ON DELETE CASCADE,
@@ -76,7 +75,6 @@ CREATE TABLE IF NOT EXISTS plant_photos (
   captured_at TEXT NOT NULL,
   created_at TEXT NOT NULL
 );
-
 CREATE TABLE IF NOT EXISTS memory_drafts (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   plant_id TEXT NOT NULL REFERENCES plants(id) ON DELETE CASCADE,
@@ -86,7 +84,6 @@ CREATE TABLE IF NOT EXISTS memory_drafts (
   consumed_at TEXT,
   created_at TEXT NOT NULL
 );
-
 CREATE TABLE IF NOT EXISTS memory_consolidation_state (
   plant_id TEXT PRIMARY KEY REFERENCES plants(id) ON DELETE CASCADE,
   active INTEGER NOT NULL DEFAULT 0,
@@ -95,7 +92,6 @@ CREATE TABLE IF NOT EXISTS memory_consolidation_state (
   last_error TEXT NOT NULL DEFAULT '',
   updated_at TEXT NOT NULL
 );
-
 CREATE TABLE IF NOT EXISTS background_jobs (
   id TEXT PRIMARY KEY,
   type TEXT NOT NULL,
@@ -111,7 +107,6 @@ CREATE TABLE IF NOT EXISTS background_jobs (
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
-
 CREATE TABLE IF NOT EXISTS sync_events (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   type TEXT NOT NULL,
@@ -248,6 +243,10 @@ CREATE TABLE IF NOT EXISTS plant_intentions (
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS plant_status_tags (
+  plant_id TEXT PRIMARY KEY REFERENCES plants(id) ON DELETE CASCADE, tags_json TEXT NOT NULL,
+  source_turn INTEGER, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
 
 CREATE TABLE IF NOT EXISTS llm_usage_logs (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
