@@ -3,6 +3,7 @@ import type { AuthApiKeyInfo } from "@dyn/shared";
 import { Icon } from "@/components/UI";
 import { authApi } from "@/lib/authApi";
 import type { BackendConnection } from "@/lib/connection";
+import { AccountApiKeyRotateDialog } from "./AccountApiKeyRotateDialog";
 
 interface AccountApiKeyPanelProps {
   connection: BackendConnection;
@@ -15,6 +16,7 @@ export function AccountApiKeyPanel({ connection, onError }: AccountApiKeyPanelPr
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [confirmingRotate, setConfirmingRotate] = useState(false);
 
   const loadApiKey = async () => {
     setLoading(true);
@@ -51,16 +53,16 @@ export function AccountApiKeyPanel({ connection, onError }: AccountApiKeyPanelPr
     }
   };
 
-  const rotateApiKey = async () => {
-    if (busy) return;
-    const ok = window.confirm("轮换后旧的 API 调用密钥会立即失效，继续吗？");
-    if (!ok) return;
+  const rotateApiKey = async (): Promise<boolean> => {
+    if (busy) return false;
     setBusy(true);
     onError("");
     try {
       saveApiKeyResult(await authApi.rotateApiKey(connection.baseUrl, connection.token));
+      return true;
     } catch (caught) {
       onError(caught instanceof Error ? caught.message : "API 调用密钥没有轮换成功。");
+      return false;
     } finally {
       setBusy(false);
     }
@@ -90,9 +92,9 @@ export function AccountApiKeyPanel({ connection, onError }: AccountApiKeyPanelPr
         </div>
         <button
           type="button"
-          onClick={apiKey ? rotateApiKey : generateApiKey}
+          onClick={apiKey ? () => setConfirmingRotate(true) : generateApiKey}
           disabled={busy || loading}
-          className="inline-flex shrink-0 items-center gap-xs rounded-full bg-primary-container/70 px-md py-xs text-label-md font-label-md text-on-primary-container transition-all duration-200 hover:bg-primary-container active:scale-95 disabled:opacity-50"
+          className="inline-flex shrink-0 items-center gap-xs rounded-full border border-primary-fixed-dim/30 bg-primary-fixed px-md py-xs text-label-md font-label-md text-on-primary-fixed transition-all duration-200 hover:border-primary-fixed-dim/60 hover:bg-primary-fixed-dim active:scale-95 disabled:opacity-50"
         >
           <Icon
             name={busy || loading ? "progress_activity" : "key"}
@@ -101,6 +103,19 @@ export function AccountApiKeyPanel({ connection, onError }: AccountApiKeyPanelPr
           {apiKey ? "轮换密钥" : "生成密钥"}
         </button>
       </div>
+      {confirmingRotate && apiKey ? (
+        <AccountApiKeyRotateDialog
+          preview={apiKey.preview}
+          busy={busy}
+          onConfirm={async () => {
+            const rotated = await rotateApiKey();
+            if (rotated) setConfirmingRotate(false);
+          }}
+          onClose={() => {
+            if (!busy) setConfirmingRotate(false);
+          }}
+        />
+      ) : null}
       <div className="flex min-w-0 items-center justify-between gap-sm rounded-sm border border-hairline bg-surface-container-low/40 px-sm py-xs">
         <div className="flex min-w-0 flex-col gap-[2px]">
           <span className="truncate select-all font-mono text-[13px] text-on-surface">

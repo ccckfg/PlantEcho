@@ -36,7 +36,12 @@ export function AccountSessionRow({
             >
               {label}
             </p>
-            {session.current ? <Chip tone="primary" icon="verified">当前会话</Chip> : null}
+            {session.current ? (
+              <span className="inline-flex min-h-[1.75rem] items-center gap-xs rounded-full border border-primary-fixed-dim/50 bg-primary-fixed/90 px-sm py-xs text-label-sm font-label-sm leading-none text-on-primary-fixed transition-all duration-250">
+                <Icon name="verified" className="text-[14px]" />
+                当前会话
+              </span>
+            ) : null}
             {revoked ? <Chip tone="muted" icon="schedule">已退出</Chip> : null}
           </div>
           <p className="mt-xs flex flex-wrap items-center gap-x-xs gap-y-[2px] text-label-md font-normal text-on-surface-variant sm:text-body-sm">

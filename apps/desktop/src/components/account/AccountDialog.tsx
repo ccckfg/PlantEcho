@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import type { AuthLoginSession } from "@dyn/shared";
-import { Chip, Icon } from "@/components/UI";
+import { Icon } from "@/components/UI";
 import { authApi } from "@/lib/authApi";
 import type { BackendConnection } from "@/lib/connection";
 import { AccountApiKeyPanel } from "./AccountApiKeyPanel";
@@ -130,9 +130,16 @@ export function AccountDialog({
                     <p className="truncate text-title-sm font-title-md text-on-surface sm:text-title-md">
                       {displayName}
                     </p>
-                    <Chip tone={isAdmin ? "primary" : "secondary"} icon={isAdmin ? "verified" : "person"}>
+                    <span
+                      className={`inline-flex min-h-[1.75rem] items-center gap-xs rounded-full border px-sm py-xs text-label-sm font-label-sm leading-none transition-all duration-250 ${
+                        isAdmin
+                          ? "border-primary-fixed-dim/50 bg-primary-fixed/90 text-on-primary-fixed"
+                          : "border-secondary-fixed-dim/50 bg-secondary-fixed/90 text-on-secondary-fixed-variant"
+                      }`}
+                    >
+                      <Icon name={isAdmin ? "verified" : "person"} className="text-[14px]" />
                       {isAdmin ? "管理员" : "成员"}
-                    </Chip>
+                    </span>
                   </div>
                   <p className="mt-xs max-w-full select-all truncate rounded bg-surface-container-low/60 px-sm py-[2px] font-mono text-[12px] text-on-surface-variant sm:w-fit sm:text-body-sm">
                     @{connection.user.username}
@@ -179,7 +186,7 @@ export function AccountDialog({
             <div className="flex items-center justify-between gap-md">
               <h3 className="flex items-center gap-xs text-title-md font-title-md text-on-surface">
                 登录会话
-                <span className="h-2 w-2 animate-pulse rounded-full bg-primary/70" />
+                <span className="h-2 w-2 animate-pulse rounded-full bg-primary/40" />
               </h3>
               <button
                 type="button"
