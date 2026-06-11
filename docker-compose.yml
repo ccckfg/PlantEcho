@@ -1,7 +1,6 @@
 services:
   dyn-postgres:
     image: pgvector/pgvector:pg17
-    container_name: dyn-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-dyn}
@@ -10,35 +9,20 @@ services:
       TZ: ${TZ:-Asia/Shanghai}
     volumes:
       - dyn-postgres-data:/var/lib/postgresql/data
-    ports:
-      - "${POSTGRES_PUBLIC_HOST:-127.0.0.1}:${POSTGRES_PUBLIC_PORT:-5432}:5432"
     healthcheck:
-      test:
-        - CMD-SHELL
-        - pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 20s
 
   dyn-server:
     image: ccckfg/dyn:latest
-    pull_policy: always
-    container_name: dyn-server
     restart: unless-stopped
     init: true
     env_file:
       - ./dyn.env
     environment:
-      NODE_ENV: production
-      TZ: ${TZ:-Asia/Shanghai}
-      HOST: 0.0.0.0
-      PORT: 8787
-      DYN_DATA_DIR: /app/data
-      DB_PROVIDER: ${DB_PROVIDER:-postgres}
       DATABASE_URL: postgresql://${POSTGRES_USER:-dyn}:${POSTGRES_PASSWORD:-dyn-local-password}@dyn-postgres:5432/${POSTGRES_DB:-dyn}
-      MQTT_HOST: 0.0.0.0
-      MQTT_PORT: 1883
     ports:
       - "${HTTP_PUBLIC_PORT:-8787}:8787"
       - "${MQTT_PUBLIC_PORT:-1883}:1883"
@@ -48,16 +32,10 @@ services:
       dyn-postgres:
         condition: service_healthy
     healthcheck:
-      test:
-        - CMD
-        - node
-        - -e
-        - fetch('http://127.0.0.1:8787/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8787/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 20s
-    stop_grace_period: 20s
 
 volumes:
   dyn-postgres-data:

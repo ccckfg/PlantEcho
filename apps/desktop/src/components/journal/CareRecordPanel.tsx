@@ -14,6 +14,7 @@ import { Card, Empty, Icon } from "@/components/UI";
 import { PlantSwitcher } from "@/components/plants/PlantSwitcher";
 import { CareRecordItem } from "./CareRecordItem";
 import { CareRecordPanelHeader } from "./CareRecordPanelHeader";
+import { DateTimeField } from "./DateTimeField";
 import {
   CARE_RECORD_FETCH_LIMIT,
   dateTimeLocalToIso,
@@ -167,14 +168,12 @@ export function CareRecordPanel({
             disabled={saving}
             className="flex-1 min-w-0 rounded-full bg-surface-container-lowest ring-1 ring-surface-container-highest/50 px-md py-sm text-body-sm md:text-body-md text-on-surface placeholder:text-on-surface-variant/55 outline-none transition-all duration-200 focus:ring-2 focus:ring-primary/40"
           />
-          <input
-            type="datetime-local"
+          <DateTimeField
             value={performedAt}
             max={toDateTimeLocalValue()}
-            onChange={(event) => setPerformedAt(event.target.value)}
+            onChange={setPerformedAt}
             disabled={saving}
-            aria-label="养护发生时间"
-            className="min-w-0 rounded-full bg-surface-container-lowest ring-1 ring-surface-container-highest/50 px-md py-sm text-body-sm text-on-surface outline-none transition-all duration-200 focus:ring-2 focus:ring-primary/40"
+            label="养护发生时间"
           />
           <button
             type="button"
@@ -204,12 +203,12 @@ export function CareRecordPanel({
       ) : (
         <div className="flex flex-col gap-sm">
           <div className="flex flex-col gap-sm rounded-md bg-surface-container-low/55 p-sm ring-1 ring-surface-container-highest/30 md:flex-row md:items-center">
-            <input
-              type="datetime-local"
+            <DateTimeField
               value={jumpAt}
-              onChange={(event) => setJumpAt(event.target.value)}
-              aria-label="跳转到养护记录时间"
-              className="min-w-0 flex-1 rounded-full bg-surface-container-lowest ring-1 ring-surface-container-highest/50 px-md py-sm text-body-sm text-on-surface outline-none transition-all duration-200 focus:ring-2 focus:ring-primary/40"
+              onChange={setJumpAt}
+              label="跳转到养护记录时间"
+              placeholder="选择要查看的时间"
+              allowClear
             />
             <div className="flex shrink-0 items-center gap-xs">
               <button
