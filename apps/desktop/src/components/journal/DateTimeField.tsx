@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { Icon } from "@/components/UI";
 import { toDateTimeLocalValue } from "./careRecordTime";
 
@@ -114,18 +115,20 @@ export function DateTimeField({
         <Icon name="calendar_month" className="shrink-0 text-[16px] text-secondary" />
       </button>
 
-      {open ? (
+      {open ? createPortal(
         <div
-          className="dialog-backdrop-in fixed inset-0 z-50 flex items-end justify-center bg-on-surface/45 px-sm pb-sm pt-xl backdrop-blur-[2px] md:items-center md:p-md"
+          className="fixed inset-0 z-50 flex items-center justify-center p-md bg-inverse-surface/30 backdrop-blur-sm dialog-backdrop-in"
           role="presentation"
-          onMouseDown={() => setOpen(false)}
         >
+          <div
+            className="absolute inset-0"
+            onClick={() => setOpen(false)}
+          />
           <section
             role="dialog"
             aria-modal="true"
             aria-label={label}
-            className="dialog-pop-in w-full max-w-md rounded-[28px] bg-surface-container-lowest p-md shadow-[0_24px_70px_rgba(18,38,25,0.28)] ring-1 ring-primary/10"
-            onMouseDown={(event) => event.stopPropagation()}
+            className="dialog-pop-in relative z-10 w-full max-w-sm rounded-[28px] bg-surface-container-lowest p-md shadow-modal ring-1 ring-surface-container-highest/60 max-h-[95vh] overflow-y-auto"
           >
             <div className="mb-md flex items-start justify-between gap-md">
               <div>
@@ -220,7 +223,8 @@ export function DateTimeField({
               </div>
             </div>
           </section>
-        </div>
+        </div>,
+        document.body
       ) : null}
     </>
   );

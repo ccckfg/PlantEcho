@@ -1,6 +1,6 @@
 [package]
 name = "plant-echo"
-version = "1.0.6"
+version = "1.0.7"
 description = "PlantEcho desktop client"
 authors = ["DYN"]
 edition = "2021"
