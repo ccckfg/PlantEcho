@@ -1,5 +1,6 @@
 import type { NormalizedDeviceReadingPayload } from "@dyn/shared";
 import { getDb } from "../../db/connection.js";
+import type { DatabaseClient } from "../../db/types.js";
 import { nowIso } from "../../shared/time.js";
 import type { SensorReading } from "./types.js";
 
@@ -37,15 +38,16 @@ export const insertReading = (
   deviceId: string,
   plantId: string,
   payload: NormalizedDeviceReadingPayload
-): SensorReading => {
+): Promise<SensorReading> => {
   const db = getDb();
   const now = nowIso();
-  const result = db
-    .prepare(
+  return db.transaction(async (tx) => {
+    const result = await tx.prepare(
       `INSERT INTO sensor_readings
        (device_id, plant_id, captured_at, soil_raw, soil_percent, air_temp_c,
         air_humidity_percent, light_lux, rssi, battery_mv, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       RETURNING id`
     )
     .run(
       deviceId,
@@ -60,27 +62,33 @@ export const insertReading = (
       payload.batteryMv,
       now
     );
-  db.prepare("UPDATE devices SET last_seen_at = ? WHERE id = ?").run(now, deviceId);
-  return getReading(Number(result.lastInsertRowid))!;
+    await tx.prepare("UPDATE devices SET last_seen_at = ? WHERE id = ?").run(now, deviceId);
+    return (await getReadingWithDb(tx, Number(result.lastInsertRowid)))!;
+  });
 };
 
-export const getReading = (id: number): SensorReading | null => {
-  const row = getDb().prepare("SELECT * FROM sensor_readings WHERE id = ?").get(id) as
-    | ReadingRow
-    | undefined;
+export const getReading = async (id: number): Promise<SensorReading | null> => {
+  return getReadingWithDb(getDb(), id);
+};
+
+const getReadingWithDb = async (
+  db: DatabaseClient,
+  id: number
+): Promise<SensorReading | null> => {
+  const row = await db.prepare("SELECT * FROM sensor_readings WHERE id = ?").get<ReadingRow>(id);
   return row ? toReading(row) : null;
 };
 
-export const getLatestReading = (plantId: string): SensorReading | null => {
-  const row = getDb()
+export const getLatestReading = async (plantId: string): Promise<SensorReading | null> => {
+  const row = await getDb()
     .prepare("SELECT * FROM sensor_readings WHERE plant_id = ? ORDER BY captured_at DESC, id DESC LIMIT 1")
-    .get(plantId) as ReadingRow | undefined;
+    .get<ReadingRow>(plantId);
   return row ? toReading(row) : null;
 };
 
-export const listReadings = (plantId: string, limit = 120): SensorReading[] => {
-  const rows = getDb()
+export const listReadings = async (plantId: string, limit = 120): Promise<SensorReading[]> => {
+  const rows = await getDb()
     .prepare("SELECT * FROM sensor_readings WHERE plant_id = ? ORDER BY captured_at DESC, id DESC LIMIT ?")
-    .all(plantId, limit) as ReadingRow[];
+    .all<ReadingRow>(plantId, limit);
   return rows.map(toReading).reverse();
 };

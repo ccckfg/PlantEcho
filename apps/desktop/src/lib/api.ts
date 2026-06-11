@@ -1,6 +1,8 @@
 import type {
   CareProfile,
   CareProfileSuggestion,
+  CareRecord,
+  CreateCareRecordInput,
   EpisodeMemory,
   MemoryCitation,
   PlantHealthSummary,
@@ -247,6 +249,15 @@ export const api = {
     request<{ memories: MemoryRow[] }>(plantPath(id, "/memories")),
   listUnderstandings: (id: string) =>
     request<{ understandings: UnderstandingRow[] }>(plantPath(id, "/understandings")),
+  listCareRecords: (id: string, limit = 50) =>
+    request<{ records: CareRecord[] }>(
+      plantPath(id, `/care-records?limit=${encodeURIComponent(String(limit))}`)
+    ),
+  createCareRecord: (id: string, input: CreateCareRecordInput) =>
+    request<{ record: CareRecord }>(plantPath(id, "/care-records"), {
+      method: "POST",
+      body: JSON.stringify(input)
+    }),
   listPhotos: (id: string) =>
     request<{ photos: PlantPhoto[] }>(plantPath(id, "/photos")),
   uploadPhoto: (

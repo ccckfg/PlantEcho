@@ -10,16 +10,16 @@ export interface MqttIngestResult {
   deviceId: string;
 }
 
-export const ingestMqttReading = (
+export const ingestMqttReading = async (
   deviceId: string,
   payload: Buffer
-): MqttIngestResult => {
+): Promise<MqttIngestResult> => {
   const parsedJson = JSON.parse(payload.toString("utf8")) as unknown;
   const reading = deviceReadingSchema.parse(parsedJson);
-  if (!isKnownDevice(deviceId)) {
-    registerPendingDevice(deviceId, reading);
+  if (!await isKnownDevice(deviceId)) {
+    await registerPendingDevice(deviceId, reading);
     return { status: "pending", deviceId };
   }
-  recordDeviceReading(deviceId, reading);
+  await recordDeviceReading(deviceId, reading);
   return { status: "recorded", deviceId };
 };

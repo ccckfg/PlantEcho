@@ -39,66 +39,74 @@ export const createMqttBroker = (logger: MqttLogger) => {
     Array.from(clientAuth.values())
       .some((state) => state.deviceId === deviceId && state.configSubscribed);
 
-  const attemptPendingConfigDelivery = (deviceId: string): boolean => {
+  const attemptPendingConfigDelivery = async (deviceId: string): Promise<boolean> => {
     if (!hasConfigSubscriber(deviceId)) return false;
     return deliverPendingDeviceConfig(deviceId);
   };
 
-  const retryPendingConfigsForSubscribers = (): void => {
-    const deviceIds = new Set(
-      Array.from(clientAuth.values())
-        .filter((state) => state.configSubscribed && hasPendingDeviceCredentials(state.deviceId))
-        .map((state) => state.deviceId)
-    );
-    for (const deviceId of deviceIds) attemptPendingConfigDelivery(deviceId);
+  const retryPendingConfigsForSubscribers = async (): Promise<void> => {
+    const deviceIds = new Set<string>();
+    for (const state of clientAuth.values()) {
+      if (state.configSubscribed && await hasPendingDeviceCredentials(state.deviceId)) {
+        deviceIds.add(state.deviceId);
+      }
+    }
+    for (const deviceId of deviceIds) await attemptPendingConfigDelivery(deviceId);
   };
 
   broker.authenticate = (client, username, password, callback) => {
-    const deviceId = username?.toString();
-    if (!deviceId) {
-      logger.warn(`MQTT auth rejected: missing username for client ${client.id}`);
+    void (async () => {
+      const deviceId = username?.toString();
+      if (!deviceId) {
+        logger.warn(`MQTT auth rejected: missing username for client ${client.id}`);
+        callback(null, false);
+        return;
+      }
+      if (!await isKnownDevice(deviceId)) {
+        clientAuth.set(client.id, { deviceId, mode: "pending", configSubscribed: false });
+        logger.info(`MQTT pending client connected: ${deviceId}`);
+        callback(null, true);
+        return;
+      }
+      const authorized = await isAuthorizedDevice(deviceId, passwordText(password));
+      const passwordState = password?.length ? "present" : "missing";
+      if (authorized) {
+        clientAuth.set(client.id, { deviceId, mode: "claimed", configSubscribed: false });
+        await confirmDeviceCredentialsDelivered(deviceId);
+        logger.info(`MQTT claimed client connected: ${deviceId} (password=${passwordState})`);
+        callback(null, true);
+        return;
+      }
+      if (!password?.length || await hasPendingDeviceCredentials(deviceId)) {
+        clientAuth.set(client.id, { deviceId, mode: "config", configSubscribed: false });
+        logger.info(`MQTT claimed client config-only: ${deviceId} (password=${passwordState})`);
+        callback(null, true);
+        return;
+      }
+      logger.info(`MQTT claimed client rejected: ${deviceId} (password=${passwordState})`);
       callback(null, false);
-      return;
-    }
-    if (!isKnownDevice(deviceId)) {
-      clientAuth.set(client.id, { deviceId, mode: "pending", configSubscribed: false });
-      logger.info(`MQTT pending client connected: ${deviceId}`);
-      callback(null, true);
-      return;
-    }
-    const authorized = isAuthorizedDevice(deviceId, passwordText(password));
-    const passwordState = password?.length ? "present" : "missing";
-    if (authorized) {
-      clientAuth.set(client.id, { deviceId, mode: "claimed", configSubscribed: false });
-      confirmDeviceCredentialsDelivered(deviceId);
-      logger.info(`MQTT claimed client connected: ${deviceId} (password=${passwordState})`);
-      callback(null, true);
-      return;
-    }
-    if (!password?.length || hasPendingDeviceCredentials(deviceId)) {
-      clientAuth.set(client.id, { deviceId, mode: "config", configSubscribed: false });
-      logger.info(`MQTT claimed client config-only: ${deviceId} (password=${passwordState})`);
-      callback(null, true);
-      return;
-    }
-    logger.info(`MQTT claimed client rejected: ${deviceId} (password=${passwordState})`);
-    callback(null, false);
+    })().catch((error) => {
+      logger.warn(`MQTT auth error: ${(error as Error).message}`);
+      callback(null, false);
+    });
   };
 
   broker.authorizePublish = (client, packet, callback) => {
-    const topicDeviceId = deviceIdFromReadingsTopic(packet.topic);
-    const auth = client ? clientAuth.get(client.id) : undefined;
-    const stillAllowed = topicDeviceId && auth?.deviceId === topicDeviceId &&
-      (!isKnownDevice(topicDeviceId) || auth.mode === "claimed");
-    if (stillAllowed) {
-      logger.info(`MQTT publish accepted: ${packet.topic}`);
-      callback(null);
-      return;
-    }
-    logger.warn(
-      `MQTT publish rejected: topic=${packet.topic}, client=${auth?.deviceId ?? "unknown"}`
-    );
-    callback(new Error("MQTT client cannot publish to this topic"));
+    void (async () => {
+      const topicDeviceId = deviceIdFromReadingsTopic(packet.topic);
+      const auth = client ? clientAuth.get(client.id) : undefined;
+      const stillAllowed = topicDeviceId && auth?.deviceId === topicDeviceId &&
+        (!await isKnownDevice(topicDeviceId) || auth.mode === "claimed");
+      if (stillAllowed) {
+        logger.info(`MQTT publish accepted: ${packet.topic}`);
+        callback(null);
+        return;
+      }
+      logger.warn(
+        `MQTT publish rejected: topic=${packet.topic}, client=${auth?.deviceId ?? "unknown"}`
+      );
+      callback(new Error("MQTT client cannot publish to this topic"));
+    })().catch((error) => callback(error as Error));
   };
 
   broker.authorizeSubscribe = (client, subscription, callback) => {
@@ -107,7 +115,7 @@ export const createMqttBroker = (logger: MqttLogger) => {
     if (topicDeviceId && auth?.deviceId === topicDeviceId) {
       auth.configSubscribed = true;
       callback(null, subscription);
-      setTimeout(() => attemptPendingConfigDelivery(topicDeviceId), 0);
+      setTimeout(() => void attemptPendingConfigDelivery(topicDeviceId), 0);
       return;
     }
     logger.warn(
@@ -128,8 +136,11 @@ export const createMqttBroker = (logger: MqttLogger) => {
       const payload = Buffer.isBuffer(packet.payload)
         ? packet.payload
         : Buffer.from(String(packet.payload));
-      const result = ingestMqttReading(deviceId, payload);
+      void ingestMqttReading(deviceId, payload).then((result) => {
       logger.info(`MQTT reading ${result.status}: ${deviceId}`);
+      }).catch((error) => {
+        logger.warn(`MQTT reading rejected for ${deviceId}: ${(error as Error).message}`);
+      });
     } catch (error) {
       logger.warn(`MQTT reading rejected for ${deviceId}: ${(error as Error).message}`);
     }
@@ -166,7 +177,7 @@ export const createMqttBroker = (logger: MqttLogger) => {
         return true;
       });
       retryTimer = setInterval(
-        retryPendingConfigsForSubscribers,
+        () => void retryPendingConfigsForSubscribers(),
         deviceConfigDeliveryConfig.retryIntervalMs
       );
       retryTimer.unref?.();

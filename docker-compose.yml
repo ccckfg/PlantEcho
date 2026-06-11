@@ -1,4 +1,26 @@
 services:
+  dyn-postgres:
+    image: pgvector/pgvector:pg17
+    container_name: dyn-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-dyn}
+      POSTGRES_USER: ${POSTGRES_USER:-dyn}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dyn-local-password}
+      TZ: ${TZ:-Asia/Shanghai}
+    volumes:
+      - dyn-postgres-data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PUBLIC_HOST:-127.0.0.1}:${POSTGRES_PUBLIC_PORT:-5432}:5432"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
   dyn-server:
     image: ccckfg/dyn:latest
     pull_policy: always
@@ -13,6 +35,8 @@ services:
       HOST: 0.0.0.0
       PORT: 8787
       DYN_DATA_DIR: /app/data
+      DB_PROVIDER: ${DB_PROVIDER:-postgres}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-dyn}:${POSTGRES_PASSWORD:-dyn-local-password}@dyn-postgres:5432/${POSTGRES_DB:-dyn}
       MQTT_HOST: 0.0.0.0
       MQTT_PORT: 1883
     ports:
@@ -20,6 +44,9 @@ services:
       - "${MQTT_PUBLIC_PORT:-1883}:1883"
     volumes:
       - ${DYN_DATA_PATH:-./data}:/app/data
+    depends_on:
+      dyn-postgres:
+        condition: service_healthy
     healthcheck:
       test:
         - CMD
@@ -31,3 +58,6 @@ services:
       retries: 3
       start_period: 20s
     stop_grace_period: 20s
+
+volumes:
+  dyn-postgres-data:

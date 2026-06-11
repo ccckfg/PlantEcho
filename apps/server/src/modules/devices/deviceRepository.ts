@@ -57,47 +57,46 @@ const toPendingDevice = (row: PendingDeviceRow): PendingDevice => ({
   claimStatus: row.claim_status
 });
 
-export const getDevice = (deviceId: string, includeDeleted = false): DeviceRecord | null => {
-  const row = getDb().prepare("SELECT * FROM devices WHERE id = ?").get(deviceId) as
-    | DeviceRow
-    | undefined;
+export const getDevice = async (
+  deviceId: string,
+  includeDeleted = false
+): Promise<DeviceRecord | null> => {
+  const row = await getDb().prepare("SELECT * FROM devices WHERE id = ?").get<DeviceRow>(deviceId);
   if (!row || (!includeDeleted && row.status === "deleted")) return null;
   return toDevice(row);
 };
 
-export const listDevices = (): DeviceRecord[] => {
-  const rows = getDb()
+export const listDevices = async (): Promise<DeviceRecord[]> => {
+  const rows = await getDb()
     .prepare(
       `SELECT * FROM devices
        WHERE status <> 'deleted'
        ORDER BY COALESCE(last_seen_at, created_at) DESC, id ASC`
     )
-    .all() as DeviceRow[];
+    .all<DeviceRow>();
   return rows.map(toDevice);
 };
 
-export const getDeviceAuthHash = (deviceId: string): string | null | undefined => {
-  const row = getDb().prepare("SELECT api_key_hash, status FROM devices WHERE id = ?").get(deviceId) as
-    | { api_key_hash: string | null; status: DeviceStatus }
-    | undefined;
+export const getDeviceAuthHash = async (deviceId: string): Promise<string | null | undefined> => {
+  const row = await getDb()
+    .prepare("SELECT api_key_hash, status FROM devices WHERE id = ?")
+    .get<{ api_key_hash: string | null; status: DeviceStatus }>(deviceId);
   return row?.status === "active" ? row.api_key_hash : undefined;
 };
 
-export const getDevicePlantId = (deviceId: string): string | null => {
-  const row = getDb().prepare("SELECT plant_id FROM devices WHERE id = ?").get(deviceId) as
-    | { plant_id: string }
-    | undefined;
+export const getDevicePlantId = async (deviceId: string): Promise<string | null> => {
+  const row = await getDb().prepare("SELECT plant_id FROM devices WHERE id = ?").get<{ plant_id: string }>(deviceId);
   return row?.plant_id ?? null;
 };
 
-export const upsertPendingDevice = (
+export const upsertPendingDevice = async (
   deviceId: string,
   payload: Record<string, unknown>,
   rssi: number | null,
   userId: string | null
-): PendingDevice => {
+): Promise<PendingDevice> => {
   const now = nowIso();
-  getDb()
+  await getDb()
     .prepare(
       `INSERT INTO pending_devices
        (id, user_id, first_seen_at, last_seen_at, latest_payload_json, rssi, claim_status)
@@ -113,7 +112,7 @@ export const upsertPendingDevice = (
          END`
     )
     .run(deviceId, userId, now, now, JSON.stringify(payload), rssi);
-  return getPendingDevice(deviceId)!;
+  return (await getPendingDevice(deviceId))!;
 };
 
 const normalizeUserIdentifiers = (
@@ -124,10 +123,10 @@ const normalizeUserIdentifiers = (
   return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
 };
 
-export const getPendingDevice = (
+export const getPendingDevice = async (
   deviceId: string,
   userIdentifiers: string | readonly string[] | null = null
-): PendingDevice | null => {
+): Promise<PendingDevice | null> => {
   const identifiers = normalizeUserIdentifiers(userIdentifiers);
   const placeholders = identifiers.map(() => "?").join(", ");
   const query = identifiers.length
@@ -135,13 +134,13 @@ export const getPendingDevice = (
        WHERE id = ? AND (user_id IS NULL OR user_id IN (${placeholders}))`
     : "SELECT * FROM pending_devices WHERE id = ?";
   const args = identifiers.length ? [deviceId, ...identifiers] : [deviceId];
-  const row = getDb().prepare(query).get(...args) as PendingDeviceRow | undefined;
+  const row = await getDb().prepare(query).get<PendingDeviceRow>(...args);
   return row ? toPendingDevice(row) : null;
 };
 
-export const listPendingDevices = (
+export const listPendingDevices = async (
   userIdentifiers: string | readonly string[] | null = null
-): PendingDevice[] => {
+): Promise<PendingDevice[]> => {
   const identifiers = normalizeUserIdentifiers(userIdentifiers);
   const placeholders = identifiers.map(() => "?").join(", ");
   const query = identifiers.length
@@ -150,20 +149,20 @@ export const listPendingDevices = (
        ORDER BY last_seen_at DESC`
     : "SELECT * FROM pending_devices WHERE claim_status = 'pending' ORDER BY last_seen_at DESC";
   const rows = identifiers.length
-    ? getDb().prepare(query).all(...identifiers)
-    : getDb().prepare(query).all();
-  return (rows as PendingDeviceRow[]).map(toPendingDevice);
+    ? await getDb().prepare(query).all<PendingDeviceRow>(...identifiers)
+    : await getDb().prepare(query).all<PendingDeviceRow>();
+  return rows.map(toPendingDevice);
 };
 
-export const insertClaimedDevice = (
+export const insertClaimedDevice = async (
   deviceId: string,
   plantId: string,
   name: string,
   apiKeyHash: string
-): DeviceRecord => {
+): Promise<DeviceRecord> => {
   const now = nowIso();
-  getDb()
-    .prepare(
+  await getDb().transaction(async (db) => {
+    await db.prepare(
       `INSERT INTO devices (id, plant_id, name, api_key_hash, last_seen_at, created_at)
        VALUES (?, ?, ?, ?, NULL, ?)
        ON CONFLICT(id) DO UPDATE SET
@@ -175,26 +174,28 @@ export const insertClaimedDevice = (
          deleted_at = NULL`
     )
     .run(deviceId, plantId, name, apiKeyHash, now);
-  markPendingDevice(deviceId, "claimed");
-  return getDevice(deviceId)!;
+    await db.prepare("UPDATE pending_devices SET claim_status = ? WHERE id = ?")
+      .run("claimed", deviceId);
+  });
+  return (await getDevice(deviceId))!;
 };
 
-export const updateDeviceApiKeyHash = (
+export const updateDeviceApiKeyHash = async (
   deviceId: string,
   apiKeyHash: string
-): DeviceRecord | null => {
-  getDb()
+): Promise<DeviceRecord | null> => {
+  await getDb()
     .prepare("UPDATE devices SET api_key_hash = ? WHERE id = ?")
     .run(apiKeyHash, deviceId);
   return getDevice(deviceId);
 };
 
-export const updateDeviceStatus = (
+export const updateDeviceStatus = async (
   deviceId: string,
   status: Exclude<DeviceStatus, "deleted">
-): DeviceRecord | null => {
+): Promise<DeviceRecord | null> => {
   const now = nowIso();
-  getDb()
+  await getDb()
     .prepare(
       `UPDATE devices SET
          status = ?,
@@ -206,9 +207,9 @@ export const updateDeviceStatus = (
   return getDevice(deviceId);
 };
 
-export const softDeleteDevice = (deviceId: string): DeviceRecord | null => {
+export const softDeleteDevice = async (deviceId: string): Promise<DeviceRecord | null> => {
   const now = nowIso();
-  getDb()
+  await getDb()
     .prepare(
       `UPDATE devices SET status = 'deleted', deleted_at = ?, disabled_at = NULL
        WHERE id = ? AND status <> 'deleted'`
@@ -217,11 +218,11 @@ export const softDeleteDevice = (deviceId: string): DeviceRecord | null => {
   return getDevice(deviceId, true);
 };
 
-export const markPendingDevice = (
+export const markPendingDevice = async (
   deviceId: string,
   status: PendingDevice["claimStatus"]
-): void => {
-  getDb()
+): Promise<void> => {
+  await getDb()
     .prepare("UPDATE pending_devices SET claim_status = ? WHERE id = ?")
     .run(status, deviceId);
 };

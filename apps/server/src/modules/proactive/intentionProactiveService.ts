@@ -42,15 +42,15 @@ export const validIntentionDecision = (
 
 export const considerOneIntention = async (plantId: string): Promise<void> => {
   if (!proactiveConfig.enabled) return;
-  const intention = chooseIntentionForConsideration(plantId);
+  const intention = await chooseIntentionForConsideration(plantId);
   if (!intention) return;
   if (!proactiveConfig.llmEnabled || !isLlmConfigured({ phase: llmPhases.proactiveIntention })) return;
-  const plant = getPlant(plantId);
+  const plant = await getPlant(plantId);
   const now = new Date();
-  const lastUserMessage = latestMessageByRole(plantId, "user");
+  const lastUserMessage = await latestMessageByRole(plantId, "user");
   const lastUserAt = lastUserMessage ? new Date(lastUserMessage.createdAt).getTime() : null;
   const sinceLastUserMs = lastUserAt === null ? null : Math.max(0, now.getTime() - lastUserAt);
-  const history = recentMessages(plantId, 16)
+  const history = (await recentMessages(plantId, 16))
     .map((message) => `${message.role}: ${message.content}`)
     .join("\n");
   const decision = validIntentionDecision(await completeJson<IntentionDecision>([
@@ -79,8 +79,8 @@ export const considerOneIntention = async (plantId: string): Promise<void> => {
           name: plant?.name ?? plantId,
           backgroundInfo: plant?.backgroundInfo || ""
         },
-        inner: getSafeInnerState(plantId),
-        relationship: getSafeRelationshipState(plantId),
+        inner: await getSafeInnerState(plantId),
+        relationship: await getSafeRelationshipState(plantId),
         intention,
         recentHistory: history
       })
@@ -88,33 +88,33 @@ export const considerOneIntention = async (plantId: string): Promise<void> => {
   ], { temperature: 0.4, phase: llmPhases.proactiveIntention }).catch(() => null));
 
   if (!decision) {
-    deferIntentionAfterFailure(
+    await deferIntentionAfterFailure(
       intention.id,
       proactiveConfig.intentionFailureRetryBaseMs,
       proactiveConfig.intentionFailureRetryMaxMs
     );
     return;
   }
-  const considered = noteIntentionConsidered(intention.id);
+  const considered = await noteIntentionConsidered(intention.id);
   if (!considered) return;
   const action = decision.action!;
   if (action === "complete" || action === "dismiss") {
-    updateIntentionStatus(intention.id, action === "complete" ? "completed" : "dismissed");
+    await updateIntentionStatus(intention.id, action === "complete" ? "completed" : "dismissed");
     return;
   }
   if (action !== "speak") {
     if (considered.consideredCount >= proactiveConfig.intentionMaxConsiderations) {
-      updateIntentionStatus(intention.id, "dismissed");
+      await updateIntentionStatus(intention.id, "dismissed");
     }
     return;
   }
   const content = cleanMessage(decision?.message);
   if (!content) return;
-  const turn = nextTurn(plantId);
-  const message = addMessage(plantId, turn, "assistant", content);
-  rememberProactiveMessage(plantId, turn, content, "proactive:intention");
-  updateIntentionStatus(intention.id, "completed");
-  publishSyncEvent({
+  const turn = await nextTurn(plantId);
+  const message = await addMessage(plantId, turn, "assistant", content);
+  await rememberProactiveMessage(plantId, turn, content, "proactive:intention");
+  await updateIntentionStatus(intention.id, "completed");
+  await publishSyncEvent({
     type: "messages.changed",
     plantId,
     payload: { turn, messageId: message.id, proactive: true, source: "intention" }

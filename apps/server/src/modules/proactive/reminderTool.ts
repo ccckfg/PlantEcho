@@ -91,12 +91,12 @@ const repairToolCalls = async (
   }
 };
 
-const executeCreateReminder = (
+const executeCreateReminder = async (
   plantId: string,
   args: ReminderToolArgs,
   sourceMessageId: number | null,
   now: Date
-): ProactiveReminder | null => {
+): Promise<ProactiveReminder | null> => {
   const plan = validToolReminder(args, now);
   if (!plan) {
     console.warn("[chat-tools] rejected create_reminder: invalid arguments");
@@ -120,7 +120,7 @@ export const executeChatToolCalls = async (
       console.warn(`[chat-tools] unknown tool name: ${call.name}`);
       continue;
     }
-    const reminder = executeCreateReminder(
+    const reminder = await executeCreateReminder(
       input.plantId,
       call.arguments,
       input.sourceMessageId,

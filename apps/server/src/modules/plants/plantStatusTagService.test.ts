@@ -13,8 +13,8 @@ test("status tags use online/offline primary and no rule fallback on LLM failure
   const { createPlant } = await import("./plantRepository.js");
   const { getPlantStatusTags } = await import("./plantStatusTagService.js");
 
-  migrate();
-  const plant = createPlant({ name: "标签测试", species: "茉莉" });
+  await migrate();
+  const plant = await createPlant({ name: "标签测试", species: "茉莉" });
   try {
     globalThis.fetch = (async () =>
       new Response(JSON.stringify({
@@ -28,7 +28,7 @@ test("status tags use online/offline primary and no rule fallback on LLM failure
     assert.equal(generated.secondary.source, "llm");
 
     const oldUpdatedAt = new Date(Date.now() - 9 * 60 * 60 * 1000).toISOString();
-    getDb()
+    await getDb()
       .prepare("UPDATE plant_status_tags SET updated_at = ? WHERE plant_id = ?")
       .run(oldUpdatedAt, plant.id);
     globalThis.fetch = (async () =>
@@ -40,7 +40,7 @@ test("status tags use online/offline primary and no rule fallback on LLM failure
     assert.equal(failedRefresh.secondary.source, "none");
   } finally {
     globalThis.fetch = originalFetch;
-    getDb().prepare("DELETE FROM plants WHERE id = ?").run(plant.id);
-    closeDb();
+    await getDb().prepare("DELETE FROM plants WHERE id = ?").run(plant.id);
+    await closeDb();
   }
 });

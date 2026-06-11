@@ -21,11 +21,11 @@ const quietMsBySource = (sourceType: PlantIntention["sourceType"]): number => ({
   understanding: intentionConfig.understandingQuietMs
 })[sourceType];
 
-export const createIntentionFromInner = (
+export const createIntentionFromInner = async (
   plantId: string,
   turn: number,
   patch: InnerPatch
-): PlantIntention | null => {
+): Promise<PlantIntention | null> => {
   const safePatch = sanitizeInnerPatch(patch, {
     mood: stateConfig.moodMaxChars,
     text: stateConfig.innerTextMaxChars
@@ -44,7 +44,7 @@ export const createIntentionFromInner = (
   });
 };
 
-export const createIntentionFromEpisode = (memory: EpisodeMemory): PlantIntention | null => {
+export const createIntentionFromEpisode = async (memory: EpisodeMemory): Promise<PlantIntention | null> => {
   if (memory.importance < 4 || memory.sourceType !== "llm:episode") return null;
   return createIntention({
     plantId: memory.plantId,
@@ -58,11 +58,11 @@ export const createIntentionFromEpisode = (memory: EpisodeMemory): PlantIntentio
   });
 };
 
-export const createIntentionFromUserMessage = (
+export const createIntentionFromUserMessage = async (
   plantId: string,
   turn: number,
   message: string
-): PlantIntention | null => {
+): Promise<PlantIntention | null> => {
   const match = message.match(/(?:下次|以后|改天|回头)(?:再)?(.{2,80})/);
   const content = sanitizeStateText(
     match?.[1]?.replace(/[。！？!?]+$/, "").trim(),
@@ -81,11 +81,11 @@ export const createIntentionFromUserMessage = (
   });
 };
 
-export const createIntentionFromUnderstanding = (
+export const createIntentionFromUnderstanding = async (
   plantId: string,
   sourceId: string,
   summary: string
-): PlantIntention | null => {
+): Promise<PlantIntention | null> => {
   const content = summary.trim();
   if (!content) return null;
   return createIntention({
@@ -100,10 +100,10 @@ export const createIntentionFromUnderstanding = (
   });
 };
 
-export const chooseIntentionForConsideration = (plantId: string): PlantIntention | null => {
+export const chooseIntentionForConsideration = async (plantId: string): Promise<PlantIntention | null> => {
   const now = Date.now();
   const dailyCutoff = Date.now() - proactiveConfig.intentionConsiderationCooldownMs;
-  for (const item of listPendingIntentions(plantId, 10)) {
+  for (const item of await listPendingIntentions(plantId, 10)) {
     const safeContent = item.sourceType === "inner"
       ? sanitizeInnerPatch(
           { thought: item.content },
@@ -111,7 +111,7 @@ export const chooseIntentionForConsideration = (plantId: string): PlantIntention
         ).thought
       : sanitizeStateText(item.content, intentionConfig.contentMaxChars);
     if (!safeContent) {
-      updateIntentionStatus(item.id, "dismissed");
+      await updateIntentionStatus(item.id, "dismissed");
       continue;
     }
     if (

@@ -5,11 +5,11 @@ import { listEpisodeMemories, listUnderstandings } from "./repositories/memoryRe
 export const registerMemoryRoutes = async (app: FastifyInstance): Promise<void> => {
   app.get("/api/v1/plants/:plantId/memories", async (request) => {
     const { plantId } = request.params as { plantId: string };
-    return { memories: listEpisodeMemories(plantId, 100).map(withMilestoneMark) };
+    return { memories: (await listEpisodeMemories(plantId, 100)).map(withMilestoneMark) };
   });
 
   app.get("/api/v1/plants/:plantId/understandings", async (request) => {
     const { plantId } = request.params as { plantId: string };
-    return { understandings: listUnderstandings(plantId) };
+    return { understandings: await listUnderstandings(plantId) };
   });
 };

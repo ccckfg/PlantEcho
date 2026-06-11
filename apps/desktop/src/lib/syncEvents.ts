@@ -10,7 +10,8 @@ export type SyncResource =
   | "memories"
   | "understandings"
   | "photos"
-  | "devices";
+  | "devices"
+  | "care_records";
 
 export interface SyncEvent {
   id: number;

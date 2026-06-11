@@ -23,8 +23,8 @@ test("users can register, login and be managed by an admin", async () => {
   } = await import("./authService.js");
 
   try {
-    migrate();
-    const adminSession = registerUser({
+    await migrate();
+    const adminSession = await registerUser({
       username: "admin_one",
       password: "garden-pass-1",
       displayName: "园丁"
@@ -35,50 +35,50 @@ test("users can register, login and be managed by an admin", async () => {
     assert.equal(adminSession.user.role, "admin");
     assert.ok(adminSession.token);
 
-    const login = loginUser({ username: "admin_one", password: "garden-pass-1" });
+    const login = await loginUser({ username: "admin_one", password: "garden-pass-1" });
     assert.equal(login.user.username, "admin_one");
     assert.ok(login.user.lastLoginAt);
-    const sessions = listAuthSessions();
+    const sessions = await listAuthSessions();
     assert.equal(sessions.length, 2);
     assert.equal(sessions.some((session) => session.userAgent === "node:test"), true);
     assert.equal(sessions.some((session) => session.ipAddress === "127.0.0.1"), true);
-    const ownSessions = listOwnSessions(adminSession.user, sessions[0]?.id);
+    const ownSessions = await listOwnSessions(adminSession.user, sessions[0]?.id);
     assert.equal(ownSessions.length, 2);
     assert.equal(ownSessions.some((session) => session.current), true);
-    const revoked = revokeOwnSession(adminSession.user, ownSessions[0]!.id);
+    const revoked = await revokeOwnSession(adminSession.user, ownSessions[0]!.id);
     assert.ok(revoked.revokedAt);
 
-    const generatedKey = generateOwnApiKey(adminSession.user);
+    const generatedKey = await generateOwnApiKey(adminSession.user);
     assert.match(generatedKey.key, /^dyn_api_/);
-    assert.equal(getOwnApiKey(adminSession.user)?.preview, generatedKey.apiKey.preview);
+    assert.equal((await getOwnApiKey(adminSession.user))?.preview, generatedKey.apiKey.preview);
     assert.equal(
-      getApiKeyAuthByHash(authTokenHash(generatedKey.key))?.user.id,
+      (await getApiKeyAuthByHash(authTokenHash(generatedKey.key)))?.user.id,
       adminSession.user.id
     );
-    const rotatedKey = rotateOwnApiKey(adminSession.user);
+    const rotatedKey = await rotateOwnApiKey(adminSession.user);
     assert.notEqual(rotatedKey.key, generatedKey.key);
-    assert.equal(getApiKeyAuthByHash(authTokenHash(generatedKey.key)), null);
+    assert.equal(await getApiKeyAuthByHash(authTokenHash(generatedKey.key)), null);
     assert.equal(
-      getApiKeyAuthByHash(authTokenHash(rotatedKey.key))?.user.id,
+      (await getApiKeyAuthByHash(authTokenHash(rotatedKey.key)))?.user.id,
       adminSession.user.id
     );
 
-    const created = createManagedUser(adminSession.user, {
+    const created = await createManagedUser(adminSession.user, {
       username: "member_one",
       password: "garden-pass-2",
       displayName: "成员",
       role: "user"
     });
     assert.equal(created.user.role, "user");
-    assert.equal(listManagedUsers(adminSession.user).length, 2);
+    assert.equal((await listManagedUsers(adminSession.user)).length, 2);
 
-    const disabled = updateManagedUser(adminSession.user, created.user.id, { isActive: false });
+    const disabled = await updateManagedUser(adminSession.user, created.user.id, { isActive: false });
     assert.equal(disabled.isActive, false);
-    assert.throws(
+    await assert.rejects(
       () => loginUser({ username: "member_one", password: "garden-pass-2" }),
       /账号或密码/
     );
   } finally {
-    closeDb();
+    await closeDb();
   }
 });

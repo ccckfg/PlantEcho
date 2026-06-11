@@ -40,9 +40,16 @@ const toDelivery = (row: DeviceConfigDeliveryRow): DeviceConfigDelivery => ({
 export const upsertDeviceConfigDelivery = (
   deviceId: string,
   payload: DeviceConfigPayload
-): DeviceConfigDelivery => {
+): Promise<DeviceConfigDelivery> => {
+  return upsertDeviceConfigDeliveryAsync(deviceId, payload);
+};
+
+const upsertDeviceConfigDeliveryAsync = async (
+  deviceId: string,
+  payload: DeviceConfigPayload
+): Promise<DeviceConfigDelivery> => {
   const now = nowIso();
-  getDb()
+  await getDb()
     .prepare(
       `INSERT INTO device_config_deliveries
        (device_id, payload_json, attempts, last_attempted_at, created_at, updated_at)
@@ -54,35 +61,41 @@ export const upsertDeviceConfigDelivery = (
          updated_at = excluded.updated_at`
     )
     .run(deviceId, JSON.stringify(payload), now, now);
-  return getDeviceConfigDelivery(deviceId)!;
+  return (await getDeviceConfigDelivery(deviceId))!;
 };
 
 export const getDeviceConfigDelivery = (
   deviceId: string
-): DeviceConfigDelivery | null => {
-  const row = getDb()
+): Promise<DeviceConfigDelivery | null> => {
+  return getDeviceConfigDeliveryAsync(deviceId);
+};
+
+const getDeviceConfigDeliveryAsync = async (
+  deviceId: string
+): Promise<DeviceConfigDelivery | null> => {
+  const row = await getDb()
     .prepare("SELECT * FROM device_config_deliveries WHERE device_id = ?")
-    .get(deviceId) as DeviceConfigDeliveryRow | undefined;
+    .get<DeviceConfigDeliveryRow>(deviceId);
   return row ? toDelivery(row) : null;
 };
 
-export const hasDeviceConfigDelivery = (deviceId: string): boolean => {
-  const row = getDb()
+export const hasDeviceConfigDelivery = async (deviceId: string): Promise<boolean> => {
+  const row = await getDb()
     .prepare("SELECT 1 FROM device_config_deliveries WHERE device_id = ?")
-    .get(deviceId) as Record<string, unknown> | undefined;
+    .get<Record<string, unknown>>(deviceId);
   return Boolean(row);
 };
 
-export const listDeviceConfigDeliveries = (): DeviceConfigDelivery[] => {
-  const rows = getDb()
+export const listDeviceConfigDeliveries = async (): Promise<DeviceConfigDelivery[]> => {
+  const rows = await getDb()
     .prepare("SELECT * FROM device_config_deliveries ORDER BY updated_at ASC")
-    .all() as DeviceConfigDeliveryRow[];
+    .all<DeviceConfigDeliveryRow>();
   return rows.map(toDelivery);
 };
 
-export const markDeviceConfigDeliveryAttempt = (deviceId: string): void => {
+export const markDeviceConfigDeliveryAttempt = async (deviceId: string): Promise<void> => {
   const now = nowIso();
-  getDb()
+  await getDb()
     .prepare(
       `UPDATE device_config_deliveries SET
          attempts = attempts + 1,
@@ -93,8 +106,8 @@ export const markDeviceConfigDeliveryAttempt = (deviceId: string): void => {
     .run(now, now, deviceId);
 };
 
-export const clearDeviceConfigDelivery = (deviceId: string): void => {
-  getDb()
+export const clearDeviceConfigDelivery = async (deviceId: string): Promise<void> => {
+  await getDb()
     .prepare("DELETE FROM device_config_deliveries WHERE device_id = ?")
     .run(deviceId);
 };

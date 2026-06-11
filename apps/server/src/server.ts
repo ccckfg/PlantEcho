@@ -6,11 +6,10 @@ const app = await buildApp();
 
 const shutdown = async () => {
   await app.close();
-  closeDb();
+  await closeDb();
 };
 
 process.once("SIGINT", shutdown);
 process.once("SIGTERM", shutdown);
 
 await app.listen({ host: env.HOST, port: env.PORT });
-

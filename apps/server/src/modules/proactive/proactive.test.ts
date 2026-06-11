@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import test from "node:test";
 import { env } from "../../config/env.js";
 import { migrate } from "../../db/migrate.js";
-import { getDb } from "../../db/connection.js";
+import { closeDb, getDb } from "../../db/connection.js";
 import { createPlant } from "../plants/plantRepository.js";
 import { insertClaimedDevice } from "../devices/deviceRepository.js";
 import { getPlantReadingState, recordDeviceReading } from "../readings/readingService.js";
@@ -13,17 +13,19 @@ import { runReminderJob } from "./reminderJob.js";
 import { executeChatToolCalls } from "./reminderTool.js";
 import type { BackgroundJob } from "../jobs/jobTypes.js";
 
-const cleanup = (plantId: string): void => {
+const cleanup = async (plantId: string): Promise<void> => {
   const db = getDb();
-  db.prepare("DELETE FROM background_jobs WHERE type = 'proactive.reminder'").run();
-  db.prepare("DELETE FROM plants WHERE id = ?").run(plantId);
+  await db.prepare("DELETE FROM background_jobs WHERE type = 'proactive.reminder'").run();
+  await db.prepare("DELETE FROM background_jobs WHERE payload_json LIKE ?").run(`%${plantId}%`);
+  await db.prepare("DELETE FROM plants WHERE id = ?").run(plantId);
+  await closeDb();
 };
 
-test("sensor readings remain physical state and do not emit proactive messages or drafts", () => {
-  migrate();
-  const plant = createPlant({ name: "测试小绿", species: "绿萝" });
+test("sensor readings remain physical state and do not emit proactive messages or drafts", async () => {
+  await migrate();
+  const plant = await createPlant({ name: "测试小绿", species: "绿萝" });
   const deviceId = `test-proactive-${randomUUID()}`;
-  insertClaimedDevice(deviceId, plant.id, "Test ESP32", "hash");
+  await insertClaimedDevice(deviceId, plant.id, "Test ESP32", "hash");
   try {
     const payload = {
       capturedAt: new Date().toISOString(),
@@ -35,33 +37,33 @@ test("sensor readings remain physical state and do not emit proactive messages o
       rssi: -50,
       batteryMv: null
     };
-    recordDeviceReading(deviceId, payload);
-    recordDeviceReading(deviceId, { ...payload, capturedAt: new Date().toISOString(), soilRaw: 3300 });
-    recordDeviceReading(deviceId, { ...payload, capturedAt: new Date().toISOString(), soilRaw: 3400 });
-    recordDeviceReading(deviceId, { ...payload, capturedAt: new Date().toISOString(), soilRaw: 3500 });
-    const events = getDb()
+    await recordDeviceReading(deviceId, payload);
+    await recordDeviceReading(deviceId, { ...payload, capturedAt: new Date().toISOString(), soilRaw: 3300 });
+    await recordDeviceReading(deviceId, { ...payload, capturedAt: new Date().toISOString(), soilRaw: 3400 });
+    await recordDeviceReading(deviceId, { ...payload, capturedAt: new Date().toISOString(), soilRaw: 3500 });
+    const events = await getDb()
       .prepare("SELECT COUNT(*) AS count FROM proactive_event_log WHERE plant_id = ?")
       .get(plant.id) as { count: number };
-    const messages = getDb()
+    const messages = await getDb()
       .prepare("SELECT COUNT(*) AS count FROM messages WHERE plant_id = ? AND role = 'assistant'")
       .get(plant.id) as { count: number };
-    const drafts = getDb()
+    const drafts = await getDb()
       .prepare("SELECT COUNT(*) AS count FROM memory_drafts WHERE plant_id = ?")
       .get(plant.id) as { count: number };
     assert.equal(events.count, 0);
     assert.equal(messages.count, 0);
     assert.equal(drafts.count, 0);
-    assert.equal(getPlantReadingState(plant.id).health.issues[0]?.code, "soil_low");
+    assert.equal((await getPlantReadingState(plant.id)).health.issues[0]?.code, "soil_low");
   } finally {
-    cleanup(plant.id);
+    await cleanup(plant.id);
   }
 });
 
 test("scheduled reminder job becomes a due reminder message", async () => {
-  migrate();
-  const plant = createPlant({ name: "提醒测试", species: "绿萝" });
+  await migrate();
+  const plant = await createPlant({ name: "提醒测试", species: "绿萝" });
   try {
-    const reminder = createReminder(plant.id, "浇水", new Date(Date.now() + 60_000));
+    const reminder = await createReminder(plant.id, "浇水", new Date(Date.now() + 60_000));
     await runReminderJob({
       id: "test-job",
       type: "proactive.reminder",
@@ -78,24 +80,24 @@ test("scheduled reminder job becomes a due reminder message", async () => {
       updatedAt: reminder.updatedAt
     } as BackgroundJob);
 
-    assert.equal(getReminder(reminder.id)?.status, "sent");
-    const row = getDb()
+    assert.equal((await getReminder(reminder.id))?.status, "sent");
+    const row = await getDb()
       .prepare("SELECT content FROM messages WHERE plant_id = ? ORDER BY id DESC LIMIT 1")
       .get(plant.id) as { content: string };
     assert.match(row.content, /提醒你：浇水/);
-    const draft = getDb()
+    const draft = await getDb()
       .prepare("SELECT text, metadata_json FROM memory_drafts WHERE plant_id = ? ORDER BY id DESC LIMIT 1")
       .get(plant.id) as { text: string; metadata_json: string };
     assert.match(draft.text, /提醒你：浇水/);
     assert.equal(JSON.parse(draft.metadata_json).sourceType, "proactive:reminder.due");
   } finally {
-    cleanup(plant.id);
+    await cleanup(plant.id);
   }
 });
 
 test("custom chat tool call creates a reminder and background job", async () => {
-  migrate();
-  const plant = createPlant({ name: "工具提醒", species: "绿萝" });
+  await migrate();
+  const plant = await createPlant({ name: "工具提醒", species: "绿萝" });
   const due = new Date(Date.now() + 5 * 60_000).toISOString();
   try {
     const parsed = parseChatResponse(
@@ -111,17 +113,17 @@ test("custom chat tool call creates a reminder and background job", async () => 
 
     assert.equal(reminders.length, 1);
     assert.equal(reminders[0].text, "浇水");
-    const job = getDb()
+    const job = await getDb()
       .prepare("SELECT COUNT(*) AS count FROM background_jobs WHERE payload_json LIKE ?")
       .get(`%${reminders[0].id}%`) as { count: number };
     assert.equal(job.count, 1);
   } finally {
-    cleanup(plant.id);
+    await cleanup(plant.id);
   }
 });
 
 test("malformed custom chat tool calls can be repaired by the secondary model", async () => {
-  migrate();
+  await migrate();
   const originalFetch = globalThis.fetch;
   const originalEnv = {
     LLM_API_URL: env.LLM_API_URL,
@@ -129,7 +131,7 @@ test("malformed custom chat tool calls can be repaired by the secondary model", 
     LLM_MODEL_ID: env.LLM_MODEL_ID,
     SECONDARY_LLM_MODEL_ID: env.SECONDARY_LLM_MODEL_ID
   };
-  const plant = createPlant({ name: "修复提醒", species: "绿萝" });
+  const plant = await createPlant({ name: "修复提醒", species: "绿萝" });
   const due = new Date(Date.now() + 5 * 60_000).toISOString();
   try {
     env.LLM_API_URL = "https://llm.test/v1";
@@ -169,6 +171,6 @@ test("malformed custom chat tool calls can be repaired by the secondary model", 
     env.LLM_API_KEY = originalEnv.LLM_API_KEY;
     env.LLM_MODEL_ID = originalEnv.LLM_MODEL_ID;
     env.SECONDARY_LLM_MODEL_ID = originalEnv.SECONDARY_LLM_MODEL_ID;
-    cleanup(plant.id);
+    await cleanup(plant.id);
   }
 });

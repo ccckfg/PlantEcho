@@ -1,6 +1,6 @@
 # PlantEcho 后端 Docker 部署指南
 
-本文用于把 `apps/server` 后端部署到服务器，适合初步上线灰度测试。镜像只包含 Node.js 后端和 `packages/shared`，不会打包本地 `.env`、SQLite 数据库、桌面端产物或硬件源码。
+本文用于把 `apps/server` 后端部署到服务器。长期运行和多用户/多设备场景推荐使用 Docker Compose 中的 PostgreSQL + pgvector；SQLite 只适合本地开发或单用户临时测试。镜像只包含 Node.js 后端和 `packages/shared`，不会打包本地 `.env`、数据库数据、桌面端产物或硬件源码。
 
 ## 镜像信息
 
@@ -9,7 +9,8 @@
 - 最近 digest：`sha256:52846b636b7fe5daff096c8c8848bb885fc8c76e734d8e1e3f803a0886c54a5c`
 - HTTP 端口：`8787`
 - MQTT 端口：`1883`
-- 容器内数据目录：`/app/data`
+- 容器内文件数据目录：`/app/data`
+- 推荐数据库：PostgreSQL 17 + pgvector
 - 健康检查：`GET /health`
 
 ## 最近一次发布验证
@@ -116,6 +117,10 @@ NODE_ENV=production
 HOST=0.0.0.0
 PORT=8787
 DYN_DATA_DIR=/app/data
+DB_PROVIDER=postgres
+DB_POOL_MAX=10
+DB_IDLE_TIMEOUT_MS=30000
+DB_CONNECTION_TIMEOUT_MS=5000
 MQTT_ENABLED=true
 MQTT_HOST=0.0.0.0
 MQTT_PORT=1883
@@ -159,13 +164,25 @@ PROACTIVE_LLM_ENABLED=true
 PROACTIVE_SCAN_INTERVAL_MS=300000
 PROACTIVE_WEATHER_COOLDOWN_MS=21600000
 PROACTIVE_REMINDER_MAX_DAYS=30
+RETENTION_CLEANUP_INTERVAL_MS=86400000
+RETENTION_SENSOR_RAW_DAYS=30
+RETENTION_SYNC_EVENTS_DAYS=14
+RETENTION_SUCCEEDED_JOBS_DAYS=14
+RETENTION_CONSUMED_DRAFTS_DAYS=30
+RETENTION_LLM_USAGE_DAYS=180
+RETENTION_PROACTIVE_EVENTS_DAYS=90
+RETENTION_FINISHED_REMINDERS_DAYS=180
+RETENTION_AUTH_SESSIONS_DAYS=180
+RETENTION_PENDING_DEVICES_DAYS=30
 LLM_INPUT_COST_PER_MILLION=0
 LLM_OUTPUT_COST_PER_MILLION=0
 SECONDARY_LLM_INPUT_COST_PER_MILLION=0
 SECONDARY_LLM_OUTPUT_COST_PER_MILLION=0
 ```
 
-### 方式一：docker run
+### 方式一：docker run（仅临时 SQLite 验证）
+
+单容器 `docker run` 不会启动 PostgreSQL。只建议用于快速验证镜像健康；长期部署使用下方 Docker Compose。
 
 启动容器：
 
@@ -178,19 +195,37 @@ docker run -d \
   --name dyn-server \
   --restart unless-stopped \
   --env-file /opt/dyn/dyn.env \
+  -e DB_PROVIDER=sqlite \
   -v /opt/dyn/data:/app/data \
   -p 8787:8787 \
   -p 1883:1883 \
   ccckfg/dyn:latest
 ```
 
-### 方式二：Docker Compose
+### 方式二：Docker Compose（推荐）
 
-把项目根目录的 `docker-compose.yml` 复制到服务器 `/opt/dyn/docker-compose.yml`，并保证同目录存在 `dyn.env`：
+把项目根目录的 `docker-compose.yml` 复制到服务器 `/opt/dyn/docker-compose.yml`，并保证同目录存在 `dyn.env`。
+
+另外创建 `/opt/dyn/.env`，用于 Docker Compose 自身的 PostgreSQL 变量插值：
+
+```dotenv
+POSTGRES_DB=dyn
+POSTGRES_USER=dyn
+POSTGRES_PASSWORD=请换成高强度随机字符串
+POSTGRES_PUBLIC_HOST=127.0.0.1
+POSTGRES_PUBLIC_PORT=5432
+DYN_DATA_PATH=/opt/dyn/data
+HTTP_PUBLIC_PORT=8787
+MQTT_PUBLIC_PORT=1883
+TZ=Asia/Shanghai
+```
+
+启动：
 
 ```bash
 cd /opt/dyn
 test -f dyn.env
+test -f .env
 docker compose pull
 docker compose up -d
 ```
@@ -231,11 +266,11 @@ config topic: dyn/devices/<deviceId>/config
 
 - 建议设置 `AUTH_TOKEN_SECRET`；桌面端和移动端连接后端时使用账号密码登录，首次部署后注册第一个管理员账号。
 - 管理用户请在服务器上使用后端 CLI，例如 `npm run user --workspace @dyn/server -- list-users`；登录会话可用 `list-sessions` 查看 IP 与 User-Agent。普通用户可在前端账号弹窗中查看并撤销自己的登录会话。
-- `docker-compose.yml` 为了便于本地校验，将 `dyn.env` 标记为可选；服务器真实部署时仍必须创建 `/opt/dyn/dyn.env`。
+- `docker-compose.yml` 会启动 `dyn-postgres`，数据库数据保存在 Compose volume `dyn-postgres-data`；`/opt/dyn/data` 仍用于照片等文件。
 - 植物对话必须配置 LLM 与 embedding API；缺少任一配置时，对话接口返回 `503 CHAT_DEPENDENCIES_NOT_CONFIGURED`。rerank 仍可选。
-- SQLite 数据在 `/opt/dyn/data/dyn.sqlite`，升级前先备份 `/opt/dyn/data`。
+- 升级前同时备份 `/opt/dyn/data` 和 PostgreSQL 数据卷。可用 `docker compose exec dyn-postgres pg_dump -U dyn dyn > dyn-backup.sql` 导出逻辑备份。
 - 容器默认会 seed 一个 demo 植物和 demo 设备；真实设备建议走 pending → claim 流程。
-- 当前仍是单实例 SQLite 部署，不要同时启动多个后端容器写同一个数据目录。
+- 多后端实例需要共享同一个 PostgreSQL，并确保 MQTT/定时任务部署策略明确；单台服务器建议先运行一个 `dyn-server` 实例。
 - 外部 LLM / embedding / rerank smoke 会把测试 prompt 发到配置的模型服务，生产前需明确授权后再运行。
 
 ## 更新镜像

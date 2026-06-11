@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { SENSOR_STATUS_REFRESH_MS } from "@/config/sensors";
 import { api } from "@/lib/api";
+import { logCareRecord } from "@/lib/careActions";
 import { useNow } from "@/lib/format";
 import { useAsync } from "@/lib/useAsync";
 import { useSyncRefresh } from "@/hooks/useSyncRefresh";
@@ -78,7 +79,10 @@ export function DashboardPage() {
       if (cancelled) return;
       setRecordingWater(true);
       try {
-        await api.chat(firstPlant.id, "记录一下：已浇水");
+        await Promise.all([
+          api.chat(firstPlant.id, "记录一下：已浇水"),
+          logCareRecord(firstPlant.id, "water", "dashboard")
+        ]);
         toast.show({
           title: `${firstPlant.name} 已收到这杯水`,
           tone: "success",

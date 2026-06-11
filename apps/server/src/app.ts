@@ -6,8 +6,10 @@ import {
   privateNetworkRequestHeader
 } from "./config/http.js";
 import { migrate } from "./db/migrate.js";
+import { createRetentionWorker } from "./db/retention.js";
 import { registerAppAuth } from "./modules/auth/appAuth.js";
 import { registerAuthRoutes } from "./modules/auth/routes.js";
+import { registerCareRecordRoutes } from "./modules/careRecords/routes.js";
 import { registerChatRoutes } from "./modules/chat/routes.js";
 import { registerDeviceRoutes } from "./modules/devices/routes.js";
 import { createMqttBroker } from "./modules/iot/mqttBroker.js";
@@ -22,7 +24,7 @@ import { registerSyncRoutes } from "./modules/sync/routes.js";
 import { registerWeatherRoutes } from "./modules/weather/routes.js";
 
 export const buildApp = async () => {
-  migrate();
+  await migrate();
   const app = Fastify({ logger: true });
   const worker = createJobWorker(createJobHandlers(), {
     info: (message) => app.log.info(message),
@@ -38,6 +40,10 @@ export const buildApp = async () => {
     info: (message) => app.log.info(message),
     warn: (message) => app.log.warn(message),
     error: (message) => app.log.error(message)
+  });
+  const retentionWorker = createRetentionWorker({
+    info: (message) => app.log.info(message),
+    warn: (message) => app.log.warn(message)
   });
   app.addHook("onRequest", async (request, reply) => {
     const privateNetworkRequest = request.headers[privateNetworkRequestHeader];
@@ -60,6 +66,7 @@ export const buildApp = async () => {
   await app.register(registerDeviceRoutes);
   await app.register(registerPlantRoutes);
   await app.register(registerChatRoutes);
+  await app.register(registerCareRecordRoutes);
   await app.register(registerOpenAiCompatRoutes);
   await app.register(registerMemoryRoutes);
   await app.register(registerPhotoRoutes);
@@ -68,12 +75,14 @@ export const buildApp = async () => {
 
   app.addHook("onReady", async () => {
     worker.start();
+    retentionWorker.start();
     await mqttBroker.start();
     proactiveEngine.start();
   });
   app.addHook("onClose", async () => {
     await proactiveEngine.stop();
     await mqttBroker.stop();
+    await retentionWorker.stop();
     await worker.stop();
   });
 

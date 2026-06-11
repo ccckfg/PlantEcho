@@ -5,14 +5,14 @@ import { addEpisodeMemory } from "../src/modules/memory/repositories/memoryRepos
 import { chatWithPlant } from "../src/modules/chat/chatService.js";
 
 const main = async (): Promise<void> => {
-  migrate();
-  const plant = createPlant({
+  await migrate();
+  const plant = await createPlant({
     name: "引用评估绿萝",
     species: "绿萝",
     location: "东窗边"
   });
 
-  const memory = addEpisodeMemory({
+  const memory = await addEpisodeMemory({
     plantId: plant.id,
     date: "2026-05-20",
     time: "09:00",

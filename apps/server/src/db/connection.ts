@@ -1,22 +1,21 @@
-import fs from "node:fs";
-import path from "node:path";
-import { DatabaseSync } from "node:sqlite";
-import { load as loadSqliteVec } from "sqlite-vec";
 import { env } from "../config/env.js";
+import { openPostgresDatabase } from "./postgres/connection.js";
+import { openSqliteDatabase } from "./sqlite/connection.js";
+import type { DatabaseClient } from "./types.js";
 
-let db: DatabaseSync | null = null;
+let db: DatabaseClient | null = null;
 
-export const getDb = (): DatabaseSync => {
+export const getDb = (): DatabaseClient => {
   if (db) return db;
-  fs.mkdirSync(path.dirname(env.databasePath), { recursive: true });
-  db = new DatabaseSync(env.databasePath, { allowExtension: true });
-  db.exec("PRAGMA foreign_keys = ON");
-  db.exec("PRAGMA journal_mode = WAL");
-  loadSqliteVec(db);
+  db = env.DB_PROVIDER === "postgres"
+    ? openPostgresDatabase()
+    : openSqliteDatabase(env.databasePath);
   return db;
 };
 
-export const closeDb = (): void => {
-  db?.close();
+export const closeDb = async (): Promise<void> => {
+  await db?.close();
   db = null;
 };
+
+export const usingPostgres = (): boolean => getDb().provider === "postgres";

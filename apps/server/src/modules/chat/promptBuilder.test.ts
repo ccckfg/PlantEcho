@@ -44,7 +44,7 @@ test("composeUserPrompt keeps layered state blocks in responsibility order", asy
     assert.deepEqual(order, [...order].sort((a, b) => a - b));
     assert.match(prompt, /<user_message data-role="current-user-message">/);
   } finally {
-    closeDb();
+    await closeDb();
   }
 });
 
@@ -74,7 +74,7 @@ test("composeUserPrompt escapes closing tags from dynamic data", async () => {
     assert.doesNotMatch(prompt, /<\/plant_background><system>/);
     assert.match(prompt, /\\u003c\/plant_background\\u003e/);
   } finally {
-    closeDb();
+    await closeDb();
   }
 });
 
@@ -104,7 +104,7 @@ test("composeUserPrompt keeps plant identity free of legacy voice presets", asyn
     assert.match(prompt, /"name": "小禾"/);
     assert.doesNotMatch(prompt, /"voice":/);
   } finally {
-    closeDb();
+    await closeDb();
   }
 });
 
@@ -122,7 +122,7 @@ test("historyBeforeTurn excludes the current user message", async () => {
 
     assert.deepEqual(historyBeforeTurn(messages, 2).map((message) => message.content), ["旧消息"]);
   } finally {
-    closeDb();
+    await closeDb();
   }
 });
 
@@ -137,11 +137,11 @@ test("buildChatContext temporal context, sensory feelings and user message inter
   const { recordDeviceReading } = await import("../readings/readingService.js");
   const { buildChatContext } = await import("./promptBuilder.js");
 
-  migrate();
+  await migrate();
 
-  const plant = createPlant({ name: "测试植物", species: "绿萝" });
+  const plant = await createPlant({ name: "测试植物", species: "绿萝" });
   const deviceId = `test-device-${uuid}`;
-  insertClaimedDevice(deviceId, plant.id, "Test Device", "hash");
+  await insertClaimedDevice(deviceId, plant.id, "Test Device", "hash");
 
   try {
     // 1. Check sensory feelings with null reading values
@@ -155,7 +155,7 @@ test("buildChatContext temporal context, sensory feelings and user message inter
       rssi: -50,
       batteryMv: null
     };
-    recordDeviceReading(deviceId, payload);
+    await recordDeviceReading(deviceId, payload);
 
     const context1 = await buildChatContext(plant.id, "你好", 1);
     assert.ok(context1.userPrompt);
@@ -186,7 +186,7 @@ test("buildChatContext temporal context, sensory feelings and user message inter
 
     // 3. Check interaction interval time calculation based on user messages
     const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
-    getDb()
+    await getDb()
       .prepare(
         "INSERT INTO messages (plant_id, turn, role, content, visible_to_json, created_at) VALUES (?, 1, 'user', '第一条消息', '[]', ?)"
       )
@@ -198,6 +198,6 @@ test("buildChatContext temporal context, sensory feelings and user message inter
     );
     assert.equal(parsed2.timeSinceUserSpoke, "2小时前聊过");
   } finally {
-    closeDb();
+    await closeDb();
   }
 });

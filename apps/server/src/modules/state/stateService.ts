@@ -49,8 +49,8 @@ export interface InnerPatchResult {
 
 const innerLimits = { mood: stateConfig.moodMaxChars, text: stateConfig.innerTextMaxChars };
 
-export const getSafeInnerState = (plantId: string): InnerState => {
-  const current = getInnerState(plantId);
+export const getSafeInnerState = async (plantId: string): Promise<InnerState> => {
+  const current = await getInnerState(plantId);
   const safe = sanitizeStoredInner(current, innerLimits);
   if (
     safe.mood === current.mood &&
@@ -60,8 +60,8 @@ export const getSafeInnerState = (plantId: string): InnerState => {
   return upsertInnerState(plantId, { ...safe, sourceTurn: current.sourceTurn });
 };
 
-export const getSafeRelationshipState = (plantId: string): RelationshipState => {
-  const current = getRelationshipState(plantId);
+export const getSafeRelationshipState = async (plantId: string): Promise<RelationshipState> => {
+  const current = await getRelationshipState(plantId);
   const summary =
     sanitizeStateText(current.summary, stateConfig.relationshipSummaryMaxChars) ??
     "刚刚认识主人";
@@ -73,10 +73,10 @@ export const getSafeRelationshipState = (plantId: string): RelationshipState => 
   });
 };
 
-export const getPhysicalState = (plantId: string): PhysicalState => {
-  const plant = getPlant(plantId);
+export const getPhysicalState = async (plantId: string): Promise<PhysicalState> => {
+  const plant = await getPlant(plantId);
   if (!plant) throw new Error(`Plant ${plantId} not found`);
-  const latest = getLatestReading(plantId);
+  const latest = await getLatestReading(plantId);
   const health = evaluateReading(plant.careProfile, latest);
   const connection = latest && !isReadingOffline(latest) ? "online" : "offline";
   return {
@@ -98,19 +98,19 @@ export const getPhysicalState = (plantId: string): PhysicalState => {
   };
 };
 
-export const getLayeredPlantState = (plantId: string): LayeredPlantState => ({
-  physical: getPhysicalState(plantId),
-  inner: getSafeInnerState(plantId),
-  relationship: getSafeRelationshipState(plantId),
-  intentions: listPendingIntentions(plantId, 3)
+export const getLayeredPlantState = async (plantId: string): Promise<LayeredPlantState> => ({
+  physical: await getPhysicalState(plantId),
+  inner: await getSafeInnerState(plantId),
+  relationship: await getSafeRelationshipState(plantId),
+  intentions: await listPendingIntentions(plantId, 3)
 });
 
-export const applyInnerPatch = (
+export const applyInnerPatch = async (
   plantId: string,
   sourceTurn: number,
   patch: InnerPatch
-): InnerPatchResult => {
-  const current = getSafeInnerState(plantId);
+): Promise<InnerPatchResult> => {
+  const current = await getSafeInnerState(plantId);
   if (current.sourceTurn !== null && sourceTurn <= current.sourceTurn) {
     return { state: current, changed: false, appliedPatch: {} };
   }
@@ -128,19 +128,19 @@ export const applyInnerPatch = (
     concern: appliedPatch.concern ?? current.concern,
     thought: appliedPatch.thought ?? current.thought
   };
-  const state = upsertInnerState(plantId, {
+  const state = await upsertInnerState(plantId, {
     ...next,
     sourceTurn
   });
   return { state, changed: true, appliedPatch };
 };
 
-export const applyRelationshipPatch = (
+export const applyRelationshipPatch = async (
   plantId: string,
   memoryId: string,
   patch: RelationshipPatch
-): RelationshipPatchResult => {
-  const current = getSafeRelationshipState(plantId);
+): Promise<RelationshipPatchResult> => {
+  const current = await getSafeRelationshipState(plantId);
   const currentIndex = relationshipStages.indexOf(current.stage);
   const requestedIndex = patch.stage && relationshipStages.includes(patch.stage)
     ? relationshipStages.indexOf(patch.stage)
@@ -153,7 +153,7 @@ export const applyRelationshipPatch = (
   if (stage === current.stage && summary === current.summary) {
     return { state: current, changed: false };
   }
-  const state = upsertRelationshipState(plantId, {
+  const state = await upsertRelationshipState(plantId, {
     stage,
     summary,
     evidenceMemoryIds: [...new Set([...current.evidenceMemoryIds, memoryId])]

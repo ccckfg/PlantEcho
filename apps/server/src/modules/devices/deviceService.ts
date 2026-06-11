@@ -45,10 +45,10 @@ export interface DeviceClaimResult {
 
 type UserScope = Pick<AppUser, "id" | "username"> | string | null;
 
-export const isKnownDevice = (deviceId: string): boolean => Boolean(getDevice(deviceId));
+export const isKnownDevice = async (deviceId: string): Promise<boolean> => Boolean(await getDevice(deviceId));
 
-export const isAuthorizedDevice = (deviceId: string, apiKey?: string): boolean => {
-  const hash = getDeviceAuthHash(deviceId);
+export const isAuthorizedDevice = async (deviceId: string, apiKey?: string): Promise<boolean> => {
+  const hash = await getDeviceAuthHash(deviceId);
   if (hash === undefined) return false;
   return matchesDeviceApiKey(hash, apiKey);
 };
@@ -63,30 +63,30 @@ const buildDeviceCredentialsPayload = (
   issuedAt: nowIso()
 });
 
-const queueDeviceCredentials = (
+const queueDeviceCredentials = async (
   deviceId: string,
   payload: ReturnType<typeof buildDeviceCredentialsPayload>
-): boolean => {
-  upsertDeviceConfigDelivery(deviceId, payload);
+): Promise<boolean> => {
+  await upsertDeviceConfigDelivery(deviceId, payload);
   return deliverPendingDeviceConfig(deviceId);
 };
 
-const sendDeviceCredentials = (deviceId: string, apiKey: string): boolean =>
+const sendDeviceCredentials = async (deviceId: string, apiKey: string): Promise<boolean> =>
   queueDeviceCredentials(deviceId, buildDeviceCredentialsPayload(deviceId, apiKey));
 
-export const deliverPendingDeviceConfig = (deviceId: string): boolean => {
-  const delivery = getDeviceConfigDelivery(deviceId);
+export const deliverPendingDeviceConfig = async (deviceId: string): Promise<boolean> => {
+  const delivery = await getDeviceConfigDelivery(deviceId);
   if (!delivery) return false;
   const attempted = publishDeviceConfig(deviceId, delivery.payload);
-  if (attempted) markDeviceConfigDeliveryAttempt(deviceId);
+  if (attempted) await markDeviceConfigDeliveryAttempt(deviceId);
   return attempted;
 };
 
-export const hasPendingDeviceCredentials = (deviceId: string): boolean =>
+export const hasPendingDeviceCredentials = (deviceId: string): Promise<boolean> =>
   hasDeviceConfigDelivery(deviceId);
 
-export const confirmDeviceCredentialsDelivered = (deviceId: string): void => {
-  clearDeviceConfigDelivery(deviceId);
+export const confirmDeviceCredentialsDelivered = async (deviceId: string): Promise<void> => {
+  await clearDeviceConfigDelivery(deviceId);
 };
 
 const userIdentifiers = (scope: UserScope = null): string[] => {
@@ -95,19 +95,19 @@ const userIdentifiers = (scope: UserScope = null): string[] => {
   return [scope.id, scope.username];
 };
 
-const resolvePayloadUserId = (value?: string): string | null => {
+const resolvePayloadUserId = async (value?: string): Promise<string | null> => {
   const candidate = value?.trim();
   if (!candidate) return null;
-  return getUserById(candidate)?.id ?? getUserByUsername(candidate)?.id ?? candidate;
+  return (await getUserById(candidate))?.id ?? (await getUserByUsername(candidate))?.id ?? candidate;
 };
 
-export const registerPendingDevice = (
+export const registerPendingDevice = async (
   deviceId: string,
   payload: DeviceReadingPayload
-): PendingDevice => {
-  const userId = resolvePayloadUserId(payload.userId);
-  const pending = upsertPendingDevice(deviceId, payload, payload.rssi ?? null, userId);
-  publishSyncEvent({
+): Promise<PendingDevice> => {
+  const userId = await resolvePayloadUserId(payload.userId);
+  const pending = await upsertPendingDevice(deviceId, payload, payload.rssi ?? null, userId);
+  await publishSyncEvent({
     type: "devices.changed",
     payload: { action: "pending", deviceId }
   });
@@ -116,84 +116,84 @@ export const registerPendingDevice = (
 
 export const getPendingDevices = (
   user: UserScope = null
-): PendingDevice[] => listPendingDevices(userIdentifiers(user));
+): Promise<PendingDevice[]> => listPendingDevices(userIdentifiers(user));
 
-export const getClaimedDevices = (): DeviceRecord[] => listDevices();
+export const getClaimedDevices = (): Promise<DeviceRecord[]> => listDevices();
 
-export const ignorePendingDevice = (
+export const ignorePendingDevice = async (
   deviceId: string,
   user: UserScope = null
-): PendingDevice => {
+): Promise<PendingDevice> => {
   const identifiers = userIdentifiers(user);
-  const pending = getPendingDevice(deviceId, identifiers);
+  const pending = await getPendingDevice(deviceId, identifiers);
   if (!pending || pending.claimStatus !== "pending") {
     throw new Error(`Pending device ${deviceId} not found`);
   }
-  markPendingDevice(deviceId, "ignored");
-  const updated = getPendingDevice(deviceId, identifiers);
+  await markPendingDevice(deviceId, "ignored");
+  const updated = await getPendingDevice(deviceId, identifiers);
   if (!updated) throw new Error(`Pending device ${deviceId} not found`);
-  publishSyncEvent({
+  await publishSyncEvent({
     type: "devices.changed",
     payload: { action: "ignored", deviceId }
   });
   return updated;
 };
 
-export const claimDevice = (
+export const claimDevice = async (
   deviceId: string,
   input: ClaimDeviceInput,
   user: UserScope = null
-): DeviceClaimResult => {
-  const pending = getPendingDevice(deviceId, userIdentifiers(user));
-  const existing = getDevice(deviceId);
+): Promise<DeviceClaimResult> => {
+  const pending = await getPendingDevice(deviceId, userIdentifiers(user));
+  const existing = await getDevice(deviceId);
   if (!pending && !existing) throw new Error(`Pending device ${deviceId} not found`);
 
   const createdNewPlant = input.mode === "newPlant";
-  const plant = createdNewPlant ? createPlant(input.plant) : getPlant(input.plantId);
+  const plant = createdNewPlant ? await createPlant(input.plant) : await getPlant(input.plantId);
   if (!plant) throw new Error(`Plant ${input.mode === "existingPlant" ? input.plantId : ""} not found`);
 
   const apiKey = generateDeviceApiKey();
-  const device = insertClaimedDevice(
+  const device = await insertClaimedDevice(
     deviceId,
     plant.id,
     input.deviceName?.trim() || `Device ${deviceId}`,
     hashDeviceApiKey(apiKey)
   );
   if (createdNewPlant) {
-    publishSyncEvent({
+    await publishSyncEvent({
       type: "plants.changed",
       plantId: plant.id,
       payload: { action: "created", plantId: plant.id, source: "device_claim" }
     });
   }
-  publishSyncEvent({
+  await publishSyncEvent({
     type: "devices.changed",
     plantId: plant.id,
     payload: { action: "claimed", deviceId }
   });
-  return { device, deviceApiKey: apiKey, deliveredToDevice: sendDeviceCredentials(deviceId, apiKey) };
+  return { device, deviceApiKey: apiKey, deliveredToDevice: await sendDeviceCredentials(deviceId, apiKey) };
 };
 
-export const rotateDeviceKey = (deviceId: string): DeviceClaimResult => {
-  const existing = getDevice(deviceId);
+export const rotateDeviceKey = async (deviceId: string): Promise<DeviceClaimResult> => {
+  const existing = await getDevice(deviceId);
   if (!existing) throw new Error(`Device ${deviceId} not found`);
   const apiKey = generateDeviceApiKey();
-  const device = updateDeviceApiKeyHash(deviceId, hashDeviceApiKey(apiKey));
+  const device = await updateDeviceApiKeyHash(deviceId, hashDeviceApiKey(apiKey));
   if (!device) throw new Error(`Device ${deviceId} not found`);
-  publishSyncEvent({
+  await publishSyncEvent({
     type: "devices.changed",
     plantId: device.plantId,
     payload: { action: "key_rotated", deviceId }
   });
-  return { device, deviceApiKey: apiKey, deliveredToDevice: sendDeviceCredentials(deviceId, apiKey) };
+  return { device, deviceApiKey: apiKey, deliveredToDevice: await sendDeviceCredentials(deviceId, apiKey) };
 };
 
-export const setDeviceEnabled = (deviceId: string, enabled: boolean): DeviceRecord => {
-  const existing = getDevice(deviceId, enabled);
+export const setDeviceEnabled = async (deviceId: string, enabled: boolean): Promise<DeviceRecord> => {
+  const existing = await getDevice(deviceId, enabled);
   if (!existing) throw new Error(`Device ${deviceId} not found`);
-  const device = updateDeviceStatus(deviceId, enabled ? "active" : "disabled");
+  const device = await updateDeviceStatus(deviceId, enabled ? "active" : "disabled");
   if (!device) throw new Error(`Device ${deviceId} not found`);
-  publishSyncEvent({
+  await publishSyncEvent({
     type: "devices.changed",
     plantId: device.plantId,
     payload: { action: enabled ? "enabled" : "disabled", deviceId }
@@ -201,13 +201,13 @@ export const setDeviceEnabled = (deviceId: string, enabled: boolean): DeviceReco
   return device;
 };
 
-export const deleteDevice = (deviceId: string): DeviceRecord => {
-  const existing = getDevice(deviceId);
+export const deleteDevice = async (deviceId: string): Promise<DeviceRecord> => {
+  const existing = await getDevice(deviceId);
   if (!existing) throw new Error(`Device ${deviceId} not found`);
-  const device = softDeleteDevice(deviceId);
+  const device = await softDeleteDevice(deviceId);
   if (!device) throw new Error(`Device ${deviceId} not found`);
-  clearDeviceConfigDelivery(deviceId);
-  publishSyncEvent({
+  await clearDeviceConfigDelivery(deviceId);
+  await publishSyncEvent({
     type: "devices.changed",
     plantId: device.plantId,
     payload: { action: "deleted", deviceId }
@@ -215,23 +215,23 @@ export const deleteDevice = (deviceId: string): DeviceRecord => {
   return device;
 };
 
-export const applyBulkDeviceAction = (
+export const applyBulkDeviceAction = async (
   input: BulkDeviceActionInput
-): { devices: DeviceRecord[]; notFound: string[] } => {
+): Promise<{ devices: DeviceRecord[]; notFound: string[] }> => {
   const devices: DeviceRecord[] = [];
   const notFound: string[] = [];
   for (const deviceId of input.deviceIds) {
     try {
       const device =
         input.action === "delete"
-          ? deleteDevice(deviceId)
-          : setDeviceEnabled(deviceId, input.action === "enable");
+          ? await deleteDevice(deviceId)
+          : await setDeviceEnabled(deviceId, input.action === "enable");
       devices.push(device);
     } catch {
       notFound.push(deviceId);
     }
   }
-  publishSyncEvent({
+  await publishSyncEvent({
     type: "devices.changed",
     payload: { action: `bulk_${input.action}`, deviceIds: input.deviceIds }
   });

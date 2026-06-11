@@ -95,14 +95,14 @@ const logUsage = (
   usage?: OpenAIChatCompletionsResponse["usage"]
 ): void => {
   const target = targetFor(options);
-  recordLlmUsage({
+  void recordLlmUsage({
     phase: options?.phase ?? "unspecified",
     tier: target.tier,
     modelId: target.modelId,
     promptTokens: usage?.prompt_tokens ?? estimatedTokens(promptText(messages)),
     completionTokens: usage?.completion_tokens ?? estimatedTokens(completion),
     tokenSource: usage?.prompt_tokens !== undefined ? "provider" : "estimated"
-  });
+  }).catch(() => undefined);
 };
 
 export const completeChat = async (

@@ -12,7 +12,7 @@ export interface LlmUsageInput {
   tokenSource: "provider" | "estimated";
 }
 
-export const recordLlmUsage = (input: LlmUsageInput): void => {
+export const recordLlmUsage = async (input: LlmUsageInput): Promise<void> => {
   const inputCost = input.tier === "secondary"
     ? env.SECONDARY_LLM_INPUT_COST_PER_MILLION
     : env.LLM_INPUT_COST_PER_MILLION;
@@ -23,7 +23,7 @@ export const recordLlmUsage = (input: LlmUsageInput): void => {
     input.promptTokens * inputCost +
     input.completionTokens * outputCost
   ) / 1_000_000;
-  getDb().prepare(
+  await getDb().prepare(
     `INSERT INTO llm_usage_logs
      (phase, model_id, prompt_tokens, completion_tokens, total_tokens,
       token_source, estimated_cost, created_at)

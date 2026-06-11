@@ -69,8 +69,8 @@ export const registerAppAuth = async (app: FastifyInstance) => {
     const bearerToken = extractBearerToken(request);
     const tokenHash = authTokenHash(bearerToken);
     const tokenPayload = verifyAuthToken(bearerToken);
-    const user = tokenPayload ? requireActiveUser(tokenPayload.sub) : null;
-    const session = tokenPayload ? getAuthSessionByTokenHash(tokenHash) : null;
+    const user = tokenPayload ? await requireActiveUser(tokenPayload.sub) : null;
+    const session = tokenPayload ? await getAuthSessionByTokenHash(tokenHash) : null;
     const sessionActive =
       session &&
       !session.revokedAt &&
@@ -78,17 +78,17 @@ export const registerAppAuth = async (app: FastifyInstance) => {
     if (user && sessionActive) {
       request.currentUser = user;
       request.currentSessionId = session.id;
-      touchAuthSession(tokenHash);
+      await touchAuthSession(tokenHash);
       return;
     }
 
     const providedKey = extractAccessKey(request);
     if (isOpenAiCompatPath(path) && providedKey) {
       const apiKeyHash = authTokenHash(providedKey);
-      const apiKeyAuth = getApiKeyAuthByHash(apiKeyHash);
+      const apiKeyAuth = await getApiKeyAuthByHash(apiKeyHash);
       if (apiKeyAuth) {
         request.currentUser = apiKeyAuth.user;
-        touchUserApiKey(apiKeyHash);
+        await touchUserApiKey(apiKeyHash);
         return;
       }
     }

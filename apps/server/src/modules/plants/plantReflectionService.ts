@@ -21,12 +21,12 @@ const fallbackReflection = (plant: PlantSummary, basis: string[]): string => {
 };
 
 export const getPlantReflection = async (plantId: string): Promise<PlantReflection> => {
-  const plant = getPlant(plantId);
+  const plant = await getPlant(plantId);
   if (!plant) throw new Error(`Plant ${plantId} not found`);
 
-  const readingState = getPlantReadingState(plantId);
-  const state = getLayeredPlantState(plantId);
-  const memories = listEpisodeMemories(plantId, 3);
+  const readingState = await getPlantReadingState(plantId);
+  const state = await getLayeredPlantState(plantId);
+  const memories = await listEpisodeMemories(plantId, 3);
   const basis = [
     state.inner.mood ? `心情：${state.inner.mood}` : "",
     state.inner.concern ? `关注：${state.inner.concern}` : "",

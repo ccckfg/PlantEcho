@@ -58,7 +58,7 @@ const episodeFusionInputs = async (
     memoryConfig.vectorCandidateLimit
   );
   for (const item of vectors) {
-    const memory = getEpisodeMemory(item.targetId);
+    const memory = await getEpisodeMemory(item.targetId);
     if (!memory) continue;
     map.set(memory.id, {
       id: memory.id,
@@ -67,9 +67,9 @@ const episodeFusionInputs = async (
       metadata: { memory }
     });
   }
-  for (const item of episodeBm25Candidates(plantId, bm25Query)) {
+  for (const item of await episodeBm25Candidates(plantId, bm25Query)) {
     const existing = map.get(item.id);
-    const memory = getEpisodeMemory(item.id);
+    const memory = await getEpisodeMemory(item.id);
     if (!memory) continue;
     map.set(item.id, {
       id: item.id,
@@ -108,7 +108,7 @@ export const retrieveMemories = async (
     })
     .sort((a, b) => b.score - a.score)
     .slice(0, memoryConfig.episodeSearchLimit);
-  updateMemoryRecall(ranked.map((item) => item.memory.id), current);
+  await updateMemoryRecall(ranked.map((item) => item.memory.id), current);
   return ranked;
 };
 
@@ -118,7 +118,7 @@ const understandingFusionInputs = async (
   bm25Query: string
 ): Promise<FusionInput[]> => {
   await ensureVectorIndexForPlant(plantId);
-  const understandings = new Map(listUnderstandings(plantId).map((item) => [item.id, item]));
+  const understandings = new Map((await listUnderstandings(plantId)).map((item) => [item.id, item]));
   const map = new Map<string, FusionInput>();
   const vectors = await getVectorCandidates(
     plantId,
@@ -136,7 +136,7 @@ const understandingFusionInputs = async (
       metadata: { understanding }
     });
   }
-  for (const item of understandingBm25Candidates(plantId, bm25Query)) {
+  for (const item of await understandingBm25Candidates(plantId, bm25Query)) {
     const existing = map.get(item.id);
     const understanding = understandings.get(item.id);
     if (!understanding) continue;

@@ -31,29 +31,28 @@ const toEvent = (row: SyncEventRow): SyncEvent => ({
   createdAt: row.created_at
 });
 
-export const createSyncEvent = (input: CreateSyncEventInput): SyncEvent => {
-  const result = getDb().prepare(
+export const createSyncEvent = async (input: CreateSyncEventInput): Promise<SyncEvent> => {
+  const result = await getDb().prepare(
     `INSERT INTO sync_events (type, plant_id, payload_json, created_at)
-     VALUES (?, ?, ?, ?)`
+     VALUES (?, ?, ?, ?)
+     RETURNING id`
   ).run(input.type, input.plantId ?? null, JSON.stringify(input.payload ?? {}), nowIso());
-  return getSyncEvent(Number(result.lastInsertRowid))!;
+  return (await getSyncEvent(Number(result.lastInsertRowid)))!;
 };
 
-export const getSyncEvent = (id: number): SyncEvent | null => {
-  const row = getDb().prepare("SELECT * FROM sync_events WHERE id = ?").get(id) as SyncEventRow | undefined;
+export const getSyncEvent = async (id: number): Promise<SyncEvent | null> => {
+  const row = await getDb().prepare("SELECT * FROM sync_events WHERE id = ?").get<SyncEventRow>(id);
   return row ? toEvent(row) : null;
 };
 
-export const listSyncEventsSince = (sinceId: number, limit = 200): SyncEvent[] => {
-  const rows = getDb()
+export const listSyncEventsSince = async (sinceId: number, limit = 200): Promise<SyncEvent[]> => {
+  const rows = await getDb()
     .prepare("SELECT * FROM sync_events WHERE id > ? ORDER BY id ASC LIMIT ?")
-    .all(Math.max(0, sinceId), Math.max(1, limit)) as SyncEventRow[];
+    .all<SyncEventRow>(Math.max(0, sinceId), Math.max(1, limit));
   return rows.map(toEvent);
 };
 
-export const latestSyncEventId = (): number => {
-  const row = getDb().prepare("SELECT MAX(id) AS id FROM sync_events").get() as
-    | { id: number | null }
-    | undefined;
+export const latestSyncEventId = async (): Promise<number> => {
+  const row = await getDb().prepare("SELECT MAX(id) AS id FROM sync_events").get<{ id: number | null }>();
   return row?.id ?? 0;
 };

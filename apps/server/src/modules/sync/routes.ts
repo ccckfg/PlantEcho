@@ -17,8 +17,8 @@ export const registerSyncRoutes = async (app: FastifyInstance): Promise<void> =>
   app.get("/api/v1/sync/events", async (request) => {
     const query = request.query as { since?: string; limit?: string };
     return {
-      events: listSyncEventsSince(parseSince(query.since), Number(query.limit ?? 200)),
-      latestEventId: latestSyncEventId()
+      events: await listSyncEventsSince(parseSince(query.since), Number(query.limit ?? 200)),
+      latestEventId: await latestSyncEventId()
     };
   });
 
@@ -38,8 +38,8 @@ export const registerSyncRoutes = async (app: FastifyInstance): Promise<void> =>
     const send = (event: SyncEvent): void => {
       if (!reply.raw.writableEnded) writeSse(reply.raw, "sync", event);
     };
-    writeSse(reply.raw, "hello", { latestEventId: latestSyncEventId() });
-    for (const event of listSyncEventsSince(parseSince(query.since), 500)) send(event);
+    writeSse(reply.raw, "hello", { latestEventId: await latestSyncEventId() });
+    for (const event of await listSyncEventsSince(parseSince(query.since), 500)) send(event);
 
     const unsubscribe = onSyncEvent(send);
     const ping = setInterval(() => writeSse(reply.raw, "ping", { at: Date.now() }), 25_000);

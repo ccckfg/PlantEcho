@@ -20,13 +20,13 @@ const toState = (row: ConsolidationStateRow): ConsolidationState => ({
   updatedAt: row.updated_at
 });
 
-export const getConsolidationState = (plantId: string): ConsolidationState => {
-  const row = getDb()
+export const getConsolidationState = async (plantId: string): Promise<ConsolidationState> => {
+  const row = await getDb()
     .prepare("SELECT * FROM memory_consolidation_state WHERE plant_id = ?")
-    .get(plantId) as ConsolidationStateRow | undefined;
+    .get<ConsolidationStateRow>(plantId);
   if (row) return toState(row);
   const now = nowIso();
-  getDb().prepare(
+  await getDb().prepare(
     `INSERT INTO memory_consolidation_state
      (plant_id, active, pending_turn, last_completed_turn, last_error, updated_at)
      VALUES (?, 0, NULL, 0, '', ?)`
@@ -41,18 +41,18 @@ export const getConsolidationState = (plantId: string): ConsolidationState => {
   };
 };
 
-export const updateConsolidationState = (
+export const updateConsolidationState = async (
   plantId: string,
   fields: Partial<Omit<ConsolidationState, "plantId" | "updatedAt">>
-): ConsolidationState => {
-  const current = getConsolidationState(plantId);
+): Promise<ConsolidationState> => {
+  const current = await getConsolidationState(plantId);
   const next = {
     active: fields.active ?? current.active,
     pendingTurn: fields.pendingTurn === undefined ? current.pendingTurn : fields.pendingTurn,
     lastCompletedTurn: fields.lastCompletedTurn ?? current.lastCompletedTurn,
     lastError: fields.lastError ?? current.lastError
   };
-  getDb().prepare(
+  await getDb().prepare(
     `UPDATE memory_consolidation_state
      SET active = ?, pending_turn = ?, last_completed_turn = ?, last_error = ?, updated_at = ?
      WHERE plant_id = ?`
@@ -66,4 +66,3 @@ export const updateConsolidationState = (
   );
   return getConsolidationState(plantId);
 };
-

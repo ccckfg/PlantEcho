@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { jobConfig } from "../../config/jobs.js";
 import { getDb } from "../../db/connection.js";
+import type { DatabaseClient } from "../../db/types.js";
 import { nowIso } from "../../shared/time.js";
 import type { BackgroundJob, EnqueueJobInput, JobStatus, JobType } from "./jobTypes.js";
 
@@ -45,10 +46,10 @@ const toJob = (row: JobRow): BackgroundJob => ({
   updatedAt: row.updated_at
 });
 
-export const enqueueJob = (input: EnqueueJobInput): BackgroundJob => {
+export const enqueueJob = async (input: EnqueueJobInput): Promise<BackgroundJob> => {
   const id = randomUUID();
   const now = nowIso();
-  getDb().prepare(
+  await getDb().prepare(
     `INSERT INTO background_jobs
      (id, type, status, dedupe_key, payload_json, attempts, max_attempts,
       run_after, locked_at, locked_by, last_error, created_at, updated_at)
@@ -63,33 +64,42 @@ export const enqueueJob = (input: EnqueueJobInput): BackgroundJob => {
     now,
     now
   );
-  return getJob(id)!;
+  return (await getJob(id))!;
 };
 
-export const getJob = (id: string): BackgroundJob | null => {
-  const row = getDb().prepare("SELECT * FROM background_jobs WHERE id = ?").get(id) as JobRow | undefined;
+export const getJob = async (id: string): Promise<BackgroundJob | null> => {
+  return getJobWithDb(getDb(), id);
+};
+
+const getJobWithDb = async (
+  db: DatabaseClient,
+  id: string
+): Promise<BackgroundJob | null> => {
+  const row = await db.prepare("SELECT * FROM background_jobs WHERE id = ?").get<JobRow>(id);
   return row ? toJob(row) : null;
 };
 
-export const findActiveJobByDedupeKey = (dedupeKey: string): BackgroundJob | null => {
-  const row = getDb()
+export const findActiveJobByDedupeKey = async (
+  dedupeKey: string
+): Promise<BackgroundJob | null> => {
+  const row = await getDb()
     .prepare(
       `SELECT * FROM background_jobs
        WHERE dedupe_key = ? AND status IN ('queued', 'running')
        ORDER BY created_at ASC
        LIMIT 1`
     )
-    .get(dedupeKey) as JobRow | undefined;
+    .get<JobRow>(dedupeKey);
   return row ? toJob(row) : null;
 };
 
-export const updateJobPayload = (
+export const updateJobPayload = async (
   id: string,
   payload: Record<string, unknown>,
   runAfter?: string
-): BackgroundJob | null => {
+): Promise<BackgroundJob | null> => {
   const now = nowIso();
-  getDb().prepare(
+  await getDb().prepare(
     `UPDATE background_jobs
      SET payload_json = ?, run_after = COALESCE(?, run_after), updated_at = ?
      WHERE id = ? AND status IN ('queued', 'running')`
@@ -97,42 +107,49 @@ export const updateJobPayload = (
   return getJob(id);
 };
 
-export const claimNextJob = (workerId: string): BackgroundJob | null => {
+export const claimNextJob = async (workerId: string): Promise<BackgroundJob | null> => {
   const now = nowIso();
-  const row = getDb()
-    .prepare(
-      `SELECT * FROM background_jobs
-       WHERE status = 'queued' AND run_after <= ?
-       ORDER BY run_after ASC, created_at ASC
-       LIMIT 1`
-    )
-    .get(now) as JobRow | undefined;
-  if (!row) return null;
+  return getDb().transaction(async (db) => {
+    const lockClause = db.provider === "postgres" ? " FOR UPDATE SKIP LOCKED" : "";
+    const row = await db
+      .prepare(
+        `SELECT * FROM background_jobs
+         WHERE status = 'queued' AND run_after <= ?
+         ORDER BY run_after ASC, created_at ASC
+         LIMIT 1${lockClause}`
+      )
+      .get<JobRow>(now);
+    if (!row) return null;
 
-  getDb().prepare(
-    `UPDATE background_jobs
-     SET status = 'running', attempts = attempts + 1, locked_at = ?, locked_by = ?, updated_at = ?
-     WHERE id = ? AND status = 'queued'`
-  ).run(now, workerId, now, row.id);
-  return getJob(row.id);
+    await db.prepare(
+      `UPDATE background_jobs
+       SET status = 'running', attempts = attempts + 1, locked_at = ?, locked_by = ?, updated_at = ?
+       WHERE id = ? AND status = 'queued'`
+    ).run(now, workerId, now, row.id);
+    return getJobWithDb(db, row.id);
+  });
 };
 
-export const completeJob = (id: string): void => {
+export const completeJob = async (id: string): Promise<void> => {
   const now = nowIso();
-  getDb().prepare(
+  await getDb().prepare(
     `UPDATE background_jobs
      SET status = 'succeeded', locked_at = NULL, locked_by = NULL, last_error = '', updated_at = ?
      WHERE id = ?`
   ).run(now, id);
 };
 
-export const failJob = (id: string, error: string, retryDelayMs: number): BackgroundJob | null => {
-  const job = getJob(id);
+export const failJob = async (
+  id: string,
+  error: string,
+  retryDelayMs: number
+): Promise<BackgroundJob | null> => {
+  const job = await getJob(id);
   if (!job) return null;
   const now = nowIso();
   const exhausted = job.attempts >= job.maxAttempts;
   const runAfter = new Date(Date.now() + retryDelayMs).toISOString();
-  getDb().prepare(
+  await getDb().prepare(
     `UPDATE background_jobs
      SET status = ?, run_after = ?, locked_at = NULL, locked_by = NULL, last_error = ?, updated_at = ?
      WHERE id = ?`
@@ -140,9 +157,9 @@ export const failJob = (id: string, error: string, retryDelayMs: number): Backgr
   return getJob(id);
 };
 
-export const recoverStaleJobs = (lockedBeforeIso: string): number => {
+export const recoverStaleJobs = async (lockedBeforeIso: string): Promise<number> => {
   const now = nowIso();
-  const result = getDb().prepare(
+  const result = await getDb().prepare(
     `UPDATE background_jobs
      SET status = 'queued',
          locked_at = NULL,

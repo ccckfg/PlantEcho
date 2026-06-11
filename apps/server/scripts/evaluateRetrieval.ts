@@ -35,10 +35,10 @@ const reportPath = process.env.RETRIEVAL_REPORT_PATH ??
 
 type Method = "bm25" | "vector" | "hybrid" | "rerank";
 
-const insertFixtures = (plantId: string): Map<string, EpisodeMemory> => {
+const insertFixtures = async (plantId: string): Promise<Map<string, EpisodeMemory>> => {
   const map = new Map<string, EpisodeMemory>();
-  [...targetMemories, ...distractors].forEach((item, index) => {
-    const memory = addEpisodeMemory({
+  for (const [index, item] of [...targetMemories, ...distractors].entries()) {
+    const memory = await addEpisodeMemory({
       plantId,
       date: "2026-05-20",
       time: `${String(8 + (index % 12)).padStart(2, "0")}:00`,
@@ -53,12 +53,12 @@ const insertFixtures = (plantId: string): Map<string, EpisodeMemory> => {
       rawPayload: { label: item.label }
     });
     map.set(item.label, memory);
-  });
+  }
   return map;
 };
 
-const bm25Rank = (plantId: string, query: string): RankedItem[] =>
-  episodeBm25Candidates(plantId, query).map((item) => ({
+const bm25Rank = async (plantId: string, query: string): Promise<RankedItem[]> =>
+  (await episodeBm25Candidates(plantId, query)).map((item) => ({
     id: item.id,
     label: "",
     title: item.title,
@@ -68,22 +68,25 @@ const bm25Rank = (plantId: string, query: string): RankedItem[] =>
 const vectorRank = async (plantId: string, query: string): Promise<RankedItem[]> => {
   await ensureVectorIndexForPlant(plantId);
   const rows = await getVectorCandidates(plantId, "episode", query, 15);
-  return rows.map((item) => {
-    const memory = getEpisodeMemory(item.targetId)!;
-    return {
+  const ranked: RankedItem[] = [];
+  for (const item of rows) {
+    const memory = await getEpisodeMemory(item.targetId);
+    if (!memory) continue;
+    ranked.push({
       id: memory.id,
       label: String(memory.rawPayload.label ?? ""),
       title: memory.title,
       score: distanceToRelevance(item.distance)
-    };
-  });
+    });
+  }
+  return ranked;
 };
 
 const fusionInputs = async (plantId: string, query: string): Promise<FusionInput[]> => {
   await ensureVectorIndexForPlant(plantId);
   const map = new Map<string, FusionInput>();
   for (const item of await getVectorCandidates(plantId, "episode", query, 15)) {
-    const memory = getEpisodeMemory(item.targetId);
+    const memory = await getEpisodeMemory(item.targetId);
     if (!memory) continue;
     map.set(memory.id, {
       id: memory.id,
@@ -92,8 +95,8 @@ const fusionInputs = async (plantId: string, query: string): Promise<FusionInput
       metadata: { memory }
     });
   }
-  for (const item of episodeBm25Candidates(plantId, query)) {
-    const memory = getEpisodeMemory(item.id);
+  for (const item of await episodeBm25Candidates(plantId, query)) {
+    const memory = await getEpisodeMemory(item.id);
     if (!memory) continue;
     const existing = map.get(memory.id);
     map.set(memory.id, {
@@ -160,14 +163,14 @@ const summarize = (rows: Array<{ rank: number | null }>) => {
 const pct = (value: number): string => `${(value * 100).toFixed(1)}%`;
 
 const main = async (): Promise<void> => {
-  migrate();
+  await migrate();
   if (!isRerankConfigured()) throw new Error("Rerank is not configured");
-  const plant = createPlant({
+  const plant = await createPlant({
     name: "评估绿萝",
     species: "绿萝",
     location: "评估书桌"
   });
-  const labelToMemory = insertFixtures(plant.id);
+  const labelToMemory = await insertFixtures(plant.id);
   await ensureVectorIndexForPlant(plant.id);
 
   const details: Record<Method, Array<{
@@ -181,13 +184,17 @@ const main = async (): Promise<void> => {
     for (const method of Object.keys(rankers) as Method[]) {
       const ranked = await rankers[method](plant.id, query.text);
       const rank = ranked.findIndex((item) => item.id === expected.id);
+      const top: RankedItem[] = [];
+      for (const item of ranked.slice(0, 5)) {
+        top.push({
+          ...item,
+          label: item.label || String((await getEpisodeMemory(item.id))?.rawPayload.label ?? "")
+        });
+      }
       details[method].push({
         query,
         rank: rank >= 0 ? rank + 1 : null,
-        top: ranked.slice(0, 5).map((item) => ({
-          ...item,
-          label: item.label || String(getEpisodeMemory(item.id)?.rawPayload.label ?? "")
-        }))
+        top
       });
     }
   }
@@ -240,11 +247,11 @@ const main = async (): Promise<void> => {
   metrics.forEach((item) => {
     console.log(`${item.method}: Top1=${pct(item.top1)} Top3=${pct(item.top3)} MRR=${item.mrr.toFixed(3)}`);
   });
-  closeDb();
+  await closeDb();
 };
 
-await main().catch((error) => {
+await main().catch(async (error) => {
   console.error(error instanceof Error ? error.message : String(error));
-  closeDb();
+  await closeDb();
   process.exitCode = 1;
 });
