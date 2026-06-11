@@ -117,7 +117,7 @@ export function DateTimeField({
 
       {open ? createPortal(
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-md bg-inverse-surface/30 backdrop-blur-sm dialog-backdrop-in"
+          className="fixed inset-0 z-50 flex items-center justify-center p-sm md:p-md bg-inverse-surface/30 backdrop-blur-sm dialog-backdrop-in"
           role="presentation"
         >
           <div
@@ -128,9 +128,9 @@ export function DateTimeField({
             role="dialog"
             aria-modal="true"
             aria-label={label}
-            className="dialog-pop-in relative z-10 w-full max-w-sm rounded-[28px] bg-surface-container-lowest p-md shadow-modal ring-1 ring-surface-container-highest/60 max-h-[95vh] overflow-y-auto"
+            className="dialog-pop-in relative z-10 w-[calc(100vw-2rem)] max-w-[360px] rounded-[28px] bg-surface-container-lowest p-sm md:p-md shadow-modal ring-1 ring-surface-container-highest/60 max-h-[95vh] overflow-y-auto"
           >
-            <div className="mb-md flex items-start justify-between gap-md">
+            <div className="mb-sm md:mb-md flex items-start justify-between gap-md">
               <div>
                 <p className="text-title-md font-display text-on-surface">{label}</p>
                 <p className="mt-1 text-label-sm font-label-sm text-on-surface-variant">
@@ -189,7 +189,7 @@ export function DateTimeField({
               </div>
             </div>
 
-            <div className="mt-md grid grid-cols-[1fr_auto_1fr] items-center gap-sm rounded-2xl bg-secondary-container/25 p-sm">
+            <div className="mt-sm md:mt-md grid grid-cols-[1fr_auto_1fr] items-center gap-sm rounded-2xl bg-secondary-container/25 p-sm">
               <input
                 inputMode="numeric"
                 value={pad(draft.getHours())}
@@ -207,7 +207,7 @@ export function DateTimeField({
               />
             </div>
 
-            <div className="mt-md flex items-center justify-between gap-sm">
+            <div className="mt-sm md:mt-md flex items-center justify-between gap-sm">
               {allowClear ? (
                 <button type="button" onClick={() => { onChange(""); setOpen(false); }} className="rounded-full px-md py-sm text-label-sm font-label-sm text-secondary hover:bg-secondary-container/35">
                   清除
