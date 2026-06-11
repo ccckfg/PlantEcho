@@ -25,7 +25,7 @@ export const registerAuthRoutes = async (app: FastifyInstance): Promise<void> =>
 
   app.post("/api/v1/auth/register", async (request, reply) => {
     try {
-      return reply.status(201).send(registerUser(
+      return reply.status(201).send(await registerUser(
         authRegisterSchema.parse(request.body),
         sessionMeta(request)
       ));
@@ -36,7 +36,7 @@ export const registerAuthRoutes = async (app: FastifyInstance): Promise<void> =>
 
   app.post("/api/v1/auth/login", async (request, reply) => {
     try {
-      return reply.send(loginUser(
+      return reply.send(await loginUser(
         authLoginSchema.parse(request.body),
         sessionMeta(request)
       ));
@@ -48,16 +48,16 @@ export const registerAuthRoutes = async (app: FastifyInstance): Promise<void> =>
   app.get("/api/v1/auth/me", async (request) => ({ user: request.currentUser }));
 
   app.get("/api/v1/auth/sessions", async (request) => ({
-    sessions: listOwnSessions(request.currentUser!, request.currentSessionId)
+    sessions: await listOwnSessions(request.currentUser!, request.currentSessionId)
   }));
 
   app.get("/api/v1/auth/api-key", async (request) => ({
-    apiKey: getOwnApiKey(request.currentUser!)
+    apiKey: await getOwnApiKey(request.currentUser!)
   }));
 
   app.post("/api/v1/auth/api-key", async (request, reply) => {
     try {
-      return reply.status(201).send(generateOwnApiKey(request.currentUser!));
+      return reply.status(201).send(await generateOwnApiKey(request.currentUser!));
     } catch (error) {
       return sendError(reply, error);
     }
@@ -65,7 +65,7 @@ export const registerAuthRoutes = async (app: FastifyInstance): Promise<void> =>
 
   app.post("/api/v1/auth/api-key/rotate", async (request, reply) => {
     try {
-      return reply.send(rotateOwnApiKey(request.currentUser!));
+      return reply.send(await rotateOwnApiKey(request.currentUser!));
     } catch (error) {
       return sendError(reply, error);
     }
@@ -74,7 +74,7 @@ export const registerAuthRoutes = async (app: FastifyInstance): Promise<void> =>
   app.delete("/api/v1/auth/sessions/:sessionId", async (request, reply) => {
     try {
       const { sessionId } = request.params as { sessionId: string };
-      return reply.send({ session: revokeOwnSession(request.currentUser!, sessionId) });
+      return reply.send({ session: await revokeOwnSession(request.currentUser!, sessionId) });
     } catch (error) {
       return sendError(reply, error);
     }

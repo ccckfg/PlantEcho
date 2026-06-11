@@ -87,7 +87,7 @@ export const createPlantPhoto = async (
   await mkdir(dir, { recursive: true });
   await writeFile(contentPath, bytes);
 
-  getDb()
+  await getDb()
     .prepare(
       `INSERT INTO plant_photos
        (id, plant_id, file_name, mime_type, content_path, caption, captured_at, created_at)
@@ -104,29 +104,25 @@ export const createPlantPhoto = async (
       now
     );
 
-  return getPlantPhoto(id)!;
+  return (await getPlantPhoto(id))!;
 };
 
-export const getPlantPhoto = (id: string): PlantPhoto | null => {
-  const row = getDb().prepare("SELECT * FROM plant_photos WHERE id = ?").get(id) as
-    | PhotoRow
-    | undefined;
+export const getPlantPhoto = async (id: string): Promise<PlantPhoto | null> => {
+  const row = await getDb().prepare("SELECT * FROM plant_photos WHERE id = ?").get<PhotoRow>(id);
   return row ? toPhoto(row) : null;
 };
 
-export const listPlantPhotos = (plantId: string): PlantPhoto[] => {
-  const rows = getDb()
+export const listPlantPhotos = async (plantId: string): Promise<PlantPhoto[]> => {
+  const rows = await getDb()
     .prepare("SELECT * FROM plant_photos WHERE plant_id = ? ORDER BY captured_at DESC, id DESC")
-    .all(plantId) as PhotoRow[];
+    .all<PhotoRow>(plantId);
   return rows.map(toPhoto);
 };
 
 export const readPhotoBytes = async (
   id: string
 ): Promise<{ photo: PlantPhoto; bytes: Buffer } | null> => {
-  const row = getDb().prepare("SELECT * FROM plant_photos WHERE id = ?").get(id) as
-    | PhotoRow
-    | undefined;
+  const row = await getDb().prepare("SELECT * FROM plant_photos WHERE id = ?").get<PhotoRow>(id);
   if (!row) return null;
   return { photo: toPhoto(row), bytes: await readFile(row.content_path) };
 };
@@ -150,30 +146,25 @@ export const deletePlantPhoto = async (
   plantId: string,
   photoId: string
 ): Promise<{ photo: PlantPhoto; avatarCleared: boolean } | null> => {
-  const row = getDb()
+  const row = await getDb()
     .prepare("SELECT * FROM plant_photos WHERE id = ? AND plant_id = ?")
-    .get(photoId, plantId) as PhotoRow | undefined;
+    .get<PhotoRow>(photoId, plantId);
   if (!row) return null;
 
   const photo = toPhoto(row);
   const db = getDb();
-  const currentAvatar = db
+  const currentAvatar = await db
     .prepare("SELECT avatar_url FROM plants WHERE id = ?")
-    .get(plantId) as { avatar_url: string | null } | undefined;
+    .get<{ avatar_url: string | null }>(plantId);
   const avatarCleared = currentAvatar?.avatar_url === photo.contentUrl;
 
-  db.exec("BEGIN");
-  try {
-    db.prepare("DELETE FROM plant_photos WHERE id = ? AND plant_id = ?").run(photoId, plantId);
+  await db.transaction(async (tx) => {
+    await tx.prepare("DELETE FROM plant_photos WHERE id = ? AND plant_id = ?").run(photoId, plantId);
     if (avatarCleared) {
-      db.prepare("UPDATE plants SET avatar_url = NULL, updated_at = ? WHERE id = ?")
+      await tx.prepare("UPDATE plants SET avatar_url = NULL, updated_at = ? WHERE id = ?")
         .run(nowIso(), plantId);
     }
-    db.exec("COMMIT");
-  } catch (error) {
-    db.exec("ROLLBACK");
-    throw error;
-  }
+  });
 
   await deletePhotoFile(row.content_path);
   return { photo, avatarCleared };

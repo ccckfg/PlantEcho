@@ -25,45 +25,45 @@ test("multi-plant device readings stay isolated across claim, physical state and
   const { claimDevice, isAuthorizedDevice, registerPendingDevice } = await import("./deviceService.js");
 
   try {
-    migrate();
-    const existingPlant = createPlant({ name: "小竹", species: "文竹", location: "窗边" });
+    await migrate();
+    const existingPlant = await createPlant({ name: "小竹", species: "文竹", location: "窗边" });
     const existingDeviceId = `esp32-existing-${randomUUID()}`;
     const newDeviceId = `esp32-new-${randomUUID()}`;
 
-    registerPendingDevice(existingDeviceId, sampleReading(41));
-    const existingClaim = claimDevice(existingDeviceId, {
+    await registerPendingDevice(existingDeviceId, sampleReading(41));
+    const existingClaim = await claimDevice(existingDeviceId, {
       mode: "existingPlant",
       plantId: existingPlant.id,
       deviceName: "文竹传感器"
     });
 
-    registerPendingDevice(newDeviceId, sampleReading(62));
-    const newClaim = claimDevice(newDeviceId, {
+    await registerPendingDevice(newDeviceId, sampleReading(62));
+    const newClaim = await claimDevice(newDeviceId, {
       mode: "newPlant",
       plant: { name: "小薄荷", species: "薄荷", location: "厨房窗台" },
       deviceName: "薄荷传感器"
     });
 
-    assert.equal(isAuthorizedDevice(existingDeviceId, existingClaim.deviceApiKey), true);
-    assert.equal(isAuthorizedDevice(newDeviceId, newClaim.deviceApiKey), true);
+    assert.equal(await isAuthorizedDevice(existingDeviceId, existingClaim.deviceApiKey), true);
+    assert.equal(await isAuthorizedDevice(newDeviceId, newClaim.deviceApiKey), true);
 
-    const dryReading = recordDeviceReading(existingDeviceId, sampleReading(8));
-    const wetReading = recordDeviceReading(newDeviceId, sampleReading(96));
+    const dryReading = await recordDeviceReading(existingDeviceId, sampleReading(8));
+    const wetReading = await recordDeviceReading(newDeviceId, sampleReading(96));
 
     assert.equal(dryReading.plantId, existingPlant.id);
     assert.equal(wetReading.plantId, newClaim.device.plantId);
-    assert.equal(getPlantReadingState(existingPlant.id).latest?.deviceId, existingDeviceId);
-    assert.equal(getPlantReadingState(newClaim.device.plantId).latest?.deviceId, newDeviceId);
-    assert.equal(getPlantReadings(existingPlant.id).length, 1);
-    assert.equal(getPlantReadings(newClaim.device.plantId).length, 1);
-    assert.match(getPlantReadingState(existingPlant.id).health.issues[0]?.label ?? "", /土壤偏干/);
-    assert.match(getPlantReadingState(newClaim.device.plantId).health.issues[0]?.label ?? "", /土壤偏湿/);
-    assert.equal(getPlant(newClaim.device.plantId)?.name, "小薄荷");
+    assert.equal((await getPlantReadingState(existingPlant.id)).latest?.deviceId, existingDeviceId);
+    assert.equal((await getPlantReadingState(newClaim.device.plantId)).latest?.deviceId, newDeviceId);
+    assert.equal((await getPlantReadings(existingPlant.id)).length, 1);
+    assert.equal((await getPlantReadings(newClaim.device.plantId)).length, 1);
+    assert.match((await getPlantReadingState(existingPlant.id)).health.issues[0]?.label ?? "", /土壤偏干/);
+    assert.match((await getPlantReadingState(newClaim.device.plantId)).health.issues[0]?.label ?? "", /土壤偏湿/);
+    assert.equal((await getPlant(newClaim.device.plantId))?.name, "小薄荷");
 
-    const events = listSyncEventsSince(0, 50);
+    const events = await listSyncEventsSince(0, 50);
     assert.equal(events.some((event) => event.type === "plants.changed" && event.plantId === newClaim.device.plantId), true);
     assert.equal(events.filter((event) => event.type === "readings.changed").length, 2);
   } finally {
-    closeDb();
+    await closeDb();
   }
 });

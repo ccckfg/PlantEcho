@@ -16,13 +16,13 @@ test("deletePlant hides a plant and restorePlant brings the same plant back", as
     updatePlant
   } = await import("./plantRepository.js");
 
-  migrate();
-  const schemaVersion = getDb()
+  await migrate();
+  const schemaVersion = await getDb()
     .prepare("SELECT MAX(version) AS version FROM schema_migrations")
     .get() as { version: number };
   assert.equal(schemaVersion.version, latestSchemaVersion);
 
-  const plant = createPlant({
+  const plant = await createPlant({
     name: "删除测试小绿",
     species: "绿萝",
     location: "窗边",
@@ -31,23 +31,23 @@ test("deletePlant hides a plant and restorePlant brings the same plant back", as
   try {
     assert.equal(plant.backgroundInfo, "话不多，住在窗边。");
     assert.equal(
-      updatePlant(plant.id, { backgroundInfo: "喜欢把心事说得像风。" })?.backgroundInfo,
+      (await updatePlant(plant.id, { backgroundInfo: "喜欢把心事说得像风。" }))?.backgroundInfo,
       "喜欢把心事说得像风。"
     );
 
-    const deleted = deletePlant(plant.id);
+    const deleted = await deletePlant(plant.id);
 
     assert.equal(deleted?.id, plant.id);
-    assert.equal(getPlant(plant.id), null);
-    assert.equal(listPlants().some((item) => item.id === plant.id), false);
+    assert.equal(await getPlant(plant.id), null);
+    assert.equal((await listPlants()).some((item) => item.id === plant.id), false);
 
-    const restored = restorePlant(plant.id);
+    const restored = await restorePlant(plant.id);
 
     assert.equal(restored?.id, plant.id);
     assert.equal(restored?.name, plant.name);
-    assert.equal(getPlant(plant.id)?.id, plant.id);
+    assert.equal((await getPlant(plant.id))?.id, plant.id);
   } finally {
-    getDb().prepare("DELETE FROM plants WHERE id = ?").run(plant.id);
-    closeDb();
+    await getDb().prepare("DELETE FROM plants WHERE id = ?").run(plant.id);
+    await closeDb();
   }
 });

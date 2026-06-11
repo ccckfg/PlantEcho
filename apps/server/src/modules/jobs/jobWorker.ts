@@ -41,15 +41,15 @@ export const createJobWorker = (handlers: JobHandlerMap, logger: Logger): JobWor
   const runJob = async (job: BackgroundJob): Promise<void> => {
     const handler = handlers[job.type];
     if (!handler) {
-      failJob(job.id, `No handler registered for job type ${job.type}`, 0);
+      await failJob(job.id, `No handler registered for job type ${job.type}`, 0);
       return;
     }
     try {
       await handler(job, controller.signal);
-      completeJob(job.id);
+      await completeJob(job.id);
     } catch (error) {
       const message = sanitizeError(error);
-      const next = failJob(job.id, message, retryDelay(job.attempts));
+      const next = await failJob(job.id, message, retryDelay(job.attempts));
       logger.warn(`[jobs] ${job.type} failed: ${message}`);
       if (next?.status === "dead") {
         logger.error(`[jobs] ${job.type} exhausted retries: ${job.id}`);
@@ -62,10 +62,10 @@ export const createJobWorker = (handlers: JobHandlerMap, logger: Logger): JobWor
     running = true;
     try {
       const lockedBefore = new Date(Date.now() - jobConfig.lockTimeoutMs).toISOString();
-      const recovered = recoverStaleJobs(lockedBefore);
+      const recovered = await recoverStaleJobs(lockedBefore);
       if (recovered) logger.warn(`[jobs] recovered ${recovered} stale job(s)`);
       for (let i = 0; i < jobConfig.batchSize; i += 1) {
-        const job = claimNextJob(workerId);
+        const job = await claimNextJob(workerId);
         if (!job) break;
         await runJob(job);
       }

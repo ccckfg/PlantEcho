@@ -5,19 +5,19 @@ import { publishSyncEvent } from "../sync/syncBus.js";
 import { getLatestReading, insertReading, listReadings } from "./readingRepository.js";
 import { evaluateReading } from "./rules.js";
 
-export const recordDeviceReading = (deviceId: string, input: DeviceReadingPayload) => {
-  const plantId = getDevicePlantId(deviceId);
+export const recordDeviceReading = async (deviceId: string, input: DeviceReadingPayload) => {
+  const plantId = await getDevicePlantId(deviceId);
   if (!plantId) throw new Error(`Device ${deviceId} is not claimed`);
-  const plant = getPlant(plantId);
+  const plant = await getPlant(plantId);
   if (!plant) throw new Error(`Plant not found for device ${deviceId}`);
-  const reading = insertReading(deviceId, plantId, normalizeReadingPayload(input));
+  const reading = await insertReading(deviceId, plantId, normalizeReadingPayload(input));
   const health = evaluateReading(plant.careProfile, reading);
-  publishSyncEvent({
+  await publishSyncEvent({
     type: "readings.changed",
     plantId,
     payload: { readingId: reading.id, deviceId }
   });
-  publishSyncEvent({
+  await publishSyncEvent({
     type: "devices.changed",
     plantId,
     payload: { deviceId, lastSeenAt: reading.createdAt }
@@ -25,10 +25,10 @@ export const recordDeviceReading = (deviceId: string, input: DeviceReadingPayloa
   return { plantId, reading, health };
 };
 
-export const getPlantReadingState = (plantId: string) => {
-  const plant = getPlant(plantId);
+export const getPlantReadingState = async (plantId: string) => {
+  const plant = await getPlant(plantId);
   if (!plant) throw new Error(`Plant ${plantId} not found`);
-  const latest = getLatestReading(plantId);
+  const latest = await getLatestReading(plantId);
   const health = evaluateReading(plant.careProfile, latest);
   return {
     latest,

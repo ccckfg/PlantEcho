@@ -15,12 +15,12 @@ import { assertChatDependencies } from "../chat/chatRequirements.js";
 export const registerOpenAiCompatRoutes = async (app: FastifyInstance): Promise<void> => {
   app.get("/v1/models", async () => ({
     object: "list",
-    data: listCompatModels()
+    data: await listCompatModels()
   }));
 
   app.get("/v1/models/:model", async (request, reply) => {
     const { model } = request.params as { model: string };
-    const found = listCompatModels().find((item) => item.id === model);
+    const found = (await listCompatModels()).find((item) => item.id === model);
     if (!found) {
       return reply
         .status(404)
@@ -55,7 +55,7 @@ export const registerOpenAiCompatRoutes = async (app: FastifyInstance): Promise<
       if (!body.model) {
         throw new OpenAiCompatError("Model is required. Use one of /v1/models.", 400, "invalid_request_error", "model", "model_required");
       }
-      const plantRoute = resolvePlantRoute(body.model);
+      const plantRoute = await resolvePlantRoute(body.model);
       if (!plantRoute) {
         throw new OpenAiCompatError(`Model '${body.model}' does not exist`, 404, "invalid_request_error", "model", "model_not_found");
       }

@@ -27,15 +27,15 @@ test("unknown device becomes pending, then claimed device requires its generated
     setDeviceEnabled
   } = await import("./deviceService.js");
 
-  const countReadings = (deviceId: string): number => {
-    const row = getDb()
+  const countReadings = async (deviceId: string): Promise<number> => {
+    const row = await getDb()
       .prepare("SELECT COUNT(*) AS count FROM sensor_readings WHERE device_id = ?")
       .get(deviceId) as { count: number };
     return row.count;
   };
 
-  migrate();
-  const schemaVersion = getDb()
+  await migrate();
+  const schemaVersion = await getDb()
     .prepare("SELECT MAX(version) AS version FROM schema_migrations")
     .get() as { version: number };
   assert.equal(schemaVersion.version, latestSchemaVersion);
@@ -60,60 +60,60 @@ test("unknown device becomes pending, then claimed device requires its generated
       return true;
     });
 
-    const pending = registerPendingDevice(deviceId, payload);
+    const pending = await registerPendingDevice(deviceId, payload);
     assert.equal(pending.id, deviceId);
     assert.equal(pending.userId, null);
     assert.equal(pending.claimStatus, "pending");
-    assert.equal(countReadings(deviceId), 0);
+    assert.equal(await countReadings(deviceId), 0);
 
     const scopedId = `test-device-${randomUUID()}`;
-    const scoped = registerPendingDevice(scopedId, { ...payload, userId: "user-a" });
+    const scoped = await registerPendingDevice(scopedId, { ...payload, userId: "user-a" });
     assert.equal(scoped.userId, "user-a");
-    assert.equal(getPendingDevices("user-a").some((device) => device.id === scopedId), true);
-    assert.equal(getPendingDevices("user-b").some((device) => device.id === scopedId), false);
-    assert.throws(() => ignorePendingDevice(scopedId, "user-b"), /not found/);
-    const scopedIgnored = ignorePendingDevice(scopedId, "user-a");
+    assert.equal((await getPendingDevices("user-a")).some((device) => device.id === scopedId), true);
+    assert.equal((await getPendingDevices("user-b")).some((device) => device.id === scopedId), false);
+    await assert.rejects(() => ignorePendingDevice(scopedId, "user-b"), /not found/);
+    const scopedIgnored = await ignorePendingDevice(scopedId, "user-a");
     assert.equal(scopedIgnored.claimStatus, "ignored");
 
     const usernameScopedId = `test-device-${randomUUID()}`;
-    const usernameScoped = registerPendingDevice(usernameScopedId, { ...payload, userId: "ccckfg" });
+    const usernameScoped = await registerPendingDevice(usernameScopedId, { ...payload, userId: "ccckfg" });
     assert.equal(usernameScoped.userId, "ccckfg");
     assert.equal(
-      getPendingDevices({ id: "user-id-1", username: "ccckfg" }).some((device) => device.id === usernameScopedId),
+      (await getPendingDevices({ id: "user-id-1", username: "ccckfg" })).some((device) => device.id === usernameScopedId),
       true
     );
     assert.equal(
-      getPendingDevices({ id: "user-id-2", username: "other" }).some((device) => device.id === usernameScopedId),
+      (await getPendingDevices({ id: "user-id-2", username: "other" })).some((device) => device.id === usernameScopedId),
       false
     );
 
     const ignoredId = `test-device-${randomUUID()}`;
-    registerPendingDevice(ignoredId, payload);
-    assert.equal(getPendingDevices().some((device) => device.id === ignoredId), true);
-    const ignored = ignorePendingDevice(ignoredId);
+    await registerPendingDevice(ignoredId, payload);
+    assert.equal((await getPendingDevices()).some((device) => device.id === ignoredId), true);
+    const ignored = await ignorePendingDevice(ignoredId);
     assert.equal(ignored.claimStatus, "ignored");
-    assert.equal(getPendingDevices().some((device) => device.id === ignoredId), false);
+    assert.equal((await getPendingDevices()).some((device) => device.id === ignoredId), false);
 
     const queuedId = `test-device-${randomUUID()}`;
-    registerPendingDevice(queuedId, payload);
+    await registerPendingDevice(queuedId, payload);
     blockedDeliveries.add(queuedId);
-    const queuedClaim = claimDevice(queuedId, {
+    const queuedClaim = await claimDevice(queuedId, {
       mode: "existingPlant",
       plantId: env.DEFAULT_PLANT_ID,
       deviceName: "Queued ESP32"
     });
     assert.equal(queuedClaim.deliveredToDevice, false);
-    assert.equal(hasPendingDeviceCredentials(queuedId), true);
-    assert.equal(isAuthorizedDevice(queuedId, queuedClaim.deviceApiKey), true);
+    assert.equal(await hasPendingDeviceCredentials(queuedId), true);
+    assert.equal(await isAuthorizedDevice(queuedId, queuedClaim.deviceApiKey), true);
     blockedDeliveries.delete(queuedId);
-    assert.equal(deliverPendingDeviceConfig(queuedId), true);
+    assert.equal(await deliverPendingDeviceConfig(queuedId), true);
     const queuedDelivery = delivered.find((item) => item.deviceId === queuedId);
     assert.equal(queuedDelivery?.payload.apiKey, queuedClaim.deviceApiKey);
-    assert.equal(hasPendingDeviceCredentials(queuedId), true);
-    confirmDeviceCredentialsDelivered(queuedId);
-    assert.equal(hasPendingDeviceCredentials(queuedId), false);
+    assert.equal(await hasPendingDeviceCredentials(queuedId), true);
+    await confirmDeviceCredentialsDelivered(queuedId);
+    assert.equal(await hasPendingDeviceCredentials(queuedId), false);
 
-    const claimed = claimDevice(deviceId, {
+    const claimed = await claimDevice(deviceId, {
       mode: "existingPlant",
       plantId: env.DEFAULT_PLANT_ID,
       deviceName: "Test ESP32"
@@ -126,28 +126,28 @@ test("unknown device becomes pending, then claimed device requires its generated
     assert.equal(claimed.deliveredToDevice, true);
     const mainDelivery = delivered.find((item) => item.deviceId === deviceId);
     assert.equal(mainDelivery?.payload.apiKey, claimed.deviceApiKey);
-    assert.equal(getClaimedDevices().some((device) => device.id === deviceId), true);
-    assert.equal(isAuthorizedDevice(deviceId), false);
-    assert.equal(isAuthorizedDevice(deviceId, "wrong"), false);
-    assert.equal(isAuthorizedDevice(deviceId, claimed.deviceApiKey), true);
+    assert.equal((await getClaimedDevices()).some((device) => device.id === deviceId), true);
+    assert.equal(await isAuthorizedDevice(deviceId), false);
+    assert.equal(await isAuthorizedDevice(deviceId, "wrong"), false);
+    assert.equal(await isAuthorizedDevice(deviceId, claimed.deviceApiKey), true);
 
-    const disabled = setDeviceEnabled(deviceId, false);
+    const disabled = await setDeviceEnabled(deviceId, false);
     assert.equal(disabled.status, "disabled");
-    assert.equal(isAuthorizedDevice(deviceId, claimed.deviceApiKey), false);
-    const enabled = setDeviceEnabled(deviceId, true);
+    assert.equal(await isAuthorizedDevice(deviceId, claimed.deviceApiKey), false);
+    const enabled = await setDeviceEnabled(deviceId, true);
     assert.equal(enabled.status, "active");
-    assert.equal(isAuthorizedDevice(deviceId, claimed.deviceApiKey), true);
+    assert.equal(await isAuthorizedDevice(deviceId, claimed.deviceApiKey), true);
 
-    insertReading(deviceId, env.DEFAULT_PLANT_ID, normalizeReadingPayload(payload));
-    assert.equal(countReadings(deviceId), 1);
+    await insertReading(deviceId, env.DEFAULT_PLANT_ID, normalizeReadingPayload(payload));
+    assert.equal(await countReadings(deviceId), 1);
 
-    const deleted = deleteDevice(deviceId);
+    const deleted = await deleteDevice(deviceId);
     assert.equal(deleted.status, "deleted");
-    assert.equal(getClaimedDevices().some((device) => device.id === deviceId), false);
-    const restored = applyBulkDeviceAction({ deviceIds: [deviceId], action: "enable" });
+    assert.equal((await getClaimedDevices()).some((device) => device.id === deviceId), false);
+    const restored = await applyBulkDeviceAction({ deviceIds: [deviceId], action: "enable" });
     assert.equal(restored.devices[0]?.status, "active");
   } finally {
     registerDeviceConfigPublisher(null);
-    closeDb();
+    await closeDb();
   }
 });

@@ -73,60 +73,76 @@ const toUnderstandingCandidate = (row: UnderstandingCandidateRow): RawUnderstand
   score: row.score
 });
 
-export const syncEpisodeFts = (
+export const syncEpisodeFts = async (
   memoryId: string,
   plantId: string,
   title: string,
   content: string,
   keywords: string[]
-): void => {
+): Promise<void> => {
   const db = getDb();
-  db.prepare("DELETE FROM plant_memories_fts WHERE target_id = ?").run(memoryId);
-  db.prepare(
+  if (db.provider === "postgres") return Promise.resolve();
+  await db.prepare("DELETE FROM plant_memories_fts WHERE target_id = ?").run(memoryId);
+  await db.prepare(
     "INSERT INTO plant_memories_fts (target_id, plant_id, title, content, keywords) VALUES (?, ?, ?, ?, ?)"
   ).run(memoryId, plantId, ftsDocument(title), ftsDocument(content), ftsDocument(keywords.join(" ")));
 };
 
-export const syncUnderstandingFts = (
+export const syncUnderstandingFts = async (
   understandingId: string,
   plantId: string,
   subject: string,
   content: string,
   keywords: string[]
-): void => {
+): Promise<void> => {
   const db = getDb();
-  db.prepare("DELETE FROM plant_understandings_fts WHERE target_id = ?").run(understandingId);
-  db.prepare(
+  if (db.provider === "postgres") return Promise.resolve();
+  await db.prepare("DELETE FROM plant_understandings_fts WHERE target_id = ?").run(understandingId);
+  await db.prepare(
     "INSERT INTO plant_understandings_fts (target_id, plant_id, subject, content, keywords) VALUES (?, ?, ?, ?, ?)"
   ).run(understandingId, plantId, ftsDocument(subject), ftsDocument(content), ftsDocument(keywords.join(" ")));
 };
 
-export const rebuildFtsIndexes = (): void => {
+export const rebuildFtsIndexes = async (): Promise<void> => {
   const db = getDb();
-  db.exec("DELETE FROM plant_memories_fts");
-  db.exec("DELETE FROM plant_understandings_fts");
-  const memories = db.prepare(
+  if (db.provider === "postgres") return;
+  await db.exec("DELETE FROM plant_memories_fts");
+  await db.exec("DELETE FROM plant_understandings_fts");
+  const memories = await db.prepare(
     "SELECT id, plant_id, title, content, keywords_json FROM plant_memories"
-  ).all() as Array<{ id: string; plant_id: string; title: string; content: string; keywords_json: string }>;
+  ).all<{ id: string; plant_id: string; title: string; content: string; keywords_json: string }>();
   for (const memory of memories) {
-    syncEpisodeFts(memory.id, memory.plant_id, memory.title, memory.content, parseKeywords(memory.keywords_json));
+    await syncEpisodeFts(memory.id, memory.plant_id, memory.title, memory.content, parseKeywords(memory.keywords_json));
   }
-  const understandings = db.prepare(
+  const understandings = await db.prepare(
     "SELECT id, plant_id, subject, content, keywords_json FROM plant_understandings"
-  ).all() as Array<{ id: string; plant_id: string; subject: string; content: string; keywords_json: string }>;
+  ).all<{ id: string; plant_id: string; subject: string; content: string; keywords_json: string }>();
   for (const item of understandings) {
-    syncUnderstandingFts(item.id, item.plant_id, item.subject, item.content, parseKeywords(item.keywords_json));
+    await syncUnderstandingFts(item.id, item.plant_id, item.subject, item.content, parseKeywords(item.keywords_json));
   }
 };
 
-export const getEpisodeBm25Candidates = (
+export const getEpisodeBm25Candidates = async (
   plantId: string,
   query: string,
   limit: number
-): RawEpisodeCandidate[] => {
+): Promise<RawEpisodeCandidate[]> => {
   const match = ftsMatchQuery(query);
   if (!match) return [];
-  const rows = getDb().prepare(
+  const db = getDb();
+  if (db.provider === "postgres") {
+    const rows = await db.prepare(
+      `SELECT id, content,
+              ts_rank_cd(search_vector, plainto_tsquery('simple', ?)) AS score,
+              date, time, title, keywords_json, importance, last_recalled_at, created_at
+       FROM plant_memories
+       WHERE plant_id = ? AND search_vector @@ plainto_tsquery('simple', ?)
+       ORDER BY score DESC
+       LIMIT ?`
+    ).all<EpisodeCandidateRow>(match, plantId, match, limit);
+    return rows.map(toEpisodeCandidate);
+  }
+  const rows = await db.prepare(
     `SELECT m.id, m.content, ABS(bm25(plant_memories_fts, 1.5, 3.0, 1.0)) AS score,
             m.date, m.time, m.title, m.keywords_json, m.importance,
             m.last_recalled_at, m.created_at
@@ -135,18 +151,30 @@ export const getEpisodeBm25Candidates = (
      WHERE plant_memories_fts MATCH ? AND plant_memories_fts.plant_id = ?
      ORDER BY score DESC
      LIMIT ?`
-  ).all(match, plantId, limit) as EpisodeCandidateRow[];
+  ).all<EpisodeCandidateRow>(match, plantId, limit);
   return rows.map(toEpisodeCandidate);
 };
 
-export const getUnderstandingBm25Candidates = (
+export const getUnderstandingBm25Candidates = async (
   plantId: string,
   query: string,
   limit: number
-): RawUnderstandingCandidate[] => {
+): Promise<RawUnderstandingCandidate[]> => {
   const match = ftsMatchQuery(query);
   if (!match) return [];
-  const rows = getDb().prepare(
+  const db = getDb();
+  if (db.provider === "postgres") {
+    const rows = await db.prepare(
+      `SELECT id, subject, content, keywords_json,
+              ts_rank_cd(search_vector, plainto_tsquery('simple', ?)) AS score
+       FROM plant_understandings
+       WHERE plant_id = ? AND search_vector @@ plainto_tsquery('simple', ?)
+       ORDER BY score DESC
+       LIMIT ?`
+    ).all<UnderstandingCandidateRow>(match, plantId, match, limit);
+    return rows.map(toUnderstandingCandidate);
+  }
+  const rows = await db.prepare(
     `SELECT u.id, u.subject, u.content, u.keywords_json,
             ABS(bm25(plant_understandings_fts, 2.0, 1.0, 3.0)) AS score
      FROM plant_understandings_fts
@@ -154,19 +182,19 @@ export const getUnderstandingBm25Candidates = (
      WHERE plant_understandings_fts MATCH ? AND plant_understandings_fts.plant_id = ?
      ORDER BY score DESC
      LIMIT ?`
-  ).all(match, plantId, limit) as UnderstandingCandidateRow[];
+  ).all<UnderstandingCandidateRow>(match, plantId, limit);
   return rows.map(toUnderstandingCandidate);
 };
 
-export const getHistoryWindowStart = (plantId: string): number => {
-  const row = getDb().prepare("SELECT start_turn FROM history_window_state WHERE plant_id = ?").get(plantId) as
-    | { start_turn: number }
-    | undefined;
+export const getHistoryWindowStart = async (plantId: string): Promise<number> => {
+  const row = await getDb()
+    .prepare("SELECT start_turn FROM history_window_state WHERE plant_id = ?")
+    .get<{ start_turn: number }>(plantId);
   return row?.start_turn ?? 0;
 };
 
-export const setHistoryWindowStart = (plantId: string, startTurn: number): void => {
-  getDb().prepare(
+export const setHistoryWindowStart = async (plantId: string, startTurn: number): Promise<void> => {
+  await getDb().prepare(
     `INSERT INTO history_window_state (plant_id, start_turn, updated_at)
      VALUES (?, ?, ?)
      ON CONFLICT(plant_id) DO UPDATE SET
@@ -174,4 +202,3 @@ export const setHistoryWindowStart = (plantId: string, startTurn: number): void 
        updated_at = excluded.updated_at`
   ).run(plantId, startTurn, nowIso());
 };
-

@@ -65,9 +65,9 @@ const generateSecondaryTags = async (
   primaryLabel: string,
   sourceTurn: number | null
 ): Promise<StoredPlantStatusTags | null> => {
-  const plant = getPlant(plantId);
+  const plant = await getPlant(plantId);
   if (!plant) throw new Error(`Plant ${plantId} not found`);
-  const state = getLayeredPlantState(plantId);
+  const state = await getLayeredPlantState(plantId);
   const output = await completeJson<StatusTagOutput>([
     { role: "system", content: statusTagSystemPrompt },
     { role: "user", content: buildStatusTagPrompt(plant, state, primaryLabel) }
@@ -77,22 +77,22 @@ const generateSecondaryTags = async (
   return upsertPlantStatusTags(plantId, tags, sourceTurn);
 };
 
-export const savePlantStatusTagsFromChat = (
+export const savePlantStatusTagsFromChat = async (
   plantId: string,
   sourceTurn: number,
   tags: string[]
-): StoredPlantStatusTags => {
-  const state = getLayeredPlantState(plantId);
+): Promise<StoredPlantStatusTags> => {
+  const state = await getLayeredPlantState(plantId);
   const primary = primaryFromConnection(state.physical.connection);
   return upsertPlantStatusTags(plantId, sanitizeStatusTags(tags, primary.label), sourceTurn);
 };
 
 export const getPlantStatusTags = async (plantId: string): Promise<PlantStatusTags> => {
-  const plant = getPlant(plantId);
+  const plant = await getPlant(plantId);
   if (!plant) throw new Error(`Plant ${plantId} not found`);
-  const state = getLayeredPlantState(plantId);
+  const state = await getLayeredPlantState(plantId);
   const primary = primaryFromConnection(state.physical.connection);
-  const stored = getStoredPlantStatusTags(plantId);
+  const stored = await getStoredPlantStatusTags(plantId);
   if (stored && isFresh(stored)) {
     return { primary, secondary: secondaryFromStored(stored) };
   }

@@ -148,10 +148,10 @@ export const buildChatContext = async (
   currentTurn?: number,
   timezone?: string
 ): Promise<ChatContext> => {
-  const plant = getPlant(plantId);
+  const plant = await getPlant(plantId);
   if (!plant) throw new Error(`Plant ${plantId} not found`);
-  const state = getLayeredPlantState(plantId);
-  const historyMessages = windowedHistory(plantId, currentTurn);
+  const state = await getLayeredPlantState(plantId);
+  const historyMessages = await windowedHistory(plantId, currentTurn);
   const queries = buildRetrievalQueries(userMessage, {
     focus: [state.inner.concern, state.inner.thought].filter(Boolean).join(" "),
     relationship: `${state.relationship.stage} ${state.relationship.summary}`
@@ -167,7 +167,9 @@ export const buildChatContext = async (
   const history = renderHistory(historyMessages);
 
   // Calculate elapsed time from the last user message before the current turn
-  const lastUserMsg = currentTurn !== undefined ? latestUserMessageBeforeTurn(plantId, currentTurn) : null;
+  const lastUserMsg = currentTurn !== undefined
+    ? await latestUserMessageBeforeTurn(plantId, currentTurn)
+    : null;
   const now = new Date();
 
   let temporalContext: Record<string, string> = {

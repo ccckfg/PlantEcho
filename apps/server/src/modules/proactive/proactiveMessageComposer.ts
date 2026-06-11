@@ -49,8 +49,8 @@ export const composeProactiveMessage = async (
   if (event.type === "reminder.due") return event.content;
   if (event.type === "weather.rain") return null;
   if (!canUseLlm()) return localDecision(event);
-  const plant = getPlant(event.plantId);
-  const history = recentMessages(event.plantId, 12)
+  const plant = await getPlant(event.plantId);
+  const history = (await recentMessages(event.plantId, 12))
     .map((message) => `${message.role}: ${message.content}`)
     .join("\n");
   try {

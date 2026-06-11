@@ -12,13 +12,13 @@ export const historyBeforeTurn = (
 ): ChatMessage[] =>
   messages.filter((message) => currentTurn === undefined || message.turn < currentTurn);
 
-export const windowedHistory = (plantId: string, currentTurn?: number): ChatMessage[] => {
+export const windowedHistory = async (plantId: string, currentTurn?: number): Promise<ChatMessage[]> => {
   const raw = historyBeforeTurn(
-    recentMessages(plantId, memoryConfig.rawScanTurns * 4),
+    await recentMessages(plantId, memoryConfig.rawScanTurns * 4),
     currentTurn
   );
   if (!raw.length) return [];
-  let startTurn = getHistoryWindowStart(plantId);
+  let startTurn = await getHistoryWindowStart(plantId);
   let kept = raw.filter((message) => message.turn >= startTurn);
   if (!kept.length) {
     kept = raw;
@@ -30,7 +30,7 @@ export const windowedHistory = (plantId: string, currentTurn?: number): ChatMess
     kept = kept.filter((message) => keepTurns.has(message.turn));
     startTurn = Math.min(...keepTurns);
   }
-  setHistoryWindowStart(plantId, startTurn);
+  await setHistoryWindowStart(plantId, startTurn);
   return kept;
 };
 

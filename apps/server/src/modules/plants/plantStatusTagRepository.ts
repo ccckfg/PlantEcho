@@ -34,20 +34,22 @@ const toStored = (row: PlantStatusTagRow): StoredPlantStatusTags => ({
   updatedAt: row.updated_at
 });
 
-export const getStoredPlantStatusTags = (plantId: string): StoredPlantStatusTags | null => {
-  const row = getDb()
+export const getStoredPlantStatusTags = async (
+  plantId: string
+): Promise<StoredPlantStatusTags | null> => {
+  const row = await getDb()
     .prepare("SELECT * FROM plant_status_tags WHERE plant_id = ?")
-    .get(plantId) as PlantStatusTagRow | undefined;
+    .get<PlantStatusTagRow>(plantId);
   return row ? toStored(row) : null;
 };
 
-export const upsertPlantStatusTags = (
+export const upsertPlantStatusTags = async (
   plantId: string,
   tags: string[],
   sourceTurn: number | null
-): StoredPlantStatusTags => {
+): Promise<StoredPlantStatusTags> => {
   const now = nowIso();
-  getDb().prepare(
+  await getDb().prepare(
     `INSERT INTO plant_status_tags
      (plant_id, tags_json, source_turn, created_at, updated_at)
      VALUES (?, ?, ?, ?, ?)
@@ -56,5 +58,5 @@ export const upsertPlantStatusTags = (
        source_turn = excluded.source_turn,
        updated_at = excluded.updated_at`
   ).run(plantId, JSON.stringify(tags), sourceTurn, now, now);
-  return getStoredPlantStatusTags(plantId)!;
+  return (await getStoredPlantStatusTags(plantId))!;
 };

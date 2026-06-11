@@ -48,17 +48,17 @@ const createEpisode = async (
   plantName: string,
   untilTurn: number
 ): Promise<boolean> => {
-  const drafts = getDraftsUntilTurn(plantId, untilTurn);
+  const drafts = await getDraftsUntilTurn(plantId, untilTurn);
   if (!drafts.length) return false;
   const firstTurn = Math.min(...drafts.map((draft) => draft.turn));
-  const messages = messagesInTurnRange(plantId, firstTurn, untilTurn);
+  const messages = await messagesInTurnRange(plantId, firstTurn, untilTurn);
   const rawDialogue = renderHistory(messages, plantName);
   const payload = buildEpisodePayload(plantName, drafts, rawDialogue);
   const llmReady = isLlmConfigured({ phase: llmPhases.memoryEpisode });
   const generated = llmReady ? await generateEpisodeMemory(payload) : null;
   const block = generated;
   if (block?.should_store === false) {
-    markDraftsConsumed(drafts.map((draft) => draft.id));
+    await markDraftsConsumed(drafts.map((draft) => draft.id));
     return false;
   }
   if (!block) {
@@ -68,7 +68,7 @@ const createEpisode = async (
   const content = sanitizeStateText(block.content, memoryConfig.episodeContentMaxChars);
   const title = sanitizeStateText(block.title, memoryConfig.episodeTitleMaxChars);
   if (block?.content?.trim() && !content) {
-    markDraftsConsumed(drafts.map((draft) => draft.id));
+    await markDraftsConsumed(drafts.map((draft) => draft.id));
     return false;
   }
   if (!content) {
@@ -76,7 +76,7 @@ const createEpisode = async (
     return false;
   }
 
-  const episode = addEpisodeMemory({
+  const episode = await addEpisodeMemory({
     plantId,
     date: block.date || isoDatePart(nowIso()),
     time: block.time || isoTimePart(nowIso()),
@@ -95,16 +95,16 @@ const createEpisode = async (
       draftTurns: drafts.map((draft) => draft.turn)
     }
   });
-  createIntentionFromEpisode(episode);
-  markDraftsConsumed(drafts.map((draft) => draft.id));
-  publishSyncEvent({
+  await createIntentionFromEpisode(episode);
+  await markDraftsConsumed(drafts.map((draft) => draft.id));
+  await publishSyncEvent({
     type: "memories.changed",
     plantId,
     payload: { memoryId: episode.id }
   });
   const understandingChanged = await patchEpisodeUnderstanding(plantId, episode.id);
   if (understandingChanged) {
-    publishSyncEvent({
+    await publishSyncEvent({
       type: "understandings.changed",
       plantId,
       payload: { memoryId: episode.id }
@@ -114,8 +114,8 @@ const createEpisode = async (
 };
 
 const patchEpisodeUnderstanding = async (plantId: string, episodeId: string): Promise<boolean> => {
-  const understandings = listUnderstandings(plantId);
-  const episode = getEpisodeMemory(episodeId);
+  const understandings = await listUnderstandings(plantId);
+  const episode = await getEpisodeMemory(episodeId);
   if (!episode) return false;
   const payload = buildUnderstandingPayload(understandings, episode);
   const patch = await patchUnderstandings(payload).catch(() => null);
@@ -126,7 +126,7 @@ const patchEpisodeUnderstanding = async (plantId: string, episodeId: string): Pr
     const subject = sanitizeStateText(item.subject, memoryConfig.understandingFieldMaxChars);
     const content = sanitizeStateText(item.content, memoryConfig.understandingFieldMaxChars);
     if (!subject || !content) continue;
-    upsertUnderstanding({
+    await upsertUnderstanding({
       plantId,
       subject,
       content,
@@ -153,7 +153,7 @@ const patchEpisodeUnderstanding = async (plantId: string, episodeId: string): Pr
     );
     if (!content || !subject) continue;
     const contentChanged = content !== existing.content;
-    upsertUnderstanding({
+    await upsertUnderstanding({
       id,
       plantId,
       subject,
@@ -169,9 +169,9 @@ const patchEpisodeUnderstanding = async (plantId: string, episodeId: string): Pr
     changed = true;
   }
   if (hasMeaningfulRelationshipPatch(patch.relationship_patch) && (changed || episode.importance >= 4)) {
-    const relationship = applyRelationshipPatch(plantId, episode.id, patch.relationship_patch!);
+    const relationship = await applyRelationshipPatch(plantId, episode.id, patch.relationship_patch!);
     if (relationship.changed) {
-      createIntentionFromUnderstanding(
+      await createIntentionFromUnderstanding(
         plantId,
         episode.id,
         relationship.state.summary
@@ -188,11 +188,11 @@ export const runConsolidationPipeline = async (
   currentTurn: number,
   closeCurrentTopic = false
 ): Promise<void> => {
-  const drafts = getDraftsUntilTurn(plantId, currentTurn);
+  const drafts = await getDraftsUntilTurn(plantId, currentTurn);
   if (!drafts.length) return;
   const earliest = Math.min(...drafts.map((draft) => draft.turn));
   const startTurn = Math.max(earliest, currentTurn - memoryConfig.closureDetectionTurnLimit + 1);
-  const history = renderHistory(messagesInTurnRange(plantId, startTurn, currentTurn), plantName);
+  const history = renderHistory(await messagesInTurnRange(plantId, startTurn, currentTurn), plantName);
   const closures = !closeCurrentTopic &&
     history &&
     isLlmConfigured({ phase: llmPhases.memoryClosure })

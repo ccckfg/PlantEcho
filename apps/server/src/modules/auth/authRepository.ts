@@ -57,58 +57,66 @@ const toSession = (row: SessionRow): AuthLoginSession => ({
   revokedAt: row.revoked_at
 });
 
-export const countUsers = (): number => {
-  const row = getDb().prepare("SELECT COUNT(*) AS count FROM users").get() as { count: number };
-  return row.count;
+export const countUsers = async (): Promise<number> => {
+  const row = await getDb().prepare("SELECT COUNT(*) AS count FROM users").get<{ count: number }>();
+  return row?.count ?? 0;
 };
 
-export const countActiveAdmins = (): number => {
-  const row = getDb()
+export const countActiveAdmins = async (): Promise<number> => {
+  const row = await getDb()
     .prepare("SELECT COUNT(*) AS count FROM users WHERE role = 'admin' AND is_active = 1")
-    .get() as { count: number };
-  return row.count;
+    .get<{ count: number }>();
+  return row?.count ?? 0;
 };
 
-export const listUsers = (): AppUser[] => {
-  const rows = getDb()
+export const listUsers = async (): Promise<AppUser[]> => {
+  const rows = await getDb()
     .prepare("SELECT * FROM users ORDER BY created_at ASC")
-    .all() as UserRow[];
+    .all<UserRow>();
   return rows.map(toUser);
 };
 
-export const getUserById = (id: string): (AppUser & { passwordHash: string }) | null => {
-  const row = getDb().prepare("SELECT * FROM users WHERE id = ?").get(id) as UserRow | undefined;
+export const getUserById = async (
+  id: string
+): Promise<(AppUser & { passwordHash: string }) | null> => {
+  const row = await getDb().prepare("SELECT * FROM users WHERE id = ?").get<UserRow>(id);
   return row ? { ...toUser(row), passwordHash: row.password_hash } : null;
 };
 
 export const getUserByUsername = (
   username: string
-): (AppUser & { passwordHash: string }) | null => {
-  const row = getDb()
+): Promise<(AppUser & { passwordHash: string }) | null> => {
+  return getUserByUsernameAsync(username);
+};
+
+const getUserByUsernameAsync = async (
+  username: string
+): Promise<(AppUser & { passwordHash: string }) | null> => {
+  const row = await getDb()
     .prepare("SELECT * FROM users WHERE lower(username) = lower(?)")
-    .get(username) as UserRow | undefined;
+    .get<UserRow>(username);
   return row ? { ...toUser(row), passwordHash: row.password_hash } : null;
 };
 
-export const insertUser = (input: {
+export const insertUser = async (input: {
   id: string;
   username: string;
   displayName: string;
   passwordHash: string;
   role: AppUser["role"];
-}): AppUser => {
+}): Promise<AppUser> => {
   const now = nowIso();
-  getDb()
+  await getDb()
     .prepare(
       `INSERT INTO users
        (id, username, display_name, password_hash, role, is_active, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, 1, ?, ?)`
     )
     .run(input.id, input.username, input.displayName, input.passwordHash, input.role, now, now);
-  return getUserById(input.id)!;
+  return (await getUserById(input.id))!;
 };
 
-export const updateUser = (id: string, patch: UserPatch): AppUser | null => {
+export const updateUser = async (id: string, patch: UserPatch): Promise<AppUser | null> => {
   const entries: Array<[string, string | number | null]> = [];
   if (patch.displayName !== undefined) entries.push(["display_name", patch.displayName]);
   if (patch.passwordHash !== undefined) entries.push(["password_hash", patch.passwordHash]);
@@ -118,20 +126,20 @@ export const updateUser = (id: string, patch: UserPatch): AppUser | null => {
   if (!entries.length) return getUserById(id);
   entries.push(["updated_at", nowIso()]);
   const assignments = entries.map(([column]) => `${column} = ?`).join(", ");
-  getDb().prepare(`UPDATE users SET ${assignments} WHERE id = ?`).run(...entries.map(([, value]) => value), id);
+  await getDb().prepare(`UPDATE users SET ${assignments} WHERE id = ?`).run(...entries.map(([, value]) => value), id);
   return getUserById(id);
 };
 
-export const insertAuthSession = (input: {
+export const insertAuthSession = async (input: {
   id: string;
   userId: string;
   tokenHash: string;
   userAgent: string;
   ipAddress: string;
   expiresAt: string;
-}): AuthLoginSession => {
+}): Promise<AuthLoginSession> => {
   const now = nowIso();
-  getDb()
+  await getDb()
     .prepare(
       `INSERT INTO auth_sessions
        (id, user_id, token_hash, user_agent, ip_address, created_at, expires_at, last_seen_at)
@@ -147,23 +155,23 @@ export const insertAuthSession = (input: {
       input.expiresAt,
       now
     );
-  return getAuthSession(input.id)!;
+  return (await getAuthSession(input.id))!;
 };
 
-export const getAuthSession = (id: string): AuthLoginSession | null => {
-  const row = getDb()
+export const getAuthSession = async (id: string): Promise<AuthLoginSession | null> => {
+  const row = await getDb()
     .prepare(
       `SELECT auth_sessions.*, users.username
        FROM auth_sessions
        JOIN users ON users.id = auth_sessions.user_id
        WHERE auth_sessions.id = ?`
     )
-    .get(id) as SessionRow | undefined;
+    .get<SessionRow>(id);
   return row ? toSession(row) : null;
 };
 
-export const touchAuthSession = (tokenHash: string): void => {
-  getDb()
+export const touchAuthSession = async (tokenHash: string): Promise<void> => {
+  await getDb()
     .prepare(
       `UPDATE auth_sessions SET last_seen_at = ?
        WHERE token_hash = ? AND revoked_at IS NULL`
@@ -171,20 +179,22 @@ export const touchAuthSession = (tokenHash: string): void => {
     .run(nowIso(), tokenHash);
 };
 
-export const getAuthSessionByTokenHash = (tokenHash: string): AuthLoginSession | null => {
-  const row = getDb()
+export const getAuthSessionByTokenHash = async (
+  tokenHash: string
+): Promise<AuthLoginSession | null> => {
+  const row = await getDb()
     .prepare(
       `SELECT auth_sessions.*, users.username
        FROM auth_sessions
        JOIN users ON users.id = auth_sessions.user_id
        WHERE auth_sessions.token_hash = ?`
     )
-    .get(tokenHash) as SessionRow | undefined;
+    .get<SessionRow>(tokenHash);
   return row ? toSession(row) : null;
 };
 
-export const listUserAuthSessions = (userId: string): AuthLoginSession[] => {
-  const rows = getDb()
+export const listUserAuthSessions = async (userId: string): Promise<AuthLoginSession[]> => {
+  const rows = await getDb()
     .prepare(
       `SELECT auth_sessions.*, users.username
        FROM auth_sessions
@@ -192,15 +202,15 @@ export const listUserAuthSessions = (userId: string): AuthLoginSession[] => {
        WHERE auth_sessions.user_id = ?
        ORDER BY auth_sessions.last_seen_at DESC`
     )
-    .all(userId) as SessionRow[];
+    .all<SessionRow>(userId);
   return rows.map(toSession);
 };
 
-export const revokeUserAuthSession = (
+export const revokeUserAuthSession = async (
   userId: string,
   sessionId: string
-): AuthLoginSession | null => {
-  getDb()
+): Promise<AuthLoginSession | null> => {
+  await getDb()
     .prepare(
       `UPDATE auth_sessions SET revoked_at = COALESCE(revoked_at, ?)
        WHERE id = ? AND user_id = ?`
@@ -209,8 +219,8 @@ export const revokeUserAuthSession = (
   return getAuthSession(sessionId);
 };
 
-export const listAuthSessions = (limit = 50): AuthLoginSession[] => {
-  const rows = getDb()
+export const listAuthSessions = async (limit = 50): Promise<AuthLoginSession[]> => {
+  const rows = await getDb()
     .prepare(
       `SELECT auth_sessions.*, users.username
        FROM auth_sessions
@@ -218,15 +228,15 @@ export const listAuthSessions = (limit = 50): AuthLoginSession[] => {
        ORDER BY auth_sessions.created_at DESC
        LIMIT ?`
     )
-    .all(limit) as SessionRow[];
+    .all<SessionRow>(limit);
   return rows.map(toSession);
 };
 
-export const deleteUserAuthSession = (
+export const deleteUserAuthSession = async (
   userId: string,
   sessionId: string
-): boolean => {
-  const result = getDb()
+): Promise<boolean> => {
+  const result = await getDb()
     .prepare("DELETE FROM auth_sessions WHERE id = ? AND user_id = ?")
     .run(sessionId, userId);
   return result.changes > 0;

@@ -25,47 +25,45 @@ const toReminder = (row: ReminderRow): ProactiveReminder => ({
   updatedAt: row.updated_at
 });
 
-export const createReminder = (
+export const createReminder = async (
   plantId: string,
   text: string,
   remindAt: Date,
   sourceMessageId: number | null = null
-): ProactiveReminder => {
+): Promise<ProactiveReminder> => {
   const id = randomUUID();
   const now = nowIso();
-  getDb()
+  await getDb()
     .prepare(
       `INSERT INTO proactive_reminders
        (id, plant_id, source_message_id, text, remind_at, status, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, 'scheduled', ?, ?)`
     )
     .run(id, plantId, sourceMessageId, text, remindAt.toISOString(), now, now);
-  return getReminder(id)!;
+  return (await getReminder(id))!;
 };
 
-export const getReminder = (id: string): ProactiveReminder | null => {
-  const row = getDb().prepare("SELECT * FROM proactive_reminders WHERE id = ?").get(id) as
-    | ReminderRow
-    | undefined;
+export const getReminder = async (id: string): Promise<ProactiveReminder | null> => {
+  const row = await getDb().prepare("SELECT * FROM proactive_reminders WHERE id = ?").get<ReminderRow>(id);
   return row ? toReminder(row) : null;
 };
 
-export const listDueReminders = (untilIso: string): ProactiveReminder[] => {
-  const rows = getDb()
+export const listDueReminders = async (untilIso: string): Promise<ProactiveReminder[]> => {
+  const rows = await getDb()
     .prepare(
       `SELECT * FROM proactive_reminders
        WHERE status = 'scheduled' AND remind_at <= ?
        ORDER BY remind_at ASC`
     )
-    .all(untilIso) as ReminderRow[];
+    .all<ReminderRow>(untilIso);
   return rows.map(toReminder);
 };
 
-export const markReminderStatus = (
+export const markReminderStatus = async (
   id: string,
   status: ReminderStatus
-): ProactiveReminder | null => {
-  getDb()
+): Promise<ProactiveReminder | null> => {
+  await getDb()
     .prepare("UPDATE proactive_reminders SET status = ?, updated_at = ? WHERE id = ?")
     .run(status, nowIso(), id);
   return getReminder(id);

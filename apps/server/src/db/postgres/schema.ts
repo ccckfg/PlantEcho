@@ -1,4 +1,12 @@
-export const schemaSql = `
+export const postgresSchemaSql = `
+CREATE EXTENSION IF NOT EXISTS vector;
+
+CREATE TABLE IF NOT EXISTS schema_migrations (
+  version INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  applied_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS plants (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
@@ -8,24 +16,69 @@ CREATE TABLE IF NOT EXISTS plants (
   location TEXT NOT NULL DEFAULT '',
   care_profile_json TEXT NOT NULL,
   created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL
+  updated_at TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'active',
+  deleted_at TEXT,
+  background_info TEXT NOT NULL DEFAULT ''
 );
+
 CREATE TABLE IF NOT EXISTS devices (
   id TEXT PRIMARY KEY,
   plant_id TEXT NOT NULL REFERENCES plants(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   api_key_hash TEXT,
   last_seen_at TEXT,
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'active',
+  disabled_at TEXT,
+  deleted_at TEXT
 );
+
 CREATE TABLE IF NOT EXISTS pending_devices (
   id TEXT PRIMARY KEY,
   first_seen_at TEXT NOT NULL,
   last_seen_at TEXT NOT NULL,
   latest_payload_json TEXT NOT NULL,
   rssi INTEGER,
-  claim_status TEXT NOT NULL DEFAULT 'pending'
+  claim_status TEXT NOT NULL DEFAULT 'pending',
+  user_id TEXT
 );
+
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  username TEXT NOT NULL UNIQUE,
+  display_name TEXT NOT NULL,
+  password_hash TEXT NOT NULL,
+  role TEXT NOT NULL DEFAULT 'user',
+  is_active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  last_login_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS auth_sessions (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token_hash TEXT NOT NULL UNIQUE,
+  user_agent TEXT NOT NULL DEFAULT '',
+  ip_address TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL,
+  last_seen_at TEXT NOT NULL,
+  expires_at TEXT NOT NULL,
+  revoked_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS user_api_keys (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+  key_hash TEXT NOT NULL UNIQUE,
+  key_prefix TEXT NOT NULL,
+  key_last4 TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  rotated_at TEXT,
+  last_used_at TEXT
+);
+
 CREATE TABLE IF NOT EXISTS device_config_deliveries (
   device_id TEXT PRIMARY KEY REFERENCES devices(id) ON DELETE CASCADE,
   payload_json TEXT NOT NULL,
@@ -34,8 +87,9 @@ CREATE TABLE IF NOT EXISTS device_config_deliveries (
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
+
 CREATE TABLE IF NOT EXISTS sensor_readings (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id BIGSERIAL PRIMARY KEY,
   device_id TEXT NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
   plant_id TEXT NOT NULL REFERENCES plants(id) ON DELETE CASCADE,
   captured_at TEXT NOT NULL,
@@ -48,6 +102,7 @@ CREATE TABLE IF NOT EXISTS sensor_readings (
   battery_mv INTEGER,
   created_at TEXT NOT NULL
 );
+
 CREATE TABLE IF NOT EXISTS plant_status (
   plant_id TEXT PRIMARY KEY REFERENCES plants(id) ON DELETE CASCADE,
   mood TEXT NOT NULL,
@@ -56,8 +111,9 @@ CREATE TABLE IF NOT EXISTS plant_status (
   last_summary TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
+
 CREATE TABLE IF NOT EXISTS messages (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id BIGSERIAL PRIMARY KEY,
   plant_id TEXT NOT NULL REFERENCES plants(id) ON DELETE CASCADE,
   turn INTEGER NOT NULL,
   role TEXT NOT NULL,
@@ -65,11 +121,13 @@ CREATE TABLE IF NOT EXISTS messages (
   visible_to_json TEXT NOT NULL,
   created_at TEXT NOT NULL
 );
+
 CREATE TABLE IF NOT EXISTS plant_turn_counters (
   plant_id TEXT PRIMARY KEY REFERENCES plants(id) ON DELETE CASCADE,
   next_turn INTEGER NOT NULL,
   updated_at TEXT NOT NULL
 );
+
 CREATE TABLE IF NOT EXISTS plant_photos (
   id TEXT PRIMARY KEY,
   plant_id TEXT NOT NULL REFERENCES plants(id) ON DELETE CASCADE,
@@ -80,8 +138,9 @@ CREATE TABLE IF NOT EXISTS plant_photos (
   captured_at TEXT NOT NULL,
   created_at TEXT NOT NULL
 );
+
 CREATE TABLE IF NOT EXISTS memory_drafts (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id BIGSERIAL PRIMARY KEY,
   plant_id TEXT NOT NULL REFERENCES plants(id) ON DELETE CASCADE,
   turn INTEGER NOT NULL,
   text TEXT NOT NULL,
@@ -89,6 +148,7 @@ CREATE TABLE IF NOT EXISTS memory_drafts (
   consumed_at TEXT,
   created_at TEXT NOT NULL
 );
+
 CREATE TABLE IF NOT EXISTS memory_consolidation_state (
   plant_id TEXT PRIMARY KEY REFERENCES plants(id) ON DELETE CASCADE,
   active INTEGER NOT NULL DEFAULT 0,
@@ -97,6 +157,7 @@ CREATE TABLE IF NOT EXISTS memory_consolidation_state (
   last_error TEXT NOT NULL DEFAULT '',
   updated_at TEXT NOT NULL
 );
+
 CREATE TABLE IF NOT EXISTS background_jobs (
   id TEXT PRIMARY KEY,
   type TEXT NOT NULL,
@@ -112,8 +173,9 @@ CREATE TABLE IF NOT EXISTS background_jobs (
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
+
 CREATE TABLE IF NOT EXISTS sync_events (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id BIGSERIAL PRIMARY KEY,
   type TEXT NOT NULL,
   plant_id TEXT REFERENCES plants(id) ON DELETE CASCADE,
   payload_json TEXT NOT NULL,
@@ -135,7 +197,10 @@ CREATE TABLE IF NOT EXISTS plant_memories (
   raw_dialogue TEXT NOT NULL DEFAULT '',
   raw_payload_json TEXT NOT NULL,
   last_recalled_at TEXT NOT NULL,
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  search_vector tsvector GENERATED ALWAYS AS (
+    to_tsvector('simple', coalesce(title, '') || ' ' || coalesce(content, '') || ' ' || coalesce(keywords_json, ''))
+  ) STORED
 );
 
 CREATE TABLE IF NOT EXISTS plant_understandings (
@@ -146,34 +211,21 @@ CREATE TABLE IF NOT EXISTS plant_understandings (
   keywords_json TEXT NOT NULL,
   linked_memories_json TEXT NOT NULL,
   history_json TEXT NOT NULL,
-  updated_at TEXT NOT NULL
-);
-
-CREATE VIRTUAL TABLE IF NOT EXISTS plant_memories_fts USING fts5(
-  target_id UNINDEXED,
-  plant_id UNINDEXED,
-  title,
-  content,
-  keywords,
-  tokenize='unicode61'
-);
-
-CREATE VIRTUAL TABLE IF NOT EXISTS plant_understandings_fts USING fts5(
-  target_id UNINDEXED,
-  plant_id UNINDEXED,
-  subject,
-  content,
-  keywords,
-  tokenize='unicode61'
+  updated_at TEXT NOT NULL,
+  search_vector tsvector GENERATED ALWAYS AS (
+    to_tsvector('simple', coalesce(subject, '') || ' ' || coalesce(content, '') || ' ' || coalesce(keywords_json, ''))
+  ) STORED
 );
 
 CREATE TABLE IF NOT EXISTS vector_index_items (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id BIGSERIAL PRIMARY KEY,
   target_type TEXT NOT NULL,
   target_id TEXT NOT NULL,
   plant_id TEXT NOT NULL REFERENCES plants(id) ON DELETE CASCADE,
   index_text TEXT NOT NULL,
   embedding_dim INTEGER,
+  embedding_provider TEXT,
+  embedding_model TEXT,
   updated_at TEXT NOT NULL,
   UNIQUE(target_type, target_id)
 );
@@ -185,12 +237,12 @@ CREATE TABLE IF NOT EXISTS history_window_state (
 );
 
 CREATE TABLE IF NOT EXISTS proactive_event_log (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id BIGSERIAL PRIMARY KEY,
   plant_id TEXT NOT NULL REFERENCES plants(id) ON DELETE CASCADE,
   event_key TEXT NOT NULL,
   event_type TEXT NOT NULL,
   severity TEXT NOT NULL,
-  message_id INTEGER REFERENCES messages(id) ON DELETE SET NULL,
+  message_id BIGINT REFERENCES messages(id) ON DELETE SET NULL,
   payload_json TEXT NOT NULL,
   fired_at TEXT NOT NULL
 );
@@ -198,7 +250,7 @@ CREATE TABLE IF NOT EXISTS proactive_event_log (
 CREATE TABLE IF NOT EXISTS proactive_reminders (
   id TEXT PRIMARY KEY,
   plant_id TEXT NOT NULL REFERENCES plants(id) ON DELETE CASCADE,
-  source_message_id INTEGER REFERENCES messages(id) ON DELETE SET NULL,
+  source_message_id BIGINT REFERENCES messages(id) ON DELETE SET NULL,
   text TEXT NOT NULL,
   remind_at TEXT NOT NULL,
   status TEXT NOT NULL,
@@ -231,87 +283,4 @@ CREATE TABLE IF NOT EXISTS plant_relationship_state (
   evidence_memory_ids_json TEXT NOT NULL DEFAULT '[]',
   updated_at TEXT NOT NULL
 );
-
-CREATE TABLE IF NOT EXISTS plant_intentions (
-  id TEXT PRIMARY KEY,
-  plant_id TEXT NOT NULL REFERENCES plants(id) ON DELETE CASCADE,
-  kind TEXT NOT NULL,
-  content TEXT NOT NULL,
-  source_type TEXT NOT NULL,
-  source_id TEXT,
-  priority INTEGER NOT NULL DEFAULT 1,
-  status TEXT NOT NULL DEFAULT 'pending',
-  not_before TEXT,
-  expires_at TEXT,
-  last_considered_at TEXT,
-  considered_count INTEGER NOT NULL DEFAULT 0,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS plant_status_tags (
-  plant_id TEXT PRIMARY KEY REFERENCES plants(id) ON DELETE CASCADE, tags_json TEXT NOT NULL,
-  source_turn INTEGER, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
-
-CREATE TABLE IF NOT EXISTS llm_usage_logs (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  phase TEXT NOT NULL,
-  model_id TEXT NOT NULL,
-  prompt_tokens INTEGER NOT NULL,
-  completion_tokens INTEGER NOT NULL,
-  total_tokens INTEGER NOT NULL,
-  token_source TEXT NOT NULL,
-  estimated_cost REAL,
-  created_at TEXT NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS idx_readings_plant_time
-  ON sensor_readings(plant_id, captured_at DESC);
-CREATE INDEX IF NOT EXISTS idx_readings_created
-  ON sensor_readings(created_at);
-CREATE INDEX IF NOT EXISTS idx_pending_devices_status
-  ON pending_devices(claim_status, last_seen_at DESC);
-CREATE INDEX IF NOT EXISTS idx_pending_devices_cleanup
-  ON pending_devices(claim_status, last_seen_at);
-CREATE INDEX IF NOT EXISTS idx_device_config_deliveries_updated
-  ON device_config_deliveries(updated_at);
-CREATE INDEX IF NOT EXISTS idx_messages_plant_turn
-  ON messages(plant_id, turn DESC);
-CREATE INDEX IF NOT EXISTS idx_photos_plant_captured
-  ON plant_photos(plant_id, captured_at DESC);
-CREATE INDEX IF NOT EXISTS idx_memories_plant_created
-  ON plant_memories(plant_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_drafts_unconsumed
-  ON memory_drafts(plant_id, consumed_at);
-CREATE INDEX IF NOT EXISTS idx_drafts_consumed_at
-  ON memory_drafts(consumed_at);
-CREATE INDEX IF NOT EXISTS idx_vector_index_target
-  ON vector_index_items(target_type, target_id);
-CREATE INDEX IF NOT EXISTS idx_jobs_ready
-  ON background_jobs(status, run_after, created_at);
-CREATE INDEX IF NOT EXISTS idx_jobs_locked
-  ON background_jobs(status, locked_at);
-CREATE INDEX IF NOT EXISTS idx_jobs_cleanup
-  ON background_jobs(status, updated_at);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_jobs_active_dedupe
-  ON background_jobs(dedupe_key)
-  WHERE dedupe_key IS NOT NULL AND status IN ('queued', 'running');
-CREATE INDEX IF NOT EXISTS idx_sync_events_id
-  ON sync_events(id);
-CREATE INDEX IF NOT EXISTS idx_sync_events_created
-  ON sync_events(created_at);
-CREATE INDEX IF NOT EXISTS idx_sync_events_plant
-  ON sync_events(plant_id, id);
-CREATE INDEX IF NOT EXISTS idx_proactive_event_key
-  ON proactive_event_log(plant_id, event_key, fired_at DESC);
-CREATE INDEX IF NOT EXISTS idx_proactive_event_fired
-  ON proactive_event_log(fired_at);
-CREATE INDEX IF NOT EXISTS idx_proactive_reminders_due
-  ON proactive_reminders(status, remind_at);
-CREATE INDEX IF NOT EXISTS idx_proactive_reminders_cleanup
-  ON proactive_reminders(status, updated_at);
-CREATE INDEX IF NOT EXISTS idx_intentions_pending
-  ON plant_intentions(plant_id, status, priority DESC, created_at ASC);
-CREATE INDEX IF NOT EXISTS idx_llm_usage_created
-  ON llm_usage_logs(created_at DESC);
 `;

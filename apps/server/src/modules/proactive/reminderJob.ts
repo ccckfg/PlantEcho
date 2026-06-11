@@ -5,8 +5,8 @@ import { getReminder, markReminderStatus } from "./reminderRepository.js";
 
 const reminderDedupeKey = (id: string): string => `proactive.reminder:${id}`;
 
-export const scheduleReminderJob = (reminderId: string, remindAt: string): void => {
-  enqueueJob({
+export const scheduleReminderJob = async (reminderId: string, remindAt: string): Promise<void> => {
+  await enqueueJob({
     type: jobTypes.proactiveReminder,
     payload: { reminderId },
     dedupeKey: reminderDedupeKey(reminderId),
@@ -18,7 +18,7 @@ export const scheduleReminderJob = (reminderId: string, remindAt: string): void 
 export const runReminderJob = async (job: BackgroundJob): Promise<void> => {
   const reminderId = typeof job.payload.reminderId === "string" ? job.payload.reminderId : "";
   if (!reminderId) throw new Error("Invalid proactive reminder payload");
-  const reminder = getReminder(reminderId);
+  const reminder = await getReminder(reminderId);
   if (!reminder || reminder.status !== "scheduled") return;
   await emitProactiveMessage({
     plantId: reminder.plantId,
@@ -30,5 +30,5 @@ export const runReminderJob = async (job: BackgroundJob): Promise<void> => {
     payload: { reminderId: reminder.id, remindAt: reminder.remindAt },
     cooldownMs: 0
   });
-  markReminderStatus(reminder.id, "sent");
+  await markReminderStatus(reminder.id, "sent");
 };

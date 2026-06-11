@@ -34,10 +34,10 @@ const toApiKeyInfo = (row: ApiKeyRow): AuthApiKeyInfo => ({
   lastUsedAt: row.last_used_at
 });
 
-export const getUserApiKeyInfo = (userId: string): AuthApiKeyInfo | null => {
-  const row = getDb()
+export const getUserApiKeyInfo = async (userId: string): Promise<AuthApiKeyInfo | null> => {
+  const row = await getDb()
     .prepare("SELECT * FROM user_api_keys WHERE user_id = ?")
-    .get(userId) as ApiKeyRow | undefined;
+    .get<ApiKeyRow>(userId);
   return row ? toApiKeyInfo(row) : null;
 };
 
@@ -47,10 +47,20 @@ export const upsertUserApiKey = (input: {
   keyHash: string;
   keyPrefix: string;
   keyLast4: string;
-}): AuthApiKeyInfo => {
-  const existing = getUserApiKeyInfo(input.userId);
+}): Promise<AuthApiKeyInfo> => {
+  return upsertUserApiKeyAsync(input);
+};
+
+const upsertUserApiKeyAsync = async (input: {
+  id: string;
+  userId: string;
+  keyHash: string;
+  keyPrefix: string;
+  keyLast4: string;
+}): Promise<AuthApiKeyInfo> => {
+  const existing = await getUserApiKeyInfo(input.userId);
   const now = nowIso();
-  getDb()
+  await getDb()
     .prepare(
       `INSERT INTO user_api_keys
        (id, user_id, key_hash, key_prefix, key_last4, created_at, rotated_at, last_used_at)
@@ -72,13 +82,19 @@ export const upsertUserApiKey = (input: {
       existing?.createdAt ?? now,
       now
     );
-  return getUserApiKeyInfo(input.userId)!;
+  return (await getUserApiKeyInfo(input.userId))!;
 };
 
 export const getApiKeyAuthByHash = (
   keyHash: string
-): { user: AppUser; apiKey: AuthApiKeyInfo } | null => {
-  const row = getDb()
+): Promise<{ user: AppUser; apiKey: AuthApiKeyInfo } | null> => {
+  return getApiKeyAuthByHashAsync(keyHash);
+};
+
+const getApiKeyAuthByHashAsync = async (
+  keyHash: string
+): Promise<{ user: AppUser; apiKey: AuthApiKeyInfo } | null> => {
+  const row = await getDb()
     .prepare(
       `SELECT
          user_api_keys.*,
@@ -93,7 +109,7 @@ export const getApiKeyAuthByHash = (
        JOIN users ON users.id = user_api_keys.user_id
        WHERE user_api_keys.key_hash = ? AND users.is_active = 1`
     )
-    .get(keyHash) as ApiKeyAuthRow | undefined;
+    .get<ApiKeyAuthRow>(keyHash);
   if (!row) return null;
   return {
     apiKey: toApiKeyInfo(row),
@@ -110,8 +126,8 @@ export const getApiKeyAuthByHash = (
   };
 };
 
-export const touchUserApiKey = (keyHash: string): void => {
-  getDb()
+export const touchUserApiKey = async (keyHash: string): Promise<void> => {
+  await getDb()
     .prepare("UPDATE user_api_keys SET last_used_at = ? WHERE key_hash = ?")
     .run(nowIso(), keyHash);
 };

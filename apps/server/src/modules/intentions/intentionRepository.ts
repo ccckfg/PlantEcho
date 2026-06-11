@@ -49,58 +49,61 @@ export type CreateIntentionInput = Pick<
   "plantId" | "kind" | "content" | "sourceType" | "sourceId" | "priority" | "notBefore" | "expiresAt"
 >;
 
-export const createIntention = (input: CreateIntentionInput): PlantIntention => {
-  const existing = getDb().prepare(
-    `SELECT * FROM plant_intentions
-     WHERE plant_id = ? AND status = 'pending' AND kind = ? AND content = ?
-     LIMIT 1`
-  ).get(input.plantId, input.kind, input.content) as IntentionRow | undefined;
-  if (existing) return toIntention(existing);
-  const id = randomUUID();
-  const now = nowIso();
-  getDb().prepare(
-    `INSERT INTO plant_intentions
-     (id, plant_id, kind, content, source_type, source_id, priority, status,
-      not_before, expires_at, last_considered_at, considered_count, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, NULL, 0, ?, ?)`
-  ).run(
-    id, input.plantId, input.kind, input.content, input.sourceType, input.sourceId,
-    input.priority, input.notBefore, input.expiresAt, now, now
-  );
-  return getIntention(id)!;
+export const createIntention = async (input: CreateIntentionInput): Promise<PlantIntention> => {
+  return getDb().transaction(async (db) => {
+    const existing = await db.prepare(
+      `SELECT * FROM plant_intentions
+       WHERE plant_id = ? AND status = 'pending' AND kind = ? AND content = ?
+       LIMIT 1`
+    ).get<IntentionRow>(input.plantId, input.kind, input.content);
+    if (existing) return toIntention(existing);
+    const id = randomUUID();
+    const now = nowIso();
+    await db.prepare(
+      `INSERT INTO plant_intentions
+       (id, plant_id, kind, content, source_type, source_id, priority, status,
+        not_before, expires_at, last_considered_at, considered_count, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, NULL, 0, ?, ?)`
+    ).run(
+      id, input.plantId, input.kind, input.content, input.sourceType, input.sourceId,
+      input.priority, input.notBefore, input.expiresAt, now, now
+    );
+    const row = await db.prepare("SELECT * FROM plant_intentions WHERE id = ?").get<IntentionRow>(id);
+    return toIntention(row!);
+  });
 };
 
-export const getIntention = (id: string): PlantIntention | null => {
-  const row = getDb().prepare("SELECT * FROM plant_intentions WHERE id = ?").get(id) as IntentionRow | undefined;
+export const getIntention = async (id: string): Promise<PlantIntention | null> => {
+  const row = await getDb().prepare("SELECT * FROM plant_intentions WHERE id = ?").get<IntentionRow>(id);
   return row ? toIntention(row) : null;
 };
 
-export const listPendingIntentions = (plantId: string, limit = 10): PlantIntention[] => {
+export const listPendingIntentions = async (plantId: string, limit = 10): Promise<PlantIntention[]> => {
   const now = nowIso();
-  getDb().prepare(
+  await getDb().prepare(
     `UPDATE plant_intentions SET status = 'expired', updated_at = ?
      WHERE plant_id = ? AND status = 'pending' AND expires_at IS NOT NULL AND expires_at <= ?`
   ).run(now, plantId, now);
-  const rows = getDb().prepare(
+  const rows = await getDb().prepare(
     `SELECT * FROM plant_intentions
      WHERE plant_id = ? AND status = 'pending' AND (not_before IS NULL OR not_before <= ?)
      ORDER BY priority DESC, created_at ASC LIMIT ?`
-  ).all(plantId, now, limit) as IntentionRow[];
+  ).all<IntentionRow>(plantId, now, limit);
   return rows.map(toIntention);
 };
 
-export const updateIntentionStatus = (
+export const updateIntentionStatus = async (
   id: string,
   status: PlantIntentionStatus
-): PlantIntention | null => {
-  getDb().prepare("UPDATE plant_intentions SET status = ?, updated_at = ? WHERE id = ?")
+): Promise<PlantIntention | null> => {
+  await getDb().prepare("UPDATE plant_intentions SET status = ?, updated_at = ? WHERE id = ?")
     .run(status, nowIso(), id);
   return getIntention(id);
 };
 
-export const noteIntentionConsidered = (id: string): PlantIntention | null => {
+export const noteIntentionConsidered = async (id: string): Promise<PlantIntention | null> => {
   const now = nowIso();
-  getDb().prepare(
+  await getDb().prepare(
     `UPDATE plant_intentions
      SET last_considered_at = ?, considered_count = considered_count + 1,
          attempt_count = 0, last_attempt_at = NULL, updated_at = ?
@@ -109,20 +112,20 @@ export const noteIntentionConsidered = (id: string): PlantIntention | null => {
   return getIntention(id);
 };
 
-export const deferIntentionAfterFailure = (
+export const deferIntentionAfterFailure = async (
   id: string,
   baseDelayMs: number,
   maxDelayMs: number
-): PlantIntention | null => {
-  const row = getDb().prepare(
+): Promise<PlantIntention | null> => {
+  const row = await getDb().prepare(
     "SELECT attempt_count FROM plant_intentions WHERE id = ?"
-  ).get(id) as { attempt_count: number } | undefined;
+  ).get<{ attempt_count: number }>(id);
   if (!row) return null;
   const attemptCount = row.attempt_count + 1;
   const delayMs = intentionRetryDelayMs(attemptCount, baseDelayMs, maxDelayMs);
   const now = nowIso();
   const retryAt = new Date(Date.now() + delayMs).toISOString();
-  getDb().prepare(
+  await getDb().prepare(
     `UPDATE plant_intentions
      SET attempt_count = ?, last_attempt_at = ?, not_before = ?, updated_at = ?
      WHERE id = ?`

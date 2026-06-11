@@ -91,53 +91,58 @@ const toUnderstanding = (row: UnderstandingRow): Understanding => ({
   updatedAt: row.updated_at
 });
 
-export const addMemoryDraft = (
+export const addMemoryDraft = async (
   plantId: string,
   turn: number,
   text: string,
   metadata: Record<string, unknown>
-): MemoryDraft => {
+): Promise<MemoryDraft> => {
   const now = nowIso();
-  const result = getDb()
-    .prepare("INSERT INTO memory_drafts (plant_id, turn, text, metadata_json, consumed_at, created_at) VALUES (?, ?, ?, ?, ?, ?)")
+  const result = await getDb()
+    .prepare(
+      `INSERT INTO memory_drafts
+       (plant_id, turn, text, metadata_json, consumed_at, created_at)
+       VALUES (?, ?, ?, ?, ?, ?)
+       RETURNING id`
+    )
     .run(plantId, turn, text, JSON.stringify(metadata), null, now);
-  return getMemoryDraft(Number(result.lastInsertRowid))!;
+  return (await getMemoryDraft(Number(result.lastInsertRowid)))!;
 };
 
-export const getMemoryDraft = (id: number): MemoryDraft | null => {
-  const row = getDb().prepare("SELECT * FROM memory_drafts WHERE id = ?").get(id) as DraftRow | undefined;
+export const getMemoryDraft = async (id: number): Promise<MemoryDraft | null> => {
+  const row = await getDb().prepare("SELECT * FROM memory_drafts WHERE id = ?").get<DraftRow>(id);
   return row ? toDraft(row) : null;
 };
 
-export const getOpenDrafts = (plantId: string, limit = 8): MemoryDraft[] => {
-  const rows = getDb()
+export const getOpenDrafts = async (plantId: string, limit = 8): Promise<MemoryDraft[]> => {
+  const rows = await getDb()
     .prepare("SELECT * FROM memory_drafts WHERE plant_id = ? AND consumed_at IS NULL ORDER BY id ASC LIMIT ?")
-    .all(plantId, limit) as DraftRow[];
+    .all<DraftRow>(plantId, limit);
   return rows.map(toDraft);
 };
 
-export const getDraftsUntilTurn = (plantId: string, untilTurn: number): MemoryDraft[] => {
-  const rows = getDb()
+export const getDraftsUntilTurn = async (plantId: string, untilTurn: number): Promise<MemoryDraft[]> => {
+  const rows = await getDb()
     .prepare(
       "SELECT * FROM memory_drafts WHERE plant_id = ? AND consumed_at IS NULL AND turn <= ? ORDER BY turn ASC, id ASC"
     )
-    .all(plantId, untilTurn) as DraftRow[];
+    .all<DraftRow>(plantId, untilTurn);
   return rows.map(toDraft);
 };
 
-export const markDraftsConsumed = (ids: number[]): void => {
+export const markDraftsConsumed = async (ids: number[]): Promise<void> => {
   if (!ids.length) return;
   const placeholders = ids.map(() => "?").join(",");
-  getDb().prepare(`UPDATE memory_drafts SET consumed_at = ? WHERE id IN (${placeholders})`).run(nowIso(), ...ids);
+  await getDb().prepare(`UPDATE memory_drafts SET consumed_at = ? WHERE id IN (${placeholders})`).run(nowIso(), ...ids);
 };
 
 
-export const addEpisodeMemory = (
+export const addEpisodeMemory = async (
   input: Omit<EpisodeMemory, "id" | "createdAt" | "lastRecalledAt">
-): EpisodeMemory => {
+): Promise<EpisodeMemory> => {
   const id = randomUUID();
   const now = nowIso();
-  getDb()
+  await getDb()
     .prepare(
       `INSERT INTO plant_memories
        (id, plant_id, date, time, location, participants, title, content, keywords_json, importance,
@@ -161,49 +166,53 @@ export const addEpisodeMemory = (
       now,
       now
     );
-  const memory = getEpisodeMemory(id)!;
-  syncEpisodeFts(memory.id, memory.plantId, memory.title, memory.content, memory.keywords);
+  const memory = (await getEpisodeMemory(id))!;
+  await syncEpisodeFts(memory.id, memory.plantId, memory.title, memory.content, memory.keywords);
   return memory;
 };
 
-export const getEpisodeMemory = (id: string): EpisodeMemory | null => {
-  const row = getDb().prepare("SELECT * FROM plant_memories WHERE id = ?").get(id) as MemoryRow | undefined;
+export const getEpisodeMemory = async (id: string): Promise<EpisodeMemory | null> => {
+  const row = await getDb().prepare("SELECT * FROM plant_memories WHERE id = ?").get<MemoryRow>(id);
   return row ? toMemory(row) : null;
 };
 
-export const listEpisodeMemories = (plantId: string, limit = 100): EpisodeMemory[] => {
-  const rows = getDb()
+export const listEpisodeMemories = async (plantId: string, limit = 100): Promise<EpisodeMemory[]> => {
+  const rows = await getDb()
     .prepare("SELECT * FROM plant_memories WHERE plant_id = ? ORDER BY created_at DESC LIMIT ?")
-    .all(plantId, limit) as MemoryRow[];
+    .all<MemoryRow>(plantId, limit);
   return rows.map(toMemory);
 };
 
-export const hasRecentMemory = (plantId: string, sourceType: string, sinceIso: string): boolean => {
-  const row = getDb()
+export const hasRecentMemory = async (
+  plantId: string,
+  sourceType: string,
+  sinceIso: string
+): Promise<boolean> => {
+  const row = await getDb()
     .prepare("SELECT id FROM plant_memories WHERE plant_id = ? AND source_type = ? AND created_at >= ? LIMIT 1")
     .get(plantId, sourceType, sinceIso);
   return Boolean(row);
 };
 
-export const updateMemoryRecall = (memoryIds: string[], recalledAt: string): void => {
+export const updateMemoryRecall = async (memoryIds: string[], recalledAt: string): Promise<void> => {
   if (!memoryIds.length) return;
   const placeholders = memoryIds.map(() => "?").join(",");
-  getDb().prepare(`UPDATE plant_memories SET last_recalled_at = ? WHERE id IN (${placeholders})`).run(recalledAt, ...memoryIds);
+  await getDb().prepare(`UPDATE plant_memories SET last_recalled_at = ? WHERE id IN (${placeholders})`).run(recalledAt, ...memoryIds);
 };
 
-export const listUnderstandings = (plantId: string): Understanding[] => {
-  const rows = getDb()
+export const listUnderstandings = async (plantId: string): Promise<Understanding[]> => {
+  const rows = await getDb()
     .prepare("SELECT * FROM plant_understandings WHERE plant_id = ? ORDER BY updated_at DESC")
-    .all(plantId) as UnderstandingRow[];
+    .all<UnderstandingRow>(plantId);
   return rows.map(toUnderstanding);
 };
 
-export const upsertUnderstanding = (
+export const upsertUnderstanding = async (
   input: Omit<Understanding, "id" | "updatedAt"> & { id?: string }
-): Understanding => {
+): Promise<Understanding> => {
   const id = input.id ?? randomUUID();
   const now = nowIso();
-  getDb()
+  await getDb()
     .prepare(
       `INSERT INTO plant_understandings
        (id, plant_id, subject, content, keywords_json, linked_memories_json, history_json, updated_at)
@@ -226,8 +235,8 @@ export const upsertUnderstanding = (
       JSON.stringify(input.history),
       now
     );
-  const understanding = listUnderstandings(input.plantId).find((item) => item.id === id)!;
-  syncUnderstandingFts(
+  const understanding = (await listUnderstandings(input.plantId)).find((item) => item.id === id)!;
+  await syncUnderstandingFts(
     understanding.id,
     understanding.plantId,
     understanding.subject,

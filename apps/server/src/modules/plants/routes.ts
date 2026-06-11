@@ -39,7 +39,7 @@ const updatePlantSchema = z.object({
 });
 
 export const registerPlantRoutes = async (app: FastifyInstance): Promise<void> => {
-  app.get("/api/v1/plants", async () => ({ plants: listPlants() }));
+  app.get("/api/v1/plants", async () => ({ plants: await listPlants() }));
 
   app.post("/api/v1/plants/care-profile/suggest", async (request, reply) => {
     try {
@@ -53,7 +53,7 @@ export const registerPlantRoutes = async (app: FastifyInstance): Promise<void> =
   app.post("/api/v1/plants", async (request, reply) => {
     try {
       const input = createPlantSchema.parse(request.body);
-      const plant = createPlant(input);
+      const plant = await createPlant(input);
       publishSyncEvent({
         type: "plants.changed",
         plantId: plant.id,
@@ -67,7 +67,7 @@ export const registerPlantRoutes = async (app: FastifyInstance): Promise<void> =
 
   app.get("/api/v1/plants/:plantId", async (request, reply) => {
     const { plantId } = request.params as { plantId: string };
-    const plant = getPlant(plantId);
+    const plant = await getPlant(plantId);
     if (!plant) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
     return { plant, state: getLayeredPlantState(plantId) };
   });
@@ -75,7 +75,7 @@ export const registerPlantRoutes = async (app: FastifyInstance): Promise<void> =
   app.get("/api/v1/plants/:plantId/reflection", async (request, reply) => {
     try {
       const { plantId } = request.params as { plantId: string };
-      if (!getPlant(plantId)) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
+      if (!await getPlant(plantId)) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
       return { reflection: await getPlantReflection(plantId) };
     } catch (error) {
       return sendError(reply, error);
@@ -85,7 +85,7 @@ export const registerPlantRoutes = async (app: FastifyInstance): Promise<void> =
   app.get("/api/v1/plants/:plantId/status-tags", async (request, reply) => {
     try {
       const { plantId } = request.params as { plantId: string };
-      if (!getPlant(plantId)) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
+      if (!await getPlant(plantId)) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
       return { tags: await getPlantStatusTags(plantId) };
     } catch (error) {
       return sendError(reply, error);
@@ -96,7 +96,7 @@ export const registerPlantRoutes = async (app: FastifyInstance): Promise<void> =
     try {
       const { plantId } = request.params as { plantId: string };
       const input = updatePlantSchema.parse(request.body);
-      const plant = updatePlant(plantId, input);
+      const plant = await updatePlant(plantId, input);
       if (!plant) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
       publishSyncEvent({
         type: "plants.changed",
@@ -111,7 +111,7 @@ export const registerPlantRoutes = async (app: FastifyInstance): Promise<void> =
 
   app.delete("/api/v1/plants/:plantId", async (request, reply) => {
     const { plantId } = request.params as { plantId: string };
-    const plant = deletePlant(plantId);
+    const plant = await deletePlant(plantId);
     if (!plant) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
     publishSyncEvent({
       type: "plants.changed",
@@ -123,7 +123,7 @@ export const registerPlantRoutes = async (app: FastifyInstance): Promise<void> =
 
   app.post("/api/v1/plants/:plantId/restore", async (request, reply) => {
     const { plantId } = request.params as { plantId: string };
-    const plant = restorePlant(plantId);
+    const plant = await restorePlant(plantId);
     if (!plant) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
     publishSyncEvent({
       type: "plants.changed",
@@ -136,7 +136,7 @@ export const registerPlantRoutes = async (app: FastifyInstance): Promise<void> =
   app.get("/api/v1/plants/:plantId/readings/latest", async (request, reply) => {
     try {
       const { plantId } = request.params as { plantId: string };
-      return getPlantReadingState(plantId);
+      return await getPlantReadingState(plantId);
     } catch (error) {
       return sendError(reply, error);
     }
@@ -145,6 +145,6 @@ export const registerPlantRoutes = async (app: FastifyInstance): Promise<void> =
   app.get("/api/v1/plants/:plantId/readings", async (request) => {
     const { plantId } = request.params as { plantId: string };
     const query = request.query as { limit?: string };
-    return { readings: getPlantReadings(plantId, Number(query.limit ?? 120)) };
+    return { readings: await getPlantReadings(plantId, Number(query.limit ?? 120)) };
   });
 };

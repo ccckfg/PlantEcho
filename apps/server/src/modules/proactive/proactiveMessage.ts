@@ -12,17 +12,17 @@ import type { ProactiveEventInput } from "./types.js";
 export const emitProactiveMessage = async (
   event: ProactiveEventInput
 ): Promise<number | null> => {
-  if (hasRecentProactiveEvent(event.plantId, event.key, event.cooldownMs)) {
+  if (await hasRecentProactiveEvent(event.plantId, event.key, event.cooldownMs)) {
     return null;
   }
-  const eventLogId = logProactiveEvent(event, null);
+  const eventLogId = await logProactiveEvent(event, null);
   const content = await composeProactiveMessage(event);
   if (!content) return null;
-  const turn = nextTurn(event.plantId);
-  const message = addMessage(event.plantId, turn, "assistant", content);
-  rememberProactiveMessage(event.plantId, turn, content, `proactive:${event.type}`);
-  attachProactiveEventMessage(eventLogId, message.id);
-  publishSyncEvent({
+  const turn = await nextTurn(event.plantId);
+  const message = await addMessage(event.plantId, turn, "assistant", content);
+  await rememberProactiveMessage(event.plantId, turn, content, `proactive:${event.type}`);
+  await attachProactiveEventMessage(eventLogId, message.id);
+  await publishSyncEvent({
     type: "messages.changed",
     plantId: event.plantId,
     payload: { turn, messageId: message.id, proactive: true, eventType: event.type }

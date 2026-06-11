@@ -50,22 +50,22 @@ export const shouldScheduleClosureDetection = (
   lastCompletedTurn: number
 ): boolean => currentTurn - lastCompletedTurn >= memoryConfig.closureDetectionMinNewTurns;
 
-export const scheduleDetectAndConsolidate = (
+export const scheduleDetectAndConsolidate = async (
   plantId: string,
   plantName: string,
   currentTurn: number
-): void => {
-  const state = getConsolidationState(plantId);
+): Promise<void> => {
+  const state = await getConsolidationState(plantId);
   if (!shouldScheduleClosureDetection(currentTurn, state.lastCompletedTurn)) return;
   const key = dedupeKey(plantId);
   const next = { plantId, plantName, currentTurn };
-  const existing = findActiveJobByDedupeKey(key);
+  const existing = await findActiveJobByDedupeKey(key);
   if (existing) {
-    updateJobPayload(existing.id, mergeConsolidationPayload(existing.payload, next));
-    if (existing.status === "running") notePendingConsolidation(plantId, currentTurn);
+    await updateJobPayload(existing.id, mergeConsolidationPayload(existing.payload, next));
+    if (existing.status === "running") await notePendingConsolidation(plantId, currentTurn);
     return;
   }
-  enqueueJob({
+  await enqueueJob({
     type: jobTypes.memoryConsolidation,
     payload: next,
     dedupeKey: key,
@@ -73,20 +73,20 @@ export const scheduleDetectAndConsolidate = (
   });
 };
 
-export const scheduleSessionClosure = (
+export const scheduleSessionClosure = async (
   plantId: string,
   plantName: string,
   currentTurn: number
-): void => {
+): Promise<void> => {
   const key = sessionDedupeKey(plantId);
   const payload = { plantId, plantName, currentTurn };
   const runAfter = new Date(Date.now() + memoryConfig.sessionClosureDelayMs).toISOString();
-  const existing = findActiveJobByDedupeKey(key);
+  const existing = await findActiveJobByDedupeKey(key);
   if (existing) {
-    updateJobPayload(existing.id, mergeConsolidationPayload(existing.payload, payload), runAfter);
+    await updateJobPayload(existing.id, mergeConsolidationPayload(existing.payload, payload), runAfter);
     return;
   }
-  enqueueJob({
+  await enqueueJob({
     type: jobTypes.memorySessionClosure,
     payload,
     dedupeKey: key,
@@ -97,18 +97,21 @@ export const scheduleSessionClosure = (
 
 export const runConsolidationJob = async (job: BackgroundJob): Promise<void> => {
   const payload = asPayload(job.payload);
-  let currentTurn = Math.max(payload.currentTurn, getConsolidationState(payload.plantId).pendingTurn ?? 0);
+  let currentTurn = Math.max(
+    payload.currentTurn,
+    (await getConsolidationState(payload.plantId)).pendingTurn ?? 0
+  );
 
   while (true) {
-    const runTurn = startConsolidationRun(payload.plantId, currentTurn);
+    const runTurn = await startConsolidationRun(payload.plantId, currentTurn);
     try {
       await runConsolidationPipeline(payload.plantId, payload.plantName, runTurn);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      finishConsolidationRun(payload.plantId, runTurn, message);
+      await finishConsolidationRun(payload.plantId, runTurn, message);
       throw error;
     }
-    const pending = finishConsolidationRun(payload.plantId, runTurn);
+    const pending = await finishConsolidationRun(payload.plantId, runTurn);
     if (pending === null) break;
     currentTurn = pending;
   }

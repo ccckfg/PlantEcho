@@ -38,11 +38,11 @@ const assertAdmin = (actor: AppUser): void => {
   if (actor.role !== "admin") throw new Error("需要管理员账号来照看这里。");
 };
 
-const assertCanChangeAdmin = (target: AppUser, patch: UpdateUserInput): void => {
+const assertCanChangeAdmin = async (target: AppUser, patch: UpdateUserInput): Promise<void> => {
   const removesAdmin =
     target.role === "admin" &&
     (patch.role === "user" || patch.isActive === false);
-  if (removesAdmin && countActiveAdmins() <= 1) {
+  if (removesAdmin && await countActiveAdmins() <= 1) {
     throw new Error("至少需要保留一个可用的管理员账号。");
   }
 };
@@ -56,15 +56,15 @@ const apiKeyParts = (key: string) => ({
   keyLast4: key.slice(-4)
 });
 
-export const getAuthStatus = () => ({
-  hasUsers: countUsers() > 0,
+export const getAuthStatus = async () => ({
+  hasUsers: await countUsers() > 0,
   registrationEnabled: env.AUTH_REGISTRATION_ENABLED
 });
 
-const createSession = (user: AppUser, meta: LoginSessionMeta = {}): AuthSession => {
+const createSession = async (user: AppUser, meta: LoginSessionMeta = {}): Promise<AuthSession> => {
   const token = issueAuthToken({ userId: user.id, role: user.role });
   const expiresAt = new Date(Date.now() + env.AUTH_TOKEN_TTL_HOURS * 3600_000).toISOString();
-  insertAuthSession({
+  await insertAuthSession({
     id: randomUUID(),
     userId: user.id,
     tokenHash: authTokenHash(token),
@@ -78,13 +78,21 @@ const createSession = (user: AppUser, meta: LoginSessionMeta = {}): AuthSession 
 export const registerUser = (
   input: AuthRegisterInput,
   meta?: LoginSessionMeta
-): AuthSession => {
-  if (!env.AUTH_REGISTRATION_ENABLED && countUsers() > 0) {
+): Promise<AuthSession> => {
+  return registerUserAsync(input, meta);
+};
+
+const registerUserAsync = async (
+  input: AuthRegisterInput,
+  meta?: LoginSessionMeta
+): Promise<AuthSession> => {
+  const existingCount = await countUsers();
+  if (!env.AUTH_REGISTRATION_ENABLED && existingCount > 0) {
     throw new Error("注册暂时没有开放。");
   }
-  if (getUserByUsername(input.username)) throw new Error("这个账号名已经被使用。");
-  const firstUser = countUsers() === 0;
-  const user = insertUser({
+  if (await getUserByUsername(input.username)) throw new Error("这个账号名已经被使用。");
+  const firstUser = existingCount === 0;
+  const user = await insertUser({
     id: randomUUID(),
     username: input.username.trim(),
     displayName: input.displayName?.trim() || input.username.trim(),
@@ -97,55 +105,67 @@ export const registerUser = (
 export const loginUser = (
   input: AuthLoginInput,
   meta?: LoginSessionMeta
-): AuthSession => {
-  const user = getUserByUsername(input.username);
+): Promise<AuthSession> => {
+  return loginUserAsync(input, meta);
+};
+
+const loginUserAsync = async (
+  input: AuthLoginInput,
+  meta?: LoginSessionMeta
+): Promise<AuthSession> => {
+  const user = await getUserByUsername(input.username);
   if (!user || !user.isActive || !verifyPassword(input.password, user.passwordHash)) {
     throw new Error("账号或密码没有对上，请再试一次。");
   }
-  const updated = updateUser(user.id, { lastLoginAt: nowIso() }) ?? user;
+  const updated = await updateUser(user.id, { lastLoginAt: nowIso() }) ?? user;
   return createSession(updated, meta);
 };
 
-export const requireActiveUser = (userId: string): AppUser | null => {
-  const user = getUserById(userId);
+export const requireActiveUser = async (userId: string): Promise<AppUser | null> => {
+  const user = await getUserById(userId);
   return user?.isActive ? user : null;
 };
 
 export const listOwnSessions = (
   actor: AppUser,
   currentSessionId?: string
-) => listUserAuthSessions(actor.id).map((session) => ({
-  ...session,
-  current: session.id === currentSessionId
-}));
+) => listOwnSessionsAsync(actor, currentSessionId);
 
-export const revokeOwnSession = (
+const listOwnSessionsAsync = async (
+  actor: AppUser,
+  currentSessionId?: string
+) => (await listUserAuthSessions(actor.id)).map((session) => ({
+    ...session,
+    current: session.id === currentSessionId
+  }));
+
+export const revokeOwnSession = async (
   actor: AppUser,
   sessionId: string
 ) => {
-  const session = getAuthSession(sessionId);
+  const session = await getAuthSession(sessionId);
   if (!session || session.userId !== actor.id) {
     throw new Error(`Session ${sessionId} not found`);
   }
   if (session.revokedAt) {
-    deleteUserAuthSession(actor.id, sessionId);
+    await deleteUserAuthSession(actor.id, sessionId);
     return { ...session, deleted: true };
   } else {
-    const revoked = revokeUserAuthSession(actor.id, sessionId);
+    const revoked = await revokeUserAuthSession(actor.id, sessionId);
     if (!revoked) throw new Error(`Failed to revoke session ${sessionId}`);
     return revoked;
   }
 };
 
-export const getOwnApiKey = (actor: AppUser): AuthApiKeyInfo | null =>
+export const getOwnApiKey = (actor: AppUser): Promise<AuthApiKeyInfo | null> =>
   getUserApiKeyInfo(actor.id);
 
-export const generateOwnApiKey = (actor: AppUser): AuthApiKeyCreated => {
-  if (getUserApiKeyInfo(actor.id)) {
+export const generateOwnApiKey = async (actor: AppUser): Promise<AuthApiKeyCreated> => {
+  if (await getUserApiKeyInfo(actor.id)) {
     throw new Error("API 调用密钥已经存在，请使用轮换密钥。");
   }
   const key = createPlainApiKey();
-  const apiKey = upsertUserApiKey({
+  const apiKey = await upsertUserApiKey({
     id: randomUUID(),
     userId: actor.id,
     ...apiKeyParts(key)
@@ -153,9 +173,9 @@ export const generateOwnApiKey = (actor: AppUser): AuthApiKeyCreated => {
   return { apiKey, key };
 };
 
-export const rotateOwnApiKey = (actor: AppUser): AuthApiKeyCreated => {
+export const rotateOwnApiKey = async (actor: AppUser): Promise<AuthApiKeyCreated> => {
   const key = createPlainApiKey();
-  const apiKey = upsertUserApiKey({
+  const apiKey = await upsertUserApiKey({
     id: randomUUID(),
     userId: actor.id,
     ...apiKeyParts(key)
@@ -163,15 +183,18 @@ export const rotateOwnApiKey = (actor: AppUser): AuthApiKeyCreated => {
   return { apiKey, key };
 };
 
-export const listManagedUsers = (actor: AppUser): AppUser[] => {
+export const listManagedUsers = async (actor: AppUser): Promise<AppUser[]> => {
   assertAdmin(actor);
   return listUsers();
 };
 
-export const createManagedUser = (actor: AppUser, input: CreateUserInput): AuthSession => {
+export const createManagedUser = async (
+  actor: AppUser,
+  input: CreateUserInput
+): Promise<AuthSession> => {
   assertAdmin(actor);
-  if (getUserByUsername(input.username)) throw new Error("这个账号名已经被使用。");
-  const user = insertUser({
+  if (await getUserByUsername(input.username)) throw new Error("这个账号名已经被使用。");
+  const user = await insertUser({
     id: randomUUID(),
     username: input.username.trim(),
     displayName: input.displayName?.trim() || input.username.trim(),
@@ -185,12 +208,20 @@ export const updateManagedUser = (
   actor: AppUser,
   userId: string,
   input: UpdateUserInput
-): AppUser => {
+): Promise<AppUser> => {
+  return updateManagedUserAsync(actor, userId, input);
+};
+
+const updateManagedUserAsync = async (
+  actor: AppUser,
+  userId: string,
+  input: UpdateUserInput
+): Promise<AppUser> => {
   assertAdmin(actor);
-  const target = getUserById(userId);
+  const target = await getUserById(userId);
   if (!target) throw new Error(`User ${userId} not found`);
-  assertCanChangeAdmin(target, input);
-  const updated = updateUser(userId, {
+  await assertCanChangeAdmin(target, input);
+  const updated = await updateUser(userId, {
     displayName: input.displayName?.trim(),
     role: input.role,
     isActive: input.isActive,

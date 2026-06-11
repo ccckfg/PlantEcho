@@ -38,10 +38,10 @@ const stageFromText = (value: string): RelationshipStage =>
     ? value as RelationshipStage
     : "初识";
 
-export const getInnerState = (plantId: string): InnerState => {
-  const row = getDb()
+export const getInnerState = async (plantId: string): Promise<InnerState> => {
+  const row = await getDb()
     .prepare("SELECT * FROM plant_inner_state WHERE plant_id = ?")
-    .get(plantId) as InnerRow | undefined;
+    .get<InnerRow>(plantId);
   return row
     ? {
         plantId: row.plant_id,
@@ -54,12 +54,12 @@ export const getInnerState = (plantId: string): InnerState => {
     : { plantId, mood: "平静", concern: "", thought: "", sourceTurn: null, updatedAt: nowIso() };
 };
 
-export const upsertInnerState = (
+export const upsertInnerState = async (
   plantId: string,
   input: Pick<InnerState, "mood" | "concern" | "thought" | "sourceTurn">
-): InnerState => {
+): Promise<InnerState> => {
   const now = nowIso();
-  getDb().prepare(
+  await getDb().prepare(
     `INSERT INTO plant_inner_state
      (plant_id, mood, concern, thought, source_turn, updated_at)
      VALUES (?, ?, ?, ?, ?, ?)
@@ -73,10 +73,10 @@ export const upsertInnerState = (
   return getInnerState(plantId);
 };
 
-export const getRelationshipState = (plantId: string): RelationshipState => {
-  const row = getDb()
+export const getRelationshipState = async (plantId: string): Promise<RelationshipState> => {
+  const row = await getDb()
     .prepare("SELECT * FROM plant_relationship_state WHERE plant_id = ?")
-    .get(plantId) as RelationshipRow | undefined;
+    .get<RelationshipRow>(plantId);
   return row
     ? {
         plantId: row.plant_id,
@@ -88,12 +88,12 @@ export const getRelationshipState = (plantId: string): RelationshipState => {
     : { plantId, stage: "初识", summary: "刚刚认识主人", evidenceMemoryIds: [], updatedAt: nowIso() };
 };
 
-export const upsertRelationshipState = (
+export const upsertRelationshipState = async (
   plantId: string,
   input: Pick<RelationshipState, "stage" | "summary" | "evidenceMemoryIds">
-): RelationshipState => {
+): Promise<RelationshipState> => {
   const now = nowIso();
-  getDb().prepare(
+  await getDb().prepare(
     `INSERT INTO plant_relationship_state
      (plant_id, stage, summary, evidence_memory_ids_json, updated_at)
      VALUES (?, ?, ?, ?, ?)

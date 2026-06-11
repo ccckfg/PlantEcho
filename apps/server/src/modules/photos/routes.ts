@@ -17,8 +17,8 @@ export const registerPhotoRoutes = async (app: FastifyInstance): Promise<void> =
   app.get("/api/v1/plants/:plantId/photos", async (request, reply) => {
     try {
       const { plantId } = request.params as { plantId: string };
-      if (!getPlant(plantId)) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
-      return { photos: listPlantPhotos(plantId) };
+      if (!await getPlant(plantId)) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
+      return { photos: await listPlantPhotos(plantId) };
     } catch (error) {
       return sendError(reply, error);
     }
@@ -30,10 +30,10 @@ export const registerPhotoRoutes = async (app: FastifyInstance): Promise<void> =
     async (request, reply) => {
       try {
         const { plantId } = request.params as { plantId: string };
-        if (!getPlant(plantId)) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
+        if (!await getPlant(plantId)) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
         const input = photoUploadSchema.parse(request.body);
         const photo = await createPlantPhoto(plantId, input);
-        publishSyncEvent({
+        await publishSyncEvent({
           type: "photos.changed",
           plantId,
           payload: { action: "created", photoId: photo.id }
@@ -62,16 +62,16 @@ export const registerPhotoRoutes = async (app: FastifyInstance): Promise<void> =
   app.delete("/api/v1/plants/:plantId/photos/:photoId", async (request, reply) => {
     try {
       const { plantId, photoId } = request.params as { plantId: string; photoId: string };
-      if (!getPlant(plantId)) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
+      if (!await getPlant(plantId)) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
       const deleted = await deletePlantPhoto(plantId, photoId);
       if (!deleted) return reply.status(404).send({ error: "PHOTO_NOT_FOUND" });
-      publishSyncEvent({
+      await publishSyncEvent({
         type: "photos.changed",
         plantId,
         payload: { action: "deleted", photoId }
       });
       if (deleted.avatarCleared) {
-        publishSyncEvent({
+        await publishSyncEvent({
           type: "plants.changed",
           plantId,
           payload: { action: "avatarCleared", plantId, photoId }

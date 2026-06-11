@@ -40,14 +40,14 @@ export const createProactiveEngine = (logger: Logger): ProactiveEngine => {
     lastWeatherScanAt = now;
     const weather = await getWeatherNow();
     if (!weather.configured || !weather.weather) return;
-    for (const plant of listPlants()) {
+    for (const plant of await listPlants()) {
       const event = buildRainEvent(plant.id, weather.weather);
       if (event) await emitProactiveMessage(event);
     }
   };
 
   const scanReminders = async (): Promise<void> => {
-    for (const reminder of listDueReminders(new Date().toISOString())) {
+    for (const reminder of await listDueReminders(new Date().toISOString())) {
       await emitProactiveMessage({
         plantId: reminder.plantId,
         type: "reminder.due",
@@ -58,7 +58,7 @@ export const createProactiveEngine = (logger: Logger): ProactiveEngine => {
         payload: { reminderId: reminder.id, remindAt: reminder.remindAt },
         cooldownMs: 0
       });
-      markReminderStatus(reminder.id, "sent");
+      await markReminderStatus(reminder.id, "sent");
     }
   };
 
@@ -71,7 +71,7 @@ export const createProactiveEngine = (logger: Logger): ProactiveEngine => {
     if (stopped || running || !proactiveConfig.enabled) return;
     running = true;
     try {
-      for (const plant of listPlants()) await considerOneIntention(plant.id);
+      for (const plant of await listPlants()) await considerOneIntention(plant.id);
       await scanReminders();
       await scanWeather();
     } catch (error) {

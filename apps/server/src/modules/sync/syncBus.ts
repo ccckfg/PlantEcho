@@ -4,8 +4,8 @@ import { createSyncEvent } from "./syncRepository.js";
 
 const syncEmitter = new EventEmitter();
 
-export const publishSyncEvent = (input: CreateSyncEventInput): SyncEvent => {
-  const event = createSyncEvent(input);
+export const publishSyncEvent = async (input: CreateSyncEventInput): Promise<SyncEvent> => {
+  const event = await createSyncEvent(input);
   syncEmitter.emit("sync", event);
   return event;
 };

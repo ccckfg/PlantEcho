@@ -53,9 +53,9 @@ const assertPassword = (password: string): void => {
   if (password.length < 8) throw new Error("Password must be at least 8 characters");
 };
 
-const list = (): void => {
+const list = async (): Promise<void> => {
   console.table(
-    listUsers().map((user) => ({
+    (await listUsers()).map((user) => ({
       username: user.username,
       displayName: user.displayName,
       role: user.role,
@@ -66,12 +66,12 @@ const list = (): void => {
   );
 };
 
-const create = (): void => {
+const create = async (): Promise<void> => {
   const username = requireValue("username");
   const password = requireValue("password");
   assertPassword(password);
-  if (getUserByUsername(username)) throw new Error(`User ${username} already exists`);
-  const user = insertUser({
+  if (await getUserByUsername(username)) throw new Error(`User ${username} already exists`);
+  const user = await insertUser({
     id: randomUUID(),
     username,
     displayName: valueOf("display-name").trim() || username,
@@ -81,43 +81,43 @@ const create = (): void => {
   console.log(`Created ${user.username} (${user.role})`);
 };
 
-const setRole = (): void => {
+const setRole = async (): Promise<void> => {
   const username = requireValue("username");
   const role = parseRole();
-  const user = getUserByUsername(username);
+  const user = await getUserByUsername(username);
   if (!user) throw new Error(`User ${username} not found`);
-  if (user.role === "admin" && role === "user" && countActiveAdmins() <= 1) {
+  if (user.role === "admin" && role === "user" && await countActiveAdmins() <= 1) {
     throw new Error("Refusing to remove the last active admin");
   }
-  updateUser(user.id, { role });
+  await updateUser(user.id, { role });
   console.log(`Updated ${username} role to ${role}`);
 };
 
-const setActive = (isActive: boolean): void => {
+const setActive = async (isActive: boolean): Promise<void> => {
   const username = requireValue("username");
-  const user = getUserByUsername(username);
+  const user = await getUserByUsername(username);
   if (!user) throw new Error(`User ${username} not found`);
-  if (user.role === "admin" && !isActive && countActiveAdmins() <= 1) {
+  if (user.role === "admin" && !isActive && await countActiveAdmins() <= 1) {
     throw new Error("Refusing to disable the last active admin");
   }
-  updateUser(user.id, { isActive });
+  await updateUser(user.id, { isActive });
   console.log(`${isActive ? "Enabled" : "Disabled"} ${username}`);
 };
 
-const resetPassword = (): void => {
+const resetPassword = async (): Promise<void> => {
   const username = requireValue("username");
   const password = requireValue("password");
   assertPassword(password);
-  const user = getUserByUsername(username);
+  const user = await getUserByUsername(username);
   if (!user) throw new Error(`User ${username} not found`);
-  updateUser(user.id, { passwordHash: hashPassword(password) });
+  await updateUser(user.id, { passwordHash: hashPassword(password) });
   console.log(`Reset password for ${username}`);
 };
 
-const listSessions = (): void => {
+const listSessions = async (): Promise<void> => {
   const limit = Number(valueOf("limit") || 50);
   console.table(
-    listAuthSessions(Number.isFinite(limit) ? Math.max(1, Math.min(500, limit)) : 50)
+    (await listAuthSessions(Number.isFinite(limit) ? Math.max(1, Math.min(500, limit)) : 50))
       .map((session) => ({
         username: session.username,
         ipAddress: session.ipAddress,
@@ -129,10 +129,10 @@ const listSessions = (): void => {
   );
 };
 
-const run = (): void => {
+const run = async (): Promise<void> => {
   const command = args[0] ?? "help";
   if (command === "help" || has("help")) return printHelp();
-  migrate();
+  await migrate();
   if (command === "list-users") return list();
   if (command === "create-user") return create();
   if (command === "set-role") return setRole();
@@ -144,10 +144,10 @@ const run = (): void => {
 };
 
 try {
-  run();
+  await run();
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 } finally {
-  closeDb();
+  await closeDb();
 }

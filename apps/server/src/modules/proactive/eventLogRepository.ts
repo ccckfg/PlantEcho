@@ -2,15 +2,15 @@ import { getDb } from "../../db/connection.js";
 import { nowIso } from "../../shared/time.js";
 import type { ProactiveEventInput } from "./types.js";
 
-export const hasRecentProactiveEvent = (
+export const hasRecentProactiveEvent = async (
   plantId: string,
   eventKey: string,
   cooldownMs: number,
   now = Date.now()
-): boolean => {
+): Promise<boolean> => {
   if (cooldownMs <= 0) return false;
   const since = new Date(now - cooldownMs).toISOString();
-  const row = getDb()
+  const row = await getDb()
     .prepare(
       `SELECT id FROM proactive_event_log
        WHERE plant_id = ? AND event_key = ? AND fired_at >= ?
@@ -20,15 +20,16 @@ export const hasRecentProactiveEvent = (
   return Boolean(row);
 };
 
-export const logProactiveEvent = (
+export const logProactiveEvent = async (
   input: ProactiveEventInput,
   messageId: number | null
-): number => {
-  const result = getDb()
+): Promise<number> => {
+  const result = await getDb()
     .prepare(
       `INSERT INTO proactive_event_log
        (plant_id, event_key, event_type, severity, message_id, payload_json, fired_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`
+       VALUES (?, ?, ?, ?, ?, ?, ?)
+       RETURNING id`
     )
     .run(
       input.plantId,
@@ -45,8 +46,15 @@ export const logProactiveEvent = (
 export const attachProactiveEventMessage = (
   eventLogId: number,
   messageId: number
-): void => {
-  getDb()
+): Promise<void> => {
+  return attachProactiveEventMessageAsync(eventLogId, messageId);
+};
+
+const attachProactiveEventMessageAsync = async (
+  eventLogId: number,
+  messageId: number
+): Promise<void> => {
+  await getDb()
     .prepare("UPDATE proactive_event_log SET message_id = ? WHERE id = ?")
     .run(messageId, eventLogId);
 };
