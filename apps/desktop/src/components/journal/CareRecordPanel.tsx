@@ -13,6 +13,12 @@ import { useSyncRefresh } from "@/hooks/useSyncRefresh";
 import { formatTime, relativeTime } from "@/lib/format";
 import { useToast } from "@/components/Toast";
 import { Card, Empty, Icon } from "@/components/UI";
+import {
+  CARE_RECORD_FETCH_LIMIT,
+  dateTimeLocalToIso,
+  selectCareRecordWindow,
+  toDateTimeLocalValue
+} from "./careRecordTime";
 
 interface CareRecordPanelProps {
   plantId: string;
@@ -21,32 +27,37 @@ interface CareRecordPanelProps {
   variant?: "desktop" | "mobile";
 }
 
-const RECORD_LIMIT = 50;
-const DATE_TIME_LOCAL_LENGTH = 16;
-
-const toDateTimeLocalValue = (date = new Date()): string => {
-  const localTime = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
-  return localTime.toISOString().slice(0, DATE_TIME_LOCAL_LENGTH);
-};
-
-const dateTimeLocalToIso = (value: string): string | null => {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date.toISOString();
-};
-
 export function CareRecordPanel({ plantId, plantName, variant = "desktop" }: CareRecordPanelProps) {
   const isMobile = variant === "mobile";
   const refresh = useSyncRefresh({ plantId, resources: ["care_records"] });
-  const records = useAsync(() => api.listCareRecords(plantId, RECORD_LIMIT), [plantId, refresh]);
+  const records = useAsync(
+    () => api.listCareRecords(plantId, CARE_RECORD_FETCH_LIMIT),
+    [plantId, refresh]
+  );
   const toast = useToast();
 
   const [activeType, setActiveType] = useState<CareRecordType>("water");
   const [note, setNote] = useState("");
   const [performedAt, setPerformedAt] = useState(() => toDateTimeLocalValue());
+  const [jumpAt, setJumpAt] = useState("");
+  const [activeJumpIso, setActiveJumpIso] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   const list = records.data?.records ?? [];
+  const visibleWindow = useMemo(
+    () => selectCareRecordWindow(list, activeJumpIso),
+    [list, activeJumpIso]
+  );
   const total = list.length;
+
+  const jumpToTime = () => {
+    setActiveJumpIso(dateTimeLocalToIso(jumpAt));
+  };
+
+  const clearJump = () => {
+    setJumpAt("");
+    setActiveJumpIso(null);
+  };
 
   const submit = async () => {
     if (saving) return;
@@ -170,7 +181,44 @@ export function CareRecordPanel({ plantId, plantName, variant = "desktop" }: Car
           description="浇水、施肥、修剪后点一下上面的按钮，这里会留下照料它的足迹。"
         />
       ) : (
-        <div className="relative">
+        <div className="flex flex-col gap-sm">
+          <div className="flex flex-col gap-sm rounded-md bg-surface-container-low/55 p-sm ring-1 ring-surface-container-highest/30 md:flex-row md:items-center">
+            <input
+              type="datetime-local"
+              value={jumpAt}
+              onChange={(event) => setJumpAt(event.target.value)}
+              aria-label="跳转到养护记录时间"
+              className="min-w-0 flex-1 rounded-full bg-surface-container-lowest ring-1 ring-surface-container-highest/50 px-md py-sm text-body-sm text-on-surface outline-none transition-all duration-200 focus:ring-2 focus:ring-primary/40"
+            />
+            <div className="flex shrink-0 items-center gap-xs">
+              <button
+                type="button"
+                onClick={jumpToTime}
+                disabled={!jumpAt}
+                className="inline-flex items-center gap-xs rounded-full bg-secondary-fixed px-md py-sm text-label-sm font-label-sm text-on-secondary-fixed transition-all duration-200 ease-standard hover:bg-secondary-container active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-primary/40"
+              >
+                <Icon name="travel_explore" className="text-[16px]" />
+                跳转
+              </button>
+              {activeJumpIso ? (
+                <button
+                  type="button"
+                  onClick={clearJump}
+                  aria-label="清除时间跳转"
+                  className="grid h-9 w-9 place-items-center rounded-full bg-surface-container-lowest text-on-surface-variant ring-1 ring-surface-container-highest/50 transition-all duration-200 ease-standard hover:text-primary active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-primary/40"
+                >
+                  <Icon name="close" className="text-[16px]" />
+                </button>
+              ) : null}
+            </div>
+          </div>
+          <div className="flex items-center justify-between gap-sm text-label-sm font-label-sm text-on-surface-variant">
+            <span>{visibleWindow.isJumped ? "时间区域" : "最近记录"}</span>
+            <span className="tabular-nums">
+              {visibleWindow.start}-{visibleWindow.end} / {visibleWindow.total}
+            </span>
+          </div>
+          <div className="relative">
           <div
             aria-hidden
             className="absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-surface-container-lowest to-transparent pointer-events-none z-10 rounded-t"
@@ -180,7 +228,7 @@ export function CareRecordPanel({ plantId, plantName, variant = "desktop" }: Car
               isMobile ? "max-h-[260px]" : "max-h-[320px]"
             }`}
           >
-            {list.map((record) => (
+            {visibleWindow.records.map((record) => (
               <CareRecordItem key={record.id} record={record} />
             ))}
           </ul>
@@ -188,6 +236,7 @@ export function CareRecordPanel({ plantId, plantName, variant = "desktop" }: Car
             aria-hidden
             className="absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-surface-container-lowest to-transparent pointer-events-none z-10 rounded-b"
           />
+          </div>
         </div>
       )}
     </Card>
