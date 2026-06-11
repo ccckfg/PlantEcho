@@ -8,6 +8,7 @@
 | Phase | 模型 | 触发时机 | 职责 |
 |---|---|---|---|
 | `chat.reply` | 主模型 | 每次普通或流式植物对话 | 生成可见回复与隐藏 Inner Patch |
+| `chat.tool-repair` | 副模型 | 主回复中的隐藏工具块不是合法 JSON，但看起来确实包含工具调用意图时 | 只修复工具 JSON 格式，不从用户原文补意图 |
 | `proactive.intention` | 主模型 | 主动扫描选出一个可考虑 Intention 后 | 决定说、保留、完成或放弃，并生成主动发言 |
 | `proactive.event` | 主模型 | 预留给需要模型判断的主动事件 | 当前 reminder 直接发送、rain 保持沉默，因此现有事件不会实际调用 |
 | `memory.closure` | 副模型 | 每累计 3 个新 turn 的后台整理任务 | 判断对话主题闭合边界 |

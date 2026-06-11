@@ -1,20 +1,21 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import test from "node:test";
+import { env } from "../../config/env.js";
 import { migrate } from "../../db/migrate.js";
 import { getDb } from "../../db/connection.js";
 import { createPlant } from "../plants/plantRepository.js";
 import { insertClaimedDevice } from "../devices/deviceRepository.js";
 import { getPlantReadingState, recordDeviceReading } from "../readings/readingService.js";
-import { detectReminderPlan } from "./reminderDetector.js";
+import { parseChatResponse } from "../chat/responseProtocol.js";
 import { createReminder, getReminder } from "./reminderRepository.js";
 import { runReminderJob } from "./reminderJob.js";
-import { scheduleReminderFromUserMessage } from "./reminderTool.js";
+import { executeChatToolCalls } from "./reminderTool.js";
 import type { BackgroundJob } from "../jobs/jobTypes.js";
 
 const cleanup = (plantId: string): void => {
   const db = getDb();
-  db.prepare("DELETE FROM background_jobs WHERE payload_json LIKE ?").run(`%${plantId}%`);
+  db.prepare("DELETE FROM background_jobs WHERE type = 'proactive.reminder'").run();
   db.prepare("DELETE FROM plants WHERE id = ?").run(plantId);
 };
 
@@ -56,17 +57,11 @@ test("sensor readings remain physical state and do not emit proactive messages o
   }
 });
 
-test("chat reminder language becomes a due reminder message", async () => {
+test("scheduled reminder job becomes a due reminder message", async () => {
   migrate();
-  const now = new Date("2026-05-27T10:00:00.000Z");
-  const plan = detectReminderPlan("十分钟后提醒我浇水", now);
-  assert.ok(plan);
-  assert.equal(plan.text, "浇水");
-  assert.equal(plan.remindAt.toISOString(), "2026-05-27T10:10:00.000Z");
-
   const plant = createPlant({ name: "提醒测试", species: "绿萝" });
   try {
-    const reminder = createReminder(plant.id, plan.text, plan.remindAt);
+    const reminder = createReminder(plant.id, "浇水", new Date(Date.now() + 60_000));
     await runReminderJob({
       id: "test-job",
       type: "proactive.reminder",
@@ -98,56 +93,82 @@ test("chat reminder language becomes a due reminder message", async () => {
   }
 });
 
-test("reminder tool call creates reminders without rule fallback", async () => {
+test("custom chat tool call creates a reminder and background job", async () => {
   migrate();
-  const originalFetch = globalThis.fetch;
   const plant = createPlant({ name: "工具提醒", species: "绿萝" });
   const due = new Date(Date.now() + 5 * 60_000).toISOString();
   try {
+    const parsed = parseChatResponse(
+      `我记下了。<tool_calls>[{"name":"create_reminder","arguments":{"text":"浇水","remind_at":"${due}"}}]</tool_calls>`
+    );
+    const reminders = await executeChatToolCalls({
+      plantId: plant.id,
+      toolCalls: parsed.toolCalls,
+      invalidToolCallsText: parsed.invalidToolCallsText,
+      sourceMessageId: null,
+      timezone: "Asia/Shanghai"
+    });
+
+    assert.equal(reminders.length, 1);
+    assert.equal(reminders[0].text, "浇水");
+    const job = getDb()
+      .prepare("SELECT COUNT(*) AS count FROM background_jobs WHERE payload_json LIKE ?")
+      .get(`%${reminders[0].id}%`) as { count: number };
+    assert.equal(job.count, 1);
+  } finally {
+    cleanup(plant.id);
+  }
+});
+
+test("malformed custom chat tool calls can be repaired by the secondary model", async () => {
+  migrate();
+  const originalFetch = globalThis.fetch;
+  const originalEnv = {
+    LLM_API_URL: env.LLM_API_URL,
+    LLM_API_KEY: env.LLM_API_KEY,
+    LLM_MODEL_ID: env.LLM_MODEL_ID,
+    SECONDARY_LLM_MODEL_ID: env.SECONDARY_LLM_MODEL_ID
+  };
+  const plant = createPlant({ name: "修复提醒", species: "绿萝" });
+  const due = new Date(Date.now() + 5 * 60_000).toISOString();
+  try {
+    env.LLM_API_URL = "https://llm.test/v1";
+    env.LLM_API_KEY = "test-key";
+    env.LLM_MODEL_ID = "primary-test";
+    env.SECONDARY_LLM_MODEL_ID = "secondary-test";
     globalThis.fetch = (async () =>
       new Response(JSON.stringify({
         choices: [
           {
             message: {
-              tool_calls: [
+              content: JSON.stringify([
                 {
-                  type: "function",
-                  function: {
-                    name: "create_reminder",
-                    arguments: JSON.stringify({ text: "浇水", remind_at: due })
-                  }
+                  name: "create_reminder",
+                  arguments: { text: "喝水", remind_at: due }
                 }
-              ]
+              ])
             }
           }
         ],
         usage: { prompt_tokens: 1, completion_tokens: 1 }
       }), { status: 200 })) as typeof fetch;
 
-    const reminder = await scheduleReminderFromUserMessage(
-      plant.id,
-      "5min后提醒我浇水",
-      null,
-      "Asia/Shanghai"
-    );
-    assert.ok(reminder);
-    assert.equal(reminder.text, "浇水");
+    const reminders = await executeChatToolCalls({
+      plantId: plant.id,
+      toolCalls: [],
+      invalidToolCallsText: `create_reminder text=喝水 remind_at=${due}`,
+      sourceMessageId: null,
+      timezone: "Asia/Shanghai"
+    });
 
-    globalThis.fetch = (async () =>
-      new Response(JSON.stringify({
-        choices: [{ message: { content: "不需要提醒" } }],
-        usage: { prompt_tokens: 1, completion_tokens: 1 }
-      }), { status: 200 })) as typeof fetch;
-
-    const noFallback = await scheduleReminderFromUserMessage(
-      plant.id,
-      "5分钟后提醒我浇水",
-      null,
-      "Asia/Shanghai"
-    );
-    assert.equal(noFallback, null);
+    assert.equal(reminders.length, 1);
+    assert.equal(reminders[0].text, "喝水");
   } finally {
     globalThis.fetch = originalFetch;
+    env.LLM_API_URL = originalEnv.LLM_API_URL;
+    env.LLM_API_KEY = originalEnv.LLM_API_KEY;
+    env.LLM_MODEL_ID = originalEnv.LLM_MODEL_ID;
+    env.SECONDARY_LLM_MODEL_ID = originalEnv.SECONDARY_LLM_MODEL_ID;
     cleanup(plant.id);
   }
 });

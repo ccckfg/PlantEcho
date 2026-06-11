@@ -1,10 +1,7 @@
 import { llmPhases } from "../../config/llmRouting.js";
 import { proactiveConfig } from "../../config/proactive.js";
-import {
-  completeToolCall,
-  isLlmConfigured,
-  type LlmTool
-} from "../llm/client.js";
+import { completeJson } from "../llm/client.js";
+import type { ChatToolCall } from "../chat/responseProtocol.js";
 import { scheduleReminder } from "./reminderService.js";
 import type { ProactiveReminder } from "./types.js";
 
@@ -13,38 +10,27 @@ type ReminderToolArgs = {
   remind_at?: unknown;
 };
 
-const createReminderTool: LlmTool = {
-  type: "function",
-  function: {
-    name: "create_reminder",
-    description: "Create a one-time reminder only when the user explicitly asks to be reminded.",
-    parameters: {
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        text: {
-          type: "string",
-          description: "The short thing to remind the user about, without the time expression."
-        },
-        remind_at: {
-          type: "string",
-          description: "Future reminder time as an ISO-8601 timestamp."
-        }
-      },
-      required: ["text", "remind_at"]
-    }
-  }
-};
+interface ExecuteChatToolCallsInput {
+  plantId: string;
+  toolCalls: ChatToolCall[];
+  invalidToolCallsText?: string;
+  sourceMessageId: number | null;
+  timezone?: string;
+}
 
-const parseArgs = (raw: string): ReminderToolArgs | null => {
-  try {
-    const value = JSON.parse(raw) as unknown;
-    return value && typeof value === "object" && !Array.isArray(value)
-      ? value as ReminderToolArgs
-      : null;
-  } catch {
-    return null;
-  }
+const createReminderToolName = "create_reminder";
+
+const normalizeToolCalls = (value: unknown): ChatToolCall[] | null => {
+  if (!Array.isArray(value)) return null;
+  const calls = value.map((item) => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) return null;
+    const record = item as Record<string, unknown>;
+    const args = record.arguments;
+    if (record.name !== createReminderToolName) return null;
+    if (!args || typeof args !== "object" || Array.isArray(args)) return null;
+    return { name: record.name, arguments: args as Record<string, unknown> };
+  });
+  return calls.every((item): item is ChatToolCall => item !== null) ? calls : null;
 };
 
 const validToolReminder = (
@@ -61,51 +47,87 @@ const validToolReminder = (
   return { text, remindAt };
 };
 
-const toolReminderFromText = async (
-  text: string,
+const shouldRepairToolCalls = (text: string): boolean =>
+  /\bcreate_reminder\b|\bremind_at\b|\btext\b/i.test(text);
+
+const repairToolCalls = async (
+  rawText: string,
   now: Date,
   timezone?: string
-): Promise<{ text: string; remindAt: Date } | null> => {
-  if (!isLlmConfigured({ phase: llmPhases.chatReminderTool })) return null;
+): Promise<ChatToolCall[]> => {
+  if (!shouldRepairToolCalls(rawText)) return [];
   const maxAt = new Date(now.getTime() + proactiveConfig.reminderMaxDays * 86_400_000);
-  const call = await completeToolCall(
-    [
-      {
-        role: "system",
-        content: [
-          "你是提醒工具调度器。",
-          "只有当用户明确要求提醒、叫我、记得提醒我、到时候告诉我时，才调用 create_reminder。",
-          "用户只是聊天、询问状态、表达愿望或记录养护时，不要调用工具。",
-          "你要理解中文和英文时间写法，例如 5min、5 minutes、5分钟、五分钟、tomorrow 8am。",
-          "remind_at 必须是未来的 ISO-8601 时间，text 要去掉时间表达，只保留提醒事项。"
-        ].join("\n")
-      },
-      {
-        role: "user",
-        content: [
-          `now: ${now.toISOString()}`,
-          `timezone: ${timezone || "Asia/Shanghai"}`,
-          `max_remind_at: ${maxAt.toISOString()}`,
-          `user_message: ${text}`
-        ].join("\n")
-      }
-    ],
-    [createReminderTool],
-    { temperature: 0, phase: llmPhases.chatReminderTool }
-  ).catch(() => null);
-  if (call?.function.name !== "create_reminder") return null;
-  const args = parseArgs(call.function.arguments);
-  return args ? validToolReminder(args, now) : null;
+  try {
+    const repaired = await completeJson<unknown>(
+      [
+        {
+          role: "system",
+          content: [
+            "You repair malformed tool_calls JSON.",
+            "Only repair the provided tool_calls fragment; never infer new intent from outside text.",
+            "Return only a JSON array. Return [] if a valid call cannot be recovered.",
+            "Allowed tool:",
+            `${createReminderToolName} with {"name":"create_reminder","arguments":{"text":"short reminder text","remind_at":"future ISO-8601 timestamp"}}.`,
+            "Do not explain."
+          ].join("\n")
+        },
+        {
+          role: "user",
+          content: [
+            `now: ${now.toISOString()}`,
+            `timezone: ${timezone || "Asia/Shanghai"}`,
+            `max_remind_at: ${maxAt.toISOString()}`,
+            "tool_calls_fragment:",
+            rawText
+          ].join("\n")
+        }
+      ],
+      { temperature: 0, phase: llmPhases.chatToolRepair }
+    );
+    return normalizeToolCalls(repaired) ?? [];
+  } catch {
+    console.warn("[chat-tools] invalid tool_calls JSON could not be repaired");
+    return [];
+  }
 };
 
-export const scheduleReminderFromUserMessage = async (
+const executeCreateReminder = (
   plantId: string,
-  text: string,
+  args: ReminderToolArgs,
   sourceMessageId: number | null,
-  timezone?: string
-): Promise<ProactiveReminder | null> => {
-  const toolPlan = await toolReminderFromText(text, new Date(), timezone);
-  return toolPlan
-    ? scheduleReminder(plantId, toolPlan.text, toolPlan.remindAt, sourceMessageId)
-    : null;
+  now: Date
+): ProactiveReminder | null => {
+  const plan = validToolReminder(args, now);
+  if (!plan) {
+    console.warn("[chat-tools] rejected create_reminder: invalid arguments");
+    return null;
+  }
+  return scheduleReminder(plantId, plan.text, plan.remindAt, sourceMessageId);
+};
+
+export const executeChatToolCalls = async (
+  input: ExecuteChatToolCallsInput
+): Promise<ProactiveReminder[]> => {
+  const now = new Date();
+  const repairedCalls = input.toolCalls.length
+    ? []
+    : await repairToolCalls(input.invalidToolCallsText ?? "", now, input.timezone);
+  const calls = input.toolCalls.length ? input.toolCalls : repairedCalls;
+  const reminders: ProactiveReminder[] = [];
+
+  for (const call of calls) {
+    if (call.name !== createReminderToolName) {
+      console.warn(`[chat-tools] unknown tool name: ${call.name}`);
+      continue;
+    }
+    const reminder = executeCreateReminder(
+      input.plantId,
+      call.arguments,
+      input.sourceMessageId,
+      now
+    );
+    if (reminder) reminders.push(reminder);
+  }
+
+  return reminders;
 };

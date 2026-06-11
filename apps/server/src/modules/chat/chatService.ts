@@ -9,8 +9,7 @@ import {
   scheduleDetectAndConsolidate,
   scheduleSessionClosure
 } from "../memory/consolidation/consolidationJob.js";
-import { addReminderConfirmation } from "../proactive/reminderService.js";
-import { scheduleReminderFromUserMessage } from "../proactive/reminderTool.js";
+import { executeChatToolCalls } from "../proactive/reminderTool.js";
 import {
   citationsUsedByReply,
   repairUnsupportedMemoryClaim,
@@ -74,18 +73,13 @@ export const chatWithPlant = async (
   );
   const memoryCitations = citationsUsedByReply(reply, context.offeredCitations);
   finishChatTurn(plantId, turn, reply, parsed.innerPatch, parsed.statusTags, options);
-  const reminder = await scheduleReminderFromUserMessage(
+  await executeChatToolCalls({
     plantId,
-    content,
-    userMessageId,
-    options?.timezone
-  );
-  if (reminder) {
-    addReminderConfirmation(plantId, reminder, {
-      visibleTo: options?.visibleTo,
-      publishMessagesChanged: options?.publishMessagesChanged
-    });
-  }
+    toolCalls: parsed.toolCalls,
+    invalidToolCallsText: parsed.invalidToolCallsText,
+    sourceMessageId: userMessageId,
+    timezone: options?.timezone
+  });
   return {
     turn,
     reply,
@@ -137,18 +131,13 @@ export async function* streamChatWithPlant(
   );
   const memoryCitations = citationsUsedByReply(reply, context.offeredCitations);
   finishChatTurn(plantId, turn, reply, innerPatch, statusTags, options);
-  const reminder = await scheduleReminderFromUserMessage(
+  await executeChatToolCalls({
     plantId,
-    content,
-    userMessageId,
-    options?.timezone
-  );
-  if (reminder) {
-    addReminderConfirmation(plantId, reminder, {
-      visibleTo: options?.visibleTo,
-      publishMessagesChanged: options?.publishMessagesChanged
-    });
-  }
+    toolCalls: parsed.toolCalls,
+    invalidToolCallsText: parsed.invalidToolCallsText,
+    sourceMessageId: userMessageId,
+    timezone: options?.timezone
+  });
   yield {
     type: "done",
     turn,
