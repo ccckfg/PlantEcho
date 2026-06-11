@@ -202,34 +202,36 @@ export function CareRecordPanel({
         />
       ) : (
         <div className="flex flex-col gap-sm">
-          <div className="flex flex-col gap-sm rounded-md bg-surface-container-low/55 p-sm ring-1 ring-surface-container-highest/30 md:flex-row md:items-center">
-            <DateTimeField
-              value={jumpAt}
-              onChange={setJumpAt}
-              label="跳转到养护记录时间"
-              placeholder="选择要查看的时间"
-              allowClear
-            />
-            <div className="flex shrink-0 items-center gap-xs">
-              <button
-                type="button"
-                onClick={jumpToTime}
-                disabled={!jumpAt}
-                className="inline-flex items-center gap-xs rounded-full bg-secondary-fixed px-md py-sm text-label-sm font-label-sm text-on-secondary-fixed transition-all duration-200 ease-standard hover:bg-secondary-container active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-primary/40"
-              >
-                <Icon name="travel_explore" className="text-[16px]" />
-                跳转
-              </button>
+          <div className="flex flex-col gap-sm rounded-md bg-surface-container-low/55 p-sm ring-1 ring-surface-container-highest/30">
+            <div className="flex items-center justify-between gap-sm">
+              <p className="text-label-md font-label-md text-on-surface">想看哪天的记录？</p>
               {activeJumpIso ? (
                 <button
                   type="button"
                   onClick={clearJump}
-                  aria-label="清除时间跳转"
-                  className="grid h-9 w-9 place-items-center rounded-full bg-surface-container-lowest text-on-surface-variant ring-1 ring-surface-container-highest/50 transition-all duration-200 ease-standard hover:text-primary active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-primary/40"
+                  className="rounded-full px-sm py-xs text-label-sm font-label-sm text-secondary transition-all duration-200 ease-standard hover:bg-secondary-container/35 active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-primary/40"
                 >
-                  <Icon name="close" className="text-[16px]" />
+                  清除
                 </button>
               ) : null}
+            </div>
+            <DateTimeField
+              value={jumpAt}
+              onChange={setJumpAt}
+              label="跳转到养护记录时间"
+              placeholder="选择日期和时间"
+              allowClear
+            />
+            <div className="flex shrink-0 items-center">
+              <button
+                type="button"
+                onClick={jumpToTime}
+                disabled={!jumpAt}
+                className="inline-flex w-full items-center justify-center gap-xs rounded-full bg-secondary-fixed px-md py-sm text-label-sm font-label-sm text-on-secondary-fixed transition-all duration-200 ease-standard hover:bg-secondary-container active:scale-[0.97] disabled:bg-secondary-container/45 disabled:text-on-surface-variant/45 disabled:shadow-none disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-primary/40 md:w-auto"
+              >
+                <Icon name="travel_explore" className="text-[16px]" />
+                跳转到附近记录
+              </button>
             </div>
           </div>
           <div className="flex items-center justify-between gap-sm text-label-sm font-label-sm text-on-surface-variant">

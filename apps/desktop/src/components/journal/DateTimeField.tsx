@@ -106,7 +106,7 @@ export function DateTimeField({
         onClick={() => setOpen(true)}
         disabled={disabled}
         aria-label={label}
-        className="min-w-0 inline-flex w-full items-center justify-between gap-sm rounded-full bg-surface-container-lowest px-md py-sm text-left text-body-sm text-on-surface ring-1 ring-surface-container-highest/50 transition-all duration-200 ease-standard hover:bg-secondary-container/20 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-primary/40"
+        className="min-w-0 inline-flex w-full items-center justify-between gap-sm rounded-full bg-surface-container-lowest px-md py-sm text-left text-body-sm text-on-surface shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] ring-1 ring-surface-container-highest/50 transition-all duration-200 ease-standard hover:bg-secondary-container/20 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-primary/40"
       >
         <span className={value ? "truncate tabular-nums" : "truncate text-on-surface-variant/60"}>
           {formatDisplay(value, placeholder)}
