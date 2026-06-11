@@ -1,13 +1,14 @@
 {
   "name": "@dyn/server",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "type": "module",
   "private": true,
   "scripts": {
     "dev": "tsx src/server.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/src/server.js",
-    "test": "tsx --test src/**/*.test.ts",
+    "test": "tsx --import ./scripts/testEnv.ts --test src/**/*.test.ts",
+    "migrate:sqlite-to-postgres": "tsx scripts/migrateSqliteToPostgres.ts",
     "user": "tsx scripts/userCli.ts",
     "simulate": "tsx scripts/simulateDevice.ts",
     "evaluate:retrieval": "tsx scripts/evaluateRetrieval.ts",

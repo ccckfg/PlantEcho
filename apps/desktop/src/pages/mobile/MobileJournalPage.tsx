@@ -131,7 +131,12 @@ function MobileJournalContent({
         </section>
 
         <section>
-          <CareRecordPanel plantId={plantId} plantName={summary?.name ?? "它"} variant="mobile" />
+          <CareRecordPanel
+            plantId={plantId}
+            plantName={summary?.name ?? "它"}
+            plants={plants}
+            variant="mobile"
+          />
         </section>
 
         <section>

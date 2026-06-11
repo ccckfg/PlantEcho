@@ -142,7 +142,12 @@ function JournalContent({
       </section>
 
       <section className="max-w-3xl">
-        <CareRecordPanel plantId={plantId} plantName={summary?.name ?? "它"} variant="desktop" />
+        <CareRecordPanel
+          plantId={plantId}
+          plantName={summary?.name ?? "它"}
+          plants={plants}
+          variant="desktop"
+        />
       </section>
 
       <section className="max-w-3xl mt-xxl">

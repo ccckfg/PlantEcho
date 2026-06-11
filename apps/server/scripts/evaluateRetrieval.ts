@@ -240,7 +240,7 @@ const main = async (): Promise<void> => {
     "",
     "## 结论",
     "",
-    "本次评估使用真实 embedding、sqlite-vec、FTS5/BM25、Qwen rerank 链路。Top-K 指标越高，说明聊天上下文越可能拿到正确长期记忆。"
+    "本次评估使用真实 embedding、pgvector、PostgreSQL full-text、Qwen rerank 链路。Top-K 指标越高，说明聊天上下文越可能拿到正确长期记忆。"
   ];
   fs.writeFileSync(reportPath, `${lines.join("\n")}\n`, "utf8");
   console.log(`Report written: ${reportPath}`);

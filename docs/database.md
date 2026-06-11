@@ -1,11 +1,11 @@
 # Database
 
-PlantEcho now uses a database abstraction with two providers:
+PlantEcho uses PostgreSQL as the default database provider. A SQLite compatibility adapter remains available for tests and one-time migration from older local data.
 
-- `postgres`: recommended for long-running, multi-user deployments. It uses PostgreSQL plus the `pgvector` extension for memory embeddings.
-- `sqlite`: local development compatibility mode. It is still useful for tests and single-user experiments, but should not be the production choice for multi-device use.
+- `postgres`: default for local development, Docker Compose, and production. It uses PostgreSQL plus the `pgvector` extension for memory embeddings.
+- `sqlite`: compatibility mode for automated tests and legacy local databases that need to be migrated.
 
-## Recommended Production Setup
+## Default Setup
 
 Use PostgreSQL with pgvector:
 
@@ -18,6 +18,19 @@ DB_CONNECTION_TIMEOUT_MS=5000
 ```
 
 The root `docker-compose.yml` starts a `pgvector/pgvector:pg17` database service and passes `DB_PROVIDER=postgres` plus `DATABASE_URL` to the server.
+
+For local development, start PostgreSQL first:
+
+```powershell
+docker compose up -d dyn-postgres
+npm run dev:server
+```
+
+If you have an older SQLite development database, migrate it once:
+
+```powershell
+npm run migrate:sqlite-to-postgres --workspace @dyn/server -- --sqlite apps/server/apps/server/data/dyn.sqlite --database-url postgresql://dyn:dyn-local-password@127.0.0.1:5432/dyn --reset-target
+```
 
 ## What Gets Deleted
 
@@ -70,7 +83,7 @@ Increase these values if you need longer audits. Do not set them to very large v
 
 ## Migrations
 
-SQLite migrations live under:
+SQLite compatibility migrations live under:
 
 ```text
 apps/server/src/db/migrations/
@@ -102,4 +115,4 @@ open configured provider
 
 - Chat turn allocation uses `plant_turn_counters` and a transaction. PostgreSQL locks the counter row with `FOR UPDATE`, so concurrent requests do not reuse the same turn.
 - Background job claiming uses PostgreSQL `FOR UPDATE SKIP LOCKED`, so multiple workers do not claim the same queued job.
-- SQLite transactions are serialized in the local compatibility adapter to keep tests and local development deterministic.
+- SQLite transactions are serialized in the compatibility adapter to keep tests and legacy imports deterministic.

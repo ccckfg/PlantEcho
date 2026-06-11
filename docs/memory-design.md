@@ -56,8 +56,8 @@ understanding BM25     = 关系摘要 + 当前关注点 + 主人新消息
 
 ```text
 1. embedding query
-2. pgvector 向量候选（SQLite 开发模式使用 sqlite-vec）
-3. PostgreSQL full-text / BM25-like 候选（SQLite 开发模式使用 FTS5 / BM25）
+2. pgvector 向量候选（SQLite 兼容模式使用 sqlite-vec）
+3. PostgreSQL full-text / BM25-like 候选（SQLite 兼容模式使用 FTS5 / BM25）
 4. hybrid fusion: vector relevance 0.75 + BM25 relevance 0.25
 5. optional rerank
 6. recency + importance 最终排序
@@ -72,7 +72,7 @@ final = relevance * 0.50 + recency * 0.20 + importance * 0.30
 
 其中 relevance 来自 hybrid fusion 或 rerank，recency 使用指数衰减，importance 来自记忆重要度。
 
-生产部署推荐 PostgreSQL + pgvector。检索模块仍保留 SQLite FTS5/sqlite-vec 兼容路径，供本地开发和测试使用。植物对话入口要求 embedding API 已配置；配置后会自动建立向量索引。
+本地开发与生产部署默认使用 PostgreSQL + pgvector。检索模块仍保留 SQLite FTS5/sqlite-vec 兼容路径，供测试和历史数据迁移使用。植物对话入口要求 embedding API 已配置；配置后会自动建立向量索引。
 
 Embedding provider 可通过 `EMBEDDING_PROVIDER` 切换：
 

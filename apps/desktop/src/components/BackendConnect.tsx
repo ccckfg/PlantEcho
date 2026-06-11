@@ -3,10 +3,7 @@ import { APP_BRAND } from "@/config/branding";
 import { InteractiveEcho } from "./InteractiveEcho";
 import { getApiConnection, setApiConnection, testApiConnection } from "@/lib/api";
 import { registerWithPassword } from "@/lib/authApi";
-import {
-  isLoopbackBackendUrl,
-  type BackendConnection
-} from "@/lib/connection";
+import type { BackendConnection } from "@/lib/connection";
 import { useIsMobile } from "@/lib/usePlatform";
 import { useAuthViewportLock } from "@/hooks/useAuthViewportLock";
 import { BrandMark } from "./BrandMark";
@@ -34,10 +31,7 @@ export function BackendConnect({ onConnected, onCancel }: BackendConnectProps) {
   const keyboardOpen = useAuthViewportLock();
   const isMobile = useIsMobile();
   const savedConnection = getApiConnection();
-  const savedBaseUrl =
-    isMobile && savedConnection?.baseUrl && isLoopbackBackendUrl(savedConnection.baseUrl)
-      ? ""
-      : savedConnection?.baseUrl ?? "";
+  const savedBaseUrl = savedConnection?.baseUrl ?? "";
   const [mode, setMode] = useState<ConnectMode>("login");
   const [baseUrl, setBaseUrl] = useState(savedBaseUrl);
   const [username, setUsername] = useState(savedConnection?.user.username ?? "");
@@ -55,10 +49,6 @@ export function BackendConnect({ onConnected, onCancel }: BackendConnectProps) {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!canConnect || state === "testing") return;
-    if (isMobile && isLoopbackBackendUrl(baseUrl)) {
-      setError("手机端请填写后端电脑的局域网 IP，不能使用 127.0.0.1。");
-      return;
-    }
     setState("testing");
     setError("");
 

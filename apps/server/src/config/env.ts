@@ -29,7 +29,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(8787),
   HOST: z.string().default("0.0.0.0"),
   DYN_DATA_DIR: z.string().default("data"),
-  DB_PROVIDER: z.enum(["sqlite", "postgres"]).default("sqlite"),
+  DB_PROVIDER: z.enum(["sqlite", "postgres"]).default("postgres"),
   DATABASE_URL: z.string().optional().default(""),
   DB_POOL_MAX: z.coerce.number().int().positive().default(10),
   DB_IDLE_TIMEOUT_MS: z.coerce.number().int().positive().default(30_000),

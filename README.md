@@ -49,7 +49,7 @@ PlantEcho 把一株植物的**环境感知、养护规则、长期记忆与拟�
 | 层 | 技术栈 | 职责 |
 |---|---|---|
 | **硬件层** | ESP32 · SHT40 · BH1750 · 电容式土壤传感器 | 采集读数、SoftAP 配网、MQTT 上报、OTA 升级 |
-| **服务端** | Node.js 24 · Fastify · SQLite · sqlite-vec | 设备认领、植物状态、记忆生命周期、主动发言、SSE 同步 |
+| **服务端** | Node.js 24 · Fastify · PostgreSQL 17 · pgvector | 设备认领、植物状态、记忆生命周期、主动发言、SSE 同步 |
 | **客户端** | Tauri v2 · React 18 · Vite · Tailwind | 桌面（Windows）与安卓移动端，运行时检测分流 |
 
 ---
@@ -113,7 +113,7 @@ PlantEcho 把一株植物的**环境感知、养护规则、长期记忆与拟�
 
 | 检索通道 | 权重 |
 |---|---|
-| 语义向量（sqlite-vec） | 0.75 |
+| 语义向量（pgvector） | 0.75 |
 | 关键词 BM25 | 0.25 |
 | 新近度衰减 | 不归零 |
 
@@ -213,7 +213,9 @@ ESP32 启动后会自动连 Wi-Fi → 连 MQTT → 开始上报传感器数据�
 
 ### 第二步：Docker 部署后端
 
-准备一个 `dyn.env` 文件（可基于项目根目录的 `.env.example` 修改），核心变量：
+准备一个 `dyn.env` 文件（可基于项目根目录的 `.env.example` 修改），后端默认使用 PostgreSQL + pgvector；项目根目录的 `docker-compose.yml` 会同时启动 `dyn-postgres`。
+
+核心变量：
 
 ```bash
 # dyn.env —— 必填
@@ -222,6 +224,7 @@ LLM_API_KEY=sk-你的密钥
 LLM_MODEL_ID=gpt-4o
 SECONDARY_LLM_MODEL_ID=便宜的结构化任务模型
 APP_ACCESS_KEY=可选的全局兼容密钥（推荐改用账号中心生成的 API 调用密钥）
+DB_PROVIDER=postgres
 
 # 可选：和风天气（用于降雨提醒等场景）
 WeatherKey=你的和风天气key
@@ -241,15 +244,7 @@ docker compose up -d
 curl http://127.0.0.1:8787/health
 ```
 
-或者用 `docker run` 单行启动：
-
-```bash
-docker run -d --name dyn-server --restart unless-stopped \
-  --env-file ./dyn.env \
-  -v ./data:/app/data \
-  -p 8787:8787 -p 1883:1883 \
-  ccckfg/dyn:latest
-```
+单容器 `docker run` 不会自动提供 PostgreSQL，长期运行请使用 Docker Compose；临时调试时也需要额外提供 `DATABASE_URL` 指向可用的 PostgreSQL。
 
 > 端口说明：HTTP `8787`（REST + SSE）、MQTT `1883`（设备通信）。如需外网访问，请在前置 Nginx / Caddy 反向代理，不要直接暴露这两个端口。
 
@@ -304,6 +299,7 @@ curl http://<IP>:8787/v1/chat/completions \
 | 变量 | 说明 |
 |---|---|
 | `APP_ACCESS_KEY` | 可选的全局兼容密钥；第三方客户端推荐使用账号中心生成的 API 调用密钥 |
+| `DB_PROVIDER` / `DATABASE_URL` | 默认使用 `postgres`，`DATABASE_URL` 指向 PostgreSQL + pgvector |
 | `LLM_API_URL` / `LLM_API_KEY` / `LLM_MODEL_ID` | 对话必填；主模型用于聊天、主动发言与长期理解 |
 | `SECONDARY_LLM_*` | 可选；副模型用于主题闭合、Episode 摘要与 care profile；未配置时使用主模型 |
 | `EMBEDDING_*` | 对话必填；OpenAI 兼容 embedding 服务 |

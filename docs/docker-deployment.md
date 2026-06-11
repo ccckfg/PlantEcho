@@ -1,12 +1,11 @@
 # PlantEcho 后端 Docker 部署指南
 
-本文用于把 `apps/server` 后端部署到服务器。长期运行和多用户/多设备场景推荐使用 Docker Compose 中的 PostgreSQL + pgvector；SQLite 只适合本地开发或单用户临时测试。镜像只包含 Node.js 后端和 `packages/shared`，不会打包本地 `.env`、数据库数据、桌面端产物或硬件源码。
+本文用于把 `apps/server` 后端部署到服务器。后端默认使用 Docker Compose 中的 PostgreSQL + pgvector；SQLite 仅保留为测试和历史本地数据迁移兼容路径。镜像只包含 Node.js 后端和 `packages/shared`，不会打包本地 `.env`、数据库数据、桌面端产物或硬件源码。
 
 ## 镜像信息
 
 - 镜像名：`ccckfg/dyn:latest`
-- 最近推送：`2026-05-31`
-- 最近 digest：`sha256:52846b636b7fe5daff096c8c8848bb885fc8c76e734d8e1e3f803a0886c54a5c`
+- 当前 digest：发布后使用 `docker buildx imagetools inspect ccckfg/dyn:latest` 查看
 - HTTP 端口：`8787`
 - MQTT 端口：`1883`
 - 容器内文件数据目录：`/app/data`
@@ -15,7 +14,7 @@
 
 ## 最近一次发布验证
 
-2026-05-31 已完成一次完整后端镜像验证与推送：
+发布前请完成一次完整后端镜像验证与推送：
 
 ```powershell
 npm run build --workspace @dyn/shared
@@ -47,11 +46,17 @@ docker push ccckfg/dyn:latest
 ```powershell
 docker build -t ccckfg/dyn:latest .
 
+docker compose up -d dyn-postgres
+docker rm -f dyn-e2e-test 2>$null
+
 docker run -d --name dyn-e2e-test `
+  --network dyn_default `
   -p 18787:8787 `
   -p 11883:1883 `
   -e AUTH_TOKEN_SECRET=dyn-local-e2e-secret `
   -e PROACTIVE_ENABLED=false `
+  -e DB_PROVIDER=postgres `
+  -e DATABASE_URL=postgresql://dyn:dyn-local-password@dyn-postgres:5432/dyn `
   ccckfg/dyn:latest
 
 Invoke-RestMethod http://127.0.0.1:18787/health
@@ -180,29 +185,7 @@ SECONDARY_LLM_INPUT_COST_PER_MILLION=0
 SECONDARY_LLM_OUTPUT_COST_PER_MILLION=0
 ```
 
-### 方式一：docker run（仅临时 SQLite 验证）
-
-单容器 `docker run` 不会启动 PostgreSQL。只建议用于快速验证镜像健康；长期部署使用下方 Docker Compose。
-
-启动容器：
-
-```bash
-docker pull ccckfg/dyn:latest
-
-docker rm -f dyn-server 2>/dev/null || true
-
-docker run -d \
-  --name dyn-server \
-  --restart unless-stopped \
-  --env-file /opt/dyn/dyn.env \
-  -e DB_PROVIDER=sqlite \
-  -v /opt/dyn/data:/app/data \
-  -p 8787:8787 \
-  -p 1883:1883 \
-  ccckfg/dyn:latest
-```
-
-### 方式二：Docker Compose（推荐）
+### Docker Compose（推荐）
 
 把项目根目录的 `docker-compose.yml` 复制到服务器 `/opt/dyn/docker-compose.yml`，并保证同目录存在 `dyn.env`。
 
@@ -274,22 +257,6 @@ config topic: dyn/devices/<deviceId>/config
 - 外部 LLM / embedding / rerank smoke 会把测试 prompt 发到配置的模型服务，生产前需明确授权后再运行。
 
 ## 更新镜像
-
-```bash
-docker pull ccckfg/dyn:latest
-docker stop dyn-server
-docker rm dyn-server
-docker run -d \
-  --name dyn-server \
-  --restart unless-stopped \
-  --env-file /opt/dyn/dyn.env \
-  -v /opt/dyn/data:/app/data \
-  -p 8787:8787 \
-  -p 1883:1883 \
-  ccckfg/dyn:latest
-```
-
-如果使用 Docker Compose：
 
 ```bash
 cd /opt/dyn

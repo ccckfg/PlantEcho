@@ -23,7 +23,8 @@ WORKDIR /app
 ENV NODE_ENV=production \
   HOST=0.0.0.0 \
   PORT=8787 \
-  DYN_DATA_DIR=/app/data
+  DYN_DATA_DIR=/app/data \
+  DB_PROVIDER=postgres
 
 COPY --from=build /app/package.json /app/package-lock.json ./
 COPY --from=build /app/node_modules node_modules
