@@ -60,6 +60,6 @@ export const registerChatRoutes = async (app: FastifyInstance): Promise<void> =>
 
   app.get("/api/v1/plants/:plantId/messages", async (request) => {
     const { plantId } = request.params as { plantId: string };
-    return { messages: recentVisibleMessages(plantId, 80) };
+    return { messages: await recentVisibleMessages(plantId, 80) };
   });
 };

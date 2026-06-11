@@ -81,6 +81,7 @@ function JournalContent({
   const milestones = useMemo(() => story.filter((memory) => memory.isMilestone), [story]);
 
   const summary = plant.data?.plant;
+  const concern = plant.data?.state?.inner?.concern ?? "";
   const totalDays = useMemo(() => {
     if (!story.length) return 0;
     const oldest = story[story.length - 1];
@@ -105,12 +106,12 @@ function JournalContent({
       <header className="mb-xxl flex flex-col gap-md">
         <div className="flex items-center gap-sm flex-wrap">
           <Chip tone="tertiary">{summary?.species ?? "未知品种"}</Chip>
-          {plant.data?.state.inner.concern ? (
+          {concern ? (
             <Chip
               icon="water_drop"
-              tone={statusNeedsAttention(plant.data.state.inner.concern) ? "error" : "muted"}
+              tone={statusNeedsAttention(concern) ? "error" : "muted"}
             >
-              {plant.data.state.inner.concern}
+              {concern}
             </Chip>
           ) : null}
         </div>

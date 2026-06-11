@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { HashRouter } from "react-router-dom";
 import App from "./App";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ToastProvider } from "./components/Toast";
 import "./styles.css";
 
@@ -34,10 +35,12 @@ installViewportZoomGuard();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <HashRouter>
-      <ToastProvider>
-        <App />
-      </ToastProvider>
-    </HashRouter>
+    <ErrorBoundary>
+      <HashRouter>
+        <ToastProvider>
+          <App />
+        </ToastProvider>
+      </HashRouter>
+    </ErrorBoundary>
   </React.StrictMode>
 );

@@ -10,7 +10,7 @@ import {
 import { api } from "@/lib/api";
 import { useAsync } from "@/lib/useAsync";
 import { useSyncRefresh } from "@/hooks/useSyncRefresh";
-import { relativeTime } from "@/lib/format";
+import { formatTime, relativeTime } from "@/lib/format";
 import { useToast } from "@/components/Toast";
 import { Card, Empty, Icon } from "@/components/UI";
 
@@ -22,6 +22,17 @@ interface CareRecordPanelProps {
 }
 
 const RECORD_LIMIT = 50;
+const DATE_TIME_LOCAL_LENGTH = 16;
+
+const toDateTimeLocalValue = (date = new Date()): string => {
+  const localTime = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return localTime.toISOString().slice(0, DATE_TIME_LOCAL_LENGTH);
+};
+
+const dateTimeLocalToIso = (value: string): string | null => {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
+};
 
 export function CareRecordPanel({ plantId, plantName, variant = "desktop" }: CareRecordPanelProps) {
   const isMobile = variant === "mobile";
@@ -31,6 +42,7 @@ export function CareRecordPanel({ plantId, plantName, variant = "desktop" }: Car
 
   const [activeType, setActiveType] = useState<CareRecordType>("water");
   const [note, setNote] = useState("");
+  const [performedAt, setPerformedAt] = useState(() => toDateTimeLocalValue());
   const [saving, setSaving] = useState(false);
 
   const list = records.data?.records ?? [];
@@ -43,9 +55,11 @@ export function CareRecordPanel({ plantId, plantName, variant = "desktop" }: Car
       await api.createCareRecord(plantId, {
         type: activeType,
         note: note.trim() || undefined,
-        source: "panel"
+        source: "panel",
+        performedAt: dateTimeLocalToIso(performedAt) ?? new Date().toISOString()
       });
       setNote("");
+      setPerformedAt(toDateTimeLocalValue());
       toast.show({
         title: `已记下一次「${careRecordTypeLabel(activeType)}」`,
         description: `${plantName} 的养护记录又添一笔。`,
@@ -106,7 +120,7 @@ export function CareRecordPanel({ plantId, plantName, variant = "desktop" }: Car
             );
           })}
         </div>
-        <div className="flex items-center gap-sm">
+        <div className="grid gap-sm md:grid-cols-[minmax(0,1fr)_190px_auto] md:items-center">
           <input
             value={note}
             maxLength={CARE_RECORD_NOTE_MAX_LENGTH}
@@ -120,6 +134,15 @@ export function CareRecordPanel({ plantId, plantName, variant = "desktop" }: Car
             placeholder={`备注（可选）· 比如「浇了约200ml」`}
             disabled={saving}
             className="flex-1 min-w-0 rounded-full bg-surface-container-lowest ring-1 ring-surface-container-highest/50 px-md py-sm text-body-sm md:text-body-md text-on-surface placeholder:text-on-surface-variant/55 outline-none transition-all duration-200 focus:ring-2 focus:ring-primary/40"
+          />
+          <input
+            type="datetime-local"
+            value={performedAt}
+            max={toDateTimeLocalValue()}
+            onChange={(event) => setPerformedAt(event.target.value)}
+            disabled={saving}
+            aria-label="养护发生时间"
+            className="min-w-0 rounded-full bg-surface-container-lowest ring-1 ring-surface-container-highest/50 px-md py-sm text-body-sm text-on-surface outline-none transition-all duration-200 focus:ring-2 focus:ring-primary/40"
           />
           <button
             type="button"
@@ -199,7 +222,7 @@ function CareRecordItem({ record }: { record: CareRecord }) {
           </p>
         ) : null}
         <span className="mt-xs inline-block text-label-sm font-label-sm text-on-surface-variant/70">
-          {sourceLabel}
+          {sourceLabel} · {formatTime(record.performedAt)}
         </span>
       </div>
     </li>

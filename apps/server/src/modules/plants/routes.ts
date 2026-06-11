@@ -69,7 +69,7 @@ export const registerPlantRoutes = async (app: FastifyInstance): Promise<void> =
     const { plantId } = request.params as { plantId: string };
     const plant = await getPlant(plantId);
     if (!plant) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
-    return { plant, state: getLayeredPlantState(plantId) };
+    return { plant, state: await getLayeredPlantState(plantId) };
   });
 
   app.get("/api/v1/plants/:plantId/reflection", async (request, reply) => {
