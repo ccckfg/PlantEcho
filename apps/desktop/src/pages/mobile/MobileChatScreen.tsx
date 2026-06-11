@@ -6,6 +6,7 @@ import {
 } from "@/config/sensors";
 import { QUICK_CHAT_ACTIONS } from "@/config/chat";
 import { api, mediaUrl, type ReadingState } from "@/lib/api";
+import { careTypeFromLabel, logCareRecord } from "@/lib/careActions";
 import { plantImage, useNow } from "@/lib/format";
 import { getSensorConnection } from "@/lib/sensorStatus";
 import { streamPlantChat } from "@/lib/chatStream";
@@ -136,6 +137,12 @@ export function MobileChatScreen({ plantId, plants, onSwitch }: MobileChatScreen
     }
   }
 
+  function runQuickAction(label: string) {
+    const careType = careTypeFromLabel(label);
+    if (careType) void logCareRecord(plantId, careType, "chat");
+    void send(`记录一下：${label}`);
+  }
+
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-gradient-to-b from-[#f4f8f3] via-[#f0f5ef] to-[#ebf1ea]">
       <header className="relative z-20 shrink-0 bg-surface-container-lowest/95 px-margin-mobile py-xs backdrop-blur-md">
@@ -234,7 +241,7 @@ export function MobileChatScreen({ plantId, plants, onSwitch }: MobileChatScreen
             <button
               key={action.label}
               type="button"
-              onClick={() => send(`记录一下：${action.label}`)}
+              onClick={() => runQuickAction(action.label)}
               className="flex shrink-0 items-center gap-xs whitespace-nowrap rounded-full bg-secondary-container/30 text-on-secondary-container ring-1 ring-secondary-fixed-dim/20 px-sm py-[4px] text-[12px] font-label-sm transition-all duration-200 ease-standard hover:bg-secondary-container/60 hover:text-primary active:scale-[0.97]"
             >
               <Icon name={action.icon} className="text-[14px] text-primary" />

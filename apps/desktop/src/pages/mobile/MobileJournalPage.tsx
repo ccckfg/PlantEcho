@@ -6,6 +6,7 @@ import { useAsync } from "@/lib/useAsync";
 import { useSyncRefresh } from "@/hooks/useSyncRefresh";
 import { Card, Empty, Icon } from "@/components/UI";
 import { PlantSwitcher } from "@/components/plants/PlantSwitcher";
+import { CareRecordPanel } from "@/components/journal/CareRecordPanel";
 import { TimelineItem } from "@/components/journal/TimelineItem";
 
 export function MobileJournalPage() {
@@ -130,6 +131,10 @@ function MobileJournalContent({
         </section>
 
         <section>
+          <CareRecordPanel plantId={plantId} plantName={summary?.name ?? "它"} variant="mobile" />
+        </section>
+
+        <section>
           <h2 className="mb-md font-display text-headline-sm text-on-surface">成长里程碑</h2>
           {memories.loading && !memories.data ? (
             <Card>
@@ -162,29 +167,6 @@ function MobileJournalContent({
             </div>
           )}
         </section>
-
-        {understandings.data && understandings.data.understandings.length > 0 ? (
-          <section>
-            <h2 className="mb-md font-display text-headline-sm text-on-surface">长期认知</h2>
-            <div className="flex flex-col gap-md">
-              {understandings.data.understandings.map((u) => (
-                <Card key={u.id} className="!p-md">
-                  <div className="flex items-start gap-md">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary-fixed text-on-secondary-fixed">
-                      <Icon name="psychiatry" className="text-[20px]" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="mb-xs font-label-md text-label-md text-secondary">
-                        {u.subject || "通用认知"}
-                      </p>
-                      <p className="font-body text-body-md text-on-surface">{u.content || "—"}</p>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </section>
-        ) : null}
       </div>
     </div>
   );

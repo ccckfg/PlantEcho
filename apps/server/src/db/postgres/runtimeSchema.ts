@@ -42,6 +42,16 @@ CREATE TABLE IF NOT EXISTS memory_vectors (
   item_id BIGINT PRIMARY KEY REFERENCES vector_index_items(id) ON DELETE CASCADE,
   embedding vector NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS care_records (
+  id TEXT PRIMARY KEY,
+  plant_id TEXT NOT NULL REFERENCES plants(id) ON DELETE CASCADE,
+  type TEXT NOT NULL,
+  note TEXT NOT NULL DEFAULT '',
+  source TEXT NOT NULL DEFAULT 'panel',
+  performed_at TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
 `;
 
 export const postgresIndexSql = `
@@ -119,4 +129,6 @@ CREATE INDEX IF NOT EXISTS idx_llm_usage_created
   ON llm_usage_logs(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_auth_sessions_cleanup
   ON auth_sessions(revoked_at, expires_at);
+CREATE INDEX IF NOT EXISTS idx_care_records_plant
+  ON care_records(plant_id, performed_at DESC, id DESC);
 `;

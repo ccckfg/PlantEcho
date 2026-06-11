@@ -6,7 +6,8 @@ export const syncResources = {
   memories: "memories",
   understandings: "understandings",
   photos: "photos",
-  devices: "devices"
+  devices: "devices",
+  care_records: "care_records"
 } as const;
 
 export type SyncResource = (typeof syncResources)[keyof typeof syncResources];

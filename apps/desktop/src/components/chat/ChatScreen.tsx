@@ -6,6 +6,7 @@ import {
 } from "@/config/sensors";
 import { QUICK_CHAT_ACTIONS } from "@/config/chat";
 import { api, mediaUrl, type ReadingState } from "@/lib/api";
+import { careTypeFromLabel, logCareRecord } from "@/lib/careActions";
 import { plantImage, useNow } from "@/lib/format";
 import { getSensorConnection } from "@/lib/sensorStatus";
 import { streamPlantChat } from "@/lib/chatStream";
@@ -92,7 +93,7 @@ export function ChatScreen({ plantId, plants, onSwitch }: ChatScreenProps) {
   const status = deriveStatus(reading.data?.latest, summary?.careProfile, now);
   const connectionOnline = sensorConnection.state === "online";
   const connectionLabel = connectionOnline ? "在线" : "离线";
-  const secondaryTags = statusTags.data?.tags.secondary.tags ?? [];
+  const secondaryTags = statusTags.data?.tags?.secondary?.tags ?? [];
   const avatarSrc = mediaUrl(summary?.avatarUrl ?? plantImage(plantId));
 
   async function send(content: string) {
@@ -140,6 +141,12 @@ export function ChatScreen({ plantId, plants, onSwitch }: ChatScreenProps) {
     } finally {
       if (mountedRef.current) setSending(false);
     }
+  }
+
+  function runQuickAction(label: string) {
+    const careType = careTypeFromLabel(label);
+    if (careType) void logCareRecord(plantId, careType, "chat");
+    void send(`记录一下：${label}`);
   }
 
   return (
@@ -256,7 +263,7 @@ export function ChatScreen({ plantId, plants, onSwitch }: ChatScreenProps) {
               <button
                 key={action.label}
                 type="button"
-                onClick={() => send(`记录一下：${action.label}`)}
+                onClick={() => runQuickAction(action.label)}
                 className="group whitespace-nowrap px-sm py-xs rounded-full text-label-sm font-label-sm text-secondary hover:text-primary bg-transparent hover:bg-secondary-container/30 transition-all duration-200 ease-standard active:scale-[0.97] flex items-center gap-xs focus-visible:ring-2 focus-visible:ring-primary/40"
               >
                 <Icon

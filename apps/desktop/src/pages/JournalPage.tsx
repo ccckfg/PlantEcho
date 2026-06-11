@@ -7,6 +7,7 @@ import { useSyncRefresh } from "@/hooks/useSyncRefresh";
 import { Card, Chip, Empty, Icon } from "@/components/UI";
 import { PlantSwitcher } from "@/components/plants/PlantSwitcher";
 import { StatCard } from "@/components/journal/JournalStats";
+import { CareRecordPanel } from "@/components/journal/CareRecordPanel";
 import { TimelineItem } from "@/components/journal/TimelineItem";
 
 export function JournalPage() {
@@ -140,6 +141,10 @@ function JournalContent({
       </section>
 
       <section className="max-w-3xl">
+        <CareRecordPanel plantId={plantId} plantName={summary?.name ?? "它"} variant="desktop" />
+      </section>
+
+      <section className="max-w-3xl mt-xxl">
         <h2 className="font-display text-headline-lg text-on-surface mb-lg">成长里程碑</h2>
         {memories.loading && !memories.data ? (
           <Card>
@@ -173,28 +178,6 @@ function JournalContent({
         )}
       </section>
 
-      {understandings.data && understandings.data.understandings.length > 0 ? (
-        <section className="mt-xxl max-w-3xl">
-          <h2 className="font-display text-headline-lg text-on-surface mb-lg">长期认知</h2>
-          <div className="flex flex-col gap-md">
-            {understandings.data.understandings.map((u) => (
-              <Card key={u.id} className="!p-md">
-                <div className="flex items-start gap-md">
-                  <div className="w-9 h-9 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center shrink-0">
-                    <Icon name="psychiatry" className="text-[20px]" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-label-md text-label-md text-secondary mb-xs">
-                      {u.subject || "通用认知"}
-                    </p>
-                    <p className="font-body text-body-md text-on-surface">{u.content || "—"}</p>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </section>
-      ) : null}
       </div>
     </div>
   );
