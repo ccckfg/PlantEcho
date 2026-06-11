@@ -1,6 +1,7 @@
 export const llmPhases = {
   chatReply: "chat.reply",
   chatReminderTool: "chat.reminder-tool",
+  chatToolRepair: "chat.tool-repair",
   statusTags: "status.tags",
   proactiveIntention: "proactive.intention",
   proactiveEvent: "proactive.event",
@@ -13,6 +14,7 @@ export const llmPhases = {
 export type LlmTier = "primary" | "secondary";
 
 const secondaryPhases = new Set<string>([
+  llmPhases.chatToolRepair,
   llmPhases.memoryClosure,
   llmPhases.memoryEpisode,
   llmPhases.plantCareProfile

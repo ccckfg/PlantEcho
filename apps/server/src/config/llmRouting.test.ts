@@ -7,6 +7,7 @@ import {
 } from "./llmRouting.js";
 
 test("simple structured tasks use the secondary model", () => {
+  assert.equal(llmTierForPhase(llmPhases.chatToolRepair), "secondary");
   assert.equal(llmTierForPhase(llmPhases.memoryClosure), "secondary");
   assert.equal(llmTierForPhase(llmPhases.memoryEpisode), "secondary");
   assert.equal(llmTierForPhase(llmPhases.plantCareProfile), "secondary");
@@ -21,6 +22,7 @@ test("speech and long-term understanding use the primary model", () => {
 });
 
 test("secondary tasks fall back to the primary model when secondary is not configured", () => {
+  assert.equal(resolvedLlmTierForPhase(llmPhases.chatToolRepair, ""), "primary");
   assert.equal(resolvedLlmTierForPhase(llmPhases.memoryClosure, ""), "primary");
   assert.equal(resolvedLlmTierForPhase(llmPhases.memoryEpisode, "   "), "primary");
   assert.equal(

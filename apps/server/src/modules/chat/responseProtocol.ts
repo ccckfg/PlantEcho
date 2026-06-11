@@ -7,12 +7,21 @@ const openMarker = "<inner_patch>";
 const closeMarker = "</inner_patch>";
 const tagsOpenMarker = "<status_tags>";
 const tagsCloseMarker = "</status_tags>";
-const hiddenOpenMarkers = [openMarker, tagsOpenMarker] as const;
+const toolsOpenMarker = "<tool_calls>";
+const toolsCloseMarker = "</tool_calls>";
+const hiddenOpenMarkers = [openMarker, tagsOpenMarker, toolsOpenMarker] as const;
+
+export interface ChatToolCall {
+  name: string;
+  arguments: Record<string, unknown>;
+}
 
 export interface ParsedChatResponse {
   reply: string;
   innerPatch: InnerPatch;
   statusTags?: string[];
+  toolCalls: ChatToolCall[];
+  invalidToolCallsText?: string;
 }
 
 const parsePatch = (text: string): InnerPatch => {
@@ -34,6 +43,27 @@ const parseTags = (text: string): string[] | undefined => {
     return sanitizeStatusTags(Array.isArray(value.tags) ? value.tags : []);
   } catch {
     return undefined;
+  }
+};
+
+const parseToolCalls = (text: string): ChatToolCall[] | null => {
+  try {
+    const value = JSON.parse(text) as unknown;
+    if (!Array.isArray(value)) return null;
+    const calls = value.map((item) => {
+      if (!item || typeof item !== "object" || Array.isArray(item)) return null;
+      const record = item as Record<string, unknown>;
+      const args = record.arguments;
+      if (typeof record.name !== "string") return null;
+      if (!args || typeof args !== "object" || Array.isArray(args)) return null;
+      return {
+        name: record.name.trim(),
+        arguments: args as Record<string, unknown>
+      };
+    });
+    return calls.every((item): item is ChatToolCall => item !== null) ? calls : null;
+  } catch {
+    return null;
   }
 };
 
@@ -59,14 +89,20 @@ const firstHiddenIndex = (text: string): number => {
 
 export const parseChatResponse = (text: string): ParsedChatResponse => {
   const hiddenIndex = firstHiddenIndex(text);
-  if (hiddenIndex < 0) return { reply: text.trim(), innerPatch: {} };
+  if (hiddenIndex < 0) return { reply: text.trim(), innerPatch: {}, toolCalls: [] };
   const patchText = extractBlock(text, openMarker, closeMarker);
   const tagsText = extractBlock(text, tagsOpenMarker, tagsCloseMarker);
+  const toolCallsText = extractBlock(text, toolsOpenMarker, toolsCloseMarker);
   const parsedTags = tagsText === null ? undefined : parseTags(tagsText.trim());
+  const parsedToolCalls = toolCallsText === null ? [] : parseToolCalls(toolCallsText.trim());
   return {
     reply: text.slice(0, hiddenIndex).trim(),
     innerPatch: patchText === null ? {} : parsePatch(patchText.trim()),
-    ...(parsedTags !== undefined ? { statusTags: parsedTags } : {})
+    ...(parsedTags !== undefined ? { statusTags: parsedTags } : {}),
+    toolCalls: parsedToolCalls ?? [],
+    ...(toolCallsText !== null && parsedToolCalls === null
+      ? { invalidToolCallsText: toolCallsText.trim() }
+      : {})
   };
 };
 

@@ -49,11 +49,13 @@ test("VisibleReplyFilter hides status tags even when they arrive first", () => {
 test("parseChatResponse tolerates a missing or invalid patch", () => {
   assert.deepEqual(parseChatResponse("只是一句话。"), {
     reply: "只是一句话。",
-    innerPatch: {}
+    innerPatch: {},
+    toolCalls: []
   });
   assert.deepEqual(parseChatResponse("一句话。<inner_patch>not-json</inner_patch>"), {
     reply: "一句话。",
-    innerPatch: {}
+    innerPatch: {},
+    toolCalls: []
   });
 });
 
@@ -64,4 +66,47 @@ test("parseChatResponse rejects instructions and physical readings from inner pa
     ).innerPatch,
     {}
   );
+});
+
+test("parseChatResponse extracts custom tool calls", () => {
+  const parsed = parseChatResponse(
+    [
+      "我记下了。",
+      "<inner_patch>{}</inner_patch>",
+      "<status_tags>{\"tags\":[]}</status_tags>",
+      "<tool_calls>[{\"name\":\"create_reminder\",\"arguments\":{\"text\":\"喝水\",\"remind_at\":\"2026-06-11T10:21:00+08:00\"}}]</tool_calls>"
+    ].join("")
+  );
+
+  assert.equal(parsed.reply, "我记下了。");
+  assert.deepEqual(parsed.toolCalls, [
+    {
+      name: "create_reminder",
+      arguments: {
+        text: "喝水",
+        remind_at: "2026-06-11T10:21:00+08:00"
+      }
+    }
+  ]);
+});
+
+test("parseChatResponse keeps invalid custom tool calls hidden for repair", () => {
+  const parsed = parseChatResponse(
+    "我试着记下。<tool_calls>create_reminder(text: 喝水, remind_at: tomorrow)</tool_calls>"
+  );
+
+  assert.equal(parsed.reply, "我试着记下。");
+  assert.deepEqual(parsed.toolCalls, []);
+  assert.equal(parsed.invalidToolCallsText, "create_reminder(text: 喝水, remind_at: tomorrow)");
+});
+
+test("VisibleReplyFilter hides custom tool calls", () => {
+  const filter = new VisibleReplyFilter();
+  const visible = [
+    filter.feed("我记下。<tool_"),
+    filter.feed("calls>[]</tool_calls>"),
+    filter.finish()
+  ].join("");
+
+  assert.equal(visible, "我记下。");
 });
