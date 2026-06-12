@@ -1,9 +1,14 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import type { CareProfile, CareProfileSuggestion, ClaimDeviceInput, PendingDevice, PlantSummary } from "@dyn/shared";
 import { Icon } from "@/components/UI";
 import { api } from "@/lib/api";
 import { deviceApi, type DeviceClaimResult } from "@/lib/deviceApi";
 import { CareProfileEditor } from "@/components/plants/CareProfileEditor";
+import {
+  draftFromCareProfile,
+  emptyCareProfileDraft,
+  validateCareProfileDraft
+} from "@/components/plants/careProfileDraft";
 import { ExistingPlantSelect, NewPlantFields } from "./DeviceClaimFields";
 import { PendingDeviceIgnoreDialog } from "./PendingDeviceIgnoreDialog";
 
@@ -31,16 +36,17 @@ export function PendingDeviceClaimForm({
   const [plantName, setPlantName] = useState("");
   const [species, setSpecies] = useState("");
   const [location, setLocation] = useState("");
-  const [careProfile, setCareProfile] = useState<CareProfile | null>(null);
+  const [careDraft, setCareDraft] = useState(() => emptyCareProfileDraft());
   const [careSuggestion, setCareSuggestion] = useState<CareProfileSuggestion | null>(null);
   const [profileEdited, setProfileEdited] = useState(false);
+  const [claimAttempted, setClaimAttempted] = useState(false);
   const [suggesting, setSuggesting] = useState(false);
   const [suggestError, setSuggestError] = useState("");
   const [claiming, setClaiming] = useState(false);
   const [ignoring, setIgnoring] = useState(false);
   const [ignoreDevice, setIgnoreDevice] = useState<PendingDevice | null>(null);
   const [error, setError] = useState("");
-  const lastSuggestionKey = useRef("");
+  const careValidation = useMemo(() => validateCareProfileDraft(careDraft), [careDraft]);
 
   const activeDevice = useMemo(
     () => devices.find((device) => device.id === deviceId) ?? devices[0],
@@ -48,17 +54,16 @@ export function PendingDeviceClaimForm({
   );
   const activeDeviceId = activeDevice?.id ?? deviceId;
   const selectedPlantId = plantId || plants[0]?.id || "";
+  const showCareErrors = profileEdited || claimAttempted;
   const canClaim =
     Boolean(activeDeviceId) &&
     (mode === "existingPlant"
       ? Boolean(selectedPlantId)
-      : Boolean(plantName.trim() && species.trim() && careProfile));
+      : Boolean(plantName.trim() && species.trim()));
 
-  const requestCareProfile = async (force = false) => {
+  const requestCareProfile = async () => {
     const trimmedSpecies = species.trim();
     if (!trimmedSpecies || suggesting) return;
-    const key = `${plantName.trim()}|${trimmedSpecies}|${location.trim()}`;
-    if (!force && (profileEdited || lastSuggestionKey.current === key)) return;
     setSuggesting(true);
     setSuggestError("");
     try {
@@ -67,10 +72,10 @@ export function PendingDeviceClaimForm({
         species: trimmedSpecies,
         location: location.trim() || undefined
       });
-      lastSuggestionKey.current = key;
-      setCareProfile(result.suggestion.careProfile);
+      setCareDraft(draftFromCareProfile(result.suggestion.careProfile));
       setCareSuggestion(result.suggestion);
       setProfileEdited(false);
+      setClaimAttempted(false);
     } catch (caught) {
       setSuggestError(caught instanceof Error ? caught.message : "生成养护参数失败");
     } finally {
@@ -78,16 +83,13 @@ export function PendingDeviceClaimForm({
     }
   };
 
-  useEffect(() => {
-    if (mode !== "newPlant" || !species.trim() || profileEdited) return;
-    const timer = window.setTimeout(() => {
-      void requestCareProfile(false);
-    }, 700);
-    return () => window.clearTimeout(timer);
-  }, [mode, plantName, species, location, profileEdited]);
-
   const handleClaim = async () => {
     if (!canClaim || claiming) return;
+    if (mode === "newPlant" && !careValidation.profile) {
+      setClaimAttempted(true);
+      setError(careValidation.message);
+      return;
+    }
     setClaiming(true);
     setError("");
     try {
@@ -104,7 +106,7 @@ export function PendingDeviceClaimForm({
                 name: plantName.trim(),
                 species: species.trim(),
                 location: location.trim() || undefined,
-                careProfile: careProfile ?? undefined
+                careProfile: careValidation.profile as CareProfile
               },
               deviceName: deviceName.trim() || undefined
             };
@@ -178,7 +180,10 @@ export function PendingDeviceClaimForm({
           <button
             key={item.key}
             type="button"
-            onClick={() => setMode(item.key as ClaimMode)}
+            onClick={() => {
+              setMode(item.key as ClaimMode);
+              setError("");
+            }}
             className={`flex-1 rounded-full px-md py-sm text-label-md font-label-md ${
               mode === item.key
                 ? "bg-primary text-on-primary"
@@ -215,7 +220,7 @@ export function PendingDeviceClaimForm({
           <div className="flex flex-col gap-sm rounded-md bg-secondary-fixed/20 px-md py-sm lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0">
               <p className="text-label-md font-label-md text-on-surface">
-                {suggesting ? "正在生成养护参数" : careProfile ? "已生成养护参数" : "输入品种后自动生成养护参数"}
+                {suggesting ? "正在生成养护参数" : careSuggestion ? "已填入生成建议" : "可手动填写，或点击生成建议"}
               </p>
               {careSuggestion ? (
                 <p className="text-label-sm font-label-sm text-on-surface-variant">
@@ -226,12 +231,12 @@ export function PendingDeviceClaimForm({
             </div>
             <button
               type="button"
-              onClick={() => requestCareProfile(true)}
+              onClick={() => requestCareProfile()}
               disabled={!species.trim() || suggesting}
               className="inline-flex items-center gap-xs rounded-full border border-outline-variant px-md py-sm text-label-md font-label-md text-primary hover:bg-primary-container disabled:opacity-50"
             >
               <Icon name={suggesting ? "progress_activity" : "auto_awesome"} />
-              {careProfile ? "重新生成" : "生成"}
+              {careSuggestion ? "重新生成" : "生成建议"}
             </button>
           </div>
           {suggestError ? (
@@ -249,19 +254,22 @@ export function PendingDeviceClaimForm({
               ))}
             </ul>
           ) : null}
-          {careProfile ? (
-            <CareProfileEditor
-              value={careProfile}
-              onChange={(next) => {
-                setCareProfile(next);
-                setProfileEdited(true);
-              }}
-            />
+          <CareProfileEditor
+            value={careDraft}
+            description="默认留空，请手动填写；点击生成建议后会自动填入，可继续调整"
+            errors={showCareErrors ? careValidation.fieldErrors : {}}
+            onChange={(next) => {
+              setCareDraft(next);
+              setProfileEdited(true);
+            }}
+          />
+          {showCareErrors && !careValidation.valid ? (
+            <p className="text-label-sm font-label-sm text-error">{careValidation.message}</p>
           ) : null}
         </div>
       )}
 
-      <div className="sticky bottom-0 -mx-lg mt-auto flex justify-end gap-sm border-t border-surface-container-highest/50 bg-surface-container-lowest/95 px-lg py-md backdrop-blur-sm sm:-mx-xl sm:px-xl">
+      <div className="mt-md flex flex-col-reverse gap-sm border-t border-surface-container-highest/50 pt-md sm:flex-row sm:justify-end">
         <button
           type="button"
           onClick={onClose}

@@ -6,6 +6,7 @@ import { nowIso } from "../../shared/time.js";
 
 type PlantRow = {
   id: string;
+  user_id: string | null;
   name: string;
   species: string;
   persona_profile_id: string;
@@ -18,6 +19,7 @@ type PlantRow = {
 };
 
 export interface CreatePlantInput {
+  userId?: string | null;
   name: string;
   species: string;
   location?: string;
@@ -46,18 +48,25 @@ export const toPlantSummary = (row: PlantRow): PlantSummary => ({
 
 const activePlantClause = "COALESCE(status, 'active') <> 'deleted'";
 
-export const listPlants = async (): Promise<PlantSummary[]> => {
+const ownerClause = (userId?: string | null): string => userId ? " AND user_id = ?" : "";
+const ownerParams = (userId?: string | null): string[] => userId ? [userId] : [];
+
+export const listPlants = async (userId?: string | null): Promise<PlantSummary[]> => {
   const rows = await getDb()
-    .prepare(`SELECT * FROM plants WHERE ${activePlantClause} ORDER BY created_at ASC`)
-    .all<PlantRow>();
+    .prepare(`SELECT * FROM plants WHERE ${activePlantClause}${ownerClause(userId)} ORDER BY created_at ASC`)
+    .all<PlantRow>(...ownerParams(userId));
   return rows.map(toPlantSummary);
 };
 
-export const getPlant = async (plantId: string, includeDeleted = false): Promise<PlantSummary | null> => {
+export const getPlant = async (
+  plantId: string,
+  includeDeleted = false,
+  userId?: string | null
+): Promise<PlantSummary | null> => {
   const sql = includeDeleted
-    ? "SELECT * FROM plants WHERE id = ?"
-    : `SELECT * FROM plants WHERE id = ? AND ${activePlantClause}`;
-  const row = await getDb().prepare(sql).get<PlantRow>(plantId);
+    ? `SELECT * FROM plants WHERE id = ?${ownerClause(userId)}`
+    : `SELECT * FROM plants WHERE id = ? AND ${activePlantClause}${ownerClause(userId)}`;
+  const row = await getDb().prepare(sql).get<PlantRow>(plantId, ...ownerParams(userId));
   return row ? toPlantSummary(row) : null;
 };
 
@@ -68,12 +77,13 @@ export const createPlant = async (input: CreatePlantInput): Promise<PlantSummary
   await getDb().transaction(async (db) => {
     await db.prepare(
       `INSERT INTO plants
-       (id, name, species, persona_profile_id, avatar_url, location, background_info,
+       (id, user_id, name, species, persona_profile_id, avatar_url, location, background_info,
         care_profile_json, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .run(
       id,
+      input.userId ?? null,
       input.name,
       input.species,
       input.personaProfileId ?? "pothos",
@@ -98,9 +108,10 @@ export const createPlant = async (input: CreatePlantInput): Promise<PlantSummary
 
 export const updatePlant = async (
   plantId: string,
-  input: UpdatePlantInput
+  input: UpdatePlantInput,
+  userId?: string | null
 ): Promise<PlantSummary | null> => {
-  const existing = await getPlant(plantId);
+  const existing = await getPlant(plantId, false, userId);
   if (!existing) return null;
   const nextName = input.name ?? existing.name;
   const nextProfile = input.careProfile ?? existing.careProfile;
@@ -108,31 +119,47 @@ export const updatePlant = async (
   const nextBackgroundInfo = input.backgroundInfo ?? existing.backgroundInfo;
   await getDb()
     .prepare(
-      "UPDATE plants SET name = ?, care_profile_json = ?, avatar_url = ?, background_info = ?, updated_at = ? WHERE id = ?"
+      `UPDATE plants
+       SET name = ?, care_profile_json = ?, avatar_url = ?, background_info = ?, updated_at = ?
+       WHERE id = ?${ownerClause(userId)}`
     )
-    .run(nextName, JSON.stringify(nextProfile), nextAvatarUrl, nextBackgroundInfo, nowIso(), plantId);
-  return getPlant(plantId);
+    .run(
+      nextName,
+      JSON.stringify(nextProfile),
+      nextAvatarUrl,
+      nextBackgroundInfo,
+      nowIso(),
+      plantId,
+      ...ownerParams(userId)
+    );
+  return getPlant(plantId, false, userId);
 };
 
-export const deletePlant = async (plantId: string): Promise<PlantSummary | null> => {
-  const existing = await getPlant(plantId);
+export const deletePlant = async (plantId: string, userId?: string | null): Promise<PlantSummary | null> => {
+  const existing = await getPlant(plantId, false, userId);
   if (!existing) return null;
   const now = nowIso();
   await getDb()
     .prepare(
       `UPDATE plants
        SET status = 'deleted', deleted_at = ?, updated_at = ?
-       WHERE id = ? AND ${activePlantClause}`
+       WHERE id = ? AND ${activePlantClause}${ownerClause(userId)}`
     )
-    .run(now, now, plantId);
-  return getPlant(plantId, true);
+    .run(now, now, plantId, ...ownerParams(userId));
+  return getPlant(plantId, true, userId);
 };
 
-export const restorePlant = async (plantId: string): Promise<PlantSummary | null> => {
-  const existing = await getPlant(plantId, true);
+export const restorePlant = async (plantId: string, userId?: string | null): Promise<PlantSummary | null> => {
+  const existing = await getPlant(plantId, true, userId);
   if (!existing) return null;
   await getDb()
-    .prepare("UPDATE plants SET status = 'active', deleted_at = NULL, updated_at = ? WHERE id = ?")
-    .run(nowIso(), plantId);
-  return getPlant(plantId);
+    .prepare(`UPDATE plants SET status = 'active', deleted_at = NULL, updated_at = ? WHERE id = ?${ownerClause(userId)}`)
+    .run(nowIso(), plantId, ...ownerParams(userId));
+  return getPlant(plantId, false, userId);
+};
+
+export const assignUnownedPlantsToUser = async (userId: string): Promise<void> => {
+  await getDb()
+    .prepare("UPDATE plants SET user_id = ?, updated_at = ? WHERE user_id IS NULL")
+    .run(userId, nowIso());
 };

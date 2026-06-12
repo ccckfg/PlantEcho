@@ -1,45 +1,44 @@
-import { useState } from "react";
-import type { CareProfile, PlantSummary } from "@dyn/shared";
+import { useMemo, useState } from "react";
+import type { PlantSummary } from "@dyn/shared";
 import { api } from "@/lib/api";
 import { Icon } from "@/components/UI";
 import { CareProfileEditor } from "./CareProfileEditor";
+import { draftFromCareProfile, validateCareProfileDraft } from "./careProfileDraft";
 
 interface PlantCareProfileSectionProps {
   plant: PlantSummary;
   onUpdated: () => void;
 }
 
-const isInvalidProfile = (profile: CareProfile): boolean =>
-  profile.soil.min >= profile.soil.max ||
-  profile.light.minLux >= profile.light.maxLux ||
-  profile.temperature.minC >= profile.temperature.maxC ||
-  profile.humidity.min >= profile.humidity.max;
-
 export function PlantCareProfileSection({ plant, onUpdated }: PlantCareProfileSectionProps) {
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState<CareProfile>(plant.careProfile);
+  const [draft, setDraft] = useState(() => draftFromCareProfile(plant.careProfile));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const invalid = isInvalidProfile(draft);
+  const validation = useMemo(() => validateCareProfileDraft(draft), [draft]);
 
   const beginEdit = () => {
-    setDraft(plant.careProfile);
+    setDraft(draftFromCareProfile(plant.careProfile));
     setError("");
     setEditing(true);
   };
 
   const cancelEdit = () => {
-    setDraft(plant.careProfile);
+    setDraft(draftFromCareProfile(plant.careProfile));
     setError("");
     setEditing(false);
   };
 
   const save = async () => {
-    if (saving || invalid) return;
+    if (saving) return;
+    if (!validation.profile) {
+      setError(validation.message);
+      return;
+    }
     setSaving(true);
     setError("");
     try {
-      await api.updatePlant(plant.id, { careProfile: draft });
+      await api.updatePlant(plant.id, { careProfile: validation.profile });
       setEditing(false);
       onUpdated();
     } catch (caught) {
@@ -65,7 +64,7 @@ export function PlantCareProfileSection({ plant, onUpdated }: PlantCareProfileSe
             <button
               type="button"
               onClick={save}
-              disabled={saving || invalid}
+              disabled={saving || !validation.valid}
               className="group inline-flex items-center gap-xs rounded-full bg-primary px-md py-sm text-label-md font-label-md text-on-primary shadow-leaf transition-all duration-200 ease-standard hover:bg-surface-tint hover:shadow-soft active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Icon name={saving ? "progress_activity" : "save"} className={saving ? "animate-spin" : "transition-transform duration-300 ease-emphasized group-hover:scale-110"} />
@@ -93,11 +92,12 @@ export function PlantCareProfileSection({ plant, onUpdated }: PlantCareProfileSe
           <CareProfileEditor
             value={draft}
             description="修改后会影响状态判断、心情标签和聊天里的养护依据"
+            errors={validation.fieldErrors}
             onChange={setDraft}
           />
-          {invalid ? (
+          {!validation.valid ? (
             <p className="mt-sm text-label-sm font-label-sm text-error">
-              每项下限必须小于上限。
+              {validation.message}
             </p>
           ) : null}
         </div>

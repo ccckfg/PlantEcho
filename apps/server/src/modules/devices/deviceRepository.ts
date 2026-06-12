@@ -57,23 +57,41 @@ const toPendingDevice = (row: PendingDeviceRow): PendingDevice => ({
   claimStatus: row.claim_status
 });
 
+const deviceOwnerClause = (userId?: string | null): string =>
+  userId ? " AND plant_id IN (SELECT id FROM plants WHERE user_id = ?)" : "";
+
+const deviceOwnerParams = (userId?: string | null): string[] => userId ? [userId] : [];
+
 export const getDevice = async (
   deviceId: string,
-  includeDeleted = false
+  includeDeleted = false,
+  userId?: string | null
 ): Promise<DeviceRecord | null> => {
-  const row = await getDb().prepare("SELECT * FROM devices WHERE id = ?").get<DeviceRow>(deviceId);
+  const row = userId
+    ? await getDb()
+      .prepare(
+        `SELECT d.* FROM devices d
+         INNER JOIN plants p ON p.id = d.plant_id
+         WHERE d.id = ? AND p.user_id = ?`
+      )
+      .get<DeviceRow>(deviceId, userId)
+    : await getDb().prepare("SELECT * FROM devices WHERE id = ?").get<DeviceRow>(deviceId);
   if (!row || (!includeDeleted && row.status === "deleted")) return null;
   return toDevice(row);
 };
 
-export const listDevices = async (): Promise<DeviceRecord[]> => {
-  const rows = await getDb()
-    .prepare(
-      `SELECT * FROM devices
+export const listDevices = async (userId?: string | null): Promise<DeviceRecord[]> => {
+  const sql = userId
+    ? `SELECT d.* FROM devices d
+       INNER JOIN plants p ON p.id = d.plant_id
+       WHERE d.status <> 'deleted' AND p.user_id = ?
+       ORDER BY COALESCE(d.last_seen_at, d.created_at) DESC, d.id ASC`
+    : `SELECT * FROM devices
        WHERE status <> 'deleted'
-       ORDER BY COALESCE(last_seen_at, created_at) DESC, id ASC`
-    )
-    .all<DeviceRow>();
+       ORDER BY COALESCE(last_seen_at, created_at) DESC, id ASC`;
+  const rows = userId
+    ? await getDb().prepare(sql).all<DeviceRow>(userId)
+    : await getDb().prepare(sql).all<DeviceRow>();
   return rows.map(toDevice);
 };
 
@@ -182,17 +200,19 @@ export const insertClaimedDevice = async (
 
 export const updateDeviceApiKeyHash = async (
   deviceId: string,
-  apiKeyHash: string
+  apiKeyHash: string,
+  userId?: string | null
 ): Promise<DeviceRecord | null> => {
   await getDb()
-    .prepare("UPDATE devices SET api_key_hash = ? WHERE id = ?")
-    .run(apiKeyHash, deviceId);
-  return getDevice(deviceId);
+    .prepare(`UPDATE devices SET api_key_hash = ? WHERE id = ?${deviceOwnerClause(userId)}`)
+    .run(apiKeyHash, deviceId, ...deviceOwnerParams(userId));
+  return getDevice(deviceId, false, userId);
 };
 
 export const updateDeviceStatus = async (
   deviceId: string,
-  status: Exclude<DeviceStatus, "deleted">
+  status: Exclude<DeviceStatus, "deleted">,
+  userId?: string | null
 ): Promise<DeviceRecord | null> => {
   const now = nowIso();
   await getDb()
@@ -201,21 +221,24 @@ export const updateDeviceStatus = async (
          status = ?,
          disabled_at = CASE WHEN ? = 'disabled' THEN ? ELSE NULL END,
          deleted_at = NULL
-       WHERE id = ?`
+       WHERE id = ?${deviceOwnerClause(userId)}`
     )
-    .run(status, status, now, deviceId);
-  return getDevice(deviceId);
+    .run(status, status, now, deviceId, ...deviceOwnerParams(userId));
+  return getDevice(deviceId, false, userId);
 };
 
-export const softDeleteDevice = async (deviceId: string): Promise<DeviceRecord | null> => {
+export const softDeleteDevice = async (
+  deviceId: string,
+  userId?: string | null
+): Promise<DeviceRecord | null> => {
   const now = nowIso();
   await getDb()
     .prepare(
       `UPDATE devices SET status = 'deleted', deleted_at = ?, disabled_at = NULL
-       WHERE id = ? AND status <> 'deleted'`
+       WHERE id = ? AND status <> 'deleted'${deviceOwnerClause(userId)}`
     )
-    .run(now, deviceId);
-  return getDevice(deviceId, true);
+    .run(now, deviceId, ...deviceOwnerParams(userId));
+  return getDevice(deviceId, true, userId);
 };
 
 export const markPendingDevice = async (

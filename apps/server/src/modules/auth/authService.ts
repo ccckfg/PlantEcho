@@ -28,6 +28,7 @@ import {
 import { getUserApiKeyInfo, upsertUserApiKey } from "./authApiKeyRepository.js";
 import { hashPassword, verifyPassword } from "./password.js";
 import { authTokenHash, issueAuthToken } from "./token.js";
+import { assignUnownedPlantsToUser } from "../plants/plantRepository.js";
 
 export interface LoginSessionMeta {
   userAgent?: string;
@@ -99,6 +100,7 @@ const registerUserAsync = async (
     passwordHash: hashPassword(input.password),
     role: firstUser ? "admin" : "user"
   });
+  if (firstUser) await assignUnownedPlantsToUser(user.id);
   return createSession(user, meta);
 };
 

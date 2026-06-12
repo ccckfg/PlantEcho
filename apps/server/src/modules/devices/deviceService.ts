@@ -7,6 +7,7 @@ import type {
   PendingDevice
 } from "@dyn/shared";
 import { getPlant, createPlant } from "../plants/plantRepository.js";
+import { ServiceError } from "../../shared/serviceError.js";
 import { nowIso } from "../../shared/time.js";
 import { getUserById, getUserByUsername } from "../auth/authRepository.js";
 import { publishDeviceConfig } from "../iot/deviceConfigChannel.js";
@@ -95,6 +96,17 @@ const userIdentifiers = (scope: UserScope = null): string[] => {
   return [scope.id, scope.username];
 };
 
+const userId = (scope: UserScope = null): string | null => {
+  if (!scope) return null;
+  return typeof scope === "string" ? scope : scope.id;
+};
+
+const requireUserId = (scope: UserScope = null): string => {
+  const id = userId(scope);
+  if (!id) throw new ServiceError("请先用账号密码登录。", 401, "UNAUTHORIZED");
+  return id;
+};
+
 const resolvePayloadUserId = async (value?: string): Promise<string | null> => {
   const candidate = value?.trim();
   if (!candidate) return null;
@@ -118,7 +130,8 @@ export const getPendingDevices = (
   user: UserScope = null
 ): Promise<PendingDevice[]> => listPendingDevices(userIdentifiers(user));
 
-export const getClaimedDevices = (): Promise<DeviceRecord[]> => listDevices();
+export const getClaimedDevices = (user: UserScope = null): Promise<DeviceRecord[]> =>
+  listDevices(requireUserId(user));
 
 export const ignorePendingDevice = async (
   deviceId: string,
@@ -127,11 +140,11 @@ export const ignorePendingDevice = async (
   const identifiers = userIdentifiers(user);
   const pending = await getPendingDevice(deviceId, identifiers);
   if (!pending || pending.claimStatus !== "pending") {
-    throw new Error(`Pending device ${deviceId} not found`);
+    throw new ServiceError(`Pending device ${deviceId} not found`, 404, "PENDING_DEVICE_NOT_FOUND");
   }
   await markPendingDevice(deviceId, "ignored");
   const updated = await getPendingDevice(deviceId, identifiers);
-  if (!updated) throw new Error(`Pending device ${deviceId} not found`);
+  if (!updated) throw new ServiceError(`Pending device ${deviceId} not found`, 404, "PENDING_DEVICE_NOT_FOUND");
   await publishSyncEvent({
     type: "devices.changed",
     payload: { action: "ignored", deviceId }
@@ -145,12 +158,23 @@ export const claimDevice = async (
   user: UserScope = null
 ): Promise<DeviceClaimResult> => {
   const pending = await getPendingDevice(deviceId, userIdentifiers(user));
-  const existing = await getDevice(deviceId);
-  if (!pending && !existing) throw new Error(`Pending device ${deviceId} not found`);
+  const ownerId = requireUserId(user);
+  const existing = await getDevice(deviceId, false, ownerId);
+  if (!pending && !existing) {
+    throw new ServiceError(`Pending device ${deviceId} not found`, 404, "PENDING_DEVICE_NOT_FOUND");
+  }
 
   const createdNewPlant = input.mode === "newPlant";
-  const plant = createdNewPlant ? await createPlant(input.plant) : await getPlant(input.plantId);
-  if (!plant) throw new Error(`Plant ${input.mode === "existingPlant" ? input.plantId : ""} not found`);
+  const plant = createdNewPlant
+    ? await createPlant({ ...input.plant, userId: ownerId })
+    : await getPlant(input.plantId, false, ownerId);
+  if (!plant) {
+    throw new ServiceError(
+      `Plant ${input.mode === "existingPlant" ? input.plantId : ""} not found`,
+      404,
+      "PLANT_NOT_FOUND"
+    );
+  }
 
   const apiKey = generateDeviceApiKey();
   const device = await insertClaimedDevice(
@@ -174,12 +198,16 @@ export const claimDevice = async (
   return { device, deviceApiKey: apiKey, deliveredToDevice: await sendDeviceCredentials(deviceId, apiKey) };
 };
 
-export const rotateDeviceKey = async (deviceId: string): Promise<DeviceClaimResult> => {
-  const existing = await getDevice(deviceId);
-  if (!existing) throw new Error(`Device ${deviceId} not found`);
+export const rotateDeviceKey = async (
+  deviceId: string,
+  user: UserScope = null
+): Promise<DeviceClaimResult> => {
+  const ownerId = requireUserId(user);
+  const existing = await getDevice(deviceId, false, ownerId);
+  if (!existing) throw new ServiceError(`Device ${deviceId} not found`, 404, "DEVICE_NOT_FOUND");
   const apiKey = generateDeviceApiKey();
-  const device = await updateDeviceApiKeyHash(deviceId, hashDeviceApiKey(apiKey));
-  if (!device) throw new Error(`Device ${deviceId} not found`);
+  const device = await updateDeviceApiKeyHash(deviceId, hashDeviceApiKey(apiKey), ownerId);
+  if (!device) throw new ServiceError(`Device ${deviceId} not found`, 404, "DEVICE_NOT_FOUND");
   await publishSyncEvent({
     type: "devices.changed",
     plantId: device.plantId,
@@ -188,11 +216,16 @@ export const rotateDeviceKey = async (deviceId: string): Promise<DeviceClaimResu
   return { device, deviceApiKey: apiKey, deliveredToDevice: await sendDeviceCredentials(deviceId, apiKey) };
 };
 
-export const setDeviceEnabled = async (deviceId: string, enabled: boolean): Promise<DeviceRecord> => {
-  const existing = await getDevice(deviceId, enabled);
-  if (!existing) throw new Error(`Device ${deviceId} not found`);
-  const device = await updateDeviceStatus(deviceId, enabled ? "active" : "disabled");
-  if (!device) throw new Error(`Device ${deviceId} not found`);
+export const setDeviceEnabled = async (
+  deviceId: string,
+  enabled: boolean,
+  user: UserScope = null
+): Promise<DeviceRecord> => {
+  const ownerId = requireUserId(user);
+  const existing = await getDevice(deviceId, enabled, ownerId);
+  if (!existing) throw new ServiceError(`Device ${deviceId} not found`, 404, "DEVICE_NOT_FOUND");
+  const device = await updateDeviceStatus(deviceId, enabled ? "active" : "disabled", ownerId);
+  if (!device) throw new ServiceError(`Device ${deviceId} not found`, 404, "DEVICE_NOT_FOUND");
   await publishSyncEvent({
     type: "devices.changed",
     plantId: device.plantId,
@@ -201,11 +234,15 @@ export const setDeviceEnabled = async (deviceId: string, enabled: boolean): Prom
   return device;
 };
 
-export const deleteDevice = async (deviceId: string): Promise<DeviceRecord> => {
-  const existing = await getDevice(deviceId);
-  if (!existing) throw new Error(`Device ${deviceId} not found`);
-  const device = await softDeleteDevice(deviceId);
-  if (!device) throw new Error(`Device ${deviceId} not found`);
+export const deleteDevice = async (
+  deviceId: string,
+  user: UserScope = null
+): Promise<DeviceRecord> => {
+  const ownerId = requireUserId(user);
+  const existing = await getDevice(deviceId, false, ownerId);
+  if (!existing) throw new ServiceError(`Device ${deviceId} not found`, 404, "DEVICE_NOT_FOUND");
+  const device = await softDeleteDevice(deviceId, ownerId);
+  if (!device) throw new ServiceError(`Device ${deviceId} not found`, 404, "DEVICE_NOT_FOUND");
   await clearDeviceConfigDelivery(deviceId);
   await publishSyncEvent({
     type: "devices.changed",
@@ -216,7 +253,8 @@ export const deleteDevice = async (deviceId: string): Promise<DeviceRecord> => {
 };
 
 export const applyBulkDeviceAction = async (
-  input: BulkDeviceActionInput
+  input: BulkDeviceActionInput,
+  user: UserScope = null
 ): Promise<{ devices: DeviceRecord[]; notFound: string[] }> => {
   const devices: DeviceRecord[] = [];
   const notFound: string[] = [];
@@ -224,8 +262,8 @@ export const applyBulkDeviceAction = async (
     try {
       const device =
         input.action === "delete"
-          ? await deleteDevice(deviceId)
-          : await setDeviceEnabled(deviceId, input.action === "enable");
+          ? await deleteDevice(deviceId, user)
+          : await setDeviceEnabled(deviceId, input.action === "enable", user);
       devices.push(device);
     } catch {
       notFound.push(deviceId);

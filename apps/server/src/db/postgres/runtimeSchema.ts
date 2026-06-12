@@ -57,6 +57,8 @@ CREATE TABLE IF NOT EXISTS care_records (
 export const postgresIndexSql = `
 CREATE INDEX IF NOT EXISTS idx_plants_status_created
   ON plants(status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_plants_user_status_created
+  ON plants(user_id, status, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_devices_status
   ON devices(status, last_seen_at DESC);
 CREATE INDEX IF NOT EXISTS idx_users_role

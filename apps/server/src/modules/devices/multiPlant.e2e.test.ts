@@ -19,6 +19,7 @@ test("multi-plant device readings stay isolated across claim, physical state and
 
   const { migrate } = await import("../../db/migrate.js");
   const { closeDb } = await import("../../db/connection.js");
+  const { registerUser } = await import("../auth/authService.js");
   const { createPlant, getPlant } = await import("../plants/plantRepository.js");
   const { getPlantReadingState, getPlantReadings, recordDeviceReading } = await import("../readings/readingService.js");
   const { listSyncEventsSince } = await import("../sync/syncRepository.js");
@@ -26,7 +27,17 @@ test("multi-plant device readings stay isolated across claim, physical state and
 
   try {
     await migrate();
-    const existingPlant = await createPlant({ name: "小竹", species: "文竹", location: "窗边" });
+    const owner = (await registerUser({
+      username: `multi_owner_${randomUUID().slice(0, 8)}`,
+      password: "garden-pass-1",
+      displayName: "多植物主人"
+    })).user;
+    const existingPlant = await createPlant({
+      userId: owner.id,
+      name: "小竹",
+      species: "文竹",
+      location: "窗边"
+    });
     const existingDeviceId = `esp32-existing-${randomUUID()}`;
     const newDeviceId = `esp32-new-${randomUUID()}`;
 
@@ -35,14 +46,14 @@ test("multi-plant device readings stay isolated across claim, physical state and
       mode: "existingPlant",
       plantId: existingPlant.id,
       deviceName: "文竹传感器"
-    });
+    }, owner);
 
     await registerPendingDevice(newDeviceId, sampleReading(62));
     const newClaim = await claimDevice(newDeviceId, {
       mode: "newPlant",
       plant: { name: "小薄荷", species: "薄荷", location: "厨房窗台" },
       deviceName: "薄荷传感器"
-    });
+    }, owner);
 
     assert.equal(await isAuthorizedDevice(existingDeviceId, existingClaim.deviceApiKey), true);
     assert.equal(await isAuthorizedDevice(newDeviceId, newClaim.deviceApiKey), true);

@@ -10,6 +10,7 @@ test("unknown device becomes pending, then claimed device requires its generated
   const { getDb, closeDb } = await import("../../db/connection.js");
   const { latestSchemaVersion } = await import("../../db/migrations/index.js");
   const { env } = await import("../../config/env.js");
+  const { registerUser } = await import("../auth/authService.js");
   const { insertReading } = await import("../readings/readingRepository.js");
   const { registerDeviceConfigPublisher } = await import("../iot/deviceConfigChannel.js");
   const {
@@ -35,6 +36,11 @@ test("unknown device becomes pending, then claimed device requires its generated
   };
 
   await migrate();
+  const owner = (await registerUser({
+    username: `device_owner_${randomUUID().slice(0, 8)}`,
+    password: "garden-pass-1",
+    displayName: "设备主人"
+  })).user;
   const schemaVersion = await getDb()
     .prepare("SELECT MAX(version) AS version FROM schema_migrations")
     .get() as { version: number };
@@ -101,7 +107,7 @@ test("unknown device becomes pending, then claimed device requires its generated
       mode: "existingPlant",
       plantId: env.DEFAULT_PLANT_ID,
       deviceName: "Queued ESP32"
-    });
+    }, owner);
     assert.equal(queuedClaim.deliveredToDevice, false);
     assert.equal(await hasPendingDeviceCredentials(queuedId), true);
     assert.equal(await isAuthorizedDevice(queuedId, queuedClaim.deviceApiKey), true);
@@ -117,7 +123,7 @@ test("unknown device becomes pending, then claimed device requires its generated
       mode: "existingPlant",
       plantId: env.DEFAULT_PLANT_ID,
       deviceName: "Test ESP32"
-    });
+    }, owner);
 
     assert.equal(claimed.device.id, deviceId);
     assert.equal(claimed.device.plantId, env.DEFAULT_PLANT_ID);
@@ -126,25 +132,25 @@ test("unknown device becomes pending, then claimed device requires its generated
     assert.equal(claimed.deliveredToDevice, true);
     const mainDelivery = delivered.find((item) => item.deviceId === deviceId);
     assert.equal(mainDelivery?.payload.apiKey, claimed.deviceApiKey);
-    assert.equal((await getClaimedDevices()).some((device) => device.id === deviceId), true);
+    assert.equal((await getClaimedDevices(owner)).some((device) => device.id === deviceId), true);
     assert.equal(await isAuthorizedDevice(deviceId), false);
     assert.equal(await isAuthorizedDevice(deviceId, "wrong"), false);
     assert.equal(await isAuthorizedDevice(deviceId, claimed.deviceApiKey), true);
 
-    const disabled = await setDeviceEnabled(deviceId, false);
+    const disabled = await setDeviceEnabled(deviceId, false, owner);
     assert.equal(disabled.status, "disabled");
     assert.equal(await isAuthorizedDevice(deviceId, claimed.deviceApiKey), false);
-    const enabled = await setDeviceEnabled(deviceId, true);
+    const enabled = await setDeviceEnabled(deviceId, true, owner);
     assert.equal(enabled.status, "active");
     assert.equal(await isAuthorizedDevice(deviceId, claimed.deviceApiKey), true);
 
     await insertReading(deviceId, env.DEFAULT_PLANT_ID, normalizeReadingPayload(payload));
     assert.equal(await countReadings(deviceId), 1);
 
-    const deleted = await deleteDevice(deviceId);
+    const deleted = await deleteDevice(deviceId, owner);
     assert.equal(deleted.status, "deleted");
-    assert.equal((await getClaimedDevices()).some((device) => device.id === deviceId), false);
-    const restored = await applyBulkDeviceAction({ deviceIds: [deviceId], action: "enable" });
+    assert.equal((await getClaimedDevices(owner)).some((device) => device.id === deviceId), false);
+    const restored = await applyBulkDeviceAction({ deviceIds: [deviceId], action: "enable" }, owner);
     assert.equal(restored.devices[0]?.status, "active");
   } finally {
     registerDeviceConfigPublisher(null);

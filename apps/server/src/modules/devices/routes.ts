@@ -7,6 +7,7 @@ import {
 import type { FastifyInstance } from "fastify";
 import { sendError } from "../../shared/http.js";
 import { recordDeviceReading } from "../readings/readingService.js";
+import { requireCurrentUser } from "../plants/plantAccess.js";
 import {
   applyBulkDeviceAction,
   claimDevice,
@@ -25,19 +26,27 @@ const headerValue = (value: string | string[] | undefined): string | undefined =
   Array.isArray(value) ? value[0] : value;
 
 export const registerDeviceRoutes = async (app: FastifyInstance): Promise<void> => {
-  app.get("/api/v1/devices", async () => ({
-    devices: await getClaimedDevices()
-  }));
+  app.get("/api/v1/devices", async (request, reply) => {
+    try {
+      return { devices: await getClaimedDevices(requireCurrentUser(request)) };
+    } catch (error) {
+      return sendError(reply, error);
+    }
+  });
 
-  app.get("/api/v1/devices/pending", async (request) => ({
-    devices: await getPendingDevices(request.currentUser ?? null)
-  }));
+  app.get("/api/v1/devices/pending", async (request, reply) => {
+    try {
+      return { devices: await getPendingDevices(requireCurrentUser(request)) };
+    } catch (error) {
+      return sendError(reply, error);
+    }
+  });
 
   app.post("/api/v1/devices/:deviceId/claim", async (request, reply) => {
     try {
       const { deviceId } = request.params as { deviceId: string };
       const input = claimDeviceSchema.parse(request.body);
-      return reply.status(201).send(await claimDevice(deviceId, input, request.currentUser ?? null));
+      return reply.status(201).send(await claimDevice(deviceId, input, requireCurrentUser(request)));
     } catch (error) {
       return sendError(reply, error);
     }
@@ -46,7 +55,7 @@ export const registerDeviceRoutes = async (app: FastifyInstance): Promise<void> 
   app.post("/api/v1/devices/:deviceId/ignore", async (request, reply) => {
     try {
       const { deviceId } = request.params as { deviceId: string };
-      return reply.send({ device: await ignorePendingDevice(deviceId, request.currentUser ?? null) });
+      return reply.send({ device: await ignorePendingDevice(deviceId, requireCurrentUser(request)) });
     } catch (error) {
       return sendError(reply, error);
     }
@@ -55,7 +64,7 @@ export const registerDeviceRoutes = async (app: FastifyInstance): Promise<void> 
   app.post("/api/v1/devices/:deviceId/rotate-key", async (request, reply) => {
     try {
       const { deviceId } = request.params as { deviceId: string };
-      return reply.send(await rotateDeviceKey(deviceId));
+      return reply.send(await rotateDeviceKey(deviceId, requireCurrentUser(request)));
     } catch (error) {
       return sendError(reply, error);
     }
@@ -65,7 +74,7 @@ export const registerDeviceRoutes = async (app: FastifyInstance): Promise<void> 
     try {
       const { deviceId } = request.params as { deviceId: string };
       const input = updateDeviceSchema.parse(request.body);
-      return reply.send({ device: await setDeviceEnabled(deviceId, input.status === "active") });
+      return reply.send({ device: await setDeviceEnabled(deviceId, input.status === "active", requireCurrentUser(request)) });
     } catch (error) {
       return sendError(reply, error);
     }
@@ -74,7 +83,7 @@ export const registerDeviceRoutes = async (app: FastifyInstance): Promise<void> 
   app.delete("/api/v1/devices/:deviceId", async (request, reply) => {
     try {
       const { deviceId } = request.params as { deviceId: string };
-      return reply.send({ device: await deleteDevice(deviceId) });
+      return reply.send({ device: await deleteDevice(deviceId, requireCurrentUser(request)) });
     } catch (error) {
       return sendError(reply, error);
     }
@@ -82,7 +91,7 @@ export const registerDeviceRoutes = async (app: FastifyInstance): Promise<void> 
 
   app.post("/api/v1/devices/bulk", async (request, reply) => {
     try {
-      return reply.send(await applyBulkDeviceAction(bulkDeviceActionSchema.parse(request.body)));
+      return reply.send(await applyBulkDeviceAction(bulkDeviceActionSchema.parse(request.body), requireCurrentUser(request)));
     } catch (error) {
       return sendError(reply, error);
     }

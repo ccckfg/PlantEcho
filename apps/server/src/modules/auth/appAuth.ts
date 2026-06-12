@@ -20,7 +20,7 @@ const PUBLIC_PATHS = [
   "/api/v1/auth/register",
   "/api/v1/auth/login"
 ];
-const PROTECTED_PREFIXES = ["/api/", "/v1/"];
+const PROTECTED_PREFIXES = ["/api/", "/v1/", "/media/"];
 const DEVICE_READING_PATH = /^\/api\/v1\/devices\/[^/]+\/readings$/;
 
 const isProtectedPath = (path: string): boolean =>
@@ -42,9 +42,13 @@ const extractAccessKey = (request: FastifyRequest): string => {
 
 const extractBearerToken = (request: FastifyRequest): string => {
   const authorization = request.headers.authorization;
-  if (!authorization) return "";
-  const [scheme, token] = authorization.split(" ");
-  return scheme?.toLowerCase() === "bearer" ? token?.trim() ?? "" : "";
+  if (authorization) {
+    const [scheme, token] = authorization.split(" ");
+    if (scheme?.toLowerCase() === "bearer" && token?.trim()) return token.trim();
+  }
+  if (!request.url.startsWith("/media/")) return "";
+  const url = new URL(request.url, "http://dyn.local");
+  return url.searchParams.get("access_token")?.trim() ?? "";
 };
 
 const isOpenAiCompatPath = (path: string): boolean => path.startsWith("/v1/");

@@ -41,8 +41,18 @@ const requireConnection = (): BackendConnection => {
 };
 
 export const apiUrl = (path: string): string => `${requireConnection().baseUrl}${path}`;
-export const mediaUrl = (path: string): string =>
-  /^(https?:|data:|blob:)/i.test(path) ? path : apiUrl(path);
+export const mediaUrl = (path: string): string => {
+  if (/^(data:|blob:)/i.test(path)) return path;
+  const connection = requireConnection();
+  const absolute = /^https?:/i.test(path)
+    ? path
+    : `${connection.baseUrl}${path.startsWith("/") ? path : `/${path}`}`;
+  const url = new URL(absolute);
+  if (absolute.startsWith(connection.baseUrl) && url.pathname.includes("/media/")) {
+    url.searchParams.set("access_token", connection.token);
+  }
+  return url.toString();
+};
 
 const buildHeaders = (
   connection: BackendConnection,

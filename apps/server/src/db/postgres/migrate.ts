@@ -6,6 +6,17 @@ import { postgresRuntimeSchemaSql, postgresIndexSql } from "./runtimeSchema.js";
 import { postgresSchemaSql } from "./schema.js";
 
 const migrationName = "postgres_initial_pgvector_schema";
+const postgresOwnershipMigrationSql = `
+ALTER TABLE plants
+  ADD COLUMN IF NOT EXISTS user_id TEXT REFERENCES users(id) ON DELETE CASCADE;
+
+UPDATE plants
+SET user_id = (
+  SELECT id FROM users ORDER BY created_at ASC, id ASC LIMIT 1
+)
+WHERE user_id IS NULL
+  AND EXISTS (SELECT 1 FROM users);
+`;
 
 const markSchemaVersion = async (db: DatabaseClient): Promise<void> => {
   const now = new Date().toISOString();
@@ -19,6 +30,7 @@ const markSchemaVersion = async (db: DatabaseClient): Promise<void> => {
 export const applyPostgresMigrations = async (db: DatabaseClient): Promise<void> => {
   await db.transaction(async (tx) => {
     await tx.exec(postgresSchemaSql);
+    await tx.exec(postgresOwnershipMigrationSql);
     await tx.exec(postgresRuntimeSchemaSql);
     await tx.exec(postgresIndexSql);
     await markSchemaVersion(tx);
@@ -30,12 +42,13 @@ export const seedPostgresDemoData = async (db: DatabaseClient): Promise<void> =>
   await db.transaction(async (tx) => {
     await tx.prepare(
       `INSERT INTO plants
-       (id, name, species, persona_profile_id, avatar_url, location,
+       (id, user_id, name, species, persona_profile_id, avatar_url, location,
         care_profile_json, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON CONFLICT(id) DO NOTHING`
     ).run(
       env.DEFAULT_PLANT_ID,
+      null,
       "小绿",
       "绿萝",
       "pothos",

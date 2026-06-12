@@ -1,10 +1,11 @@
-import type { CareProfile } from "@dyn/shared";
 import { Icon } from "@/components/UI";
+import type { CareProfileDraft, CareProfileFieldId } from "./careProfileDraft";
 
 interface CareProfileEditorProps {
-  value: CareProfile;
+  value: CareProfileDraft;
   description?: string;
-  onChange: (value: CareProfile) => void;
+  errors?: Partial<Record<CareProfileFieldId, string>>;
+  onChange: (value: CareProfileDraft) => void;
 }
 
 type FieldPath =
@@ -26,20 +27,24 @@ const FIELDS: Array<{
   { label: "空气湿度", icon: "air", unit: "%", minPath: ["humidity", "min"], maxPath: ["humidity", "max"] }
 ];
 
-const readValue = (profile: CareProfile, [section, key]: FieldPath): number =>
-  profile[section][key as never] as number;
+const fieldId = ([section, key]: FieldPath): CareProfileFieldId =>
+  `${section}.${key}` as CareProfileFieldId;
+
+const readValue = (profile: CareProfileDraft, [section, key]: FieldPath): string =>
+  profile[section][key as never] as string;
 
 export function CareProfileEditor({
   value,
   description = "可以按实际环境微调",
+  errors = {},
   onChange
 }: CareProfileEditorProps) {
-  const update = ([section, key]: FieldPath, nextValue: number) => {
+  const update = ([section, key]: FieldPath, nextValue: string) => {
     onChange({
       ...value,
       [section]: {
         ...value[section],
-        [key]: Number.isFinite(nextValue) ? nextValue : 0
+        [key]: nextValue
       }
     });
   };
@@ -60,15 +65,17 @@ export function CareProfileEditor({
               <Icon name={field.icon} className="text-[16px] text-primary" />
               {field.label}
             </div>
-            <div className="grid grid-cols-[1fr_1fr_auto] gap-sm items-center">
+            <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-sm items-start">
               <NumberInput
                 label="下限"
                 value={readValue(value, field.minPath)}
+                error={errors[fieldId(field.minPath)]}
                 onChange={(next) => update(field.minPath, next)}
               />
               <NumberInput
                 label="上限"
                 value={readValue(value, field.maxPath)}
+                error={errors[fieldId(field.maxPath)]}
                 onChange={(next) => update(field.maxPath, next)}
               />
               <span className="text-label-sm font-label-sm text-on-surface-variant">{field.unit}</span>
@@ -83,21 +90,30 @@ export function CareProfileEditor({
 function NumberInput({
   label,
   value,
+  error,
   onChange
 }: {
   label: string;
-  value: number;
-  onChange: (value: number) => void;
+  value: string;
+  error?: string;
+  onChange: (value: string) => void;
 }) {
   return (
-    <label className="flex flex-col gap-xs">
+    <label className="flex min-w-0 flex-col gap-xs">
       <span className="text-label-sm font-label-sm text-on-surface-variant">{label}</span>
       <input
-        type="number"
+        type="text"
+        inputMode="decimal"
         value={value}
-        onChange={(event) => onChange(Number(event.target.value))}
-        className="w-full rounded border border-surface-container-highest bg-surface px-sm py-xs text-body-sm outline-none focus:border-primary"
+        onChange={(event) => onChange(event.target.value)}
+        aria-invalid={Boolean(error)}
+        className={`w-full rounded border bg-surface px-sm py-xs text-body-sm outline-none ${
+          error
+            ? "border-error focus:border-error"
+            : "border-surface-container-highest focus:border-primary"
+        }`}
       />
+      {error ? <span className="text-label-sm font-label-sm text-error">{error}</span> : null}
     </label>
   );
 }

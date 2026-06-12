@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS schema_migrations (
 
 CREATE TABLE IF NOT EXISTS plants (
   id TEXT PRIMARY KEY,
+  user_id TEXT,
   name TEXT NOT NULL,
   species TEXT NOT NULL,
   persona_profile_id TEXT NOT NULL,

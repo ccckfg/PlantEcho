@@ -20,8 +20,8 @@ export const plantIdFromModel = (model: string): string | null => {
   return plantId || null;
 };
 
-export const listCompatModels = async () =>
-  (await listPlants()).map((plant) => ({
+export const listCompatModels = async (userId?: string | null) =>
+  (await listPlants(userId)).map((plant) => ({
     id: plantModelId(plant.id),
     object: "model",
     created: 0,
@@ -33,9 +33,12 @@ export const listCompatModels = async () =>
     }
   }));
 
-export const resolvePlantRoute = async (model: string): Promise<PlantRoute | null> => {
+export const resolvePlantRoute = async (
+  model: string,
+  userId?: string | null
+): Promise<PlantRoute | null> => {
   const plantId = plantIdFromModel(model);
-  const plant = plantId ? await getPlant(plantId) : null;
+  const plant = plantId ? await getPlant(plantId, false, userId) : null;
   if (!plant) return null;
   return {
     plantId: plant.id,

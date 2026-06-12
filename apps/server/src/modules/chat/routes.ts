@@ -4,6 +4,7 @@ import { sendError } from "../../shared/http.js";
 import { chatWithPlant, streamChatWithPlant, type ChatStreamEvent } from "./chatService.js";
 import { recentVisibleMessages } from "./messageRepository.js";
 import { assertChatDependencies } from "./chatRequirements.js";
+import { requireCurrentUser, requireOwnedPlant } from "../plants/plantAccess.js";
 
 const chatSchema = z.object({
   content: z.string().min(1),
@@ -14,6 +15,7 @@ export const registerChatRoutes = async (app: FastifyInstance): Promise<void> =>
   app.post("/api/v1/plants/:plantId/chat", async (request, reply) => {
     try {
       const { plantId } = request.params as { plantId: string };
+      await requireOwnedPlant(plantId, requireCurrentUser(request));
       const { content, timezone } = chatSchema.parse(request.body);
       return await chatWithPlant(plantId, content, { timezone });
     } catch (error) {
@@ -24,6 +26,7 @@ export const registerChatRoutes = async (app: FastifyInstance): Promise<void> =>
   app.post("/api/v1/plants/:plantId/chat/stream", async (request, reply) => {
     try {
       const { plantId } = request.params as { plantId: string };
+      await requireOwnedPlant(plantId, requireCurrentUser(request));
       const { content, timezone } = chatSchema.parse(request.body);
       assertChatDependencies();
       reply.hijack();
@@ -58,8 +61,13 @@ export const registerChatRoutes = async (app: FastifyInstance): Promise<void> =>
     }
   });
 
-  app.get("/api/v1/plants/:plantId/messages", async (request) => {
-    const { plantId } = request.params as { plantId: string };
-    return { messages: await recentVisibleMessages(plantId, 80) };
+  app.get("/api/v1/plants/:plantId/messages", async (request, reply) => {
+    try {
+      const { plantId } = request.params as { plantId: string };
+      await requireOwnedPlant(plantId, requireCurrentUser(request));
+      return { messages: await recentVisibleMessages(plantId, 80) };
+    } catch (error) {
+      return sendError(reply, error);
+    }
   });
 };

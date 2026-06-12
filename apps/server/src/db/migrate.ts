@@ -80,11 +80,12 @@ const seedDemoData = async (): Promise<void> => {
   if (!plant) {
     await db.prepare(
       `INSERT INTO plants
-       (id, name, species, persona_profile_id, avatar_url, location,
+       (id, user_id, name, species, persona_profile_id, avatar_url, location,
         care_profile_json, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).run(
       env.DEFAULT_PLANT_ID,
+      null,
       "小绿",
       "绿萝",
       "pothos",

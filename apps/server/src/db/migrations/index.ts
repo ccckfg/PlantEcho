@@ -16,6 +16,7 @@ import { userApiKeysMigration } from "./015_user_api_keys.js";
 import { plantStatusTagsMigration } from "./016_plant_status_tags.js";
 import { turnCountersAndRetentionMigration } from "./017_turn_counters_and_retention.js";
 import { careRecordsMigration } from "./018_care_records.js";
+import { plantUserOwnershipMigration } from "./019_plant_user_ownership.js";
 
 export interface DatabaseMigration {
   version: number;
@@ -41,7 +42,8 @@ export const migrations: DatabaseMigration[] = [
   userApiKeysMigration,
   plantStatusTagsMigration,
   turnCountersAndRetentionMigration,
-  careRecordsMigration
+  careRecordsMigration,
+  plantUserOwnershipMigration
 ].sort((a, b) => a.version - b.version);
 
 export const latestSchemaVersion = migrations.at(-1)?.version ?? 0;

@@ -45,14 +45,32 @@ export const getSyncEvent = async (id: number): Promise<SyncEvent | null> => {
   return row ? toEvent(row) : null;
 };
 
-export const listSyncEventsSince = async (sinceId: number, limit = 200): Promise<SyncEvent[]> => {
-  const rows = await getDb()
-    .prepare("SELECT * FROM sync_events WHERE id > ? ORDER BY id ASC LIMIT ?")
-    .all<SyncEventRow>(Math.max(0, sinceId), Math.max(1, limit));
+export const listSyncEventsSince = async (
+  sinceId: number,
+  limit = 200,
+  userId?: string | null
+): Promise<SyncEvent[]> => {
+  const sql = userId
+    ? `SELECT s.* FROM sync_events s
+       INNER JOIN plants p ON p.id = s.plant_id
+       WHERE s.id > ? AND p.user_id = ?
+       ORDER BY s.id ASC LIMIT ?`
+    : "SELECT * FROM sync_events WHERE id > ? ORDER BY id ASC LIMIT ?";
+  const rows = userId
+    ? await getDb().prepare(sql).all<SyncEventRow>(Math.max(0, sinceId), userId, Math.max(1, limit))
+    : await getDb().prepare(sql).all<SyncEventRow>(Math.max(0, sinceId), Math.max(1, limit));
   return rows.map(toEvent);
 };
 
-export const latestSyncEventId = async (): Promise<number> => {
-  const row = await getDb().prepare("SELECT MAX(id) AS id FROM sync_events").get<{ id: number | null }>();
+export const latestSyncEventId = async (userId?: string | null): Promise<number> => {
+  const row = userId
+    ? await getDb()
+      .prepare(
+        `SELECT MAX(s.id) AS id FROM sync_events s
+         INNER JOIN plants p ON p.id = s.plant_id
+         WHERE p.user_id = ?`
+      )
+      .get<{ id: number | null }>(userId)
+    : await getDb().prepare("SELECT MAX(id) AS id FROM sync_events").get<{ id: number | null }>();
   return row?.id ?? 0;
 };

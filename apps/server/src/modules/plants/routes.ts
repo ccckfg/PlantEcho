@@ -10,7 +10,8 @@ import { sendError } from "../../shared/http.js";
 import { suggestCareProfile } from "./careProfileService.js";
 import { getPlantReflection } from "./plantReflectionService.js";
 import { getPlantStatusTags } from "./plantStatusTagService.js";
-import { createPlant, deletePlant, getPlant, listPlants, restorePlant, updatePlant } from "./plantRepository.js";
+import { createPlant, deletePlant, listPlants, restorePlant, updatePlant } from "./plantRepository.js";
+import { requireCurrentUser, requireOwnedPlant } from "./plantAccess.js";
 import { getPlantReadingState, getPlantReadings } from "../readings/readingService.js";
 import { publishSyncEvent } from "../sync/syncBus.js";
 import { getLayeredPlantState } from "../state/stateService.js";
@@ -39,7 +40,13 @@ const updatePlantSchema = z.object({
 });
 
 export const registerPlantRoutes = async (app: FastifyInstance): Promise<void> => {
-  app.get("/api/v1/plants", async () => ({ plants: await listPlants() }));
+  app.get("/api/v1/plants", async (request, reply) => {
+    try {
+      return { plants: await listPlants(requireCurrentUser(request).id) };
+    } catch (error) {
+      return sendError(reply, error);
+    }
+  });
 
   app.post("/api/v1/plants/care-profile/suggest", async (request, reply) => {
     try {
@@ -53,7 +60,7 @@ export const registerPlantRoutes = async (app: FastifyInstance): Promise<void> =
   app.post("/api/v1/plants", async (request, reply) => {
     try {
       const input = createPlantSchema.parse(request.body);
-      const plant = await createPlant(input);
+      const plant = await createPlant({ ...input, userId: requireCurrentUser(request).id });
       publishSyncEvent({
         type: "plants.changed",
         plantId: plant.id,
@@ -66,16 +73,19 @@ export const registerPlantRoutes = async (app: FastifyInstance): Promise<void> =
   });
 
   app.get("/api/v1/plants/:plantId", async (request, reply) => {
-    const { plantId } = request.params as { plantId: string };
-    const plant = await getPlant(plantId);
-    if (!plant) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
-    return { plant, state: await getLayeredPlantState(plantId) };
+    try {
+      const { plantId } = request.params as { plantId: string };
+      const plant = await requireOwnedPlant(plantId, requireCurrentUser(request));
+      return { plant, state: await getLayeredPlantState(plantId) };
+    } catch (error) {
+      return sendError(reply, error);
+    }
   });
 
   app.get("/api/v1/plants/:plantId/reflection", async (request, reply) => {
     try {
       const { plantId } = request.params as { plantId: string };
-      if (!await getPlant(plantId)) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
+      await requireOwnedPlant(plantId, requireCurrentUser(request));
       return { reflection: await getPlantReflection(plantId) };
     } catch (error) {
       return sendError(reply, error);
@@ -85,7 +95,7 @@ export const registerPlantRoutes = async (app: FastifyInstance): Promise<void> =
   app.get("/api/v1/plants/:plantId/status-tags", async (request, reply) => {
     try {
       const { plantId } = request.params as { plantId: string };
-      if (!await getPlant(plantId)) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
+      await requireOwnedPlant(plantId, requireCurrentUser(request));
       return { tags: await getPlantStatusTags(plantId) };
     } catch (error) {
       return sendError(reply, error);
@@ -96,7 +106,7 @@ export const registerPlantRoutes = async (app: FastifyInstance): Promise<void> =
     try {
       const { plantId } = request.params as { plantId: string };
       const input = updatePlantSchema.parse(request.body);
-      const plant = await updatePlant(plantId, input);
+      const plant = await updatePlant(plantId, input, requireCurrentUser(request).id);
       if (!plant) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
       publishSyncEvent({
         type: "plants.changed",
@@ -110,41 +120,55 @@ export const registerPlantRoutes = async (app: FastifyInstance): Promise<void> =
   });
 
   app.delete("/api/v1/plants/:plantId", async (request, reply) => {
-    const { plantId } = request.params as { plantId: string };
-    const plant = await deletePlant(plantId);
-    if (!plant) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
-    publishSyncEvent({
-      type: "plants.changed",
-      plantId: plant.id,
-      payload: { action: "deleted", plantId: plant.id }
-    });
-    return { plant };
+    try {
+      const { plantId } = request.params as { plantId: string };
+      const plant = await deletePlant(plantId, requireCurrentUser(request).id);
+      if (!plant) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
+      publishSyncEvent({
+        type: "plants.changed",
+        plantId: plant.id,
+        payload: { action: "deleted", plantId: plant.id }
+      });
+      return { plant };
+    } catch (error) {
+      return sendError(reply, error);
+    }
   });
 
   app.post("/api/v1/plants/:plantId/restore", async (request, reply) => {
-    const { plantId } = request.params as { plantId: string };
-    const plant = await restorePlant(plantId);
-    if (!plant) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
-    publishSyncEvent({
-      type: "plants.changed",
-      plantId: plant.id,
-      payload: { action: "restored", plantId: plant.id }
-    });
-    return { plant };
+    try {
+      const { plantId } = request.params as { plantId: string };
+      const plant = await restorePlant(plantId, requireCurrentUser(request).id);
+      if (!plant) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
+      publishSyncEvent({
+        type: "plants.changed",
+        plantId: plant.id,
+        payload: { action: "restored", plantId: plant.id }
+      });
+      return { plant };
+    } catch (error) {
+      return sendError(reply, error);
+    }
   });
 
   app.get("/api/v1/plants/:plantId/readings/latest", async (request, reply) => {
     try {
       const { plantId } = request.params as { plantId: string };
+      await requireOwnedPlant(plantId, requireCurrentUser(request));
       return await getPlantReadingState(plantId);
     } catch (error) {
       return sendError(reply, error);
     }
   });
 
-  app.get("/api/v1/plants/:plantId/readings", async (request) => {
-    const { plantId } = request.params as { plantId: string };
-    const query = request.query as { limit?: string };
-    return { readings: await getPlantReadings(plantId, Number(query.limit ?? 120)) };
+  app.get("/api/v1/plants/:plantId/readings", async (request, reply) => {
+    try {
+      const { plantId } = request.params as { plantId: string };
+      const query = request.query as { limit?: string };
+      await requireOwnedPlant(plantId, requireCurrentUser(request));
+      return { readings: await getPlantReadings(plantId, Number(query.limit ?? 120)) };
+    } catch (error) {
+      return sendError(reply, error);
+    }
   });
 };

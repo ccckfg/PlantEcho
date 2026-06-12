@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { FastifyInstance } from "fastify";
 import { photoConfig } from "../../config/photos.js";
 import { sendError } from "../../shared/http.js";
-import { getPlant } from "../plants/plantRepository.js";
+import { requireCurrentUser, requireOwnedPlant } from "../plants/plantAccess.js";
 import { publishSyncEvent } from "../sync/syncBus.js";
 import { createPlantPhoto, deletePlantPhoto, listPlantPhotos, readPhotoBytes } from "./photoRepository.js";
 
@@ -17,7 +17,7 @@ export const registerPhotoRoutes = async (app: FastifyInstance): Promise<void> =
   app.get("/api/v1/plants/:plantId/photos", async (request, reply) => {
     try {
       const { plantId } = request.params as { plantId: string };
-      if (!await getPlant(plantId)) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
+      await requireOwnedPlant(plantId, requireCurrentUser(request));
       return { photos: await listPlantPhotos(plantId) };
     } catch (error) {
       return sendError(reply, error);
@@ -30,7 +30,7 @@ export const registerPhotoRoutes = async (app: FastifyInstance): Promise<void> =
     async (request, reply) => {
       try {
         const { plantId } = request.params as { plantId: string };
-        if (!await getPlant(plantId)) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
+        await requireOwnedPlant(plantId, requireCurrentUser(request));
         const input = photoUploadSchema.parse(request.body);
         const photo = await createPlantPhoto(plantId, input);
         await publishSyncEvent({
@@ -50,6 +50,7 @@ export const registerPhotoRoutes = async (app: FastifyInstance): Promise<void> =
       const { photoId } = request.params as { photoId: string };
       const result = await readPhotoBytes(photoId);
       if (!result) return reply.status(404).send({ error: "PHOTO_NOT_FOUND" });
+      await requireOwnedPlant(result.photo.plantId, requireCurrentUser(request));
       return reply
         .type(result.photo.mimeType)
         .header("cache-control", "private, max-age=3600")
@@ -62,7 +63,7 @@ export const registerPhotoRoutes = async (app: FastifyInstance): Promise<void> =
   app.delete("/api/v1/plants/:plantId/photos/:photoId", async (request, reply) => {
     try {
       const { plantId, photoId } = request.params as { plantId: string; photoId: string };
-      if (!await getPlant(plantId)) return reply.status(404).send({ error: "PLANT_NOT_FOUND" });
+      await requireOwnedPlant(plantId, requireCurrentUser(request));
       const deleted = await deletePlantPhoto(plantId, photoId);
       if (!deleted) return reply.status(404).send({ error: "PHOTO_NOT_FOUND" });
       await publishSyncEvent({
