@@ -109,7 +109,7 @@ export function BackendConnect({ onConnected, onCancel }: BackendConnectProps) {
         </div>
 
         <form className={`flex flex-col ${keyboardOpen ? "mt-sm gap-xs" : "mt-lg gap-md max-sm:mt-md max-sm:gap-sm"}`} onSubmit={handleSubmit}>
-          <Field icon="dns" label="后端地址">
+          <Field icon="dns" label="后端HTTP地址">
             <input
               value={baseUrl}
               onChange={(event) => setBaseUrl(event.target.value)}
