@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { PlantReflectionCard } from "./plants/PlantReflectionCard";
 import { Icon } from "./UI";
+import { useProactiveUnreadCount } from "@/features/proactive/useProactiveUnread";
 
 const NAV_ITEMS = [
   { to: "/", label: "温室", icon: "potted_plant" },
@@ -10,6 +11,7 @@ const NAV_ITEMS = [
 ] as const;
 
 export function SideNav() {
+  const proactiveUnreadCount = useProactiveUnreadCount();
   return (
     <nav className="hidden md:flex flex-col h-screen w-64 shrink-0 bg-surface-container-low/70 backdrop-blur-sm border-r border-surface-container-highest/60 py-lg px-md z-10 sticky top-0">
       <PlantReflectionCard />
@@ -50,6 +52,14 @@ export function SideNav() {
                   <span className="transition-transform duration-300 ease-emphasized group-hover:translate-x-0.5">
                     {item.label}
                   </span>
+                  {item.to === "/chat" && proactiveUnreadCount > 0 ? (
+                    <span
+                      className="ml-auto min-w-5 rounded-full bg-[#678b45] px-1.5 py-0.5 text-center text-[10px] font-bold leading-none text-white"
+                      aria-label={`${proactiveUnreadCount} 株植物有新消息`}
+                    >
+                      {proactiveUnreadCount > 9 ? "9+" : proactiveUnreadCount}
+                    </span>
+                  ) : null}
                 </>
               )}
             </NavLink>

@@ -8,6 +8,8 @@ import { useSyncRefresh } from "@/hooks/useSyncRefresh";
 import { plantImage } from "@/lib/format";
 import { deriveStatus, MOOD_PRESETS } from "@/lib/mood";
 import { Icon } from "@/components/UI";
+import { ProactiveBadge } from "@/features/proactive/ProactiveBadge";
+import { useProactiveUnread } from "@/features/proactive/useProactiveUnread";
 
 /**
  * 移动端横向植物卡 —— 参考 stitch 设计稿：左侧方形缩略图，右侧名称 + 状态徽标、
@@ -23,6 +25,7 @@ export function MobilePlantCard({
   index: number;
 }) {
   const [reading, setReading] = useState<ReadingState | null>(null);
+  const proactiveUnread = useProactiveUnread(plant.id);
   const readingRefresh = useSyncRefresh(
     { plantId: plant.id, resources: ["readings"] },
     { throttleMs: SENSOR_READING_REFRESH_THROTTLE_MS }
@@ -67,14 +70,17 @@ export function MobilePlantCard({
       <div className="min-w-0 flex-1">
         <div className="mb-[2px] flex items-start justify-between gap-sm">
           <h4 className="truncate font-display text-body-md font-semibold text-on-surface">{plant.name}</h4>
-          <span
-            className={`grid h-6 w-6 shrink-0 place-items-center rounded-full ${
-              needsWater
-                ? "bg-error-container text-on-error-container"
-                : "bg-secondary-container text-on-secondary-container"
-            }`}
-          >
-            <Icon name={needsWater ? "water_drop" : "check"} filled className="text-[14px]" />
+          <span className="flex shrink-0 items-center gap-xs">
+            {proactiveUnread ? <ProactiveBadge compact /> : null}
+            <span
+              className={`grid h-6 w-6 place-items-center rounded-full ${
+                needsWater
+                  ? "bg-error-container text-on-error-container"
+                  : "bg-secondary-container text-on-secondary-container"
+              }`}
+            >
+              <Icon name={needsWater ? "water_drop" : "check"} filled className="text-[14px]" />
+            </span>
           </span>
         </div>
 

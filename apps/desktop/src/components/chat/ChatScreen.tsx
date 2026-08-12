@@ -13,6 +13,7 @@ import { streamPlantChat } from "@/lib/chatStream";
 import { useAsync } from "@/lib/useAsync";
 import { useChatAutoScroll } from "@/hooks/useChatAutoScroll";
 import { useSyncRefresh } from "@/hooks/useSyncRefresh";
+import { useMarkProactiveRead } from "@/features/proactive/useProactiveUnread";
 import { BrandMark } from "@/components/BrandMark";
 import { SensorStatusBadge } from "@/components/SensorStatusBadge";
 import { Chip, Empty, Icon, ProgressBar } from "@/components/UI";
@@ -35,6 +36,7 @@ export function ChatScreen({ plantId, plants, onSwitch }: ChatScreenProps) {
     throttleMs: SENSOR_READING_REFRESH_THROTTLE_MS
   });
   const messagesRefresh = useSyncRefresh({ plantId, resources: ["messages"] });
+  useMarkProactiveRead(plantId, messagesRefresh);
   const reading = useAsync<ReadingState>(() => api.latestReading(plantId), [plantId, readingRefresh]);
   const statusTags = useAsync(() => api.getPlantStatusTags(plantId), [plantId, readingRefresh, messagesRefresh]);
   const [messages, setMessages] = useState<ChatDisplayMessage[]>([]);

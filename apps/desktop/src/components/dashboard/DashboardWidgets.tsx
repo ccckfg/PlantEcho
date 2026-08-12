@@ -8,6 +8,8 @@ import { useSyncRefresh } from "@/hooks/useSyncRefresh";
 import { plantImage } from "@/lib/format";
 import { deriveStatus, MOOD_BUBBLES, MOOD_PRESETS } from "@/lib/mood";
 import { Chip, Icon } from "@/components/UI";
+import { ProactiveBadge } from "@/features/proactive/ProactiveBadge";
+import { useProactiveUnread } from "@/features/proactive/useProactiveUnread";
 
 export function WeatherPill({
   state
@@ -64,6 +66,7 @@ export function DashboardSkeleton() {
 export function PlantCard({ plant, now, index }: { plant: PlantSummary; now: Date; index: number }) {
   const [reading, setReading] = useState<ReadingState | null>(null);
   const [hover, setHover] = useState(false);
+  const proactiveUnread = useProactiveUnread(plant.id);
   const readingRefresh = useSyncRefresh(
     { plantId: plant.id, resources: ["readings"] },
     { throttleMs: SENSOR_READING_REFRESH_THROTTLE_MS }
@@ -138,6 +141,11 @@ export function PlantCard({ plant, now, index }: { plant: PlantSummary; now: Dat
               {moodMeta.label}
             </Chip>
           </div>
+          {proactiveUnread ? (
+            <div className="absolute right-sm top-sm">
+              <ProactiveBadge />
+            </div>
+          ) : null}
         </div>
         <div>
           <div className="flex justify-between items-start gap-sm mb-xs">

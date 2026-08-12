@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { Icon } from "@/components/UI";
+import { useProactiveUnreadCount } from "@/features/proactive/useProactiveUnread";
 
 /** 与桌面 SideNav 一致的导航项，保证两端信息架构对齐。 */
 const NAV_ITEMS = [
@@ -15,6 +16,7 @@ const NAV_ITEMS = [
  * 因此始终贴底可见，且不会遮挡可滚动主区域；底部安全区抬高避开手势条。
  */
 export function MobileTabBar() {
+  const proactiveUnreadCount = useProactiveUnreadCount();
   return (
     <nav
       className="relative z-40 shrink-0 border-t border-surface-container-highest/60 bg-surface-container-lowest/95 backdrop-blur-md"
@@ -41,7 +43,7 @@ export function MobileTabBar() {
               {({ isActive }) => (
                 <>
                   <span
-                    className={`grid h-9 w-9 place-items-center rounded-full transition-all duration-300 ease-emphasized ${
+                    className={`relative grid h-9 w-9 place-items-center rounded-full transition-all duration-300 ease-emphasized ${
                       isActive ? "bg-secondary-container/60" : "bg-transparent group-active:bg-secondary-container/30"
                     }`}
                   >
@@ -52,6 +54,12 @@ export function MobileTabBar() {
                         isActive ? "scale-105" : "group-active:scale-95"
                       }`}
                     />
+                    {item.to === "/chat" && proactiveUnreadCount > 0 ? (
+                      <span
+                        className="absolute right-0 top-0 h-2.5 w-2.5 rounded-full bg-[#678b45] ring-2 ring-surface-container-lowest"
+                        aria-label={`${proactiveUnreadCount} 株植物有新消息`}
+                      />
+                    ) : null}
                   </span>
                   <span className={isActive ? "font-bold" : ""}>{item.label}</span>
                 </>

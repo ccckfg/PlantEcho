@@ -9,6 +9,7 @@ import { clearApiConnection, getApiConnection } from "@/lib/api";
 import type { BackendConnection } from "@/lib/connection";
 import { useIsMobile } from "@/lib/usePlatform";
 import { useSyncStream } from "@/hooks/useSyncStream";
+import { useProactiveInbox } from "@/features/proactive/useProactiveInbox";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { ChatPage } from "@/pages/ChatPage";
 import { JournalPage } from "@/pages/JournalPage";
@@ -27,6 +28,7 @@ export default function App() {
   const [editingConnection, setEditingConnection] = useState(false);
   const isMobile = useIsMobile();
   useSyncStream(connection);
+  useProactiveInbox(connection);
   const logout = () => {
     clearApiConnection();
     setConnection(null);
