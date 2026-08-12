@@ -28,6 +28,11 @@ export const useProactiveUnreadCount = (): number => useUnreadPlantIds().size;
 
 export const useMarkProactiveRead = (plantId: string, refreshVersion: number): void => {
   useEffect(() => {
-    markProactiveRead(plantId);
+    const markWhenVisible = () => {
+      if (document.visibilityState === "visible") markProactiveRead(plantId);
+    };
+    markWhenVisible();
+    document.addEventListener("visibilitychange", markWhenVisible);
+    return () => document.removeEventListener("visibilitychange", markWhenVisible);
   }, [plantId, refreshVersion]);
 };

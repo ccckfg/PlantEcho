@@ -7,6 +7,7 @@ import type { BackendConnection } from "@/lib/connection";
 import { AccountApiKeyPanel } from "./AccountApiKeyPanel";
 import { AccountSessionRow } from "./AccountSessionRow";
 import { avatarGradientFor } from "./accountSessionUtils";
+import { ProactivePreferencePanel } from "./ProactivePreferencePanel";
 
 export function AccountDialog({
   connection,
@@ -181,6 +182,8 @@ export function AccountDialog({
 
             <AccountApiKeyPanel connection={connection} onError={setError} />
           </div>
+
+          <ProactivePreferencePanel />
 
           <section className="flex flex-col gap-sm">
             <div className="flex items-center justify-between gap-md">

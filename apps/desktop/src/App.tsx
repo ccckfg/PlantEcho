@@ -10,6 +10,7 @@ import type { BackendConnection } from "@/lib/connection";
 import { useIsMobile } from "@/lib/usePlatform";
 import { useSyncStream } from "@/hooks/useSyncStream";
 import { useProactiveInbox } from "@/features/proactive/useProactiveInbox";
+import { usePresenceHeartbeat } from "@/features/proactive/usePresenceHeartbeat";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { ChatPage } from "@/pages/ChatPage";
 import { JournalPage } from "@/pages/JournalPage";
@@ -29,6 +30,7 @@ export default function App() {
   const isMobile = useIsMobile();
   useSyncStream(connection);
   useProactiveInbox(connection);
+  usePresenceHeartbeat(connection);
   const logout = () => {
     clearApiConnection();
     setConnection(null);
