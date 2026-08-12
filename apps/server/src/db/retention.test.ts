@@ -54,6 +54,9 @@ test("retention cleanup removes expired operational history only", async () => {
       "INSERT INTO proactive_event_log (plant_id, event_key, event_type, severity, message_id, payload_json, fired_at) VALUES (?, 'old', 'reminder.due', 'info', NULL, '{}', ?), (?, 'new', 'reminder.due', 'info', NULL, '{}', ?)"
     ).run(plant.id, old, plant.id, recent);
     await getDb().prepare(
+      "INSERT INTO proactive_decisions (plant_id, considered_at, gate_result, reason_code) VALUES (?, ?, 'no_candidate', 'no_candidate'), (?, ?, 'no_candidate', 'no_candidate')"
+    ).run(plant.id, old, plant.id, recent);
+    await getDb().prepare(
       "INSERT INTO proactive_reminders (id, plant_id, source_message_id, text, remind_at, status, created_at, updated_at) VALUES (?, ?, NULL, 'old', ?, 'sent', ?, ?), (?, ?, NULL, 'new', ?, 'scheduled', ?, ?)"
     ).run(randomUUID(), plant.id, old, old, old, randomUUID(), plant.id, future, recent, recent);
     await getDb().prepare(
@@ -74,7 +77,7 @@ test("retention cleanup removes expired operational history only", async () => {
 
     const result = await runRetentionCleanup(now);
 
-    assert.ok(result.totalDeleted >= 8);
+    assert.ok(result.totalDeleted >= 9);
     assert.equal(await count("plants"), 2);
     assert.equal(await count("devices"), 2);
     assert.equal(await count("sensor_readings"), 1);
@@ -83,6 +86,7 @@ test("retention cleanup removes expired operational history only", async () => {
     assert.equal(await count("memory_drafts"), 2);
     assert.equal(await count("llm_usage_logs"), 1);
     assert.equal(await count("proactive_event_log"), 1);
+    assert.equal(await count("proactive_decisions"), 1);
     assert.equal(await count("proactive_reminders"), 1);
     assert.equal(await count("pending_devices"), 1);
     assert.equal(await count("auth_sessions"), 1);

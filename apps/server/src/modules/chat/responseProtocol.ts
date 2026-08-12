@@ -2,6 +2,8 @@ import type { InnerPatch } from "../state/stateService.js";
 import { stateConfig } from "../../config/state.js";
 import { sanitizeInnerPatch } from "../state/statePolicy.js";
 import { sanitizeStatusTags } from "../plants/plantStatusTagPolicy.js";
+import { intentionConfig } from "../../config/intentions.js";
+import type { CommitmentOperation, CommitmentPatch } from "../intentions/commitmentTypes.js";
 
 const openMarker = "<inner_patch>";
 const closeMarker = "</inner_patch>";
@@ -9,7 +11,9 @@ const tagsOpenMarker = "<status_tags>";
 const tagsCloseMarker = "</status_tags>";
 const toolsOpenMarker = "<tool_calls>";
 const toolsCloseMarker = "</tool_calls>";
-const hiddenOpenMarkers = [openMarker, tagsOpenMarker, toolsOpenMarker] as const;
+const commitmentOpenMarker = "<commitment_patch>";
+const commitmentCloseMarker = "</commitment_patch>";
+const hiddenOpenMarkers = [openMarker, tagsOpenMarker, commitmentOpenMarker, toolsOpenMarker] as const;
 
 export interface ChatToolCall {
   name: string;
@@ -20,6 +24,7 @@ export interface ParsedChatResponse {
   reply: string;
   innerPatch: InnerPatch;
   statusTags?: string[];
+  commitmentPatch?: CommitmentPatch;
   toolCalls: ChatToolCall[];
   invalidToolCallsText?: string;
 }
@@ -67,6 +72,42 @@ const parseToolCalls = (text: string): ChatToolCall[] | null => {
   }
 };
 
+const optionalIso = (value: unknown): string | undefined => {
+  if (typeof value !== "string" || !value.trim()) return undefined;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
+};
+
+const parseCommitmentPatch = (text: string): CommitmentPatch | undefined => {
+  try {
+    const value = JSON.parse(text) as { operations?: unknown };
+    if (!Array.isArray(value?.operations)) return undefined;
+    const operations = value.operations
+      .slice(0, intentionConfig.commitmentMaxOperations)
+      .map((item): CommitmentOperation | null => {
+        if (!item || typeof item !== "object" || Array.isArray(item)) return null;
+        const record = item as Record<string, unknown>;
+        const action = record.action === "upsert" || record.action === "cancel"
+          ? record.action
+          : null;
+        const topic = typeof record.topic === "string"
+          ? record.topic.replace(/\s+/g, " ").trim().slice(0, intentionConfig.commitmentTopicMaxChars)
+          : "";
+        if (!action || !topic) return null;
+        return {
+          action,
+          topic,
+          ...(optionalIso(record.follow_up_at) ? { followUpAt: optionalIso(record.follow_up_at) } : {}),
+          ...(optionalIso(record.expires_at) ? { expiresAt: optionalIso(record.expires_at) } : {})
+        };
+      })
+      .filter((item): item is CommitmentOperation => item !== null);
+    return { operations };
+  } catch {
+    return undefined;
+  }
+};
+
 const extractBlock = (
   text: string,
   open: string,
@@ -92,13 +133,18 @@ export const parseChatResponse = (text: string): ParsedChatResponse => {
   if (hiddenIndex < 0) return { reply: text.trim(), innerPatch: {}, toolCalls: [] };
   const patchText = extractBlock(text, openMarker, closeMarker);
   const tagsText = extractBlock(text, tagsOpenMarker, tagsCloseMarker);
+  const commitmentText = extractBlock(text, commitmentOpenMarker, commitmentCloseMarker);
   const toolCallsText = extractBlock(text, toolsOpenMarker, toolsCloseMarker);
   const parsedTags = tagsText === null ? undefined : parseTags(tagsText.trim());
+  const parsedCommitment = commitmentText === null
+    ? undefined
+    : parseCommitmentPatch(commitmentText.trim());
   const parsedToolCalls = toolCallsText === null ? [] : parseToolCalls(toolCallsText.trim());
   return {
     reply: text.slice(0, hiddenIndex).trim(),
     innerPatch: patchText === null ? {} : parsePatch(patchText.trim()),
     ...(parsedTags !== undefined ? { statusTags: parsedTags } : {}),
+    ...(parsedCommitment !== undefined ? { commitmentPatch: parsedCommitment } : {}),
     toolCalls: parsedToolCalls ?? [],
     ...(toolCallsText !== null && parsedToolCalls === null
       ? { invalidToolCallsText: toolCallsText.trim() }

@@ -10,6 +10,9 @@ type ReminderRow = {
   text: string;
   remind_at: string;
   status: ReminderStatus;
+  claim_token: string | null;
+  claim_expires_at: string | null;
+  message_id: number | null;
   created_at: string;
   updated_at: string;
 };
@@ -21,6 +24,9 @@ const toReminder = (row: ReminderRow): ProactiveReminder => ({
   text: row.text,
   remindAt: row.remind_at,
   status: row.status,
+  claimToken: row.claim_token,
+  claimExpiresAt: row.claim_expires_at,
+  messageId: row.message_id,
   createdAt: row.created_at,
   updatedAt: row.updated_at
 });
@@ -52,11 +58,75 @@ export const listDueReminders = async (untilIso: string): Promise<ProactiveRemin
   const rows = await getDb()
     .prepare(
       `SELECT * FROM proactive_reminders
-       WHERE status = 'scheduled' AND remind_at <= ?
+       WHERE remind_at <= ? AND (
+         status = 'scheduled' OR
+         (status = 'processing' AND claim_expires_at IS NOT NULL AND claim_expires_at <= ?)
+       )
        ORDER BY remind_at ASC`
     )
-    .all<ReminderRow>(untilIso);
+    .all<ReminderRow>(untilIso, untilIso);
   return rows.map(toReminder);
+};
+
+export const claimDueReminder = async (
+  id: string,
+  leaseMs: number,
+  now = new Date()
+): Promise<ProactiveReminder | null> => {
+  const token = randomUUID();
+  const nowText = now.toISOString();
+  const expiresAt = new Date(now.getTime() + leaseMs).toISOString();
+  const result = await getDb().prepare(
+    `UPDATE proactive_reminders
+     SET status = 'processing', claim_token = ?, claim_expires_at = ?, updated_at = ?
+     WHERE id = ? AND remind_at <= ? AND (
+       status = 'scheduled' OR
+       (status = 'processing' AND claim_expires_at IS NOT NULL AND claim_expires_at <= ?)
+     )`
+  ).run(token, expiresAt, nowText, id, nowText, nowText);
+  if (result.changes === 0) return null;
+  return getReminder(id);
+};
+
+export const expireReminderClaim = async (
+  id: string,
+  token: string
+): Promise<boolean> => {
+  const result = await getDb().prepare(
+    `UPDATE proactive_reminders
+     SET status = 'expired', claim_token = NULL, claim_expires_at = NULL, updated_at = ?
+     WHERE id = ? AND status = 'processing' AND claim_token = ?`
+  ).run(nowIso(), id, token);
+  return result.changes > 0;
+};
+
+export const releaseReminderClaim = async (id: string, token: string): Promise<void> => {
+  await getDb().prepare(
+    `UPDATE proactive_reminders
+     SET status = 'scheduled', claim_token = NULL, claim_expires_at = NULL, updated_at = ?
+     WHERE id = ? AND status = 'processing' AND claim_token = ?`
+  ).run(nowIso(), id, token);
+};
+
+export const cancelMatchingReminders = async (
+  plantId: string,
+  matches: (text: string) => boolean
+): Promise<number> => {
+  const rows = await getDb().prepare(
+    `SELECT * FROM proactive_reminders
+     WHERE plant_id = ? AND status IN ('scheduled', 'processing')`
+  ).all<ReminderRow>(plantId);
+  let cancelled = 0;
+  for (const row of rows) {
+    if (!matches(row.text)) continue;
+    const result = await getDb().prepare(
+      `UPDATE proactive_reminders
+       SET status = 'cancelled', claim_token = NULL, claim_expires_at = NULL, updated_at = ?
+       WHERE id = ? AND status IN ('scheduled', 'processing')`
+    ).run(nowIso(), row.id);
+    cancelled += result.changes;
+  }
+  return cancelled;
 };
 
 export const markReminderStatus = async (
@@ -64,7 +134,10 @@ export const markReminderStatus = async (
   status: ReminderStatus
 ): Promise<ProactiveReminder | null> => {
   await getDb()
-    .prepare("UPDATE proactive_reminders SET status = ?, updated_at = ? WHERE id = ?")
+    .prepare(
+      `UPDATE proactive_reminders
+       SET status = ?, claim_token = NULL, claim_expires_at = NULL, updated_at = ? WHERE id = ?`
+    )
     .run(status, nowIso(), id);
   return getReminder(id);
 };

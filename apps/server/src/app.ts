@@ -20,6 +20,7 @@ import { registerOpenAiCompatRoutes } from "./modules/openaiCompat/routes.js";
 import { registerPhotoRoutes } from "./modules/photos/routes.js";
 import { registerPlantRoutes } from "./modules/plants/routes.js";
 import { createProactiveEngine } from "./modules/proactive/engine.js";
+import { registerProactiveRoutes } from "./modules/proactive/routes.js";
 import { registerSyncRoutes } from "./modules/sync/routes.js";
 import { registerWeatherRoutes } from "./modules/weather/routes.js";
 
@@ -71,6 +72,7 @@ export const buildApp = async () => {
   await app.register(registerMemoryRoutes);
   await app.register(registerPhotoRoutes);
   await app.register(registerSyncRoutes);
+  await app.register(registerProactiveRoutes);
   await app.register(registerWeatherRoutes);
 
   app.addHook("onReady", async () => {

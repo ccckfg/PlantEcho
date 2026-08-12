@@ -207,6 +207,13 @@ export const listUnderstandings = async (plantId: string): Promise<Understanding
   return rows.map(toUnderstanding);
 };
 
+export const getUnderstanding = async (id: string): Promise<Understanding | null> => {
+  const row = await getDb().prepare(
+    "SELECT * FROM plant_understandings WHERE id = ?"
+  ).get<UnderstandingRow>(id);
+  return row ? toUnderstanding(row) : null;
+};
+
 export const upsertUnderstanding = async (
   input: Omit<Understanding, "id" | "updatedAt"> & { id?: string }
 ): Promise<Understanding> => {

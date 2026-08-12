@@ -1,10 +1,9 @@
 import { proactiveConfig } from "../../config/proactive.js";
 import { listPlants } from "../plants/plantRepository.js";
-import { getWeatherNow } from "../weather/weatherService.js";
-import { buildRainEvent } from "./weatherTriggers.js";
-import { emitProactiveMessage } from "./proactiveMessage.js";
-import { listDueReminders, markReminderStatus } from "./reminderRepository.js";
 import { considerOneIntention } from "./intentionProactiveService.js";
+import { deliverDueReminder } from "./reminderDelivery.js";
+import { listDueReminders } from "./reminderRepository.js";
+import { generateTemporalIntentions } from "./temporalTriggers.js";
 
 type Logger = {
   info: (message: string) => void;
@@ -16,66 +15,54 @@ export interface ProactiveEngine {
   start: () => void;
   stop: () => Promise<void>;
   scanNow: () => Promise<void>;
-  scanSensor: (plantId: string) => Promise<void>;
 }
 
-const sanitizeError = (error: unknown): string => {
-  return error instanceof Error ? error.message : String(error);
-};
+const errorText = (error: unknown): string =>
+  (error instanceof Error ? error.message : String(error)).slice(0, 500);
 
 export const createProactiveEngine = (logger: Logger): ProactiveEngine => {
   let timer: NodeJS.Timeout | null = null;
   let stopped = true;
   let running = false;
-  let lastWeatherScanAt = 0;
 
-  const scanSensor = async (plantId: string): Promise<void> => {
-    await considerOneIntention(plantId);
+  const schedule = (delay = proactiveConfig.scanIntervalMs): void => {
+    if (stopped) return;
+    timer = setTimeout(() => void scanNow(), delay);
   };
 
-  const scanWeather = async (): Promise<void> => {
-    if (!proactiveConfig.weatherEnabled) return;
-    const now = Date.now();
-    if (now - lastWeatherScanAt < proactiveConfig.weatherScanIntervalMs) return;
-    lastWeatherScanAt = now;
-    const weather = await getWeatherNow();
-    if (!weather.configured || !weather.weather) return;
+  const scanIntentions = async (): Promise<void> => {
     for (const plant of await listPlants()) {
-      const event = buildRainEvent(plant.id, weather.weather);
-      if (event) await emitProactiveMessage(event);
+      try {
+        await generateTemporalIntentions(plant.id);
+      } catch (error) {
+        logger.warn(`[proactive] temporal triggers for ${plant.id} failed: ${errorText(error)}`);
+      }
+      try {
+        await considerOneIntention(plant.id);
+      } catch (error) {
+        logger.warn(`[proactive] intention scan for ${plant.id} failed: ${errorText(error)}`);
+      }
     }
   };
 
   const scanReminders = async (): Promise<void> => {
     for (const reminder of await listDueReminders(new Date().toISOString())) {
-      await emitProactiveMessage({
-        plantId: reminder.plantId,
-        type: "reminder.due",
-        key: `reminder:${reminder.id}`,
-        severity: "info",
-        content: `你让我提醒你：${reminder.text}`,
-        facts: [`提醒内容：${reminder.text}`, `提醒时间：${reminder.remindAt}`],
-        payload: { reminderId: reminder.id, remindAt: reminder.remindAt },
-        cooldownMs: 0
-      });
-      await markReminderStatus(reminder.id, "sent");
+      try {
+        await deliverDueReminder(reminder.id);
+      } catch (error) {
+        logger.warn(`[proactive] reminder ${reminder.id} failed: ${errorText(error)}`);
+      }
     }
   };
 
-  const schedule = (): void => {
-    if (stopped) return;
-    timer = setTimeout(() => void scanNow(), proactiveConfig.scanIntervalMs);
-  };
-
   const scanNow = async (): Promise<void> => {
-    if (stopped || running || !proactiveConfig.enabled) return;
+    if (stopped || running) return;
     running = true;
     try {
-      for (const plant of await listPlants()) await considerOneIntention(plant.id);
+      if (proactiveConfig.enabled) await scanIntentions();
       await scanReminders();
-      await scanWeather();
     } catch (error) {
-      logger.warn(`[proactive] scan failed: ${sanitizeError(error)}`);
+      logger.warn(`[proactive] scan failed: ${errorText(error)}`);
     } finally {
       running = false;
       schedule();
@@ -86,8 +73,8 @@ export const createProactiveEngine = (logger: Logger): ProactiveEngine => {
     start: () => {
       if (!stopped) return;
       stopped = false;
-      logger.info("[proactive] engine started");
-      void scanNow();
+      logger.info(`[proactive] engine starts scanning in ${proactiveConfig.startupDelayMs}ms`);
+      schedule(proactiveConfig.startupDelayMs);
     },
     stop: async () => {
       stopped = true;
@@ -95,7 +82,6 @@ export const createProactiveEngine = (logger: Logger): ProactiveEngine => {
       while (running) await new Promise((resolve) => setTimeout(resolve, 25));
       logger.info("[proactive] engine stopped");
     },
-    scanNow,
-    scanSensor
+    scanNow
   };
 };

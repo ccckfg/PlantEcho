@@ -8,10 +8,12 @@ import { createPlant } from "../plants/plantRepository.js";
 import { insertClaimedDevice } from "../devices/deviceRepository.js";
 import { getPlantReadingState, recordDeviceReading } from "../readings/readingService.js";
 import { parseChatResponse } from "../chat/responseProtocol.js";
-import { createReminder, getReminder } from "./reminderRepository.js";
+import { claimDueReminder, createReminder, getReminder } from "./reminderRepository.js";
 import { runReminderJob } from "./reminderJob.js";
 import { executeChatToolCalls } from "./reminderTool.js";
 import type { BackgroundJob } from "../jobs/jobTypes.js";
+import { deliverDueReminder } from "./reminderDelivery.js";
+import { finalizeReminderDelivery } from "./reminderFinalizer.js";
 
 const cleanup = async (plantId: string): Promise<void> => {
   const db = getDb();
@@ -63,7 +65,7 @@ test("scheduled reminder job becomes a due reminder message", async () => {
   await migrate();
   const plant = await createPlant({ name: "提醒测试", species: "绿萝" });
   try {
-    const reminder = await createReminder(plant.id, "浇水", new Date(Date.now() + 60_000));
+    const reminder = await createReminder(plant.id, "浇水", new Date(Date.now() - 1_000));
     await runReminderJob({
       id: "test-job",
       type: "proactive.reminder",
@@ -85,11 +87,10 @@ test("scheduled reminder job becomes a due reminder message", async () => {
       .prepare("SELECT content FROM messages WHERE plant_id = ? ORDER BY id DESC LIMIT 1")
       .get(plant.id) as { content: string };
     assert.match(row.content, /提醒你：浇水/);
-    const draft = await getDb()
-      .prepare("SELECT text, metadata_json FROM memory_drafts WHERE plant_id = ? ORDER BY id DESC LIMIT 1")
-      .get(plant.id) as { text: string; metadata_json: string };
-    assert.match(draft.text, /提醒你：浇水/);
-    assert.equal(JSON.parse(draft.metadata_json).sourceType, "proactive:reminder.due");
+    const drafts = await getDb()
+      .prepare("SELECT COUNT(*) AS count FROM memory_drafts WHERE plant_id = ?")
+      .get(plant.id) as { count: number };
+    assert.equal(drafts.count, 0);
   } finally {
     await cleanup(plant.id);
   }
@@ -171,6 +172,117 @@ test("malformed custom chat tool calls can be repaired by the secondary model", 
     env.LLM_API_KEY = originalEnv.LLM_API_KEY;
     env.LLM_MODEL_ID = originalEnv.LLM_MODEL_ID;
     env.SECONDARY_LLM_MODEL_ID = originalEnv.SECONDARY_LLM_MODEL_ID;
+    await cleanup(plant.id);
+  }
+});
+
+test("CAS reminder claim prevents duplicate delivery across competing paths", async () => {
+  await migrate();
+  const plant = await createPlant({ name: "并发提醒", species: "绿萝" });
+  try {
+    const reminder = await createReminder(plant.id, "关窗", new Date(Date.now() - 1_000));
+    const results = await Promise.all([
+      deliverDueReminder(reminder.id),
+      deliverDueReminder(reminder.id)
+    ]);
+    assert.deepEqual([...results].sort(), ["sent", "skipped"]);
+    const messages = await getDb().prepare(
+      "SELECT COUNT(*) AS count FROM messages WHERE plant_id = ? AND role = 'assistant'"
+    ).get<{ count: number }>(plant.id);
+    assert.equal(messages?.count, 1);
+    assert.equal((await getReminder(reminder.id))?.status, "sent");
+  } finally {
+    await cleanup(plant.id);
+  }
+});
+
+test("a reminder claim token can finalize its message only once", async () => {
+  await migrate();
+  const plant = await createPlant({ name: "原子提醒", species: "绿萝" });
+  try {
+    const reminder = await createReminder(plant.id, "拉窗帘", new Date(Date.now() - 1_000));
+    const claimed = await claimDueReminder(reminder.id, 60_000);
+    assert.ok(claimed?.claimToken);
+    const input = {
+      reminderId: reminder.id,
+      claimToken: claimed.claimToken,
+      event: {
+        plantId: plant.id,
+        type: "reminder.due" as const,
+        key: `reminder:${reminder.id}`,
+        severity: "info" as const,
+        content: "你让我提醒你：拉窗帘",
+        payload: { reminderId: reminder.id, reminderText: "拉窗帘" },
+        cooldownMs: 0
+      },
+      content: "你让我提醒你：拉窗帘"
+    };
+    const first = await finalizeReminderDelivery(input);
+    const second = await finalizeReminderDelivery(input);
+
+    assert.ok(first?.messageId);
+    assert.equal(second, null);
+    assert.equal((await getReminder(reminder.id))?.messageId, first.messageId);
+    const messages = await getDb().prepare(
+      "SELECT COUNT(*) AS count FROM messages WHERE plant_id = ? AND role = 'assistant'"
+    ).get<{ count: number }>(plant.id);
+    const events = await getDb().prepare(
+      "SELECT COUNT(*) AS count FROM proactive_event_log WHERE event_key = ?"
+    ).get<{ count: number }>(input.event.key);
+    assert.equal(messages?.count, 1);
+    assert.equal(events?.count, 1);
+  } finally {
+    await cleanup(plant.id);
+  }
+});
+
+test("very late reminders expire and moderately late reminders narrate the delay", async () => {
+  await migrate();
+  const plant = await createPlant({ name: "迟到提醒", species: "绿萝" });
+  try {
+    const expired = await createReminder(
+      plant.id,
+      "昨天的事",
+      new Date(Date.now() - 25 * 60 * 60_000)
+    );
+    assert.equal(await deliverDueReminder(expired.id), "expired");
+    assert.equal((await getReminder(expired.id))?.status, "expired");
+
+    const late = await createReminder(
+      plant.id,
+      "给妈妈打电话",
+      new Date(Date.now() - 3 * 60 * 60_000)
+    );
+    assert.equal(await deliverDueReminder(late.id), "sent");
+    const message = await getDb().prepare(
+      "SELECT content FROM messages WHERE plant_id = ? ORDER BY id DESC LIMIT 1"
+    ).get<{ content: string }>(plant.id);
+    assert.match(message?.content ?? "", /抱歉，这句迟到了/);
+    assert.match(message?.content ?? "", /给妈妈打电话/);
+  } finally {
+    await cleanup(plant.id);
+  }
+});
+
+test("invalid reminder arguments create an honest visible failure notice", async () => {
+  await migrate();
+  const plant = await createPlant({ name: "失败提醒", species: "绿萝" });
+  try {
+    const reminders = await executeChatToolCalls({
+      plantId: plant.id,
+      toolCalls: [{
+        name: "create_reminder",
+        arguments: { text: "浇水", remind_at: "not-a-date" }
+      }],
+      sourceMessageId: null
+    });
+    assert.equal(reminders.length, 0);
+    const message = await getDb().prepare(
+      "SELECT role, content FROM messages WHERE plant_id = ? ORDER BY id DESC LIMIT 1"
+    ).get<{ role: string; content: string }>(plant.id);
+    assert.equal(message?.role, "system");
+    assert.match(message?.content ?? "", /没能记下来/);
+  } finally {
     await cleanup(plant.id);
   }
 });

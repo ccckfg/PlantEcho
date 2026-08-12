@@ -54,7 +54,8 @@ CREATE TABLE IF NOT EXISTS users (
   is_active INTEGER NOT NULL DEFAULT 1,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
-  last_login_at TEXT
+  last_login_at TEXT,
+  timezone TEXT
 );
 
 CREATE TABLE IF NOT EXISTS auth_sessions (
@@ -256,16 +257,10 @@ CREATE TABLE IF NOT EXISTS proactive_reminders (
   remind_at TEXT NOT NULL,
   status TEXT NOT NULL,
   created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS proactive_observation_state (
-  plant_id TEXT PRIMARY KEY REFERENCES plants(id) ON DELETE CASCADE,
-  event_key TEXT NOT NULL,
-  observations INTEGER NOT NULL DEFAULT 1,
-  first_observed_at TEXT NOT NULL,
-  last_observed_at TEXT NOT NULL,
-  considered_at TEXT
+  updated_at TEXT NOT NULL,
+  claim_token TEXT,
+  claim_expires_at TEXT,
+  message_id BIGINT REFERENCES messages(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS plant_inner_state (

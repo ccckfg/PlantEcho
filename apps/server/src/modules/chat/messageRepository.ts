@@ -37,29 +37,34 @@ const toMessage = (row: MessageRow): ChatMessage => ({
 });
 
 export const nextTurn = async (plantId: string): Promise<number> => {
-  return getDb().transaction(async (db) => {
-    const now = nowIso();
-    const maxRow = await db
-      .prepare("SELECT MAX(turn) AS max_turn FROM messages WHERE plant_id = ?")
-      .get<{ max_turn: number | null }>(plantId);
-    const nextFromMessages = (maxRow?.max_turn ?? 0) + 1;
-    await db
-      .prepare(
-        `INSERT INTO plant_turn_counters (plant_id, next_turn, updated_at)
-         VALUES (?, ?, ?)
-         ON CONFLICT (plant_id) DO NOTHING`
-      )
-      .run(plantId, nextFromMessages, now);
-    const lockClause = db.provider === "postgres" ? " FOR UPDATE" : "";
-    const row = await db
-      .prepare(`SELECT next_turn FROM plant_turn_counters WHERE plant_id = ?${lockClause}`)
-      .get<TurnCounterRow>(plantId);
-    const turn = Math.max(row?.next_turn ?? nextFromMessages, nextFromMessages);
-    await db
-      .prepare("UPDATE plant_turn_counters SET next_turn = ?, updated_at = ? WHERE plant_id = ?")
-      .run(turn + 1, now, plantId);
-    return turn;
-  });
+  return getDb().transaction((db) => nextTurnWithDb(db, plantId));
+};
+
+export const nextTurnWithDb = async (
+  db: DatabaseClient,
+  plantId: string
+): Promise<number> => {
+  const now = nowIso();
+  const maxRow = await db
+    .prepare("SELECT MAX(turn) AS max_turn FROM messages WHERE plant_id = ?")
+    .get<{ max_turn: number | null }>(plantId);
+  const nextFromMessages = (maxRow?.max_turn ?? 0) + 1;
+  await db
+    .prepare(
+      `INSERT INTO plant_turn_counters (plant_id, next_turn, updated_at)
+       VALUES (?, ?, ?)
+       ON CONFLICT (plant_id) DO NOTHING`
+    )
+    .run(plantId, nextFromMessages, now);
+  const lockClause = db.provider === "postgres" ? " FOR UPDATE" : "";
+  const row = await db
+    .prepare(`SELECT next_turn FROM plant_turn_counters WHERE plant_id = ?${lockClause}`)
+    .get<TurnCounterRow>(plantId);
+  const turn = Math.max(row?.next_turn ?? nextFromMessages, nextFromMessages);
+  await db
+    .prepare("UPDATE plant_turn_counters SET next_turn = ?, updated_at = ? WHERE plant_id = ?")
+    .run(turn + 1, now, plantId);
+  return turn;
 };
 
 export const addMessage = (

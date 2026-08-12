@@ -21,9 +21,11 @@ import { parseChatResponse, VisibleReplyFilter } from "./responseProtocol.js";
 import { applyInnerPatch, type InnerPatch } from "../state/stateService.js";
 import { savePlantStatusTagsFromChat } from "../plants/plantStatusTagService.js";
 import {
-  createIntentionFromInner,
-  createIntentionFromUserMessage
+  createIntentionFromInner
 } from "../intentions/intentionService.js";
+import { applyCommitmentPatch } from "../intentions/commitmentService.js";
+import type { CommitmentPatch } from "../intentions/commitmentTypes.js";
+import { persistPlantOwnerTimezone } from "../proactive/timezoneRepository.js";
 import { assertChatDependencies } from "./chatRequirements.js";
 import { llmPhases } from "../../config/llmRouting.js";
 
@@ -72,7 +74,15 @@ export const chatWithPlant = async (
     content
   );
   const memoryCitations = citationsUsedByReply(reply, context.offeredCitations);
-  await finishChatTurn(plantId, turn, reply, parsed.innerPatch, parsed.statusTags, options);
+  await finishChatTurn(
+    plantId,
+    turn,
+    reply,
+    parsed.innerPatch,
+    parsed.statusTags,
+    parsed.commitmentPatch,
+    options
+  );
   await executeChatToolCalls({
     plantId,
     toolCalls: parsed.toolCalls,
@@ -102,6 +112,7 @@ export async function* streamChatWithPlant(
   let rawReply = "";
   let innerPatch: InnerPatch = {};
   let statusTags: string[] | undefined;
+  let commitmentPatch: CommitmentPatch | undefined;
   const visibleFilter = new VisibleReplyFilter();
   const memoryClaimFilter = new UnsupportedMemoryClaimFilter(context.offeredCitations);
   for await (const delta of streamChat([
@@ -118,6 +129,7 @@ export async function* streamChatWithPlant(
   const parsed = parseChatResponse(rawReply);
   innerPatch = parsed.innerPatch;
   statusTags = parsed.statusTags;
+  commitmentPatch = parsed.commitmentPatch;
   const tail = memoryClaimFilter.feed(visibleFilter.finish()) + memoryClaimFilter.finish();
   if (tail) {
     reply += tail;
@@ -130,7 +142,15 @@ export async function* streamChatWithPlant(
     content
   );
   const memoryCitations = citationsUsedByReply(reply, context.offeredCitations);
-  await finishChatTurn(plantId, turn, reply, innerPatch, statusTags, options);
+  await finishChatTurn(
+    plantId,
+    turn,
+    reply,
+    innerPatch,
+    statusTags,
+    commitmentPatch,
+    options
+  );
   await executeChatToolCalls({
     plantId,
     toolCalls: parsed.toolCalls,
@@ -151,7 +171,7 @@ const prepareChatTurn = async (plantId: string, content: string, options?: ChatW
   const turn = await nextTurn(plantId);
   const userMessage = await addMessage(plantId, turn, "user", content, options?.visibleTo ?? [plantId]);
   await rememberUserMessage(plantId, turn, content);
-  await createIntentionFromUserMessage(plantId, turn, content);
+  await persistPlantOwnerTimezone(plantId, options?.timezone);
   const context = await buildChatContext(plantId, content, turn, options?.timezone);
   return {
     turn,
@@ -166,6 +186,7 @@ const finishChatTurn = async (
   reply: string,
   innerPatch: InnerPatch,
   statusTags: string[] | undefined,
+  commitmentPatch: CommitmentPatch | undefined,
   options?: ChatWithPlantOptions
 ): Promise<void> => {
   const visibleTo = options?.visibleTo ?? [plantId];
@@ -177,6 +198,7 @@ const finishChatTurn = async (
   if (statusTags !== undefined) {
     await savePlantStatusTagsFromChat(plantId, turn, statusTags);
   }
+  await applyCommitmentPatch(plantId, turn, commitmentPatch);
   if (options?.publishMessagesChanged !== false) {
     await publishSyncEvent({
       type: "messages.changed",

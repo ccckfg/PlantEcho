@@ -1,4 +1,5 @@
 import { getDb } from "../../db/connection.js";
+import type { DatabaseClient } from "../../db/types.js";
 import { nowIso } from "../../shared/time.js";
 import type { ProactiveEventInput } from "./types.js";
 
@@ -24,7 +25,15 @@ export const logProactiveEvent = async (
   input: ProactiveEventInput,
   messageId: number | null
 ): Promise<number> => {
-  const result = await getDb()
+  return logProactiveEventWithDb(getDb(), input, messageId);
+};
+
+export const logProactiveEventWithDb = async (
+  db: DatabaseClient,
+  input: ProactiveEventInput,
+  messageId: number | null
+): Promise<number> => {
+  const result = await db
     .prepare(
       `INSERT INTO proactive_event_log
        (plant_id, event_key, event_type, severity, message_id, payload_json, fired_at)

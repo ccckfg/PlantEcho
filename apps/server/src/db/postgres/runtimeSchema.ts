@@ -12,10 +12,51 @@ CREATE TABLE IF NOT EXISTS plant_intentions (
   expires_at TEXT,
   last_considered_at TEXT,
   considered_count INTEGER NOT NULL DEFAULT 0,
+  keep_count INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
   attempt_count INTEGER NOT NULL DEFAULT 0,
   last_attempt_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS proactive_decisions (
+  id BIGSERIAL PRIMARY KEY,
+  plant_id TEXT NOT NULL REFERENCES plants(id) ON DELETE CASCADE,
+  intention_id TEXT REFERENCES plant_intentions(id) ON DELETE SET NULL,
+  considered_at TEXT NOT NULL,
+  gate_result TEXT NOT NULL,
+  reason_code TEXT NOT NULL,
+  reason_detail TEXT NOT NULL DEFAULT '',
+  llm_action TEXT,
+  llm_reason TEXT,
+  llm_tokens INTEGER,
+  message_id BIGINT REFERENCES messages(id) ON DELETE SET NULL,
+  user_reaction TEXT,
+  reaction_latency_ms INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS user_proactive_preferences (
+  user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  talkativeness TEXT NOT NULL DEFAULT 'moderate',
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS proactive_budget_state (
+  scope_id TEXT PRIMARY KEY,
+  tokens REAL NOT NULL,
+  last_refill_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS proactive_body_state (
+  plant_id TEXT NOT NULL REFERENCES plants(id) ON DELETE CASCADE,
+  metric TEXT NOT NULL,
+  ewma_value REAL NOT NULL,
+  condition_code TEXT,
+  abnormal_since TEXT,
+  last_observed_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (plant_id, metric)
 );
 
 CREATE TABLE IF NOT EXISTS plant_status_tags (
@@ -127,6 +168,15 @@ CREATE INDEX IF NOT EXISTS idx_proactive_reminders_cleanup
   ON proactive_reminders(status, updated_at);
 CREATE INDEX IF NOT EXISTS idx_intentions_pending
   ON plant_intentions(plant_id, status, priority DESC, created_at ASC);
+CREATE INDEX IF NOT EXISTS idx_intentions_ready
+  ON plant_intentions(plant_id, status, not_before, priority DESC, created_at ASC);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_intentions_trigger_source
+  ON plant_intentions(plant_id, source_type, source_id)
+  WHERE source_id IS NOT NULL AND source_type IN ('sensor', 'temporal');
+CREATE INDEX IF NOT EXISTS idx_proactive_decisions_plant_time
+  ON proactive_decisions(plant_id, considered_at DESC);
+CREATE INDEX IF NOT EXISTS idx_proactive_decisions_intention
+  ON proactive_decisions(intention_id, considered_at DESC);
 CREATE INDEX IF NOT EXISTS idx_llm_usage_created
   ON llm_usage_logs(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_auth_sessions_cleanup

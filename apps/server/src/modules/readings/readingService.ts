@@ -1,7 +1,9 @@
 import { normalizeReadingPayload, type DeviceReadingPayload } from "@dyn/shared";
+import { proactiveConfig } from "../../config/proactive.js";
 import { getPlant } from "../plants/plantRepository.js";
 import { getDevicePlantId } from "../devices/deviceRepository.js";
 import { publishSyncEvent } from "../sync/syncBus.js";
+import { observeBodyReading } from "../proactive/bodyTriggers.js";
 import { getLatestReading, insertReading, listReadings } from "./readingRepository.js";
 import { evaluateReading } from "./rules.js";
 
@@ -22,6 +24,14 @@ export const recordDeviceReading = async (deviceId: string, input: DeviceReading
     plantId,
     payload: { deviceId, lastSeenAt: reading.createdAt }
   });
+  if (proactiveConfig.enabled) {
+    try {
+      await observeBodyReading(plantId, reading, plant.careProfile);
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      console.warn(`[proactive] body observation failed for ${plantId}: ${detail.slice(0, 300)}`);
+    }
+  }
   return { plantId, reading, health };
 };
 

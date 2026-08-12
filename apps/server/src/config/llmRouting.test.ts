@@ -11,11 +11,12 @@ test("simple structured tasks use the secondary model", () => {
   assert.equal(llmTierForPhase(llmPhases.memoryClosure), "secondary");
   assert.equal(llmTierForPhase(llmPhases.memoryEpisode), "secondary");
   assert.equal(llmTierForPhase(llmPhases.plantCareProfile), "secondary");
+  assert.equal(llmTierForPhase(llmPhases.proactiveIntention), "secondary");
 });
 
 test("speech and long-term understanding use the primary model", () => {
   assert.equal(llmTierForPhase(llmPhases.chatReply), "primary");
-  assert.equal(llmTierForPhase(llmPhases.proactiveIntention), "primary");
+  assert.equal(llmTierForPhase(llmPhases.proactiveCompose), "primary");
   assert.equal(llmTierForPhase(llmPhases.proactiveEvent), "primary");
   assert.equal(llmTierForPhase(llmPhases.memoryUnderstanding), "primary");
   assert.equal(llmTierForPhase(), "primary");

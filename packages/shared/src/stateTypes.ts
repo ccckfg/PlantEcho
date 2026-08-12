@@ -45,7 +45,11 @@ export interface RelationshipState {
 export type PlantIntentionKind =
   | "follow_up"
   | "continue_topic"
-  | "acknowledge_milestone";
+  | "acknowledge_milestone"
+  | "body_feeling"
+  | "reconnect"
+  | "adoption_anniversary"
+  | "morning_greeting";
 export type PlantIntentionStatus = "pending" | "completed" | "dismissed" | "expired";
 
 export interface PlantIntention {
@@ -53,7 +57,7 @@ export interface PlantIntention {
   plantId: string;
   kind: PlantIntentionKind;
   content: string;
-  sourceType: "user" | "inner" | "episode" | "understanding";
+  sourceType: "user" | "inner" | "episode" | "understanding" | "sensor" | "temporal";
   sourceId: string | null;
   priority: 1 | 2 | 3;
   status: PlantIntentionStatus;
@@ -61,6 +65,7 @@ export interface PlantIntention {
   expiresAt: string | null;
   lastConsideredAt: string | null;
   consideredCount: number;
+  keepCount: number;
   createdAt: string;
   updatedAt: string;
 }

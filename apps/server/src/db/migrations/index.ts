@@ -17,6 +17,9 @@ import { plantStatusTagsMigration } from "./016_plant_status_tags.js";
 import { turnCountersAndRetentionMigration } from "./017_turn_counters_and_retention.js";
 import { careRecordsMigration } from "./018_care_records.js";
 import { plantUserOwnershipMigration } from "./019_plant_user_ownership.js";
+import { proactiveAlivenessP0Migration } from "./020_proactive_aliveness_p0.js";
+import { proactiveBudgetMigration } from "./021_proactive_budget.js";
+import { proactiveTriggersMigration } from "./022_proactive_triggers.js";
 
 export interface DatabaseMigration {
   version: number;
@@ -43,7 +46,10 @@ export const migrations: DatabaseMigration[] = [
   plantStatusTagsMigration,
   turnCountersAndRetentionMigration,
   careRecordsMigration,
-  plantUserOwnershipMigration
+  plantUserOwnershipMigration,
+  proactiveAlivenessP0Migration,
+  proactiveBudgetMigration,
+  proactiveTriggersMigration
 ].sort((a, b) => a.version - b.version);
 
 export const latestSchemaVersion = migrations.at(-1)?.version ?? 0;

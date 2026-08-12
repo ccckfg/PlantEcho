@@ -1,8 +1,8 @@
 export type ProactiveSeverity = "info" | "warning" | "critical";
 
 export type ProactiveEventType =
-  | "weather.rain"
-  | "reminder.due";
+  | "reminder.due"
+  | "intention.speak";
 
 export interface ProactiveEventInput {
   plantId: string;
@@ -15,7 +15,7 @@ export interface ProactiveEventInput {
   cooldownMs: number;
 }
 
-export type ReminderStatus = "scheduled" | "sent" | "cancelled";
+export type ReminderStatus = "scheduled" | "processing" | "sent" | "cancelled" | "expired";
 
 export interface ProactiveReminder {
   id: string;
@@ -24,11 +24,9 @@ export interface ProactiveReminder {
   text: string;
   remindAt: string;
   status: ReminderStatus;
+  claimToken: string | null;
+  claimExpiresAt: string | null;
+  messageId: number | null;
   createdAt: string;
   updatedAt: string;
-}
-
-export interface ReminderPlan {
-  text: string;
-  remindAt: Date;
 }

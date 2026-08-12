@@ -1,7 +1,7 @@
 import { jobTypes, type BackgroundJob } from "../jobs/jobTypes.js";
 import { enqueueJob } from "../jobs/jobRepository.js";
-import { emitProactiveMessage } from "./proactiveMessage.js";
-import { getReminder, markReminderStatus } from "./reminderRepository.js";
+import { deliverDueReminder } from "./reminderDelivery.js";
+import { isProactiveStartupReady } from "./startupGuard.js";
 
 const reminderDedupeKey = (id: string): string => `proactive.reminder:${id}`;
 
@@ -18,17 +18,7 @@ export const scheduleReminderJob = async (reminderId: string, remindAt: string):
 export const runReminderJob = async (job: BackgroundJob): Promise<void> => {
   const reminderId = typeof job.payload.reminderId === "string" ? job.payload.reminderId : "";
   if (!reminderId) throw new Error("Invalid proactive reminder payload");
-  const reminder = await getReminder(reminderId);
-  if (!reminder || reminder.status !== "scheduled") return;
-  await emitProactiveMessage({
-    plantId: reminder.plantId,
-    type: "reminder.due",
-    key: `reminder:${reminder.id}`,
-    severity: "info",
-    content: `你让我提醒你：${reminder.text}`,
-    facts: [`提醒内容：${reminder.text}`, `提醒时间：${reminder.remindAt}`],
-    payload: { reminderId: reminder.id, remindAt: reminder.remindAt },
-    cooldownMs: 0
-  });
-  await markReminderStatus(reminder.id, "sent");
+  // The delayed engine scan remains the fallback for jobs completed during startup grace.
+  if (!isProactiveStartupReady()) return;
+  await deliverDueReminder(reminderId);
 };

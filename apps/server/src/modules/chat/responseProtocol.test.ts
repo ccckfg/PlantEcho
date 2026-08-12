@@ -110,3 +110,35 @@ test("VisibleReplyFilter hides custom tool calls", () => {
 
   assert.equal(visible, "我记下。");
 });
+
+test("parseChatResponse extracts commitment upsert and cancellation operations", () => {
+  const parsed = parseChatResponse([
+    "我会记着。",
+    '<commitment_patch>{"operations":[',
+    '{"action":"upsert","topic":"下周参加面试","follow_up_at":"2026-08-20T09:00:00+08:00"},',
+    '{"action":"cancel","topic":"体检"}',
+    "]}</commitment_patch>"
+  ].join(""));
+
+  assert.equal(parsed.reply, "我会记着。");
+  assert.deepEqual(parsed.commitmentPatch, {
+    operations: [
+      {
+        action: "upsert",
+        topic: "下周参加面试",
+        followUpAt: "2026-08-20T01:00:00.000Z"
+      },
+      { action: "cancel", topic: "体检" }
+    ]
+  });
+});
+
+test("VisibleReplyFilter never leaks a split commitment patch", () => {
+  const filter = new VisibleReplyFilter();
+  const visible = [
+    filter.feed("好。<commitment_"),
+    filter.feed('patch>{"operations":[]}</commitment_patch>'),
+    filter.finish()
+  ].join("");
+  assert.equal(visible, "好。");
+});

@@ -37,13 +37,16 @@ const TABLES = [
   "history_window_state",
   "proactive_event_log",
   "proactive_reminders",
-  "proactive_observation_state",
   "plant_inner_state",
   "plant_relationship_state",
   "plant_intentions",
   "plant_status_tags",
   "llm_usage_logs",
-  "care_records"
+  "care_records",
+  "proactive_decisions",
+  "user_proactive_preferences",
+  "proactive_budget_state",
+  "proactive_body_state"
 ];
 
 const SERIAL_TABLES = [
@@ -53,7 +56,8 @@ const SERIAL_TABLES = [
   "sync_events",
   "vector_index_items",
   "proactive_event_log",
-  "llm_usage_logs"
+  "llm_usage_logs",
+  "proactive_decisions"
 ];
 
 const args = new Map(

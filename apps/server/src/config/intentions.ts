@@ -8,5 +8,7 @@ export const intentionConfig = {
   agreementQuietMs: 12 * 60 * 60_000,
   importantEpisodeQuietMs: 24 * 60 * 60_000,
   understandingQuietMs: 24 * 60 * 60_000,
-  contentMaxChars: 180
+  contentMaxChars: 180,
+  commitmentTopicMaxChars: 120,
+  commitmentMaxOperations: 4
 } as const;

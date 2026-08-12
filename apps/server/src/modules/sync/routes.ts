@@ -5,6 +5,7 @@ import type { SyncEvent } from "./syncTypes.js";
 import { sendError } from "../../shared/http.js";
 import { requireCurrentUser } from "../plants/plantAccess.js";
 import { getPlant } from "../plants/plantRepository.js";
+import { markUserOnline } from "../proactive/presenceTracker.js";
 
 const parseSince = (value: unknown): number => {
   const parsed = Number(value ?? 0);
@@ -48,6 +49,7 @@ export const registerSyncRoutes = async (app: FastifyInstance): Promise<void> =>
       "access-control-allow-origin": origin,
       vary: "Origin"
     });
+    const markOffline = markUserOnline(userId);
 
     const canSend = async (event: SyncEvent): Promise<boolean> => {
       if (!event.plantId) return false;
@@ -67,6 +69,7 @@ export const registerSyncRoutes = async (app: FastifyInstance): Promise<void> =>
     request.raw.on("close", () => {
       clearInterval(ping);
       unsubscribe();
+      markOffline();
     });
   });
 };

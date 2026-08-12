@@ -4,6 +4,8 @@ import { completeJson } from "../llm/client.js";
 import type { ChatToolCall } from "../chat/responseProtocol.js";
 import { scheduleReminder } from "./reminderService.js";
 import type { ProactiveReminder } from "./types.js";
+import { addMessage, nextTurn } from "../chat/messageRepository.js";
+import { publishSyncEvent } from "../sync/syncBus.js";
 
 type ReminderToolArgs = {
   text?: unknown;
@@ -105,6 +107,21 @@ const executeCreateReminder = async (
   return scheduleReminder(plantId, plan.text, plan.remindAt, sourceMessageId);
 };
 
+const addReminderFailureNotice = async (plantId: string): Promise<void> => {
+  const turn = await nextTurn(plantId);
+  const message = await addMessage(
+    plantId,
+    turn,
+    "system",
+    "刚才那个提醒我没能记下来，能再说一次具体时间吗？"
+  );
+  await publishSyncEvent({
+    type: "messages.changed",
+    plantId,
+    payload: { turn, messageId: message.id, reminderFailed: true }
+  });
+};
+
 export const executeChatToolCalls = async (
   input: ExecuteChatToolCallsInput
 ): Promise<ProactiveReminder[]> => {
@@ -114,12 +131,14 @@ export const executeChatToolCalls = async (
     : await repairToolCalls(input.invalidToolCallsText ?? "", now, input.timezone);
   const calls = input.toolCalls.length ? input.toolCalls : repairedCalls;
   const reminders: ProactiveReminder[] = [];
+  let attemptedReminder = shouldRepairToolCalls(input.invalidToolCallsText ?? "");
 
   for (const call of calls) {
     if (call.name !== createReminderToolName) {
       console.warn(`[chat-tools] unknown tool name: ${call.name}`);
       continue;
     }
+    attemptedReminder = true;
     const reminder = await executeCreateReminder(
       input.plantId,
       call.arguments,
@@ -127,6 +146,10 @@ export const executeChatToolCalls = async (
       now
     );
     if (reminder) reminders.push(reminder);
+  }
+
+  if (attemptedReminder && reminders.length === 0) {
+    await addReminderFailureNotice(input.plantId);
   }
 
   return reminders;

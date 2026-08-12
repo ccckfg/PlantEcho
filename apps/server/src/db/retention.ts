@@ -62,9 +62,14 @@ const retentionPolicies = (): RetentionPolicy[] => [
     sql: "DELETE FROM proactive_event_log WHERE fired_at < ?"
   },
   {
+    name: "proactive_decisions",
+    days: env.RETENTION_PROACTIVE_DECISIONS_DAYS,
+    sql: "DELETE FROM proactive_decisions WHERE considered_at < ?"
+  },
+  {
     name: "proactive_reminders",
     days: env.RETENTION_FINISHED_REMINDERS_DAYS,
-    sql: "DELETE FROM proactive_reminders WHERE status IN ('sent', 'cancelled') AND updated_at < ?"
+    sql: "DELETE FROM proactive_reminders WHERE status IN ('sent', 'cancelled', 'expired') AND updated_at < ?"
   },
   {
     name: "auth_sessions",

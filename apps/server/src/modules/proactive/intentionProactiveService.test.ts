@@ -5,8 +5,11 @@ import { validIntentionDecision } from "./intentionProactiveService.js";
 
 test("invalid or failed intention decisions do not count as a decision", () => {
   assert.equal(validIntentionDecision(null), null);
-  assert.equal(validIntentionDecision({ action: "speak", message: "" }), null);
-  assert.deepEqual(validIntentionDecision({ action: "keep" }), { action: "keep" });
+  assert.equal(validIntentionDecision({ action: "speak", reason: "" }), null);
+  assert.deepEqual(validIntentionDecision({ action: "keep", reason: "时机未到" }), {
+    action: "keep",
+    reason: "时机未到"
+  });
 });
 
 test("failed intention decisions use capped exponential retry backoff", () => {

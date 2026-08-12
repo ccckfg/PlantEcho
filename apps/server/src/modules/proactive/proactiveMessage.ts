@@ -20,7 +20,9 @@ export const emitProactiveMessage = async (
   if (!content) return null;
   const turn = await nextTurn(event.plantId);
   const message = await addMessage(event.plantId, turn, "assistant", content);
-  await rememberProactiveMessage(event.plantId, turn, content, `proactive:${event.type}`);
+  if (event.type !== "reminder.due") {
+    await rememberProactiveMessage(event.plantId, turn, content, `proactive:${event.type}`);
+  }
   await attachProactiveEventMessage(eventLogId, message.id);
   await publishSyncEvent({
     type: "messages.changed",
