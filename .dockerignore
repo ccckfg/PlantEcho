@@ -16,12 +16,9 @@ dist
 .codex-run
 .codex-smoke
 .dev-logs
-AgentGal
 data
-docs-temp
 hardware
-stitch_plant_voice_companion
-期中汇报
+archive
 apps/server/data
 apps/server/dist
 apps/desktop

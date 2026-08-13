@@ -27,14 +27,11 @@ apps/desktop/src-tauri/gen/
 rubbish/
 *.zip
 *.tar.gz
-期中汇报/
-AgentGal/
-projects/
-stitch_plant_voice_companion/
-docs-temp/
+
+# Local reference, presentation, draft, and hardware archives
+archive/
 
 # TypeScript incremental build cache
 *.tsbuildinfo
-
 
 
